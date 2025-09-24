@@ -3,6 +3,8 @@ package com.farmporject.backend.common.api;
 /**
  * 统一响应包装
  */
+// 未使用
+
 public class ApiResponse<T> {
     private boolean success;
     private String message;
