@@ -54,14 +54,6 @@ public class Loan implements Serializable {
     @Column(name = "status", length = 32)
     private String status;
 
-    /** 审批时间 */
-    @Column(name = "approval_date")
-    private LocalDateTime approvalDate;
-
-    /** 审批人姓名或ID */
-    @Column(name = "approved_by", length = 128)
-    private String approvedBy;
-
     /** 放款时间 */
     @Column(name = "disbursement_date")
     private LocalDateTime disbursementDate;
@@ -74,7 +66,43 @@ public class Loan implements Serializable {
     @Column(name = "remark", length = 1000)
     private String remark;
 
+    /** 所关联的产品ID */
+    @Column(name = "product_id")
+    private Long productId;
+
+    public enum LoanStatus {
+        APPLIED, // 客户已申请
+        REVIEWING, // 银行审核中
+        APPROVED, // 审核通过，待签约
+        REJECTED, // 审核不通过
+        SIGNED, // 已签约
+        DISBURSED, // 已放款
+        REPAYING, // 还款中
+        CLEARED_NORMAL, // 正常结清
+        CLEARED_EARLY // 提前结清
+    }
+
     public Loan() {
+    }
+
+    public Loan(Long farmerId, BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths,
+            BigDecimal interestRate, LocalDateTime applicationDate, String status,
+            LocalDateTime disbursementDate, LocalDate repaymentDueDate, String remark,
+            Long productId) {
+        // 用户自填字段
+        this.loanAmount = loanAmount;
+        this.loanPurpose = loanPurpose;
+        this.productId = productId;
+
+        // 系统自动生成或管理员填写字段
+        this.farmerId = farmerId;
+        this.loanTermMonths = loanTermMonths;
+        this.interestRate = interestRate;
+        this.status = status;
+        this.applicationDate = applicationDate;
+        this.disbursementDate = disbursementDate;
+        this.repaymentDueDate = repaymentDueDate;
+        this.remark = null;
     }
 
     // Getter / Setter
@@ -143,22 +171,6 @@ public class Loan implements Serializable {
         this.status = status;
     }
 
-    public LocalDateTime getApprovalDate() {
-        return approvalDate;
-    }
-
-    public void setApprovalDate(LocalDateTime approvalDate) {
-        this.approvalDate = approvalDate;
-    }
-
-    public String getApprovedBy() {
-        return approvedBy;
-    }
-
-    public void setApprovedBy(String approvedBy) {
-        this.approvedBy = approvedBy;
-    }
-
     public LocalDateTime getDisbursementDate() {
         return disbursementDate;
     }
@@ -183,6 +195,14 @@ public class Loan implements Serializable {
         this.remark = remark;
     }
 
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
     @Override
     public String toString() {
         return "Loan{" +
@@ -194,11 +214,10 @@ public class Loan implements Serializable {
                 ", interestRate=" + interestRate +
                 ", applicationDate=" + applicationDate +
                 ", status='" + status + '\'' +
-                ", approvalDate=" + approvalDate +
-                ", approvedBy='" + approvedBy + '\'' +
                 ", disbursementDate=" + disbursementDate +
                 ", repaymentDueDate=" + repaymentDueDate +
                 ", remark='" + remark + '\'' +
-                '}';
+                ", productId=" + productId +
+                "}";
     }
 }
