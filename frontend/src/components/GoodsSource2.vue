@@ -5,7 +5,7 @@
         <el-backtop target=".home-content">
         </el-backtop>
         <el-input v-model="searchValue" maxlength="100" clearable style="width:290px;"/>
-        <img src="../assets/img/search.png" @click="handleSearch" class="search-icon"/>
+        <img src="@/assets/img/search.png" @click="handleSearch" class="search-icon"/>
         <el-menu :default-active="$store.state.activeIndex"
                  mode="horizontal"
                  background-color="#668d2f"

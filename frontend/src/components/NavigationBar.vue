@@ -38,11 +38,12 @@
         <el-menu-item index="3" class="item" @click="purchaseBtn">求购需求</el-menu-item>
         <el-menu-item index="4" class="item" @click="knowledgesBtn">农业知识</el-menu-item>
         <el-menu-item index="5" class="item" @click="guideBtn">专家指导</el-menu-item>
-        <el-menu-item index="6" class="item" @click="shopCartBtn">购物车</el-menu-item>
+        <el-menu-item index="6" class="item" @click="shopCartBtn">订单信息</el-menu-item>
         <el-submenu index="7">
-          <template v-slot:title>融资申请</template>
-          <el-menu-item index="7-1" @click.native="smartMatchBtn">智能匹配</el-menu-item>
-          <el-menu-item index="7-2" @click.native="financingBtn">融资申请</el-menu-item>
+          <template v-slot:title>融资服务</template>
+          <el-menu-item index="7-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
+          <el-menu-item index="7-2" @click.native="smartMatchBtn">智能匹配</el-menu-item>
+          <el-menu-item index="7-3" @click.native="financingBtn">申请记录</el-menu-item>
         </el-submenu>
         <div class="userin" v-if="$store.state.loginUserNickname == ''"></div>
         <el-submenu index="8" v-else>
@@ -148,8 +149,11 @@ export default {
     financingBtn() {
       this.$router.push("/home/financing").catch((err) => err);
     },
-    smartMatchBtn() {
+    loanInfoBtn() {
       this.$router.push("/home/smartMatch").catch((err) => err);
+    },
+    smartMatchBtn() {
+      this.$router.push("/home/smartMatchPage").catch((err) => err);
     },
     openMessage(){
       this.$router.push("/message").catch((err) => err);
