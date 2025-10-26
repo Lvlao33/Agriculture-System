@@ -41,6 +41,7 @@ import question from '../views/Question'
 import appointment from '../views/Appointment'
 import Financing from '../views/Financing'
 import SmartMatch from '../views/SmartMatch'
+import SmartMatchPage from '../views/SmartMatchPage'
 import FinancingDetails from '../views/FinancingDetails'
 import userGood from '../views/goodsManager.vue'
 import AboutUs from '../views/AboutUs'
@@ -127,6 +128,10 @@ const routes = [
       {
         path: 'smartMatch',
         component: SmartMatch
+      },
+      {
+        path: 'smartMatchPage',
+        component: SmartMatchPage
       },
       {
         path: 'details',

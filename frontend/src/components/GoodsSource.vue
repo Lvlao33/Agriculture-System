@@ -4,13 +4,13 @@
     </el-backtop>
     <div class="search2">
       <el-input v-model="searchValue" maxlength="100" clearable style="width:290px;"/>
-      <img src="../assets/img/search.png" @click="handleSearch" class="search-icon" />
+      <img src="@/assets/img/search.png" @click="handleSearch" class="search-icon" />
       <i style="color:#696969;font-size:13px;font-style:normal;">
-        &nbsp;热门搜索�?
+        &nbsp;热门搜索?
         <a class="tag-item" @click="handleTopicDetail('苹果')">苹果</a> 
-        <a class="tag-item" @click="handleTopicDetail('新疆哈密�?')">新疆哈密�?</a>  
+        <a class="tag-item" @click="handleTopicDetail('新疆哈密瓜')">新疆哈密瓜</a>  
         <a class="tag-item" @click="handleTopicDetail('樱桃')">樱桃</a>  
-        <a class="tag-item" @click="handleTopicDetail('西红�?')">西红�?</a>  
+        <a class="tag-item" @click="handleTopicDetail('西红柿')">西红柿</a>  
         <a class="tag-item" @click="handleTopicDetail('水稻')">水稻</a>  
         <a class="tag-item" @click="handleTopicDetail('玉米')">玉米</a>  
         <a class="tag-item" @click="handleTopicDetail('赣南脐橙')">赣南脐橙</a> 
@@ -123,26 +123,26 @@ export default {
         color: #666;
       }
       .title {
-        /*超出的部分隐�?*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*文字用省略号替代超出的部�?*/
+        /*文字用省略号替代超出的部�?*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显�?*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行�?*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 1;
         /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;
       }
       .content {
         height: 50px;
-        /*超出的部分隐�?*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*文字用省略号替代超出的部�?*/
+        /*文字用省略号替代超出的部�?*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显�?*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行�?*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 7;
         /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;

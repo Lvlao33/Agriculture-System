@@ -2,7 +2,7 @@
   <div class="goods-box3">
     <div class="search">
       <el-input v-model="searchValue" maxlength="100" clearable style="width:290px;"/>
-      <img src="../assets/img/search.png" class="search-icon"  @click="handleSearch"/>
+      <img src="@/assets/img/search.png" class="search-icon"  @click="handleSearch"/>
       <i style="color:#696969;font-size:12px;font-style:normal;">热门搜索：
         <a class="tag-item" @click="handleTopicDetail('苹果果树种植方法')">苹果果树种植方法 </a> <a class="tag-item" @click="handleTopicDetail('新疆哈密瓜甜度控制')">新疆哈密瓜甜度控制</a> <a class="tag-item" @click="handleTopicDetail('玉米苗灌溉')">玉米苗灌溉</a>
       </i>

@@ -1,8 +1,8 @@
 <template>
   <div class="details-box">
     <div class="left">
-      <img v-if="data.picture" :src="`../order/${data.picture}`" alt="" />
-      <img v-else src="../assets/img/wutu.gif" alt="" style="border:1px solid #f2f2f2;"/>
+      <img v-if="data.picture" :src="`/order/${data.picture}`" alt="" />
+      <img v-else src="/order/wutu.gif" alt="" style="border:1px solid #f2f2f2;"/>
     </div>
 
     <div class="info">
