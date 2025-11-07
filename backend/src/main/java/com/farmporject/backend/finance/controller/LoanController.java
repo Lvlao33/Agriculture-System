@@ -2,6 +2,7 @@ package com.farmporject.backend.finance.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Loan;
@@ -10,6 +11,7 @@ import com.farmporject.backend.finance.model.Loan;
 @RestController
 @RequestMapping("/api/finance/loans")
 public class LoanController {
+
     private final LoanService loanService;
 
     // Spring 会自动注入 LoanService Bean
@@ -25,6 +27,22 @@ public class LoanController {
             return ResponseEntity.ok().body("apply success");
         } else {
             return ResponseEntity.status(400).body("apply failed");
+        }
+    }
+
+    // 提交融资证明资料文件
+    @PostMapping("/{loan_id}/upload")
+    public ResponseEntity<?> uploadFile(@PathVariable("loan_id") Long loanId,
+            @RequestParam("file") MultipartFile file) {
+        // 调用服务层完成提交融资证明资料
+        try {
+            if (loanService.uploadFile(loanId, file)) {
+                return ResponseEntity.ok().body("upload file success");
+            } else {
+                return ResponseEntity.status(400).body("upload file failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("upload file exception: " + e.getMessage());
         }
     }
 

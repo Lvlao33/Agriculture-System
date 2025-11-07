@@ -75,12 +75,12 @@ public class Loan implements Serializable {
     private String handledBy;
 
     public enum LoanStatus {
-        APPLIED, // 客户已申请
-        REVIEWING, // 银行审核中
+        APPLIED, // 客户已申请，提交了信息未提交证明资料
+        REVIEWING, // 银行审核中，提交证明资料银行端未进行操作
         APPROVED, // 审核通过，待签约
-        REJECTED, // 审核不通过
-        SIGNED, // 已签约
-        DISBURSED, // 已放款
+        REJECTED, // 审核不通过，用户未修改提交资料/直接不通过，建议更换产品或申请联合贷款
+        SIGNED, // 已签约，未放款
+        DISBURSED, // 已放款，未确认还款须知？
         REPAYING, // 还款中
         CLEARED_NORMAL, // 正常结清
         CLEARED_EARLY // 提前结清
