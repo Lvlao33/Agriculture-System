@@ -43,6 +43,10 @@ import Financing from '../views/Financing'
 import SmartMatch from '../views/SmartMatch'
 import SmartMatchPage from '../views/SmartMatchPage'
 import FinancingDetails from '../views/FinancingDetails'
+import LoanProductDetail from '../views/LoanProductDetail'
+import LoanApply from '../views/LoanApply'
+import LoanApplySuccess from '../views/LoanApplySuccess'
+import Chat from '../views/Chat'
 import userGood from '../views/goodsManager.vue'
 import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
@@ -149,6 +153,22 @@ const routes = [
       {
         path: 'financingDetails',
         component: FinancingDetails,
+      },
+      {
+        path: 'loanProductDetail/:id',
+        component: LoanProductDetail,
+      },
+      {
+        path: 'loanApply/:id',
+        component: LoanApply,
+      },
+      {
+        path: 'loanApplySuccess',
+        component: LoanApplySuccess,
+      },
+      {
+        path: 'chat/:managerId',
+        component: Chat,
       },
       {
         path: 'user',

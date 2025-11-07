@@ -218,12 +218,13 @@ export default {
         background-color: #668d2f !important;
         height: 40px;
         line-height: 40px;
-        font-size: 14px;
+        font-size: 16px;
       }
       .el-submenu__title {
         line-height: 40px;
         height: 40px;
         background-color: #668d2f;
+        font-size: 16px;
       }
       .el-menu-item {
         background-color: #668d2f !important;
@@ -234,7 +235,7 @@ export default {
       background-color: #668d2f !important;
       height: 40px;
       line-height: 40px;
-      font-size: 14px;
+      font-size: 16px;
     }
   }
   .login{
@@ -247,8 +248,11 @@ export default {
 .el-menu.el-menu--horizontal{
   border-bottom: none;
 }
-.menu-content /deep/ .el-submenu__title i{
-  color: #fff;
+.menu-content /deep/ .el-submenu__title {
+  font-size: 16px;
+  i {
+    color: #fff;
+  }
 }
 [v-cloak] {
   display: none;

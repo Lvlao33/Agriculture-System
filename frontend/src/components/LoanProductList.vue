@@ -18,7 +18,7 @@
 
     <!-- Loan Products List -->
     <div class="products-container">
-      <div class="product-card" v-for="(product, index) in paginatedProducts" :key="index">
+      <div class="product-card" v-for="(product, index) in paginatedProducts" :key="index" @click="goToProductDetail(product)">
         <div class="product-header">
           <h3 class="product-name">{{ product.name }}</h3>
           <p class="bank-name">{{ product.bank }}</p>
@@ -49,8 +49,8 @@
           </div>
         </div>
 
-        <div class="product-action">
-          <el-button type="success" class="apply-btn">我要贷款</el-button>
+        <div class="product-action" @click.stop>
+          <el-button type="success" class="apply-btn" @click="goToApply(product)">我要贷款</el-button>
         </div>
       </div>
     </div>
@@ -188,6 +188,18 @@ export default {
     goToSmartMatch() {
       // 跳转到智能匹配页面
       this.$router.push('/home/smartMatchPage');
+    },
+    goToProductDetail(product) {
+      // 跳转到产品详情页
+      localStorage.setItem('loanProduct', JSON.stringify(product));
+      const productId = product.id || product.name;
+      this.$router.push(`/home/loanProductDetail/${productId}`);
+    },
+    goToApply(product) {
+      // 跳转到申请页面
+      localStorage.setItem('loanProduct', JSON.stringify(product));
+      const productId = product.id || product.name;
+      this.$router.push(`/home/loanApply/${productId}`);
     }
   }
 }
@@ -257,6 +269,7 @@ export default {
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  cursor: pointer;
   
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
