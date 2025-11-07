@@ -18,7 +18,7 @@
 
     <!-- Loan Products List -->
     <div class="products-container">
-      <div class="product-card" v-for="(product, index) in loanProducts" :key="index">
+      <div class="product-card" v-for="(product, index) in paginatedProducts" :key="index">
         <div class="product-header">
           <h3 class="product-name">{{ product.name }}</h3>
           <p class="bank-name">{{ product.bank }}</p>
@@ -58,9 +58,15 @@
     <!-- Pagination -->
     <div class="pagination-section">
       <div class="pagination">
-        <span class="page-btn">&lt;</span>
-        <span class="page-number active">1</span>
-        <span class="page-btn">&gt;</span>
+        <span class="page-btn" @click="prevPage" :class="{ disabled: currentPage === 1 }">&lt;</span>
+        <span
+          v-for="page in totalPages"
+          :key="page"
+          class="page-number"
+          :class="{ active: currentPage === page }"
+          @click="changePage(page)"
+        >{{ page }}</span>
+        <span class="page-btn" @click="nextPage" :class="{ disabled: currentPage === totalPages }">&gt;</span>
       </div>
     </div>
   </div>
@@ -144,13 +150,40 @@ export default {
           rate: 1.6,
           fastestDisbursement: '3个工作日'
         }
-      ]
+      ],
+      currentPage: 1,
+      pageSize: 4
+    }
+  },
+  computed: {
+    totalPages() {
+      return Math.max(1, Math.ceil(this.loanProducts.length / this.pageSize))
+    },
+    paginatedProducts() {
+      const start = (this.currentPage - 1) * this.pageSize
+      const end = start + this.pageSize
+      return this.loanProducts.slice(start, end)
     }
   },
   methods: {
     applyLoan(product) {
       // 处理贷款申请逻辑
       console.log('申请贷款:', product);
+    },
+    changePage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage -= 1
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage += 1
+      }
     },
     goToSmartMatch() {
       // 跳转到智能匹配页面
@@ -191,14 +224,16 @@ export default {
 
 .smart-match-section {
   width: 1100px;
-  margin: 10px auto 20px auto;
+  margin: 10px auto 0 auto;
   text-align: left;
   
   .smart-match-btn {
     background-color: #4CAF50;
     border-color: #4CAF50;
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(76, 175, 80, 0.25);
     
     i {
       margin-right: 5px;
@@ -208,8 +243,8 @@ export default {
 
 .products-container {
   width: 1100px;
-  margin: 0 auto;
-  padding: 10px 0 20px 0;
+  margin: 12px auto 0 auto;
+  padding: 0 0 20px 0;
 }
 
 .product-card {
@@ -330,6 +365,12 @@ export default {
       background-color: #4CAF50;
       color: white;
       border-color: #4CAF50;
+    }
+
+    .page-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
   }
 }

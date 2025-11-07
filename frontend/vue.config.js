@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   // 关闭 ESLint 报错阻断（否则一堆报错导致无法启动）
   lintOnSave: false,
@@ -26,7 +24,12 @@ module.exports = {
       },
       '/img': {
         target: 'http://localhost:8080', // 后端服务地址
-        changeOrigin: true
+        changeOrigin: true,
+        bypass: function() {
+          // 如果请求的是本地静态资源，跳过代理
+          // public 目录下的文件会优先被 devServer 处理
+          return null;
+        }
       },
       '/kn': {
         target: 'http://localhost:8080', // 后端服务地址

@@ -47,6 +47,7 @@ import userGood from '../views/goodsManager.vue'
 import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
+import OrderInfo from '../views/OrderInfo'
 
 
 Vue.use(VueRouter)
@@ -115,6 +116,10 @@ const routes = [
       {
         path: 'shopcart',
         component: ShopCart
+      },
+      {
+        path: 'orderInfo',
+        component: OrderInfo
       },
       {
         path: 'collect',
