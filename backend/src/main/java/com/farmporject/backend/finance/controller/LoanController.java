@@ -36,7 +36,7 @@ public class LoanController {
             @RequestParam("file") MultipartFile file) {
         // 调用服务层完成提交融资证明资料
         try {
-            if (loanService.uploadFile(loanId, file)) {
+            if (loanService.uploadFileByLoanId(loanId, file)) {
                 return ResponseEntity.ok().body("upload file success");
             } else {
                 return ResponseEntity.status(400).body("upload file failed");

@@ -1,0 +1,108 @@
+package com.farmporject.backend.finance.service;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.farmporject.backend.finance.model.Loan;
+import com.farmporject.backend.finance.model.LoanFile;
+import com.farmporject.backend.finance.repository.LoanFileRepository;
+
+@Service
+public class LoanFileService {
+    private final LoanFileRepository loanFileRepository;
+
+    public LoanFileService(LoanFileRepository loanFileRepository) {
+        this.loanFileRepository = loanFileRepository;
+    }
+
+    /**
+     * 提交融资证明资料文件
+     * 
+     * @param loanId 贷款ID
+     * @return true 如果成功处理文件上传，false 如果失败
+     */
+    public boolean uploadFile(Loan loan, MultipartFile file) throws Exception {
+        // 校验文件
+        if (checkFile(file)) {
+            // 上传文件并获取存储路径
+            String filePath = saveFile(file);
+
+            // 保存文件信息到数据库
+            LoanFile loanFile = new LoanFile();
+            loanFile.setLoan(loan);
+            loanFile.setFileName(file.getOriginalFilename());
+            loanFile.setFilePath(filePath);
+            LoanFile temp = loanFileRepository.save(loanFile);
+            if (temp.getId() != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } else
+            return false;
+    }
+
+    private String saveFile(MultipartFile file) throws IOException {
+        // 获取项目根目录
+        String projectRoot = System.getProperty("user.dir");
+
+        // 定义保存文件的目录（backend目录）
+        String uploadDir = projectRoot + File.separator + "loans_files";
+
+        // 创建目录（如果目录不存在）
+        File uploadDirFile = new File(uploadDir);
+        if (!uploadDirFile.exists()) {
+            uploadDirFile.mkdirs(); // 创建目录
+        }
+
+        // 获取文件名
+        String fileName = file.getOriginalFilename();
+
+        // 定义文件保存路径
+        Path path = Paths.get(uploadDir + File.separator + fileName);
+
+        // 保存文件
+        file.transferTo(path.toFile());
+
+        // 返回保存文件的路径，供后续使用
+        return path.toString();
+    }
+
+    // 校验文件合法性
+    private boolean checkFile(MultipartFile file) {
+        // 校验文件类型
+        if (!isValidFileType(file)) {
+            return false;
+        }
+
+        // 校验文件名（防止路径遍历）
+        if (containsInvalidCharacters(file.getOriginalFilename())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // 校验文件类型（例如只允许上传图片或 PDF）
+    private boolean isValidFileType(MultipartFile file) {
+        String[] allowedTypes = { "image/png", "image/jpeg", "application/pdf" };
+        String fileType = file.getContentType();
+        for (String allowedType : allowedTypes) {
+            if (allowedType.equals(fileType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 校验文件名，防止路径遍历攻击
+    private boolean containsInvalidCharacters(String fileName) {
+        return fileName.contains("..") || fileName.contains("/") || fileName.contains("\\");
+    }
+
+}
