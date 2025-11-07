@@ -70,6 +70,10 @@ public class Loan implements Serializable {
     @Column(name = "product_id")
     private Long productId;
 
+    /** 所关联的处理人员 */
+    @Column(name = "handled_by", length = 64)
+    private String handledBy;
+
     public enum LoanStatus {
         APPLIED, // 客户已申请
         REVIEWING, // 银行审核中
@@ -86,23 +90,29 @@ public class Loan implements Serializable {
     }
 
     public Loan(Long farmerId, BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths,
-            BigDecimal interestRate, LocalDateTime applicationDate, String status,
-            LocalDateTime disbursementDate, LocalDate repaymentDueDate, String remark,
-            Long productId) {
-        // 用户自填字段
-        this.loanAmount = loanAmount;
-        this.loanPurpose = loanPurpose;
+            BigDecimal interestRate, LocalDateTime applicationDate, String status, LocalDateTime disbursementDate,
+            LocalDate repaymentDueDate, String remark, Long productId, String handledBy) {
+        // 用户信息 从登录token中获取
+        this.farmerId = farmerId;
+        // 用户提交信息
+        this.loanAmount = loanAmount; // 前端检测输入的金额是否合理（0~申请额度）
+        this.loanPurpose = loanPurpose; // 前端检测输入是否合法（该数据栏位存在长度限制255）
+
+        // 从前端ui信息中获取
         this.productId = productId;
 
-        // 系统自动生成或管理员填写字段
-        this.farmerId = farmerId;
+        // 贷款产品信息 先从前端ui获取 后考虑从产品表中获取
         this.loanTermMonths = loanTermMonths;
         this.interestRate = interestRate;
-        this.status = status;
-        this.applicationDate = applicationDate;
-        this.disbursementDate = disbursementDate;
-        this.repaymentDueDate = repaymentDueDate;
-        this.remark = null;
+
+        // 默认值
+        this.applicationDate = applicationDate; // 后端获得当前时间 null
+        this.status = status; // APPLIED
+        this.remark = remark; // null
+        this.disbursementDate = disbursementDate; // null
+        this.repaymentDueDate = repaymentDueDate; // null
+
+        this.handledBy = handledBy; // null
     }
 
     // Getter / Setter
@@ -201,6 +211,14 @@ public class Loan implements Serializable {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getHandledBy() {
+        return handledBy;
+    }
+
+    public void setHandledBy(String handledBy) {
+        this.handledBy = handledBy;
     }
 
     @Override
