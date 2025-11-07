@@ -42,8 +42,8 @@
    ```bash
    cd backend
    # 使用 mvnw（推荐）
-   ./mvnw clean install
-   ./mvnw spring-boot:run
+   .\mvnw clean install
+   .\mvnw spring-boot:run
 
    # 或使用已安装的 maven
    mvn clean install
@@ -257,7 +257,7 @@ Postman 会显示请求的结果，你可以检查以下内容：
 
 2. 本地开发
 
-   - 前端服务: http://localhost:8081
+   - 前端服务: http://localhost:5173
    - 后端服务: http://localhost:8080
 
 3. 调试技巧
