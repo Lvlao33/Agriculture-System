@@ -128,7 +128,7 @@ export default {
       this.$router.push("/home/guide").catch((err) => err);
     },
     shopCartBtn() {
-      this.$router.push("/home/shopcart").catch((err) => err);
+      this.$router.push("/home/orderInfo").catch((err) => err);
     },
     userPage() {
       this.$router.push("/home/user").catch((err) => err);
