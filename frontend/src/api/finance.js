@@ -23,7 +23,7 @@ export function addFinanceMulti(params) {
     })
 }
 // 银行查询接口
-export function selectBank(params) {
+export function selectBank() {
     return request({
         method: 'get',
         url: '/finance/selectbank',
@@ -143,6 +143,67 @@ export function selectFinaceById(params) {
     return request({
         method: 'get',
         url: 'finance/selectById/' + params.id,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 获取贷款产品列表
+export function getLoanProducts() {
+    return request({
+        method: 'get',
+        url: '/api/finance/loan-products',
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 获取贷款产品详情
+export function getLoanProductDetail(productId) {
+    return request({
+        method: 'get',
+        url: `/api/finance/loan-products/${productId}`,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 申请贷款
+export function applyLoan(params) {
+    return request({
+        method: 'post',
+        url: '/api/finance/loans/apply',
+        data: params,
+        headers: {
+            'Authorization': window.localStorage.token,
+            'Content-Type': 'application/json',
+        },
+    })
+}
+
+// 上传贷款文件
+export function uploadLoanFile(loanId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request({
+        method: 'post',
+        url: `/api/finance/loans/${loanId}/upload`,
+        data: formData,
+        headers: {
+            'Authorization': window.localStorage.token,
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+}
+
+// 获取贷款申请列表
+export function getLoanList() {
+    return request({
+        method: 'get',
+        url: '/api/finance/loans',
         headers: {
             'Authorization': window.localStorage.token,
         },
