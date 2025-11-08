@@ -30,7 +30,7 @@ public class LoanFileService {
         // 校验文件
         if (checkFile(file)) {
             // 上传文件并获取存储路径
-            String filePath = saveFile(file);
+            String filePath = saveFile(file, loan.getId());
 
             // 保存文件信息到数据库
             LoanFile loanFile = new LoanFile();
@@ -47,12 +47,12 @@ public class LoanFileService {
             return false;
     }
 
-    private String saveFile(MultipartFile file) throws IOException {
+    private String saveFile(MultipartFile file, Long loanId) throws IOException {
         // 获取项目根目录
         String projectRoot = System.getProperty("user.dir");
 
         // 定义保存文件的目录（backend目录）
-        String uploadDir = projectRoot + File.separator + "loans_files";
+        String uploadDir = projectRoot + File.separator + "loans_files" + File.separator + loanId;
 
         // 创建目录（如果目录不存在）
         File uploadDirFile = new File(uploadDir);

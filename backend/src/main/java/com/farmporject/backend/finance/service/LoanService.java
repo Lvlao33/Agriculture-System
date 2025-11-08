@@ -32,7 +32,7 @@ public class LoanService {
             }
 
             // 设置初始状态为已申请
-            loan.setStatus(Loan.LoanStatus.APPLIED.name());
+            loan.setStatus(Loan.LoanStatus.REVIEWING.name());
             // 设置申请时间
             loan.setApplicationDate(java.time.LocalDateTime.now());
 

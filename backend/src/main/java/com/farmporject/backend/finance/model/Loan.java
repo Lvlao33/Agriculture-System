@@ -75,7 +75,6 @@ public class Loan implements Serializable {
     private String handledBy;
 
     public enum LoanStatus {
-        APPLIED, // 客户已申请，提交了信息未提交证明资料
         REVIEWING, // 银行审核中，提交证明资料银行端未进行操作
         APPROVED, // 审核通过，待签约
         REJECTED, // 审核不通过，用户未修改提交资料/直接不通过，建议更换产品或申请联合贷款
@@ -107,7 +106,7 @@ public class Loan implements Serializable {
 
         // 默认值
         this.applicationDate = applicationDate; // 后端获得当前时间 null
-        this.status = status; // APPLIED
+        this.status = status; // REVIEWING
         this.remark = remark; // null
         this.disbursementDate = disbursementDate; // null
         this.repaymentDueDate = repaymentDueDate; // null
