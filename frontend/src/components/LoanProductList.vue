@@ -122,19 +122,6 @@ export default {
           console.warn('产品列表数据格式不正确:', response)
           products = []
         }
-
-        // 规范化字段，确保页面可渲染
-        const normalize = (p) => {
-          const id = p.id != null ? p.id : (p.productId != null ? p.productId : undefined)
-          const name = p.name != null ? p.name : (p.productName != null ? p.productName : '未知产品')
-          const bank = p.bank != null ? p.bank : (p.bankName != null ? p.bankName : '未知银行')
-          const amount = p.amount != null ? p.amount : (p.maxAmount != null ? p.maxAmount : 0)
-          const term = p.term != null ? p.term : (p.termMonths != null ? p.termMonths : (p.loanTermMonths != null ? p.loanTermMonths : 0))
-          const rate = p.rate != null ? p.rate : (p.interestRate != null ? p.interestRate : (p.interestRateAnnual != null ? p.interestRateAnnual : 0))
-          const fastestDisbursement = p.fastestDisbursement != null ? p.fastestDisbursement : (p.disbursement != null ? p.disbursement : '—')
-          return { id, name, bank, amount, term, rate, fastestDisbursement }
-        }
-        this.loanProducts = products.map(normalize)
       } catch (error) {
         console.error('加载产品列表失败:', error)
         this.$message.error('加载产品列表失败，请稍后重试')

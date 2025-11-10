@@ -17,7 +17,7 @@ public class LoanProductController {
         this.loanProductService = loanProductService;
     }
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<List<LoanProduct>> list() {
         List<LoanProduct> products = loanProductService.getProductsForFarmer();
         return ResponseEntity.ok(products);

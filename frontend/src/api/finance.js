@@ -153,7 +153,7 @@ export function selectFinaceById(params) {
 export function getLoanProducts() {
     return request({
         method: 'get',
-        url: '/api/finance/loan-products/list',
+        url: '/api/finance/loan-products',
         headers: {
             'Authorization': window.localStorage.token,
         },
