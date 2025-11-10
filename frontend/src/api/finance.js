@@ -153,7 +153,7 @@ export function selectFinaceById(params) {
 export function getLoanProducts() {
     return request({
         method: 'get',
-        url: '/api/finance/loan-products',
+        url: '/api/finance/loan-products/list',
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -171,33 +171,46 @@ export function getLoanProductDetail(productId) {
     })
 }
 
-// 申请贷款
-export function applyLoan(params) {
+// // 申请贷款
+// export function applyLoan(params) {
+//     return request({
+//         method: 'post',
+//         url: '/api/finance/loans/apply',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//             'Content-Type': 'application/json',
+//         },
+//     })
+// }
+
+// 申请贷款并上传资料 (multipart/form-data)
+export function applyLoanWithFiles(formData) {
     return request({
         method: 'post',
         url: '/api/finance/loans/apply',
-        data: params,
+        data: formData,
         headers: {
             'Authorization': window.localStorage.token,
-            'Content-Type': 'application/json',
+            // Let the browser/axios set Content-Type with boundary
         },
     })
 }
 
 // 上传贷款文件
-export function uploadLoanFile(loanId, file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    return request({
-        method: 'post',
-        url: `/api/finance/loans/${loanId}/upload`,
-        data: formData,
-        headers: {
-            'Authorization': window.localStorage.token,
-            'Content-Type': 'multipart/form-data',
-        },
-    })
-}
+// export function uploadLoanFile(loanId, file) {
+//     const formData = new FormData();
+//     formData.append('file', file);
+//     return request({
+//         method: 'post',
+//         url: `/api/finance/loans/${loanId}/upload`,
+//         data: formData,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//             // Do not set Content-Type; let axios set the correct boundary
+//         },
+//     })
+// }
 
 // 获取贷款申请列表
 export function getLoanList() {

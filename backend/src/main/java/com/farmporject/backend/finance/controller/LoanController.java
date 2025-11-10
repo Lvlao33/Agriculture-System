@@ -31,11 +31,11 @@ public class LoanController {
     // 必要的申请资料必须一次提交 资料可以后补
     @PostMapping(value = "/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // 指定请求体为multipart/form-data类型
     public ResponseEntity<?> apply(@ModelAttribute Loan loan,
-            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "file", required = false) MultipartFile[] files,
             HttpServletRequest request) {
         try {
             // debug: 如果 file 丢失，尝试列出 multipart 中的 part
-            if (file == null || file.isEmpty()) {
+            if (files == null || files.length == 0) {
                 StringBuilder partsInfo = new StringBuilder();
                 try {
                     if (request instanceof MultipartHttpServletRequest) {
@@ -62,10 +62,17 @@ public class LoanController {
                 return ResponseEntity.status(400).body("Loan application failed");
             }
 
-            // 2. 然后上传融资证明文件
-            boolean isFileUploaded = loanService.uploadFileByLoanId(loan.getId(), file);
-            if (!isFileUploaded) {
-                return ResponseEntity.status(400).body("File upload failed");
+            // 2. 然后上传融资证明文件（支持多个文件）
+            boolean anyUploadFailed = false;
+            for (MultipartFile mf : files) {
+                if (mf == null || mf.isEmpty())
+                    continue;
+                boolean ok = loanService.uploadFileByLoanId(loan.getId(), mf);
+                if (!ok)
+                    anyUploadFailed = true;
+            }
+            if (anyUploadFailed) {
+                return ResponseEntity.status(400).body("One or more file uploads failed");
             }
 
             // 3. 成功

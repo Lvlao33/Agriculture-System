@@ -1,3 +1,5 @@
+//配置开发服务器和代理
+//只在请求发送到开发服务器时生效
 module.exports = {
   // 关闭 ESLint 报错阻断（否则一堆报错导致无法启动）
   lintOnSave: false,
@@ -15,8 +17,8 @@ module.exports = {
     proxy: {
       '/api': {
         target: 'http://localhost:8080', // 后端服务地址
-        changeOrigin: true,
-        pathRewrite: { '^/api': '' } // 可选，去掉 /api 前缀
+        changeOrigin: true
+        // 不重写路径，因为后端接口路径已经包含 /api
       },
       '/order': {
         target: 'http://localhost:8080', // 后端服务地址

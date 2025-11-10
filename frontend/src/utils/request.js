@@ -1,10 +1,12 @@
+//创建axios实例并配置基础URL
+//设置了完整的baseURL，axios会直接向远处服务器发送请求，不会经过开发服务器的代理
 import axios from 'axios'
 
 export function request(config) {
-    // 创建axios的实�?
+    // 创建axios的实例
     const instance = axios.create({
         // baseURL: 'http://3958b99l28.zicp.vip',
-        baseURL: 'http://119.3.180.117:9090',
+        //baseURL: 'http://119.3.180.117:9090',
         // baseURL: process.env.VUE_APP_Address,
         timeout: 100000
     })

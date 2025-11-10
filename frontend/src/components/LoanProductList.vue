@@ -18,7 +18,14 @@
 
     <!-- Loan Products List -->
     <div class="products-container">
-      <div class="product-card" v-for="(product, index) in paginatedProducts" :key="index" @click="goToProductDetail(product)">
+      <div v-if="loading" class="loading-container">
+        <i class="el-icon-loading"></i>
+        <span>加载中...</span>
+      </div>
+      <div v-else-if="loanProducts.length === 0" class="empty-container">
+        <p>暂无产品数据</p>
+      </div>
+      <div v-else class="product-card" v-for="(product, index) in paginatedProducts" :key="index" @click="goToProductDetail(product)">
         <div class="product-header">
           <h3 class="product-name">{{ product.name }}</h3>
           <p class="bank-name">{{ product.bank }}</p>
@@ -73,87 +80,20 @@
 </template>
 
 <script>
+import { getLoanProducts } from '../api/finance'
+
 export default {
   name: 'LoanProductList',
   data() {
     return {
-      loanProducts: [
-        {
-          name: '青易贷',
-          bank: '青岛银行',
-          amount: 100000,
-          term: 24,
-          rate: 1.1,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '农业贷',
-          bank: '中国银行',
-          amount: 100000,
-          term: 36,
-          rate: 1.2,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '助农贷',
-          bank: '中国工商银行',
-          amount: 150000,
-          term: 30,
-          rate: 1.1,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '阳光贷',
-          bank: '日照银行',
-          amount: 100000,
-          term: 24,
-          rate: 2.0,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '华夏贷',
-          bank: '华夏银行',
-          amount: 160000,
-          term: 36,
-          rate: 1.8,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '诚贷通',
-          bank: '中国建设银行',
-          amount: 200000,
-          term: 36,
-          rate: 3.6,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '点贷',
-          bank: '浦发银行',
-          amount: 150000,
-          term: 24,
-          rate: 1.1,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '数保贷',
-          bank: '中国平安银行',
-          amount: 160000,
-          term: 36,
-          rate: 1.2,
-          fastestDisbursement: '3个工作日'
-        },
-        {
-          name: '农贷通',
-          bank: '中国民生银行',
-          amount: 200000,
-          term: 24,
-          rate: 1.6,
-          fastestDisbursement: '3个工作日'
-        }
-      ],
+      loanProducts: [],
       currentPage: 1,
-      pageSize: 4
+      pageSize: 4,
+      loading: false
     }
+  },
+  mounted() {
+    this.loadProducts()
   },
   computed: {
     totalPages() {
@@ -166,6 +106,43 @@ export default {
     }
   },
   methods: {
+    async loadProducts() {
+      this.loading = true
+      try {
+        const response = await getLoanProducts()
+        // 处理响应数据，确保数据结构正确
+        let products = []
+        if (response && Array.isArray(response)) {
+          this.loanProducts = response
+        } else if (response && response.data && Array.isArray(response.data)) {
+          this.loanProducts = response.data
+        } else if (response && response.list && Array.isArray(response.list)) {
+          this.loanProducts = response.list
+        } else {
+          console.warn('产品列表数据格式不正确:', response)
+          products = []
+        }
+
+        // 规范化字段，确保页面可渲染
+        const normalize = (p) => {
+          const id = p.id != null ? p.id : (p.productId != null ? p.productId : undefined)
+          const name = p.name != null ? p.name : (p.productName != null ? p.productName : '未知产品')
+          const bank = p.bank != null ? p.bank : (p.bankName != null ? p.bankName : '未知银行')
+          const amount = p.amount != null ? p.amount : (p.maxAmount != null ? p.maxAmount : 0)
+          const term = p.term != null ? p.term : (p.termMonths != null ? p.termMonths : (p.loanTermMonths != null ? p.loanTermMonths : 0))
+          const rate = p.rate != null ? p.rate : (p.interestRate != null ? p.interestRate : (p.interestRateAnnual != null ? p.interestRateAnnual : 0))
+          const fastestDisbursement = p.fastestDisbursement != null ? p.fastestDisbursement : (p.disbursement != null ? p.disbursement : '—')
+          return { id, name, bank, amount, term, rate, fastestDisbursement }
+        }
+        this.loanProducts = products.map(normalize)
+      } catch (error) {
+        console.error('加载产品列表失败:', error)
+        this.$message.error('加载产品列表失败，请稍后重试')
+        this.loanProducts = []
+      } finally {
+        this.loading = false
+      }
+    },
     applyLoan(product) {
       // 处理贷款申请逻辑
       console.log('申请贷款:', product);
@@ -257,6 +234,28 @@ export default {
   width: 1100px;
   margin: 12px auto 0 auto;
   padding: 0 0 20px 0;
+  
+  .loading-container {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    
+    i {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+  }
+  
+  .empty-container {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
 }
 
 .product-card {

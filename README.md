@@ -1,6 +1,6 @@
 # Agriculture-System（农业支持系统）
 
-一个基于 Spring Boot + Vue.js 的农业支持系统，包含专家咨询、农资交易、金融支持等功能。
+> 一个基于 Spring Boot + Vue.js 的农业支持系统，包含专家咨询、农资交易、金融支持等功能。
 
 ## 技术栈
 
@@ -17,6 +17,8 @@
 - Vue Router
 - Less
 - Axios
+
+---
 
 ## 快速开始
 
@@ -72,6 +74,8 @@
    npm install
    npm run serve
    ```
+
+---
 
 ## 接口测试指南
 
@@ -208,7 +212,7 @@ Postman 会显示请求的结果，你可以检查以下内容：
 2. **Headers**：有些接口可能需要特定的请求头，比如 `Content-Type` 或 `Authorization`，这些可以在 **Headers** 标签页中配置。
 3. **环境变量**：Postman 允许你使用环境变量来管理不同环境下的接口请求（比如开发环境和生产环境的不同 URL）。
 
-4. 响应说明
+4. **响应说明**
 
    ```json
    // 成功响应
@@ -246,6 +250,8 @@ Postman 会显示请求的结果，你可以检查以下内容：
    - 获取专家列表: GET `/api/expert/list`
    - 发布农资: POST `/api/trade/goods`
    - 申请贷款: POST `/api/finance/loans/apply`
+
+---
 
 ## 开发建议
 

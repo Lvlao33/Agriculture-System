@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { applyLoan, uploadLoanFile } from '../api/finance'
+import { applyLoan, applyLoanWithFiles, uploadLoanFile, getLoanProducts } from '../api/finance'
 
 export default {
   name: 'LoanApply',
@@ -184,24 +184,60 @@ export default {
           fileList: []
         }
       ],
-      uploadUrl: 'http://119.3.180.117:9090/api/finance/loans/upload',
+      uploadUrl: 'http://localhost:8080/api/finance/loans/apply',
       uploadHeaders: {
         'Authorization': window.localStorage.token || ''
       },
-      currentLoanId: null
+      currentLoanId: null,
+      allProducts: [] // 存储所有产品列表，用于通过 productName 查询 productId
     }
   },
   mounted() {
-    this.loadProduct();
+    this.loadProductsAndProduct();
   },
   methods: {
+    async loadProductsAndProduct() {
+      // 先加载所有产品列表
+      try {
+        const response = await getLoanProducts()
+        // 处理响应数据，确保数据结构正确
+        if (response && Array.isArray(response)) {
+          this.allProducts = response
+        } else if (response && response.data && Array.isArray(response.data)) {
+          this.allProducts = response.data
+        } else if (response && response.list && Array.isArray(response.list)) {
+          this.allProducts = response.list
+        }
+      } catch (error) {
+        console.error('加载产品列表失败:', error)
+      }
+      
+      // 然后加载选中的产品
+      this.loadProduct()
+    },
     loadProduct() {
       const productStr = localStorage.getItem('loanProduct');
       if (productStr) {
         this.product = JSON.parse(productStr);
         this.maxAmount = this.product.amount || 200000;
         this.loanForm.interestRate = this.product.rate || 0;
-        this.loanForm.productId = this.product.id || this.product.name;
+        
+        // 如果产品有 id，直接使用
+        if (this.product.id != null) {
+          const productIdNum = Number(this.product.id);
+          if (!isNaN(productIdNum)) {
+            this.loanForm.productId = productIdNum;
+          }
+        } else if (this.product.name) {
+          // 如果产品没有 id，通过 productName 从产品列表中查找对应的 id
+          const foundProduct = this.allProducts.find(p => p.name === this.product.name);
+          if (foundProduct && foundProduct.id != null) {
+            const productIdNum = Number(foundProduct.id);
+            if (!isNaN(productIdNum)) {
+              this.loanForm.productId = productIdNum;
+            }
+          }
+        }
         
         // 设置默认期限
         if (this.product.term) {
@@ -307,38 +343,34 @@ export default {
             productId: this.loanForm.productId
           };
 
-          const response = await applyLoan(loanData);
-          
-          if (response && response.success !== false) {
-            const loanId = response.data?.loanId || response.loanId || response.id;
-            this.currentLoanId = loanId;
+          // Create FormData including loan fields and all files
+          const formData = new FormData();
+          // 临时方案：使用常量 farmerId，待用户认证系统完成后从 token 获取
+          formData.append('farmerId', '1'); // TODO: 待用户认证系统完成后，从 token 中获取 farmerId
+          formData.append('loanAmount', this.loanForm.loanAmount);
+          formData.append('loanPurpose', this.loanForm.loanPurpose);
+          formData.append('loanTermMonths', this.loanForm.loanTermMonths);
+          formData.append('interestRate', this.loanForm.interestRate != null ? this.loanForm.interestRate : 0);
+          if (this.loanForm.productId) formData.append('productId', this.loanForm.productId);
 
-            // 上传文件（如果有）
-            if (loanId) {
-              let uploadCount = 0;
-              let totalFiles = 0;
-              
-              for (const material of this.requiredMaterials) {
-                if (material.fileList && material.fileList.length > 0) {
-                  for (const fileItem of material.fileList) {
-                    totalFiles++;
-                    if (fileItem.raw) {
-                      try {
-                        await uploadLoanFile(loanId, fileItem.raw);
-                        uploadCount++;
-                      } catch (error) {
-                        console.error('文件上传失败:', error);
-                        this.$message.warning(`文件 ${fileItem.name} 上传失败，但申请已提交`);
-                      }
-                    }
-                  }
+          // Append all selected files; use the same field name 'file' for each file
+          for (const material of this.requiredMaterials) {
+            if (material.fileList && material.fileList.length > 0) {
+              for (const fileItem of material.fileList) {
+                if (fileItem.raw) {
+                  formData.append('file', fileItem.raw, fileItem.name);
                 }
               }
-              
-              if (uploadCount > 0) {
-                this.$message.success(`已成功上传 ${uploadCount} 个文件`);
-              }
             }
+          }
+
+          const response = await applyLoanWithFiles(formData);
+
+          if (response && response.success !== false) {
+            // backend may return loan id in different fields
+            const loanId = response.data?.loanId || response.loanId || response.id || response.data?.id;
+            this.currentLoanId = loanId;
+            this.$message.success('申请提交并上传文件成功');
 
             // 跳转到成功页面
             this.$router.push({
@@ -348,7 +380,7 @@ export default {
               }
             });
           } else {
-            this.$message.error(response.message || '申请提交失败，请重试');
+            this.$message.error(response?.message || '申请提交失败，请重试');
           }
         } catch (error) {
           console.error('Submit error:', error);
