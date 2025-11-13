@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Loan;
 
+import java.time.LocalDateTime;
+
 /** 银行端-融资审批 */
 @RestController
 @RequestMapping("/api/finance/bank-review")
@@ -18,19 +20,27 @@ public class BankReviewController {
 
     @GetMapping("/applications")
     public ResponseEntity<?> listApps() {
-        return ResponseEntity.ok().body("applications");
+        // 默认查距离现在30天内的申请
+        return ResponseEntity.ok()
+                .body(loanService.findLoanListByTime(LocalDateTime.now().minusDays(30), LocalDateTime.now()));
     }
 
     // 该业务完成后续需要身份认证
     @PostMapping("/applications/{id}/approve")
     public ResponseEntity<?> approve(@PathVariable String id) {
-        loanService.submitByLoanId(Long.parseLong(id), Loan.LoanStatus.APPROVED);
-        return ResponseEntity.ok().body("approved " + id);
+        if (loanService.submitByLoanId(Long.parseLong(id), Loan.LoanStatus.APPROVED)) {
+            return ResponseEntity.ok().body("approved " + id);
+        } else {
+            return ResponseEntity.badRequest().body("failed to approve " + id);
+        }
     }
 
     @PostMapping("/applications/{id}/reject")
     public ResponseEntity<?> reject(@PathVariable String id) {
-        loanService.submitByLoanId(Long.parseLong(id), Loan.LoanStatus.REJECTED);
-        return ResponseEntity.ok().body("rejected " + id);
+        if (loanService.submitByLoanId(Long.parseLong(id), Loan.LoanStatus.REJECTED)) {
+            return ResponseEntity.ok().body("rejected " + id);
+        } else {
+            return ResponseEntity.badRequest().body("failed to reject " + id);
+        }
     }
 }

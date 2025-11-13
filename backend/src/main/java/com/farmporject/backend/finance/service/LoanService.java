@@ -7,6 +7,7 @@ import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.repository.LoanRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 // 功能：贷款业务逻辑（申请处理、验证、保存、审批交互等）。
 @Service
@@ -102,5 +103,15 @@ public class LoanService {
         return false;
     }
 
+    /**
+     * 按时段查询贷款列表
+     * 
+     * @param startDate 开始日期
+     * @param endDate   结束日期
+     * @return 贷款列表
+     */
+    public List<Loan> findLoanListByTime(LocalDateTime startDate, LocalDateTime endDate) {
+        return repo.findByApplicationDateBetween(startDate, endDate);
+    }
 }
 //
