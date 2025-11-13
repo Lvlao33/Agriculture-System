@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.repository.LoanRepository;
 
+import java.time.LocalDateTime;
+
 // 功能：贷款业务逻辑（申请处理、验证、保存、审批交互等）。
 @Service
 public class LoanService {
@@ -35,6 +37,7 @@ public class LoanService {
             loan.setStatus(Loan.LoanStatus.REVIEWING.name());
             // 设置申请时间
             loan.setApplicationDate(java.time.LocalDateTime.now());
+            loan.setUpdateDate(java.time.LocalDateTime.now());
 
             // 保存到数据库并确认是否成功
             Loan savedLoan = repo.save(loan);
@@ -52,10 +55,14 @@ public class LoanService {
      * 提交融资证明资料文件
      * 
      * @param loanId 贷款ID
+     * @param file   用户上传的文件
      * @return true 如果成功处理文件上传，false 如果失败
      */
     public boolean uploadFileByLoanId(Long loanId, MultipartFile file) throws Exception {
         // 先查询贷款申请信息
+        if (loanId == null) {
+            throw new Exception("贷款ID不能为空");
+        }
         Loan loan = repo.findById(loanId).orElseThrow(() -> new Exception("贷款申请不存在"));
 
         // 调用文件上传服务，保存文件到服务器
@@ -66,5 +73,34 @@ public class LoanService {
         }
 
     }
+
+    /**
+     * 修改贷款申请状态
+     * 
+     * @param status 新的状态
+     * @param loanId 贷款ID
+     * @return true 如果数据库贷款申请记录状态成功修改，false 如果失败
+     */
+    public boolean submitByLoanId(Long loanId, Loan.LoanStatus status) {
+        // 先查询贷款申请信息
+        try {
+            if (loanId != null) {
+                Loan loan = repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+                // 若存在，根据传入函数的status修改loan
+                if (loan != null) {
+                    loan.setStatus(status.name());
+                    loan.setUpdateDate(LocalDateTime.now());
+                    return repo.save(loan).getId() != null;
+                }
+            } else {
+                throw new RuntimeException("贷款ID不能为空");
+            }
+        } catch (Exception e) {
+            // 实际项目中应该使用日志记录异常
+            // logger.error("Failed to submit loan application", e);
+        }
+        return false;
+    }
+
 }
 //

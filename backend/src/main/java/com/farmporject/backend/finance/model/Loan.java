@@ -50,6 +50,10 @@ public class Loan implements Serializable {
     @Column(name = "application_date")
     private LocalDateTime applicationDate;
 
+    /** 更新时间 */
+    @Column(name = "update_date")
+    private LocalDateTime updateDate;
+
     /** 当前状态（例如：PENDING/APPROVED/REJECTED） */
     @Column(name = "status", length = 32)
     private String status;
@@ -89,8 +93,9 @@ public class Loan implements Serializable {
     }
 
     public Loan(Long farmerId, BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths,
-            BigDecimal interestRate, LocalDateTime applicationDate, String status, LocalDateTime disbursementDate,
-            LocalDate repaymentDueDate, String remark, Long productId, String handledBy) {
+            BigDecimal interestRate, LocalDateTime applicationDate, LocalDateTime updateDate, String status,
+            LocalDateTime disbursementDate, LocalDate repaymentDueDate, String remark, Long productId,
+            String handledBy) {
         // 用户信息 从登录token中获取
         this.farmerId = farmerId;
         // 用户提交信息
@@ -106,6 +111,7 @@ public class Loan implements Serializable {
 
         // 默认值
         this.applicationDate = applicationDate; // 后端获得当前时间 null
+        this.updateDate = updateDate; // 后端获得当前时间 null
         this.status = status; // REVIEWING
         this.remark = remark; // null
         this.disbursementDate = disbursementDate; // null
@@ -170,6 +176,14 @@ public class Loan implements Serializable {
 
     public void setApplicationDate(LocalDateTime applicationDate) {
         this.applicationDate = applicationDate;
+    }
+
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
     }
 
     public String getStatus() {
