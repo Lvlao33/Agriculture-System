@@ -104,4 +104,19 @@ public class LoanController {
     public ResponseEntity<?> list() {
         return ResponseEntity.ok().body("loan list");
     }
+
+    // 修改融资申请详情
+    @PostMapping("/{loan_id}/update")
+    public ResponseEntity<?> update(@ModelAttribute Loan loan) {
+        try {
+            if (loanService.update(loan)) {
+                return ResponseEntity.ok().body("update loan success");
+            } else {
+                return ResponseEntity.status(400).body("update loan failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("update loan exception: " + e.getMessage());
+        }
+    }
+
 }
