@@ -10,10 +10,6 @@
             <span class="stat-number">{{ expertTotal }}</span>
             <span class="stat-label">已入驻专家</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number">{{ dailyQuestionTotal }}</span>
-            <span class="stat-label">单日回答问题</span>
-          </div>
         </div>
       </div>
     </div>
@@ -188,7 +184,6 @@ export default {
       hotQuestions: [],
       knowledgeList: [],
       expertTotal: 0,
-      dailyQuestionTotal: 0,
       questionTotal: 0,
       knowledgeTotal: 0,
       searchValue: '',
@@ -380,7 +375,7 @@ export default {
     };
   },
   created() {
-    this.$store.commit("updateActiveIndex", "5");
+    this.$store.commit("updateActiveIndex", "4");
     this.loadData();
   },
   methods: {
@@ -438,60 +433,10 @@ export default {
           // 如果后端没有数据，使用静态数据
           this.questionTotal = this.staticHotQuestions.length;
         }
-        // 计算单日回答的问题数
-        this.calculateDailyQuestions();
       }).catch(err => {
         console.log('加载后端数据失败，使用静态数据:', err);
         // 如果后端请求失败，保持使用静态数据（已经在上面设置了）
         this.questionTotal = this.staticHotQuestions.length;
-        this.calculateDailyQuestions();
-      });
-    },
-    // 计算单日回答的问题数
-    calculateDailyQuestions() {
-      // 获取今天的日期（格式：YYYY-MM-DD）
-      const today = new Date();
-      const todayStr = today.getFullYear() + '-' + 
-        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-        String(today.getDate()).padStart(2, '0');
-      
-      // 获取所有已回答的问题来计算单日回答数
-      selectQuestions({
-        pageNum: 1,
-        keys: '',
-        pageSize: 1000  // 获取足够多的数据来统计
-      }).then((res) => {
-        if (res.flag == true && res.data.list) {
-          // 过滤出今天回答的问题（status != 0 表示已回答）
-          const todayAnswered = res.data.list.filter(item => {
-            if (item.status == 0) return false; // 未回答的不算
-            
-            // 如果有回答时间字段，使用它来判断
-            if (item.answerTime) {
-              const answerDate = new Date(item.answerTime);
-              const answerDateStr = answerDate.getFullYear() + '-' + 
-                String(answerDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(answerDate.getDate()).padStart(2, '0');
-              return answerDateStr === todayStr;
-            }
-            
-            // 如果没有回答时间字段，使用更新时间或创建时间
-            if (item.updateTime) {
-              const updateDate = new Date(item.updateTime);
-              const updateDateStr = updateDate.getFullYear() + '-' + 
-                String(updateDate.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(updateDate.getDate()).padStart(2, '0');
-              return updateDateStr === todayStr && item.status != 0;
-            }
-            
-            return false;
-          });
-          
-          this.dailyQuestionTotal = todayAnswered.length;
-        }
-      }).catch(err => {
-        console.log(err);
-        this.dailyQuestionTotal = 0;
       });
     },
     // 加载指导知识
@@ -649,7 +594,6 @@ export default {
     .banner-stats {
       display: flex;
       justify-content: center;
-      gap: 120px;
 
       .stat-item {
         display: flex;

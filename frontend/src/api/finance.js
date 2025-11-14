@@ -222,3 +222,15 @@ export function getLoanList() {
         },
     })
 }
+
+// 授权用户
+export function toAuthorizationUser(params) {
+    return request({
+        method: 'post',
+        url: '/finance/toAuthorizationUser',
+        data: params,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
