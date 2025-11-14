@@ -10,8 +10,6 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import java.io.Serializable;
-
 @Entity
 @Table(name = "loan_products")
 public class LoanProduct {
