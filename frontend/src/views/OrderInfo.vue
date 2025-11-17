@@ -547,7 +547,7 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit("updateActiveIndex", "6");
+    this.$store.commit("updateActiveIndex", "5");
     this.loadOrders();
   }
 };
