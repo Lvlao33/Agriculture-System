@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-//æ‰¾å›å¯†ç 
+// ÕÒ»ØÃÜÂë
 export function forgetPassword(params) {
     return request({
         method: 'post',
@@ -12,7 +12,7 @@ export function forgetPassword(params) {
     })
 }
 
-// ç”¨æˆ·ç™»å½•
+// ÓÃ»§µÇÂ¼
 export function userLogin(params) {
     return request({
         method: 'post',
@@ -24,7 +24,7 @@ export function userLogin(params) {
     })
 }
 
-// ç”¨æˆ·æ³¨å†Œ
+// ÓÃ»§×¢²á
 export function userRegister(params) {
     return request({
         method: 'post',
@@ -36,7 +36,7 @@ export function userRegister(params) {
     })
 }
 
-// ç”¨æˆ·ç™»å½•ä¹‹åï¼Œæ ¹æ®ç”¨æˆ·åå±•ç¤ºä¸ªäººåŸºæœ¬ä¿¡æ¯
+// ÓÃ»§µÇÂ¼Ö®ºó£¬¸ù¾İÓÃ»§ÃûÕ¹Ê¾¸öÈË»ù±¾ĞÅÏ¢
 export function loginSelectByUsername(params) {
     return request({
         method: 'get',
@@ -47,7 +47,7 @@ export function loginSelectByUsername(params) {
     })
 }
 
-// ç”¨æˆ·ç™»å½•ä¹‹åï¼Œæ ¹æ®ç”¨æˆ·åä¿®æ”¹ä¸ªäººåŸºæœ¬ä¿¡æ¯
+// ÓÃ»§µÇÂ¼Ö®ºó£¬¸ù¾İÓÃ»§ÃûĞŞ¸Ä¸öÈË»ù±¾ĞÅÏ¢
 export function loginUpdateByUsername(params) {
     return request({
         method: 'post',
@@ -59,7 +59,7 @@ export function loginUpdateByUsername(params) {
     })
 }
 
-// æ ¹æ®ç”¨æˆ·åæŸ¥è¯¢ç”¨æˆ·
+// ¸ù¾İÓÃ»§Ãû²éÑ¯ÓÃ»§
 export function selectUserByUsername(params) {
     return request({
         method: 'get',
@@ -70,7 +70,7 @@ export function selectUserByUsername(params) {
     })
 }
 
-// æ ¹æ®ç”¨æˆ·ååˆ é™¤ç”¨æˆ·
+// ¸ù¾İÓÃ»§ÃûÉ¾³ıÓÃ»§
 export function deleteUserByUsername(params) {
     return request({
         method: 'delete',
@@ -81,7 +81,7 @@ export function deleteUserByUsername(params) {
     })
 }
 
-// æ ¹æ®ç”¨æˆ·åä¿®æ”¹ç”¨æˆ·ä¿¡æ¯
+// ¸ù¾İÓÃ»§ÃûĞŞ¸ÄÓÃ»§ĞÅÏ¢
 export function updateUserByUsername(params) {
     return request({
         method: 'put',
@@ -93,7 +93,7 @@ export function updateUserByUsername(params) {
     })
 }
 
-// åˆ†é¡µæŸ¥è¯¢æ‰€æœ‰ç”¨æˆ·
+// ·ÖÒ³²éÑ¯ËùÓĞÓÃ»§
 export function selectAllUserPage(params) {
     return request({
         method: 'get',
@@ -104,7 +104,7 @@ export function selectAllUserPage(params) {
     })
 }
 
-// ä¿®æ”¹ç”¨æˆ·å¯†ç 
+// ĞŞ¸ÄÓÃ»§ÃÜÂë
 export function updateUserPassword(params) {
     return request({
         method: 'post',
@@ -115,4 +115,3 @@ export function updateUserPassword(params) {
         },
     })
 }
-

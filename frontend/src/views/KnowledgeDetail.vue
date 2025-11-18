@@ -1,31 +1,98 @@
-<!-- ÂÜú‰∏öÁü•ËØÜËØ¶ÊÉÖ -->
+<!-- ≈©“µ÷™ ∂œÍ«È -->
 <template>
-  <div class="knowlege-detail-container">
-    <div class="title">{{updateInfo.title}}</div>
-    <div class="tips">
-      <span>‰ΩúËÄÖÔºö</span>
-      <span style="margin-right:20px;">{{updateInfo.ownName}}</span>
-      <span>Êó•ÊúüÔºö</span>
-      <span>{{updateInfo.updateTime | formatTimer}}</span>
+  <div class="knowledge-detail-container">
+    <!-- ∑µªÿ∞¥≈• -->
+    <div class="back-button" @click="goBack">
+      <i class="el-icon-arrow-left"></i>
+      <span>∑µªÿ</span>
     </div>
-    <div class="detail-img">
-      <video v-if="updateInfo.type==='mp4'||updateInfo.type==='MP4'" id="video" width="900" height="360" :src="$store.state.imgShowRoad + '/file/' + updateInfo.picPath" controls> </video>
-      <img v-else style="width:500px;height:300px;" :src="$store.state.imgShowRoad + '/file/' + updateInfo.picPath" alt="" />
+
+    <!-- ±ÍÃ‚∫Õ‘™–≈œ¢ -->
+    <div class="detail-header">
+      <div class="type-badge" :class="getTypeClass()">
+        <i :class="getTypeIcon()"></i>
+        <span>{{ getTypeName() }}</span>
+      </div>
+      <h1 class="detail-title">{{updateInfo.title}}</h1>
+      <div class="detail-meta">
+        <span class="meta-item">
+          <i class="el-icon-user"></i>
+          <span>◊˜’ﬂ£∫{{updateInfo.ownName || 'Œ¥÷™'}}</span>
+        </span>
+        <span class="meta-item">
+          <i class="el-icon-time"></i>
+          <span>∑¢≤º ±º‰£∫{{updateInfo.updateTime | formatTimer}}</span>
+        </span>
+      </div>
     </div>
+
+    <!-- √ΩÃÂƒ⁄»› -->
+    <div class="detail-media" v-if="updateInfo.picPath">
+      <video 
+        v-if="updateInfo.type==='mp4'||updateInfo.type==='MP4'" 
+        class="detail-video"
+        :src="$store.state.imgShowRoad + '/file/' + updateInfo.picPath" 
+        controls
+        preload="metadata"
+      ></video>
+      <img 
+        v-else 
+        class="detail-image"
+        :src="$store.state.imgShowRoad + '/file/' + updateInfo.picPath" 
+        alt="÷™ ∂Õº∆¨"
+      />
+    </div>
+
+    <!-- Œƒ◊÷ƒ⁄»› -->
     <div class="detail-content">
-      <pre>{{updateInfo.content}}</pre>
+      <div class="content-text" v-html="formatContent(updateInfo.content)"></div>
     </div>
-    <el-input type="textarea" v-model="content" :rows="5"></el-input>
-    <div style="margin-top:20px;display: flex;flex-direction: row;justify-content: flex-end">
-      <el-button type="success" @click="handleComment">Ê∑ªÂä†ËØÑËÆ∫</el-button>
-    </div>
-    <div class="comment-container">
-      <div class="comment-num">ËØÑËÆ∫ÂÖ±{{commentArray.length||0}}Êù°</div>
-      <div class="comment-item" v-for="(item,index) in commentArray" :key="index">
-        <div>{{item.content}}</div>
-        <div class="comment-tips">
-          <div style="margin-right:40px;">ËØÑËÆ∫‰∫∫Ôºö<span class="color6">{{item.ownName}}</span></div>
-          <div>ËØÑËÆ∫Êó∂Èó¥Ôºö<span class="color6">{{item.createTime|formatTimer2}}</span></div>
+
+    <!-- ∆¿¬€«¯”Ú -->
+    <div class="comment-section">
+      <h3 class="comment-title">
+        <i class="el-icon-chat-line-square"></i>
+        ∆¿¬€ ({{commentArray.length||0}})
+      </h3>
+      
+      <div class="comment-input-area">
+        <el-input 
+          type="textarea" 
+          v-model="content" 
+          :rows="4"
+          placeholder="–¥œ¬ƒ˙µƒ∆¿¬€..."
+          maxlength="500"
+          show-word-limit
+        ></el-input>
+        <div class="comment-actions">
+          <el-button type="success" @click="handleComment" :disabled="!content.trim()">
+            <i class="el-icon-check"></i>
+            ∑¢±Ì∆¿¬€
+          </el-button>
+        </div>
+      </div>
+
+      <div class="comment-list">
+        <div 
+          class="comment-item" 
+          v-for="(item,index) in commentArray" 
+          :key="index"
+        >
+          <div class="comment-avatar">
+            <i class="el-icon-user-solid"></i>
+          </div>
+          <div class="comment-body">
+            <div class="comment-content">{{item.content}}</div>
+            <div class="comment-meta">
+              <span class="comment-author">{{item.ownName || 'ƒ‰√˚”√ªß'}}</span>
+              <span class="comment-time">{{item.createTime|formatTimer2}}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="commentArray.length === 0" class="no-comments">
+          <i class="el-icon-chat-line-round"></i>
+          <p>‘›Œﬁ∆¿¬€£¨øÏ¿¥∑¢±Ìµ⁄“ªÃı∆¿¬€∞…£°</p>
         </div>
       </div>
     </div>
@@ -45,6 +112,7 @@ export default {
   },
   filters: {
     formatTimer: function(value) {
+      if (!value) return '';
       let date = new Date(value);
       let y = date.getFullYear();
       let MM = date.getMonth() + 1;
@@ -57,9 +125,10 @@ export default {
       m = m < 10 ? "0" + m : m;
       let s = date.getSeconds();
       s = s < 10 ? "0" + s : s;
-      return y + "-" + MM + "-" + d + " ";
+      return y + "-" + MM + "-" + d + " " + h + ":" + m;
     },
     formatTimer2: function(value) {
+      if (!value) return '';
       let date = new Date(value);
       let y = date.getFullYear();
       let MM = date.getMonth() + 1;
@@ -75,6 +144,20 @@ export default {
       return y + "-" + MM + "-" + d + " "+h+":"+m;
     }
   },
+  computed: {
+    knowledgeType() {
+      if (!this.updateInfo.type && !this.updateInfo.picPath) {
+        return 'text';
+      }
+      if (this.updateInfo.type === 'mp4' || this.updateInfo.type === 'MP4') {
+        return 'video';
+      }
+      if (this.updateInfo.picPath) {
+        return 'image';
+      }
+      return 'text';
+    }
+  },
   methods:{
     getData(){
       this.$store.commit("updateActiveIndex", "4");
@@ -82,28 +165,54 @@ export default {
         knowledgeId: this.$route.params.id
       }).then((res) => {
         let tmp = res.data;
-        const flieArr =  tmp.picPath.split('.')
-        tmp.type = flieArr[flieArr.length - 1]
+        if (tmp.picPath) {
+          const flieArr = tmp.picPath.split('.');
+          tmp.type = flieArr[flieArr.length - 1];
+        } else {
+          tmp.type = 'text';
+        }
         this.updateInfo = tmp;
-        console.log('this.updateInfo',this.updateInfo)
       })
       .catch((err) => {
         console.log(err);
       });
     },
-    // Êü•ËØ¢ËØÑËÆ∫
+    getTypeClass() {
+      if (this.knowledgeType === 'video') return 'type-video';
+      if (this.knowledgeType === 'image') return 'type-image';
+      return 'type-text';
+    },
+    getTypeIcon() {
+      if (this.knowledgeType === 'video') return 'el-icon-video-camera';
+      if (this.knowledgeType === 'image') return 'el-icon-picture';
+      return 'el-icon-document';
+    },
+    getTypeName() {
+      if (this.knowledgeType === 'video') return ' ”∆µ÷™ ∂';
+      if (this.knowledgeType === 'image') return 'Õº∆¨÷™ ∂';
+      return 'Œƒ◊÷÷™ ∂';
+    },
+    formatContent(content) {
+      if (!content) return '';
+      // Ω´ªª––∑˚◊™ªªŒ™ <br>
+      return content.replace(/\n/g, '<br>');
+    },
+    goBack() {
+      this.$router.go(-1);
+    },
+    // ≤È—Ø∆¿¬€
     getCommentData(){
       selectComment({
         knowledgeId: this.$route.params.id
       }).then(res => {
-        this.commentArray = res.data
+        this.commentArray = res.data || []
       }).catch(err=>{
         console.log(err)
       })
     },
     handleComment(){
       if(this.content===''){
-        this.$message.error('ËØÑËÆ∫ÂÜÖÂÆπ‰∏çËÉΩ‰∏∫Á©∫ÔºÅ')
+        this.$message.error('∆¿¬€ƒ⁄»›≤ªƒ‹Œ™ø’£°')
         return
       }
       if(localStorage.getItem('token')){
@@ -112,13 +221,13 @@ export default {
           content: this.content
         }).then(res=>{
           this.content=''
-          this.$message.success('ËØÑËÆ∫ÊàêÂäüÔºÅ')
+          this.$message.success('∆¿¬€≥…π¶£°')
           this.getCommentData()
         }).catch(err=>{
           console.log(err)
         })
       }else{
-        this.$message.error('ËØ∑ÂÖàÁôªÂΩï')
+        this.$message.error('«Îœ»µ«¬º')
       }
     }
   },
@@ -130,55 +239,232 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.knowlege-detail-container{
+.knowledge-detail-container{
   width: 1100px;
   margin: 0 auto;
   background: #fff;
-  min-height: 100%;
-  padding: 10px 20px;
+  min-height: 100vh;
+  padding: 30px;
   margin-top: 10px;
-  .title{
-    font-size: 18px;
-    text-align: center;
-  }
-  .tips{
-    color: #999;
-    display: flex;
-    justify-content: flex-end;
-    height: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+  .back-button {
+    display: inline-flex;
     align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+    color: #606266;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #f5f7fa;
+      color: #67c23a;
+    }
+
+    i {
+      font-size: 16px;
+    }
   }
-  .detail-img{
+
+  .detail-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 15px;
+
+      i {
+        margin-right: 6px;
+        font-size: 14px;
+      }
+
+      &.type-text {
+        background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+      }
+
+      &.type-image {
+        background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+      }
+
+      &.type-video {
+        background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
+      }
+    }
+
+    .detail-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #303133;
+      margin: 0 0 15px 0;
+      line-height: 1.4;
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 20px;
+      color: #909399;
+      font-size: 14px;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .detail-media {
+    margin: 30px 0;
     display: flex;
     justify-content: center;
-    margin-top: 50px;
-    video{
-      border: 1px solid #f2f2f2;
-    }
-    img{
-      border-radius: 6px;
-    }
-  }
-  .detail-content{
+    background: #f5f7fa;
+    border-radius: 8px;
+    padding: 20px;
+    overflow: hidden;
 
-  }
-  .comment-container{
-    clear: both;
-    margin-top: 10px;
-    .comment-num{
-      font-weight: bold;
+    .detail-video {
+      width: 100%;
+      max-width: 900px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    .comment-item{
-      border-bottom: 1px solid #f2f2f2;
-      padding: 10px 20px;
-      margin: 20px 0;
-      word-break: break-all;
-      .comment-tips{
+
+    .detail-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .detail-content {
+    margin: 40px 0;
+    padding: 30px;
+    background: #fafafa;
+    border-radius: 8px;
+    line-height: 1.8;
+
+    .content-text {
+      font-size: 16px;
+      color: #606266;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  }
+
+  .comment-section {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+
+    .comment-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #303133;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      i {
+        color: #67c23a;
+      }
+    }
+
+    .comment-input-area {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f5f7fa;
+      border-radius: 8px;
+
+      .comment-actions {
+        margin-top: 15px;
         display: flex;
-        flex-direction: row;
         justify-content: flex-end;
-        .color6{
-          color: #666;
+      }
+    }
+
+    .comment-list {
+      .comment-item {
+        display: flex;
+        gap: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        background: #fafafa;
+        border-radius: 8px;
+        transition: background 0.3s;
+
+        &:hover {
+          background: #f0f0f0;
+        }
+
+        .comment-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .comment-body {
+          flex: 1;
+
+          .comment-content {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            word-break: break-word;
+          }
+
+          .comment-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #909399;
+
+            .comment-author {
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .no-comments {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+
+        i {
+          font-size: 48px;
+          margin-bottom: 15px;
+          display: block;
+        }
+
+        p {
+          font-size: 14px;
         }
       }
     }

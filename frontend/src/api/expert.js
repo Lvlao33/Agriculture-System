@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// 鏌ヨ涓撳淇℃伅
+// 查询专家信息
 export function getExpertInfo(params) {
   return request({
       method: 'get',
@@ -12,7 +12,7 @@ export function getExpertInfo(params) {
   })
 }
 
-// 淇敼涓撳淇℃伅
+// 修改专家信息
 export function editExpertInfo(params) {
   return request({
       method: 'post',

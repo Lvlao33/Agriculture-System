@@ -1,4 +1,4 @@
-<!-- 关于我们页面 -->
+﻿<!-- 关于我们页面 -->
 <template>
   <div class="about-container">
     <img src="../assets/img/logo.png" class="logo"/>

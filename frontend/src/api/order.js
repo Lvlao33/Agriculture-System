@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-//ä¸‹æ¶
+// ÏÂ¼Ü
 export function takeDown(params) {
     return request({
         method: 'put',
@@ -10,7 +10,7 @@ export function takeDown(params) {
         },
     })
 }
-//ä¸Šæ¶
+// ÉÏ¼Ü
 export function takeUp(params) {
     return request({
         method: 'put',
@@ -21,7 +21,7 @@ export function takeUp(params) {
     })
 }
 
-// æ·»åŠ è®¢å•
+// Ìí¼Ó¶©µ¥
 export function addOrder(params) {
     return request({
         method: 'post',
@@ -33,7 +33,7 @@ export function addOrder(params) {
     })
 }
 
-// åˆ†é¡µæŸ¥è¯¢æ‰€æœ‰è´§æºï¼ˆå•†å“ï¼‰è®¢å•
+// ·ÖÒ³²éÑ¯ËùÓĞ»õÔ´£¨ÉÌÆ·£©¶©µ¥
 export function selectGoodsPage(params) {
     if(params.keys == ""){
         return request({
@@ -52,7 +52,7 @@ export function selectGoodsPage(params) {
         })
     }
 }
-// åˆ†é¡µæŸ¥è¯¢æ‰€æœ‰è´§æºï¼ˆå•†å“ï¼‰è®¢å•
+// ·ÖÒ³²éÑ¯ËùÓĞ»õÔ´£¨ÉÌÆ·£©¶©µ¥
 export function selectAllPage(params) {
     if (params.keys == "") {
         return request({
@@ -76,7 +76,7 @@ export function selectAllPage(params) {
 }
 
 
-// åˆ†é¡µæŸ¥è¯¢æ‰€æœ‰éœ€æ±‚è®¢å•
+// ·ÖÒ³²éÑ¯ËùÓĞĞèÇó¶©µ¥
 export function selectNeedsPage(params) {
     if(params.keys == ""){
         return request({
@@ -99,7 +99,7 @@ export function selectNeedsPage(params) {
     }
 }
 
-//æ ¹æ®idæŸ¥è¯¢è®¢å•
+// ¸ù¾İid²éÑ¯¶©µ¥
 export function selectOrderById(params) {
     return request({
         method: 'get',
@@ -110,7 +110,7 @@ export function selectOrderById(params) {
     })
 }
 
-//æ ¹æ®idä¿®æ”¹è®¢å•
+// ¸ù¾İidĞŞ¸Ä¶©µ¥
 export function updateOrderById(params) {
     return request({
         method: 'put',
@@ -122,7 +122,7 @@ export function updateOrderById(params) {
     })
 }
 
-// æ ¹æ®idåˆ é™¤è®¢å•
+// ¸ù¾İidÉ¾³ı¶©µ¥
 export function deleteOrderById(params) {
     return request({
         method: 'delete',
@@ -134,7 +134,7 @@ export function deleteOrderById(params) {
     })
 }
 
-//æ ¹æ®ç”¨æˆ·å+è®¢å•ç±»å‹æŸ¥è¯¢è®¢å•
+// ¸ù¾İÓÃ»§Ãû+¶©µ¥ÀàĞÍ²éÑ¯¶©µ¥
 export function selectOrderByUsernameAndType(params) {
     if(params.ctype=='goods'&&params.keys!==''){ 
         return request({
@@ -163,7 +163,7 @@ export function selectOrderByUsernameAndType(params) {
     }
 }
 
-// //æ ¹æ®ç§ç±»ï¼Œç”¨æˆ·åæŸ¥è¯¢ä¸ªäººå•†å“æ¨¡ç³ŠæŸ¥è¯¢
+// // ¸ù¾İÖÖÀà£¬ÓÃ»§Ãû²éÑ¯¸öÈËÉÌÆ·Ä£ºı²éÑ¯
 // export function selectOrderByKeys(params) {
 //     return request({
 //         method: 'get',
@@ -174,7 +174,7 @@ export function selectOrderByUsernameAndType(params) {
 //     })
 // }
 
-// æ ¹æ®ç™»é™†ç”¨æˆ·æŸ¥è¯¢æˆ‘ä¹°çš„è®¢å•
+// ¸ù¾İµÇÂ¼ÓÃ»§²éÑ¯ÎÒÂòµÄ¶©µ¥
 export function selectBuyByUserName(params) {
     return request({
         method: 'get',
@@ -185,7 +185,7 @@ export function selectBuyByUserName(params) {
     })
 }
 
-// æ ¹æ®ç™»é™†ç”¨æˆ·æŸ¥è¯¢æˆ‘ä¹°çš„è®¢å•
+// ¸ù¾İµÇÂ¼ÓÃ»§²éÑ¯ÎÒÂòµÄ¶©µ¥
 export function selectOwnByName(params) {
     return request({
         method: 'get',
@@ -196,7 +196,7 @@ export function selectOwnByName(params) {
     })
 }
 
-// æ ¹æ®ç™»å½•ç”¨æˆ·æŸ¥è¯¢æˆ‘å–çš„è®¢å•
+// ¸ù¾İµÇÂ¼ÓÃ»§²éÑ¯ÎÒÂôµÄ¶©µ¥
 export function selectSellByUserName(params) {
     return request({
         method: 'get',
@@ -207,7 +207,7 @@ export function selectSellByUserName(params) {
     })
 }
 
-// æ£€ç´¢é—®ç­”æ¥å£
+// ¼ìË÷ÎÊ´ğ½Ó¿Ú
 export function selectQuestions(params) {
     if(params.keys===''){
         return request({
@@ -228,7 +228,7 @@ export function selectQuestions(params) {
     }
 }
 
-// æ£€ç´¢ä¸“å®¶æ¥å£
+// ¼ìË÷×¨¼Ò½Ó¿Ú
 export function selectExpert(params) {
     if(params.keys===''){
         return request({
@@ -248,7 +248,7 @@ export function selectExpert(params) {
         })
     }
 }
-// é—®ç­”è¯¦æƒ…
+// ÎÊ´ğÏêÇé
 export function questionDetail(params) {
     return request({
         method: 'get',
@@ -258,7 +258,7 @@ export function questionDetail(params) {
         },
     })
 }
-//å»æé—®
+// È¥ÌáÎÊ
 export function addQuestion(params) {
     return request({
         method: 'post',
@@ -270,7 +270,7 @@ export function addQuestion(params) {
     })
 }
 
-//å»é¢„çº¦
+// È¥Ô¤Ô¼
 export function addReserve(params) {
     return request({
         method: 'post',
@@ -280,7 +280,7 @@ export function addReserve(params) {
         },
         data:params
     })
-    //æ£€ç´¢è¯„è®º
+    // ¼ìË÷ÆÀÂÛ
 }
 export function selectComment(params) {
     return request({
@@ -292,7 +292,7 @@ export function selectComment(params) {
     })
 }
 
-// å¢åŠ è¯„è®º
+// Ìí¼ÓÆÀÂÛ
 export function addComment(params) {
     return request({
         method: 'post',

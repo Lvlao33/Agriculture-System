@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// æ·»åŠ çŸ¥è¯†
+// Ìí¼ÓÖªÊ¶
 export function addKnowledge(params) {
     return request({
         method: 'post',
@@ -12,7 +12,7 @@ export function addKnowledge(params) {
     })
 }
 
-// åˆ†é¡µæŸ¥è¯¢æ‰€æœ‰çŸ¥è¯†
+// ·ÖÒ³²éÑ¯ËùÓĞÖªÊ¶
 export function selectKnowledgesPage(params) {
     return request({
         method: 'get',
@@ -23,7 +23,7 @@ export function selectKnowledgesPage(params) {
     })
 }
 
-//æ ¹æ®idä¿®æ”¹çŸ¥è¯†
+// ¸ù¾İidĞŞ¸ÄÖªÊ¶
 export function updateKnowledgeById(params) {
     return request({
         method: 'put',
@@ -35,7 +35,7 @@ export function updateKnowledgeById(params) {
     })
 }
 
-// æ ¹æ®idåˆ é™¤çŸ¥è¯†
+// ¸ù¾İidÉ¾³ıÖªÊ¶
 export function deleteKnowledgeById(params) {
     return request({
         method: 'delete',
@@ -47,7 +47,7 @@ export function deleteKnowledgeById(params) {
     })
 }
 
-// æ ¹æ®idæŸ¥è¯¢çŸ¥è¯†ä¿¡æ¯
+// ¸ù¾İid²éÑ¯ÖªÊ¶ĞÅÏ¢
 export function selectKnowledgeById(params) {
     return request({
         method: 'get',
@@ -58,7 +58,7 @@ export function selectKnowledgeById(params) {
     })
 }
 
-// æ ¹æ®ç™»å½•ç”¨æˆ·æŸ¥è¯¢çŸ¥è¯† 
+// ¸ù¾İµÇÂ¼ÓÃ»§²éÑ¯ÖªÊ¶ 
 export function selectKnowledgeByUsername(params) {
     return request({
         method: 'get',
@@ -69,7 +69,7 @@ export function selectKnowledgeByUsername(params) {
     })
 }
 
-// æ ¹æ®ç™»å½•ç”¨æˆ·æŸ¥è¯¢çŸ¥è¯† 
+// ¸ù¾İÖªÊ¶id²éÑ¯ÆÀÂÛ
 export function selectComment(params) {
     return request({
         method: 'get',
@@ -80,7 +80,7 @@ export function selectComment(params) {
     })
 }
 
-// å¢åŠ è¯„è®º
+// Ìí¼ÓÆÀÂÛ
 export function addComment(params) {
     return request({
         method: 'post',

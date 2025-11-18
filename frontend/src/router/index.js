@@ -52,12 +52,15 @@ import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
+import PublishSupply from '../views/PublishSupply'
+import PurchaseList from '../views/PurchaseList'
+import PublishNeed from '../views/PublishNeed'
 
 
 Vue.use(VueRouter)
 
 
-// è§£å†³ElementUIå¯¼èˆªæ ä¸­çš„vue-routeråœ¨3.0ç‰ˆæœ¬ä»¥ä¸Šé‡å¤ç‚¹èœå•æŠ¥é”™é—®é¢˜
+// ½â¾öElementUIµ¼º½À¸ÖÐµÄvue-routerÔÚ3.0°æ±¾ÒÔÉÏÖØ¸´µã²Ëµ¥±¨´íÎÊÌâ
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -86,8 +89,20 @@ const routes = [
         component: HomeGoods
       },
       {
+        path: 'publishSupply',
+        component: PublishSupply
+      },
+      {
         path: 'purchase',
         component: HomePurchase
+      },
+      {
+        path: 'purchaseList',
+        component: PurchaseList
+      },
+      {
+        path: 'publishNeed',
+        component: PublishNeed
       },
       {
         path: 'knowledge',
