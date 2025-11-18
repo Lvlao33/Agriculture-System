@@ -23,3 +23,17 @@ export function editExpertInfo(params) {
       },
   })
 }
+<<<<<<< HEAD
+=======
+
+// 获取知识列表（分页）
+export function getKnowledgeList(params) {
+  return request({
+      method: 'get',
+      url: '/knowledge/' + (params.pageNum || 1),
+      headers: {
+          'Authorization': window.localStorage.token,
+      },
+  })
+}
+>>>>>>> 37ae0d5f64f366a622603654ebc7ad944ef7d1a0

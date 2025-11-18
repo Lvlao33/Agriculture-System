@@ -77,6 +77,7 @@ public class LoanService {
 
     /**
      * 修改贷款申请状态
+     * 由银行侧来修改
      * 
      * @param status 新的状态
      * @param loanId 贷款ID
@@ -112,6 +113,36 @@ public class LoanService {
      */
     public List<Loan> findLoanListByTime(LocalDateTime startDate, LocalDateTime endDate) {
         return repo.findByApplicationDateBetween(startDate, endDate);
+    }
+
+    /**
+     * 修改贷款申请资料
+     * 
+     * @param loan 贷款申请信息
+     * @return true 如果成功保存到数据库，false 如果保存失败
+     */
+    public boolean update(Loan loan) {
+        try {
+            // 确保必要字段不为空
+            if (loan == null || loan.getId() == null) {
+                return false;
+            }
+
+            // 确保存在
+            repo.findById(loan.getId()).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+
+            // 设置更新时间
+            loan.setUpdateDate(java.time.LocalDateTime.now());
+
+            // 保存到数据库并确认是否成功
+            Loan savedLoan = repo.save(loan);
+            // 如果保存成功，savedLoan 会有 ID，返回 true
+            return savedLoan.getId() != null;
+        } catch (Exception e) {
+            // 实际项目中应该使用日志记录异常
+            // logger.error("Failed to update loan application", e);
+            return false;
+        }
     }
 }
 //

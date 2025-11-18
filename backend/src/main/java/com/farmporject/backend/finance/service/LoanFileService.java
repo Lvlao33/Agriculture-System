@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.model.LoanFile;
 import com.farmporject.backend.finance.repository.LoanFileRepository;
+
+import java.time.LocalDateTime;
 
 @Service
 public class LoanFileService {
@@ -37,6 +40,9 @@ public class LoanFileService {
             loanFile.setLoan(loan);
             loanFile.setFileName(file.getOriginalFilename());
             loanFile.setFilePath(filePath);
+            loanFile.setFileType(null); // 前端传入从哪个栏位传入
+            loanFile.setCreatedAt(LocalDateTime.now());
+            loanFile.setUpdatedAt(LocalDateTime.now());
             LoanFile temp = loanFileRepository.save(loanFile);
             if (temp.getId() != null) {
                 return true;
@@ -67,7 +73,8 @@ public class LoanFileService {
         Path path = Paths.get(uploadDir + File.separator + fileName);
 
         // 保存文件
-        file.transferTo(path.toFile());
+        File targetFile = Objects.requireNonNull(path.toFile(), "File path cannot be null");
+        file.transferTo(targetFile);
 
         // 返回保存文件的路径，供后续使用
         return path.toString();

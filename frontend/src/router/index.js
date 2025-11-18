@@ -52,9 +52,15 @@ import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
+<<<<<<< HEAD
 import PublishSupply from '../views/PublishSupply'
 import PurchaseList from '../views/PurchaseList'
 import PublishNeed from '../views/PublishNeed'
+=======
+import ExpertGuide from '../views/ExpertGuide'
+import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
+import AllQuestions from '../views/AllQuestions'
+>>>>>>> 37ae0d5f64f366a622603654ebc7ad944ef7d1a0
 
 
 Vue.use(VueRouter)
@@ -119,6 +125,18 @@ const routes = [
       {
         path: 'guide/:id',
         component: guideDetail
+      },
+      {
+        path: 'expertGuide',
+        component: ExpertGuide
+      },
+      {
+        path: 'expertKnowledgeList',
+        component: ExpertKnowledgeList
+      },
+      {
+        path: 'allQuestions',
+        component: AllQuestions
       },
       {
         path: 'allExpert',
