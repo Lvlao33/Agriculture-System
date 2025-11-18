@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// Ìí¼Óµ¥ÈË´û¿î
+// ï¿½ï¿½ï¿½Óµï¿½ï¿½Ë´ï¿½ï¿½ï¿½
 export function addFinance(params) {
     return request({
         method: 'post',
@@ -11,7 +11,7 @@ export function addFinance(params) {
         },
     })
 }
-// Ìí¼Ó×éºÏ´û¿î
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½
 export function addFinanceMulti(params) {
     return request({
         method: 'post',
@@ -22,7 +22,7 @@ export function addFinanceMulti(params) {
         },
     })
 }
-// ÒøÐÐ²éÑ¯½Ó¿Ú
+// ï¿½ï¿½ï¿½Ð²ï¿½Ñ¯ï¿½Ó¿ï¿½
 export function selectBank() {
     return request({
         method: 'get',
@@ -32,7 +32,7 @@ export function selectBank() {
         },
     })
 }
-// ²éÑ¯ÈÚ×ÊÒâÏò
+// ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function selectIntention() {
     return request({
         method: 'get',
@@ -42,7 +42,7 @@ export function selectIntention() {
         },
     })
 }
-// Ìí¼ÓÈÚ×ÊÒâÏò
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function insertIntention(params) {
     return request({
         method: 'post',
@@ -53,7 +53,7 @@ export function insertIntention(params) {
         },
     })
 }
-// ÐÞ¸ÄÈÚ×ÊÒâÏò
+// ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function updateIntention(params) {
     return request({
         method: 'put',
@@ -64,7 +64,7 @@ export function updateIntention(params) {
         },
     })
 }
-// É¾³ýÈÚ×ÊÒâÏò
+// É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function deleteIntention() {
     return request({
         method: 'delete',
@@ -74,7 +74,7 @@ export function deleteIntention() {
         },
     })
 }
-// ²éÑ¯ÍÆ¼öÈË
+// ï¿½ï¿½Ñ¯ï¿½Æ¼ï¿½ï¿½ï¿½
 export function selectRecommned() {
     return request({
         method: 'get',
@@ -85,7 +85,7 @@ export function selectRecommned() {
     })
 }
 
-// ²éÑ¯µ¥ÈË´û¿îÈËÐÅÏ¢
+// ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½Ë´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 export function selectFinaceUser(bank_id) {
     return request({
         method: 'get',
@@ -96,7 +96,7 @@ export function selectFinaceUser(bank_id) {
         },
     })
 }
-// ²éÑ¯×éºÏ´û¿îÈËÐÅÏ¢
+// ï¿½ï¿½Ñ¯ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 export function selectTwoUser(bank_id) {
     return request({
         method: 'get',
@@ -107,7 +107,7 @@ export function selectTwoUser(bank_id) {
         },
     })
 }
-// ²éÑ¯´û¿îÉêÇëÇé¿ö
+// ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function selectByName() {
     return request({
         method: 'get',
@@ -117,7 +117,7 @@ export function selectByName() {
         },
     })
 }
-// ÐÞ¸Ä´û¿îÉêÇëÇé¿ö
+// ï¿½Þ¸Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function updateById(params) {
     return request({
         method: 'put',
@@ -128,7 +128,7 @@ export function updateById(params) {
         },
     })
 }
-// É¾³ý´û¿îÉêÇë
+// É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 export function deleteById(financeId) {
     return request({
         method: 'delete',
@@ -138,7 +138,7 @@ export function deleteById(financeId) {
         },
     })
 }
-// ¸ù¾Ýid²éÑ¯ÈÚ×ÊÐÅÏ¢£¬ÐÅÏ¢»ØÏÔ
+// ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
 export function selectFinaceById(params) {
     return request({
         method: 'get',
@@ -149,7 +149,7 @@ export function selectFinaceById(params) {
     })
 }
 
-// »ñÈ¡´û¿î²úÆ·ÁÐ±í
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½Ð±ï¿½
 export function getLoanProducts() {
     return request({
         method: 'get',
@@ -160,7 +160,7 @@ export function getLoanProducts() {
     })
 }
 
-// »ñÈ¡´û¿î²úÆ·ÏêÇé
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½
 export function getLoanProductDetail(productId) {
     return request({
         method: 'get',
@@ -171,7 +171,7 @@ export function getLoanProductDetail(productId) {
     })
 }
 
-// // ÉêÇë´û¿î
+// // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 // export function applyLoan(params) {
 //     return request({
 //         method: 'post',
@@ -184,7 +184,7 @@ export function getLoanProductDetail(productId) {
 //     })
 // }
 
-// ÉêÇë´û¿î²¢ÉÏ´«×ÊÁÏ (multipart/form-data)
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î²¢ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ (multipart/form-data)
 export function applyLoanWithFiles(formData) {
     return request({
         method: 'post',
@@ -197,7 +197,7 @@ export function applyLoanWithFiles(formData) {
     })
 }
 
-// ÉÏ´«´û¿îÎÄ¼þ
+// ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 // export function uploadLoanFile(loanId, file) {
 //     const formData = new FormData();
 //     formData.append('file', file);
@@ -212,7 +212,7 @@ export function applyLoanWithFiles(formData) {
 //     })
 // }
 
-// »ñÈ¡´û¿îÉêÇëÁÐ±í
+// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
 export function getLoanList() {
     return request({
         method: 'get',
@@ -222,8 +222,6 @@ export function getLoanList() {
         },
     })
 }
-<<<<<<< HEAD
-=======
 
 // æŽˆæƒç”¨æˆ·
 export function toAuthorizationUser(params) {
@@ -236,4 +234,3 @@ export function toAuthorizationUser(params) {
         },
     })
 }
->>>>>>> 37ae0d5f64f366a622603654ebc7ad944ef7d1a0

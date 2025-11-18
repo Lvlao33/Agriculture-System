@@ -52,21 +52,18 @@ import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
-<<<<<<< HEAD
 import PublishSupply from '../views/PublishSupply'
 import PurchaseList from '../views/PurchaseList'
 import PublishNeed from '../views/PublishNeed'
-=======
 import ExpertGuide from '../views/ExpertGuide'
 import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
 import AllQuestions from '../views/AllQuestions'
->>>>>>> 37ae0d5f64f366a622603654ebc7ad944ef7d1a0
 
 
 Vue.use(VueRouter)
 
 
-// ½â¾öElementUIµ¼º½À¸ÖÐµÄvue-routerÔÚ3.0°æ±¾ÒÔÉÏÖØ¸´µã²Ëµ¥±¨´íÎÊÌâ
+// ï¿½ï¿½ï¿½ElementUIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½vue-routerï¿½ï¿½3.0ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)

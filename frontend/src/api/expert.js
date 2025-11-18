@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// 查询专家信息
+// 锟斤拷询专锟斤拷锟斤拷息
 export function getExpertInfo(params) {
   return request({
       method: 'get',
@@ -12,7 +12,7 @@ export function getExpertInfo(params) {
   })
 }
 
-// 修改专家信息
+// 锟睫革拷专锟斤拷锟斤拷息
 export function editExpertInfo(params) {
   return request({
       method: 'post',
@@ -23,8 +23,6 @@ export function editExpertInfo(params) {
       },
   })
 }
-<<<<<<< HEAD
-=======
 
 // 鑾峰彇鐭ヨ瘑鍒楄〃锛堝垎椤碉級
 export function getKnowledgeList(params) {
@@ -36,4 +34,3 @@ export function getKnowledgeList(params) {
       },
   })
 }
->>>>>>> 37ae0d5f64f366a622603654ebc7ad944ef7d1a0
