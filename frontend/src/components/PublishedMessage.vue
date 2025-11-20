@@ -8,7 +8,7 @@
       <el-input
         v-model="searchValue"
         maxlength="100"
-        placeholder="请输入商品内容进行搜索"
+        placeholder="请输入商品内容进行搜�?"
         clearable
         style="width: 290px"
       />
@@ -39,7 +39,7 @@
             发起人：<span class="initiator">{{ item.ownName }}</span>
           </div>
           <div class="content initiator">{{ item.content }}</div>
-          <div class="price">￥ {{ item.price }}</div>
+          <div class="price">�? {{ item.price }}</div>
           <div class="published-message-operation">
             <span @click.once="changeInfo(item.orderId)">
               <change-message
@@ -190,13 +190,13 @@ export default {
       .title {
         font-size: 16px;
         height: 30px;
-        /*超出的部分隐藏*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*文字用省略号替代超出的部分*/
+        /*文字用省略号替代超出的部�?*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 3;
         /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;
@@ -207,13 +207,13 @@ export default {
         max-height: 80px !important;
         margin-top: 10px;
         word-break: break-all;
-        /*超出的部分隐藏*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*文字用省略号替代超出的部分*/
+        /*文字用省略号替代超出的部�?*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 3;
         /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;

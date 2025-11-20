@@ -1,29 +1,35 @@
-//åˆ›å»ºaxioså®ä¾‹å¹¶é…ç½®åŸºç¡€URL
-//è®¾ç½®äº†å®Œæ•´çš„baseURLï¼Œaxiosä¼šç›´æ¥å‘è¿œå¤„æœåŠ¡å™¨å‘é€è¯·æ±‚ï¼Œä¸ä¼šç»è¿‡å¼€å‘æœåŠ¡å™¨çš„ä»£ç†
+// ´´½¨axiosÊµÀı²¢ÅäÖÃ»ù´¡URL
+// ÉèÖÃÁËÍêÕûµÄbaseURL£¬axios»áÖ±½ÓÏòÔ¶³Ì·şÎñÆ÷·¢ËÍÇëÇó£¬²»»á¾­¹ı¿ª·¢·şÎñÆ÷µÄ´úÀí
 import axios from 'axios'
 
 export function request(config) {
-    // åˆ›å»ºaxiosçš„å®ä¾‹
+    // ´´½¨axiosµÄÊµÀı
     const instance = axios.create({
         // baseURL: 'http://3958b99l28.zicp.vip',
         //baseURL: 'http://119.3.180.117:9090',
         // baseURL: process.env.VUE_APP_Address,
-        timeout: 100000
+        timeout: 100000,
+        // ÉèÖÃÄ¬ÈÏÇëÇóÍ·£¬È·±£Ê¹ÓÃUTF-8±àÂë
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+        }
     })
-    // axios.interceptors  å…¨å±€æ‹¦æˆª
-    //è¯·æ±‚æ‹¦æˆª
-    instance.interceptors.request.use(config => { //æ‹¦æˆªè¯·æ±‚
-        return config //è‹¥æ‹¦æˆªåˆ°éœ€è¦åŸå°ä¸åŠ¨çš„è¿”å›
+    // axios.interceptors  È«¾ÖÀ¹½Ø
+    // ÇëÇóÀ¹½Ø
+    instance.interceptors.request.use(config => { // À¹½ØÇëÇó
+        // È·±£ÇëÇóÍ·°üº¬UTF-8±àÂë
+        if (config.headers) {
+            config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json;charset=UTF-8';
+        }
+        return config // ÈôÀ¹½Øµ½ĞèÒªÔ­·â²»¶¯µÄ·µ»Ø
     }, err => { })
-    //å“åº”æ‹¦æˆª
+    // ÏìÓ¦À¹½Ø
     instance.interceptors.response.use(res => {
         return res.data
     }, err => {
         console.log(err);
     })
-    // 3.å‘é€çœŸæ­£çš„ç½‘ç»œè¯·æ±‚
+    // 3.·¢ËÍÕæÕıµÄÍøÂçÇëÇó
     return instance(config)
 
 }
-
-

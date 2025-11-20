@@ -19,7 +19,7 @@
       <div class="featured">
         <div class="feat-title">
           <span class="bar" :style="{background: themeColor}"></span>
-          บรป๕อฦผ๖
+          ๅฅฝ่ดงๆจ่
         </div>
         <div class="goods-list">
           <div class="goods" v-for="(g, gidx) in featuredGoods" :key="gidx">
@@ -39,7 +39,7 @@
       <div class="suppliers">
         <div class="sup-title">
           <span class="bar" :style="{background: themeColor}"></span>
-          อฦผ๖นฉำฆษฬ
+          ๆจ่ไพๅบ”ๅ•
         </div>
         <ul>
           <li v-for="(s, sidx) in suppliers" :key="sidx">{{ s }}</li>

@@ -16,16 +16,16 @@ module.exports = {
     port: 5173, // 前端运行端口号，可以改为你想要的
     proxy: {
       '/api': {
-        target: 'http://localhost:8081', // 后端服务地址
+        target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true
         // 不重写路径，因为后端接口路径已经包含 /api
       },
       '/order': {
-        target: 'http://localhost:8081', // 后端服务地址
+        target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true
       },
       '/img': {
-        target: 'http://localhost:8081', // 后端服务地址
+        target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true,
         bypass: function() {
           // 如果请求的是本地静态资源，跳过代理
@@ -34,7 +34,7 @@ module.exports = {
         }
       },
       '/kn': {
-        target: 'http://localhost:8081', // 后端服务地址
+        target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true
       }
     }

@@ -36,24 +36,23 @@
         <el-menu-item index="1" class="item" @click="frontBtn">首页</el-menu-item>
         <el-menu-item index="2" class="item" @click="goodsBtn">商品货源</el-menu-item>
         <el-menu-item index="3" class="item" @click="purchaseBtn">求购需求</el-menu-item>
-        <el-menu-item index="4" class="item" @click="knowledgesBtn">农业知识</el-menu-item>
-        <el-menu-item index="5" class="item" @click="guideBtn">专家指导</el-menu-item>
-        <el-menu-item index="6" class="item" @click="shopCartBtn">订单信息</el-menu-item>
-        <el-submenu index="7">
+        <el-menu-item index="4" class="item" @click="guideBtn">专家指导</el-menu-item>
+        <el-menu-item index="5" class="item" @click="shopCartBtn">订单信息</el-menu-item>
+        <el-submenu index="6">
           <template v-slot:title>融资服务</template>
-          <el-menu-item index="7-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
-          <el-menu-item index="7-2" @click.native="smartMatchBtn">智能匹配</el-menu-item>
-          <el-menu-item index="7-3" @click.native="financingBtn">申请记录</el-menu-item>
+          <el-menu-item index="6-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
+          <el-menu-item index="6-2" @click.native="smartMatchBtn">智能匹配</el-menu-item>
+          <el-menu-item index="6-3" @click.native="financingBtn">申请记录</el-menu-item>
         </el-submenu>
         <div class="userin" v-if="$store.state.loginUserNickname == ''"></div>
-        <el-submenu index="8" v-else>
+        <el-submenu index="7" v-else>
           <template v-slot:title>设置</template>
           <!--   -->
-          <el-menu-item index="8-1" @click.native="userPage">个人中心</el-menu-item>
-          <el-menu-item index="8-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>
-          <el-menu-item index="8-4" @click.native="goodsManage" v-if="$store.getters.isAdmin">商品管理</el-menu-item>
-          <el-menu-item index="8-5" @click.native="handleAbout">关于我们</el-menu-item>
-          <el-menu-item index="8-6" @click.native="logout">退出</el-menu-item>
+          <el-menu-item index="7-1" @click.native="userPage">个人中心</el-menu-item>
+          <el-menu-item index="7-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>
+          <el-menu-item index="7-4" @click.native="goodsManage" v-if="$store.getters.isAdmin">商品管理</el-menu-item>
+          <el-menu-item index="7-5" @click.native="handleAbout">关于我们</el-menu-item>
+          <el-menu-item index="7-6" @click.native="logout">退出</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
@@ -118,14 +117,11 @@ export default {
     goodsBtn() {
       this.$router.push("/home/goods").catch((err) => err);
     },
-    knowledgesBtn() {
-      this.$router.push("/home/knowledge").catch((err) => err);
-    },
     collectBtn(){
       this.$router.push("/home/collect").catch((err) => err);
     },
     guideBtn() {
-      this.$router.push("/home/guide").catch((err) => err);
+      this.$router.push("/home/expertGuide").catch((err) => err);
     },
     shopCartBtn() {
       this.$router.push("/home/orderInfo").catch((err) => err);
@@ -206,14 +202,19 @@ export default {
     width: 1100px;
     margin: 0 auto;
     height: 40px;
+    display: flex;
+    justify-content: space-around;
     .el-menu-item {
       background-color: #668d2f !important;
       height: 40px;
       line-height: 40px;
       font-size: 16px;
-      margin-right: 34px;
+      margin-right: 0;
+      padding: 0 30px;
+      flex: 0 0 auto;
     }
     .el-submenu {
+      flex: 0 0 auto;
       .template {
         background-color: #668d2f !important;
         height: 40px;
@@ -225,6 +226,7 @@ export default {
         height: 40px;
         background-color: #668d2f;
         font-size: 16px;
+        padding: 0 30px;
       }
       .el-menu-item {
         background-color: #668d2f !important;
