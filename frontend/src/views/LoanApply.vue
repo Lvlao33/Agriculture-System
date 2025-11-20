@@ -345,13 +345,14 @@ export default {
 
           // Create FormData including loan fields and all files
           const formData = new FormData();
-          // 临时方案：使用常量 farmerId，待用户认证系统完成后从 token 获取
-          formData.append('farmerId', '1'); // TODO: 待用户认证系统完成后，从 token 中获取 farmerId
+          // 临时方案：使用常量 userIds 和 operatorId，待用户认证系统完成后从 token 获取
+          formData.append('userIds', '1'); // 对应 LoanDTO.userIds
+          formData.append('operatorId', '1'); // 对应 LoanDTO.operatorId
           formData.append('loanAmount', this.loanForm.loanAmount);
           formData.append('loanPurpose', this.loanForm.loanPurpose);
           formData.append('loanTermMonths', this.loanForm.loanTermMonths);
           formData.append('interestRate', this.loanForm.interestRate != null ? this.loanForm.interestRate : 0);
-          if (this.loanForm.productId) formData.append('productId', this.loanForm.productId);
+          if (this.loanForm.productId) formData.append('loanProductId', this.loanForm.productId); // 对应 LoanDTO.loanProductId
 
           // Append all selected files; use the same field name 'file' for each file
           for (const material of this.requiredMaterials) {
@@ -359,6 +360,8 @@ export default {
               for (const fileItem of material.fileList) {
                 if (fileItem.raw) {
                   formData.append('file', fileItem.raw, fileItem.name);
+                  // 传递文件类型，与文件一一对应
+                  formData.append('fileTypes', material.name);
                 }
               }
             }

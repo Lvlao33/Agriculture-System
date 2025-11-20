@@ -89,8 +89,7 @@ public class Loan implements Serializable {
     private LoanProduct loanProduct; // 贷款产品与 Loan 的一对一关系
 
     /** 所关联的资料文件ID */
-    @OneToMany
-    @JoinColumn(name = "loan_file_id")
+    @OneToMany(mappedBy = "loan")
     private List<LoanFile> loanFiles; // 资料文件与 Loan 的多对一关系
 
     /** 所关联的处理人员 */
@@ -99,8 +98,7 @@ public class Loan implements Serializable {
     private User staff; // 工作人员与 Loan 的一对多关系
 
     /** 关联的贷款记录ID */
-    @OneToMany
-    @JoinColumn(name = "loan_record_id")
+    @OneToMany(mappedBy = "loan")
     private List<LoanRecord> loanRecords; // 贷款记录与 Loan 的多对一关系
 
     public Loan() {

@@ -26,39 +26,46 @@ public class LoanFileService {
     /**
      * 提交融资证明资料文件
      * 
-     * @param loanId 贷款ID
+     * @param loanId   贷款ID
+     * @param fileType 文件类型（例如：身份证、收入证明）
      * @return true 如果成功处理文件上传，false 如果失败
      */
-    public boolean uploadFile(Loan loan, MultipartFile file) throws Exception {
+    public boolean uploadFile(Loan loan, MultipartFile file, String fileType) throws Exception {
         // 校验文件
         if (checkFile(file)) {
             // 上传文件并获取存储路径
-            String filePath = saveFile(file, loan.getId());
+            String filePath = saveFile(file, loan.getId(), fileType);
 
             // 保存文件信息到数据库
             LoanFile loanFile = new LoanFile();
-            loanFile.setLoan(loan);
             loanFile.setFileName(file.getOriginalFilename());
             loanFile.setFilePath(filePath);
-            loanFile.setFileType(null); // 前端传入从哪个栏位传入
+            loanFile.setFileType(fileType); // 前端传入从哪个栏位传入
             loanFile.setCreatedAt(LocalDateTime.now());
             loanFile.setUpdatedAt(LocalDateTime.now());
+            // loan.getLoanFiles().add(loanFile);
+            loanFile.setLoan(loan);
             LoanFile temp = loanFileRepository.save(loanFile);
             if (temp.getId() != null) {
                 return true;
             } else {
+                System.err.println();
                 return false;
             }
         } else
             return false;
     }
 
-    private String saveFile(MultipartFile file, Long loanId) throws IOException {
+    private String saveFile(MultipartFile file, Long loanId, String fileType) throws IOException {
         // 获取项目根目录
         String projectRoot = System.getProperty("user.dir");
 
         // 定义保存文件的目录（backend目录）
+        // 路径结构：loans_files/{loanId}/{fileType}/
         String uploadDir = projectRoot + File.separator + "loans_files" + File.separator + loanId;
+        if (fileType != null && !fileType.trim().isEmpty()) {
+            uploadDir += File.separator + fileType;
+        }
 
         // 创建目录（如果目录不存在）
         File uploadDirFile = new File(uploadDir);
