@@ -74,7 +74,6 @@
 </template>
 
 <script>
-let Base64 = require("js-base64");
 export default {
   data() {
     return {
@@ -96,6 +95,7 @@ export default {
     },
     logout() {
       this.$store.commit("updateLoginUserNickname", "");
+      this.$store.commit("updateLoginUserAvatar", "");
       this.$store.commit("removeStorage");
       this.$router.push("/home").catch((err) => err);
       if (sessionStorage.getItem("/order/needs/pageCode")) {
@@ -157,14 +157,6 @@ export default {
   },
   created() {
     this.$store.commit("updateActiveIndex", "1");
-    if (window.localStorage.token) {
-      let token = window.localStorage.token;
-      let arr = token.split(".");
-      let res = Base64.decode(arr[1]);
-      this.$store.commit("updateLoginUserNickname",  JSON.parse(res).sub);
-      this.$store.commit("updateLoginUserAvatar", JSON.parse(res).avatar);
-      this.$store.commit("updateRole", JSON.parse(res).role);
-    }
   },
 };
 </script>

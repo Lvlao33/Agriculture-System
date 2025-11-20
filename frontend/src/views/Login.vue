@@ -110,7 +110,14 @@ export default {
             } else {
               if (res && res.success) {
                 const token = res.data && res.data.token ? res.data.token : '';
+                const user = res.data && res.data.user ? res.data.user : null;
                 this.$store.commit("setToken", token);
+                if (user) {
+                  const nickname = user.nickname || user.username || '';
+                  const avatar = user.avatar || '';
+                  this.$store.commit("updateLoginUserNickname", nickname);
+                  this.$store.commit("updateLoginUserAvatar", avatar);
+                }
                 this.$router.push("/home").catch((err) => err);
               } else {
                 alert(res && res.message ? res.message : '登录失败');

@@ -11,8 +11,8 @@ export default new Vuex.Store({
     changedOrderId: 0,
     changedKnowledgeId: 0,
     user: '',
-    loginUserNickname: '',
-    loginUserAvatar: '',
+    loginUserNickname: localStorage.getItem('loginUserNickname') ? localStorage.getItem('loginUserNickname') : '',
+    loginUserAvatar: localStorage.getItem('loginUserAvatar') ? localStorage.getItem('loginUserAvatar') : '',
     activeIndex: '1',
     publishActiveIndex: '1',
     userActiveIndex: '1-1',
@@ -61,11 +61,20 @@ export default new Vuex.Store({
       state.changedKnowledgeId = value
     },
     updateLoginUserNickname(state, value) {
-      // console.log('state.loginUserNickname', value)
       state.loginUserNickname = value
+      if (value) {
+        localStorage.setItem('loginUserNickname', value)
+      } else {
+        localStorage.removeItem('loginUserNickname')
+      }
     },
     updateLoginUserAvatar(state, value) {
       state.loginUserAvatar = value
+      if (value) {
+        localStorage.setItem('loginUserAvatar', value)
+      } else {
+        localStorage.removeItem('loginUserAvatar')
+      }
     },
     updateRole(state, value) {
       state.role = value
@@ -89,7 +98,12 @@ export default new Vuex.Store({
     },
     // 删除token
     removeStorage(state) {
+      state.token = ''
+      state.loginUserNickname = ''
+      state.loginUserAvatar = ''
       localStorage.removeItem('token');
+      localStorage.removeItem('loginUserNickname')
+      localStorage.removeItem('loginUserAvatar')
     }
   },
   actions: {
