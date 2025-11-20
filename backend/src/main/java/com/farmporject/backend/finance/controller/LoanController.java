@@ -1,6 +1,5 @@
 package com.farmporject.backend.finance.controller;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,12 +44,12 @@ public class LoanController {
                     MultipartFile mf = files[i];
                     if (mf == null || mf.isEmpty())
                         continue;
-                    
+
                     String fileType = null;
                     if (fileTypes != null && i < fileTypes.size()) {
                         fileType = fileTypes.get(i);
                     }
-                    
+
                     boolean ok = loanService.uploadFileByLoanId(appliedLoan.getId(), mf, fileType);
                     if (!ok)
                         anyUploadFailed = true;

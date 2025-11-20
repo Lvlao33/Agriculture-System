@@ -267,4 +267,38 @@ public class LoanService {
             return false;
         }
     }
+
+    /**
+     * 分配人员处理贷款申请
+     * 
+     * @param loanId  贷款ID
+     * @param staffId 人员ID
+     * @return true 如果成功分配，false 如果分配失败
+     */
+    public boolean assign(Long loanId, Long staffId) {
+        // 这里需要调用服务层的分配人员处理贷款申请方法
+        // 先查询贷款申请信息
+        try {
+            if (loanId != null && staffId != null) {
+                Loan loan = repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+                User staff = userRepository.findById(staffId).orElseThrow(() -> new RuntimeException("人员不存在"));
+                if (loan != null && staff != null) {
+                    // 调用服务层分配人员处理贷款申请方法
+                    loan.setStaff(staff);
+                    // 设置更新时间
+                    loan.setUpdateDate(LocalDateTime.now());
+                    // 然后保存到数据库并确认是否成功
+                    Loan savedLoan = repo.save(loan);
+                    // 如果保存成功，savedLoan 会有 ID，返回 true
+                    return savedLoan.getId() != null;
+                }
+            } else {
+                throw new RuntimeException("贷款ID不能为空");
+            }
+        } catch (Exception e) {
+            // 实际项目中应该使用日志记录异常
+            // logger.error("Failed to assign loan application", e);
+        }
+        return false;
+    }
 }

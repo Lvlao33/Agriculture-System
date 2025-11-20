@@ -25,6 +25,17 @@ public class BankReviewController {
                 .body(loanService.findLoanListByTime(LocalDateTime.now().minusDays(30), LocalDateTime.now()));
     }
 
+    // 分配人员处理贷款申请
+    @PostMapping("/applications/{id}/assign")
+    public ResponseEntity<?> assign(@PathVariable String id, @RequestParam Long operatorId) {
+        // 这里需要调用服务层的分配人员处理贷款申请方法
+        if (loanService.assign(Long.parseLong(id), operatorId)) {
+            return ResponseEntity.ok().body("assigned " + id + " to " + operatorId);
+        } else {
+            return ResponseEntity.badRequest().body("failed to assign " + id + " to " + operatorId);
+        }
+    }
+
     // 该业务完成后续需要身份认证
     @PostMapping("/applications/{id}/approve")
     public ResponseEntity<?> approve(@PathVariable String id, @RequestParam Long operatorId) {
