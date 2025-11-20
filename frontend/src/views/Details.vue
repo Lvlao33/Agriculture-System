@@ -192,12 +192,12 @@ export default {
 
       let img = document.getElementById("aa");
       console.log(img.src)
-      if(img.src == "http://localhost:8081/img/good.png"){
+      if(img.src == "http://localhost:8080/img/good.png"){
 
         img.src = "/img/like.png";
 
       }
-      else if(img.src=="http://localhost:8081/img/like.png"){
+      else if(img.src=="http://localhost:8080/img/like.png"){
         img.src = "/img/good.png";
       }
 
@@ -205,7 +205,7 @@ export default {
     },
     like2(){
       let imgb = document.getElementById("bb");
-      if(imgb.src == "http://localhost:8081/img/no-star.png"){
+      if(imgb.src == "http://localhost:8080/img/no-star.png"){
 
         addOrderToCollect({
           order_id: this.data.orderId,
@@ -226,7 +226,7 @@ export default {
         imgb.src = "/img/full-star.png";
 
       }
-      else if(imgb.src=="http://localhost:8081/img/full-star.png"){
+      else if(imgb.src=="http://localhost:8080/img/full-star.png"){
         imgb.src = "/img/no-star.png";
       }
 
