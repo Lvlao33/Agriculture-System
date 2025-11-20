@@ -5,10 +5,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Loan;
+import com.farmporject.backend.finance.dto.LoanDTO;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -30,50 +30,56 @@ public class LoanController {
     // 填写融资申请
     // 必要的申请资料必须一次提交 资料可以后补
     @PostMapping(value = "/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // 指定请求体为multipart/form-data类型
-    public ResponseEntity<?> apply(@ModelAttribute Loan loan,
+    public ResponseEntity<?> apply(@ModelAttribute LoanDTO loanDTO,
             @RequestPart(value = "file", required = false) MultipartFile[] files,
             HttpServletRequest request) {
         try {
             // debug: 如果 file 丢失，尝试列出 multipart 中的 part
-            if (files == null || files.length == 0) {
-                StringBuilder partsInfo = new StringBuilder();
-                try {
-                    if (request instanceof MultipartHttpServletRequest) {
-                        MultipartHttpServletRequest mreq = (MultipartHttpServletRequest) request;
-                        partsInfo.append("Received multipart form keys: ");
-                        mreq.getParameterMap().forEach((k, v) -> partsInfo.append(k).append(", "));
-                        partsInfo.append("; received file keys: ");
-                        mreq.getFileNames().forEachRemaining(name -> partsInfo.append(name).append(", "));
-                    } else if (request.getParts() != null) {
-                        partsInfo.append("Parts: ");
-                        request.getParts().forEach(p -> partsInfo.append(p.getName()).append(", "));
-                    } else {
-                        partsInfo.append("No multipart parts available from request object.");
-                    }
-                } catch (Exception ex) {
-                    partsInfo.append("(failed to enumerate parts: ").append(ex.getMessage()).append(")");
-                }
-                logger.warn("File part missing in request. {}", partsInfo.toString());
-                return ResponseEntity.badRequest().body("Required part 'file' is not present. " + partsInfo.toString());
-            }
+            // if (files == null || files.length == 0) {
+            // StringBuilder partsInfo = new StringBuilder();
+            // try {
+            // if (request instanceof MultipartHttpServletRequest) {
+            // MultipartHttpServletRequest mreq = (MultipartHttpServletRequest) request;
+            // partsInfo.append("Received multipart form keys: ");
+            // mreq.getParameterMap().forEach((k, v) -> partsInfo.append(k).append(", "));
+            // partsInfo.append("; received file keys: ");
+            // mreq.getFileNames().forEachRemaining(name -> partsInfo.append(name).append(",
+            // "));
+            // } else if (request.getParts() != null) {
+            // partsInfo.append("Parts: ");
+            // request.getParts().forEach(p -> partsInfo.append(p.getName()).append(", "));
+            // } else {
+            // partsInfo.append("No multipart parts available from request object.");
+            // }
+            // } catch (Exception ex) {
+            // partsInfo.append("(failed to enumerate parts:
+            // ").append(ex.getMessage()).append(")");
+            // }
+            // logger.warn("File part missing in request. {}", partsInfo.toString());
+            // return ResponseEntity.badRequest().body("Required part 'file' is not present.
+            // " + partsInfo.toString());
+            // }
+
             // 1. 先处理贷款申请
-            boolean isLoanApplied = loanService.apply(loan);
-            if (!isLoanApplied) {
+            Loan appliedLoan = loanService.apply(loanDTO, loanDTO.getOperatorId());
+            if (appliedLoan == null) {
                 return ResponseEntity.status(400).body("Loan application failed");
             }
 
             // 2. 然后上传融资证明文件（支持多个文件）
-            boolean anyUploadFailed = false;
-            for (MultipartFile mf : files) {
-                if (mf == null || mf.isEmpty())
-                    continue;
-                boolean ok = loanService.uploadFileByLoanId(loan.getId(), mf);
-                if (!ok)
-                    anyUploadFailed = true;
-            }
-            if (anyUploadFailed) {
-                return ResponseEntity.status(400).body("One or more file uploads failed");
-            }
+            // boolean anyUploadFailed = false;
+            // if (files != null) {
+            // for (MultipartFile mf : files) {
+            // if (mf == null || mf.isEmpty())
+            // continue;
+            // boolean ok = loanService.uploadFileByLoanId(appliedLoan.getId(), mf);
+            // if (!ok)
+            // anyUploadFailed = true;
+            // }
+            // }
+            // if (anyUploadFailed) {
+            // return ResponseEntity.status(400).body("One or more file uploads failed");
+            // }
 
             // 3. 成功
             return ResponseEntity.ok().body("Loan application and file upload success");

@@ -5,10 +5,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.farmporject.backend.user.model.User;
 
 @Entity
 @Table(name = "loan_products")
@@ -16,10 +24,20 @@ public class LoanProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "loan_product_id", nullable = false)
     private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "product_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus;
+
+    enum ProductStatus {
+        SALE,
+        DELETED
+    }
 
     @Column(name = "bank", nullable = false)
     private String bank;
@@ -50,6 +68,13 @@ public class LoanProduct {
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id", nullable = false)
+    private User staff;
+
+    @OneToMany(mappedBy = "loanProduct")
+    private List<Loan> loan;
 
     public LoanProduct() {
     }
@@ -161,5 +186,37 @@ public class LoanProduct {
 
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public User getStaff() {
+        return staff;
+    }
+
+    public void setStaff(User staff) {
+        this.staff = staff;
+    }
+
+    public List<Loan> getLoan() {
+        return loan;
+    }
+
+    public void setLoan(List<Loan> loan) {
+        this.loan = loan;
+    }
+
+    public ProductStatus getProductStatus() {
+        return productStatus;
+    }
+
+    public void setProductStatus(ProductStatus productStatus) {
+        this.productStatus = productStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "LoanProduct [id=" + id + ", name=" + name + ", bank=" + bank + ", amount=" + amount + ", term=" + term
+                + ", rate=" + rate + ", fastestDisbursement=" + fastestDisbursement + ", description=" + description
+                + ", tags=" + tags + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", deletedAt="
+                + deletedAt + ", staff=" + staff + ", loan=" + loan + "]";
     }
 }

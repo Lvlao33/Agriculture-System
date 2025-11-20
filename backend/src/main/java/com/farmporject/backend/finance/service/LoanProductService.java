@@ -1,7 +1,6 @@
 package com.farmporject.backend.finance.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.farmporject.backend.finance.repository.LoanProductRepository;
 import com.farmporject.backend.finance.model.LoanProduct;
 import java.util.List;

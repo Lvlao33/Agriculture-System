@@ -5,7 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,9 +15,11 @@ public class LoanFile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "loan_file_id", nullable = false)
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "loan_id", nullable = false)
     private Loan loan; // 与贷款申请相关联
 
     @Column(name = "file_name", length = 255)

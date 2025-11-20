@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data JPA repository for LoanFile entity.
+ * Spring Data JPA repository for LoanProduct entity.
  */
 @Repository
 public interface LoanProductRepository extends JpaRepository<LoanProduct, Long> {

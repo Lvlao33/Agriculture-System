@@ -5,12 +5,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.farmporject.backend.user.model.User;
 
 /**
  * 贷款实体（Loan）的数据模型，映射到数据库表 `loans`。
@@ -24,11 +34,8 @@ public class Loan implements Serializable {
     /** 主键，自增ID */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "loan_id")
     private Long id;
-
-    /** 关联的农户ID（外键） */
-    @Column(name = "farmer_id", nullable = false)
-    private Long farmerId;
 
     /** 申请金额 */
     @Column(name = "loan_amount", precision = 14, scale = 2, nullable = false)
@@ -55,8 +62,9 @@ public class Loan implements Serializable {
     private LocalDateTime updateDate;
 
     /** 当前状态（例如：PENDING/APPROVED/REJECTED） */
-    @Column(name = "status", length = 32)
-    private String status;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     /** 放款时间 */
     @Column(name = "disbursement_date")
@@ -70,54 +78,57 @@ public class Loan implements Serializable {
     @Column(name = "remark", length = 1000)
     private String remark;
 
+    // 表与表的关系
+    /** 关联的农户ID（外键） */
+    @OneToMany(mappedBy = "loan")
+    private List<LoanUserStatus> loanUserStatuses; // 贷款与多个农户的多对多关系
+
     /** 所关联的产品ID */
-    @Column(name = "product_id")
-    private Long productId;
+    @ManyToOne
+    @JoinColumn(name = "loan_product_id")
+    private LoanProduct loanProduct; // 贷款产品与 Loan 的一对一关系
+
+    /** 所关联的资料文件ID */
+    @OneToMany
+    @JoinColumn(name = "loan_file_id")
+    private List<LoanFile> loanFiles; // 资料文件与 Loan 的多对一关系
 
     /** 所关联的处理人员 */
-    @Column(name = "handled_by", length = 64)
-    private String handledBy;
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    private User staff; // 工作人员与 Loan 的一对多关系
 
-    public enum LoanStatus {
-        REVIEWING, // 银行审核中，提交证明资料银行端未进行操作
-        APPROVED, // 审核通过，待签约
-        REJECTED, // 审核不通过，用户未修改提交资料/直接不通过，建议更换产品或申请联合贷款
-        SIGNED, // 已签约，未放款
-        DISBURSED, // 已放款，未确认还款须知？
-        REPAYING, // 还款中
-        CLEARED_NORMAL, // 正常结清
-        CLEARED_EARLY // 提前结清
-    }
+    /** 关联的贷款记录ID */
+    @OneToMany
+    @JoinColumn(name = "loan_record_id")
+    private List<LoanRecord> loanRecords; // 贷款记录与 Loan 的多对一关系
 
     public Loan() {
+        loanUserStatuses = new ArrayList<>();
+        loanFiles = new ArrayList<>();
+        loanRecords = new ArrayList<>();
     }
 
-    public Loan(Long farmerId, BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths,
-            BigDecimal interestRate, LocalDateTime applicationDate, LocalDateTime updateDate, String status,
-            LocalDateTime disbursementDate, LocalDate repaymentDueDate, String remark, Long productId,
-            String handledBy) {
-        // 用户信息 从登录token中获取
-        this.farmerId = farmerId;
+    // 现在使用DTO模式，不再使用该构造方法
+    // 初始化
+    public Loan(BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths,
+            BigDecimal interestRate, LocalDateTime applicationDate, LocalDateTime updateDate, Status status,
+            LocalDateTime disbursementDate, LocalDate repaymentDueDate, String remark) {
         // 用户提交信息
         this.loanAmount = loanAmount; // 前端检测输入的金额是否合理（0~申请额度）
         this.loanPurpose = loanPurpose; // 前端检测输入是否合法（该数据栏位存在长度限制255）
 
-        // 从前端ui信息中获取
-        this.productId = productId;
-
-        // 贷款产品信息 先从前端ui获取 后考虑从产品表中获取
+        // 贷款产品信息
         this.loanTermMonths = loanTermMonths;
         this.interestRate = interestRate;
 
         // 默认值
-        this.applicationDate = applicationDate; // 后端获得当前时间 null
-        this.updateDate = updateDate; // 后端获得当前时间 null
-        this.status = status; // REVIEWING
-        this.remark = remark; // null
+        this.applicationDate = applicationDate; // 后端获得当前时间
+        this.updateDate = updateDate; // 后端获得当前时间
+        this.status = status; // CREATED
+        this.remark = remark; //
         this.disbursementDate = disbursementDate; // null
         this.repaymentDueDate = repaymentDueDate; // null
-
-        this.handledBy = handledBy; // null
     }
 
     // Getter / Setter
@@ -128,14 +139,6 @@ public class Loan implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getFarmerId() {
-        return farmerId;
-    }
-
-    public void setFarmerId(Long farmerId) {
-        this.farmerId = farmerId;
     }
 
     public BigDecimal getLoanAmount() {
@@ -186,11 +189,11 @@ public class Loan implements Serializable {
         this.updateDate = updateDate;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -218,37 +221,53 @@ public class Loan implements Serializable {
         this.remark = remark;
     }
 
-    public Long getProductId() {
-        return productId;
+    // 表与表的关系
+
+    public LoanProduct getLoanProduct() {
+        return loanProduct;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setLoanProduct(LoanProduct loanProduct) {
+        this.loanProduct = loanProduct;
     }
 
-    public String getHandledBy() {
-        return handledBy;
+    public List<LoanFile> getLoanFiles() {
+        return loanFiles;
     }
 
-    public void setHandledBy(String handledBy) {
-        this.handledBy = handledBy;
+    public void setLoanFiles(List<LoanFile> loanFiles) {
+        this.loanFiles = loanFiles;
+    }
+
+    public User getStaff() {
+        return staff;
+    }
+
+    public void setStaff(User staff) {
+        this.staff = staff;
+    }
+
+    public List<LoanRecord> getLoanRecords() {
+        return loanRecords;
+    }
+
+    public void setLoanRecords(List<LoanRecord> loanRecords) {
+        this.loanRecords = loanRecords;
+    }
+
+    public List<LoanUserStatus> getLoanUserStatuses() {
+        return loanUserStatuses;
+    }
+
+    public void setLoanUserStatuses(List<LoanUserStatus> loanUserStatuses) {
+        this.loanUserStatuses = loanUserStatuses;
     }
 
     @Override
     public String toString() {
-        return "Loan{" +
-                "id=" + id +
-                ", farmerId=" + farmerId +
-                ", loanAmount=" + loanAmount +
-                ", loanPurpose='" + loanPurpose + '\'' +
-                ", loanTermMonths=" + loanTermMonths +
-                ", interestRate=" + interestRate +
-                ", applicationDate=" + applicationDate +
-                ", status='" + status + '\'' +
-                ", disbursementDate=" + disbursementDate +
-                ", repaymentDueDate=" + repaymentDueDate +
-                ", remark='" + remark + '\'' +
-                ", productId=" + productId +
-                "}";
+        return "Loan [id=" + id + ", loanAmount=" + loanAmount + ", loanPurpose=" + loanPurpose + ", loanTermMonths="
+                + loanTermMonths + ", interestRate=" + interestRate + ", applicationDate=" + applicationDate
+                + ", updateDate=" + updateDate + ", status=" + status + ", disbursementDate=" + disbursementDate
+                + ", repaymentDueDate=" + repaymentDueDate + ", remark=" + remark + "]";
     }
 }
