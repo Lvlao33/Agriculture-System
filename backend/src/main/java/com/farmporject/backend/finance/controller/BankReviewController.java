@@ -4,8 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.farmporject.backend.finance.service.LoanService;
-import com.farmporject.backend.finance.model.Loan;
-import com.farmporject.backend.finance.model.Status;    
+import com.farmporject.backend.finance.model.Status;
 
 import java.time.LocalDateTime;
 
@@ -28,8 +27,8 @@ public class BankReviewController {
 
     // 该业务完成后续需要身份认证
     @PostMapping("/applications/{id}/approve")
-    public ResponseEntity<?> approve(@PathVariable String id) {
-        if (loanService.submitByLoanId(Long.parseLong(id), Status.APPROVED)) {
+    public ResponseEntity<?> approve(@PathVariable String id, @RequestParam Long operatorId) {
+        if (loanService.submitByLoanId(Long.parseLong(id), Status.APPROVED, operatorId, "approved by bank")) {
             return ResponseEntity.ok().body("approved " + id);
         } else {
             return ResponseEntity.badRequest().body("failed to approve " + id);
@@ -37,8 +36,8 @@ public class BankReviewController {
     }
 
     @PostMapping("/applications/{id}/reject")
-    public ResponseEntity<?> reject(@PathVariable String id) {
-        if (loanService.submitByLoanId(Long.parseLong(id), Status.REJECTED)) {
+    public ResponseEntity<?> reject(@PathVariable String id, @RequestParam Long operatorId) {
+        if (loanService.submitByLoanId(Long.parseLong(id), Status.REJECTED, operatorId, "rejected by bank")) {
             return ResponseEntity.ok().body("rejected " + id);
         } else {
             return ResponseEntity.badRequest().body("failed to reject " + id);

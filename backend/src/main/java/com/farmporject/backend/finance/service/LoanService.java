@@ -17,8 +17,11 @@ import java.util.ArrayList;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.transaction.annotation.Transactional;
+
 // 功能：贷款业务逻辑（申请处理、验证、保存、审批交互等）。
 @Service
+@Transactional
 public class LoanService {
 
     private final LoanRepository repo;
@@ -174,19 +177,44 @@ public class LoanService {
      * 修改贷款申请状态
      * 由银行侧来修改
      * 
-     * @param Status 新的状态
-     * @param loanId 贷款ID
+     * @param Status     新的状态
+     * @param loanId     贷款ID
+     * @param operatorId 操作者ID
+     * @param remark     备注
      * @return true 如果数据库贷款申请记录状态成功修改，false 如果失败
      */
-    public boolean submitByLoanId(Long loanId, Status status) {
+    public boolean submitByLoanId(Long loanId, Status status, Long operatorId, String remark) {
         // 先查询贷款申请信息
         try {
             if (loanId != null) {
                 Loan loan = repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
-                // 若存在，根据传入函数的status修改loan
                 if (loan != null) {
+                    // 根据传入函数的status修改loan
                     loan.setStatus(status);
                     loan.setUpdateDate(LocalDateTime.now());
+
+                    // 修改用户状态跟踪记录
+                    if (loan.getLoanUserStatuses() != null) {
+                        for (LoanUserStatus loanUserStatus : loan.getLoanUserStatuses()) {
+                            loanUserStatus.setStatus(status);
+                            loanUserStatusRepository.save(loanUserStatus);
+                        }
+                    }
+
+                    // 新建贷款操作记录
+                    // 设置与贷款操作记录的表关联
+                    LoanRecord loanRecord = new LoanRecord();
+                    loanRecord.setLoan(loan);
+                    loanRecord.setRecordDate(java.time.LocalDateTime.now());
+                    loanRecord.setApplyStatus(status);
+                    loanRecord.setRecordDetails(remark);
+                    loanRecord.setUser(
+                            userRepository.findById(operatorId).orElseThrow(() -> new RuntimeException("操作者不存在")));
+
+                    loanRecordRepository.save(loanRecord);
+                    loan.getLoanRecords().add(loanRecord);
+
+                    // 保存到数据库并确认是否成功
                     return repo.save(loan).getId() != null;
                 }
             } else {
