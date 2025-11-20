@@ -147,13 +147,14 @@ public class LoanService {
     }
 
     /**
-     * 上传贷款相关文件
+     * 上传贷款相关文件（一个一个传）
      * 
-     * @param loanId 贷款ID
-     * @param file   文件
+     * @param loanId   贷款ID
+     * @param file     文件
+     * @param fileType 文件类型
      * @return true 如果成功处理文件上传，false 如果失败
      */
-    public boolean uploadFileByLoanId(Long loanId, MultipartFile file) throws Exception {
+    public boolean uploadFileByLoanId(Long loanId, MultipartFile file, String fileType) throws Exception {
         // 先查询贷款申请信息
         if (loanId == null) {
             throw new Exception("贷款ID不能为空");
@@ -162,7 +163,7 @@ public class LoanService {
 
         // 调用文件上传服务，保存文件到服务器
         try {
-            return loanFileService.uploadFile(loan, file);
+            return loanFileService.uploadFile(loan, file, fileType);
         } catch (Exception e) {
             throw new Exception("文件上传失败: " + e.getMessage());
         }
