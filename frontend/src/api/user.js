@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// 找回密码
+// 锟揭伙拷锟斤拷锟斤拷
 export function forgetPassword(params) {
     return request({
         method: 'post',
@@ -12,7 +12,7 @@ export function forgetPassword(params) {
     })
 }
 
-// 用户登录
+// 锟矫伙拷锟斤拷录
 export function userLogin(params) {
     return request({
         method: 'post',
@@ -24,7 +24,7 @@ export function userLogin(params) {
     })
 }
 
-// 用户注册
+// 锟矫伙拷注锟斤拷
 export function userRegister(params) {
     return request({
         method: 'post',
@@ -36,7 +36,7 @@ export function userRegister(params) {
     })
 }
 
-// 用户登录之后，根据用户名展示个人基本信息
+// 锟矫伙拷锟斤拷录之锟襟，革拷锟斤拷锟矫伙拷锟斤拷展示锟斤拷锟剿伙拷锟斤拷锟斤拷息
 export function loginSelectByUsername(params) {
     return request({
         method: 'get',
@@ -47,7 +47,7 @@ export function loginSelectByUsername(params) {
     })
 }
 
-// 用户登录之后，根据用户名修改个人基本信息
+// 锟矫伙拷锟斤拷录之锟襟，革拷锟斤拷锟矫伙拷锟斤拷锟睫改革拷锟剿伙拷锟斤拷锟斤拷息
 export function loginUpdateByUsername(params) {
     return request({
         method: 'post',
@@ -59,7 +59,7 @@ export function loginUpdateByUsername(params) {
     })
 }
 
-// 根据用户名查询用户
+// 锟斤拷锟斤拷锟矫伙拷锟斤拷锟斤拷询锟矫伙拷
 export function selectUserByUsername(params) {
     return request({
         method: 'get',
@@ -70,7 +70,7 @@ export function selectUserByUsername(params) {
     })
 }
 
-// 根据用户名删除用户
+// 锟斤拷锟斤拷锟矫伙拷锟斤拷删锟斤拷锟矫伙拷
 export function deleteUserByUsername(params) {
     return request({
         method: 'delete',
@@ -81,7 +81,7 @@ export function deleteUserByUsername(params) {
     })
 }
 
-// 根据用户名修改用户信息
+// 锟斤拷锟斤拷锟矫伙拷锟斤拷锟睫革拷锟矫伙拷锟斤拷息
 export function updateUserByUsername(params) {
     return request({
         method: 'put',
@@ -93,7 +93,7 @@ export function updateUserByUsername(params) {
     })
 }
 
-// 分页查询所有用户
+// 锟斤拷页锟斤拷询锟斤拷锟斤拷锟矫伙拷
 export function selectAllUserPage(params) {
     return request({
         method: 'get',
@@ -104,7 +104,7 @@ export function selectAllUserPage(params) {
     })
 }
 
-// 修改用户密码
+// 锟睫革拷锟矫伙拷锟斤拷锟斤拷
 export function updateUserPassword(params) {
     return request({
         method: 'post',
