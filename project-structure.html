@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agriculture-System — Project Structure</title>
+  <style>
+    body{font-family:Segoe UI, Roboto, "Helvetica Neue", Arial; padding:20px; background:#f7f7f7}
+    .container{max-width:1200px;margin:0 auto;background:#fff;padding:20px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+    h1{font-size:20px;margin-bottom:6px}
+    ul{line-height:1.6;margin:6px 0;padding-left:18px}
+    .folder{font-weight:700;color:#2b6cb0}
+    .file{color:#333}
+    .path{color:#666;font-size:13px;margin-bottom:12px}
+    details{margin:6px 0}
+    summary{cursor:pointer}
+    code{background:#f2f2f2;padding:2px 6px;border-radius:4px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Agriculture-System — 项目结构</h1>
+    <p class="path">生成于: <strong>2025-11-14</strong></p>
+
+    <details open>
+      <summary class="folder">/ (仓库根目录)</summary>
+      <ul>
+        <li class="file">.git/</li>
+        <li class="file">.gitignore</li>
+        <li>
+          <details>
+            <summary class="folder">backend/</summary>
+            <ul>
+              <li class="file">.gitattributes</li>
+              <li class="file">.gitignore</li>
+              <li class="file">.mvn/</li>
+              <li class="file">mvnw</li>
+              <li class="file">mvnw.cmd</li>
+              <li class="file">pom.xml</li>
+              <li>
+                <details>
+                  <summary class="folder">src/</summary>
+                  <ul>
+                    <li>
+                      <details>
+                        <summary class="folder">main/</summary>
+                        <ul>
+                          <li class="folder">java/ (包含 `com/` 包结构)</li>
+                          <li class="file">resources/
+                            <ul><li class="file">application.properties</li></ul>
+                          </li>
+                        </ul>
+                      </details>
+                    </li>
+                    <li class="folder">test/</li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        <li>
+          <details open>
+            <summary class="folder">frontend/</summary>
+            <ul>
+              <li class="file">.gitignore</li>
+              <li class="file">babel.config.js</li>
+              <li class="file">dist/</li>
+              <li class="file">jsconfig.json</li>
+              <li class="file">node_modules/</li>
+              <li class="file">package-lock.json</li>
+              <li class="file">package.json</li>
+              <li class="file">pnpm-lock.yaml</li>
+              <li class="file">README.md</li>
+              <li class="file">vue.config.js</li>
+              <li>
+                <details>
+                  <summary class="folder">public/</summary>
+                  <ul>
+                    <li class="file">index.html</li>
+                    <li class="folder">img/</li>
+                    <li class="folder">kn/</li>
+                    <li class="folder">order/</li>
+                  </ul>
+                </details>
+              </li>
+
+              <li>
+                <details open>
+                  <summary class="folder">src/</summary>
+                  <ul>
+                    <li class="folder">api/ (多个 API 文件，例如 `order.js`,`user.js`,`knowledge.js` 等)</li>
+                    <li class="file">App.vue</li>
+                    <li>
+                      <details>
+                        <summary class="folder">assets/</summary>
+                        <ul>
+                          <li class="file">logo.png</li>
+                          <li>
+                            <details>
+                              <summary class="folder">img/ (示例图片)</summary>
+                              <ul>
+                                <li class="file">bank1001.jpg</li>
+                                <li class="file">bg1.png</li>
+                                <li class="file">food.png</li>
+                                <li class="file">fruit.png</li>
+                                <li class="file">farm.jpeg</li>
+                                <li class="file">pro1.jpg</li>
+                                <li class="file">pro2.jpg</li>
+                                <li class="file">pro3.jpg</li>
+                                <li class="file">search.png</li>
+                                <li class="file">placeholder.jpg</li>
+                                <li class="file">... (更多图片)</li>
+                              </ul>
+                            </details>
+                          </li>
+                        </ul>
+                      </details>
+                    </li>
+
+                    <li>
+                      <details>
+                        <summary class="folder">components/</summary>
+                        <ul>
+                          <li class="file">CategoryBlock.vue</li>
+                          <li class="file">CategoryGrid.vue</li>
+                          <li class="file">ChangeKnowledge.vue</li>
+                          <li class="file">DeleteKnowledge.vue</li>
+                          <li class="file">ExpertSource.vue</li>
+                          <li class="file">GoodsCatalog.vue</li>
+                          <li class="file">NeedsCatalog.vue</li>
+                          <li class="file">Pagination.vue</li>
+                          <li class="file">PublishedMessage.vue</li>
+                          <li class="file">PublishMessage.vue</li>
+                          <li class="file">Purchase.vue (如仓库中存在，已移除或替换时请核对)</li>
+                          <li class="file">ReceivingAddress.vue</li>
+                          <li class="file">UserNav.vue</li>
+                          <li class="file">... (更多组件)</li>
+                        </ul>
+                      </details>
+                    </li>
+
+                    <li class="folder">less/</li>
+                    <li class="file">main.js</li>
+                    <li class="folder">router/</li>
+                    <li class="folder">store/</li>
+                    <li class="folder">utils/</li>
+
+                    <li>
+                      <details>
+                        <summary class="folder">views/</summary>
+                        <ul>
+                          <li class="file">FrontPage.vue</li>
+                          <li class="file">Home.vue</li>
+                          <li class="file">HomePurchase.vue</li>
+                          <li class="file">PublishNeeds.vue</li>
+                          <li class="file">PublishedNeeds.vue</li>
+                          <li class="file">PublishedNeedsAdmin.vue</li>
+                          <li class="file">purchaseDetails.vue</li>
+                          <li class="file">Login.vue</li>
+                          <li class="file">Register.vue</li>
+                          <li class="file">OrderInfo.vue</li>
+                          <li class="file">... (更多视图)</li>
+                        </ul>
+                      </details>
+                    </li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </details>
+        </li>
+
+        <li class="file">README.md</li>
+      </ul>
+    </details>
+
+    <p style="margin-top:18px;color:#444">说明: 该文件自动生成自仓库快照，列出了主要目录和部分文件示例。对于更完整的逐层文件列表，可要求我继续展开并写入完整树（会列出每个文件名）。</p>
+  </div>
+</body>
+</html>

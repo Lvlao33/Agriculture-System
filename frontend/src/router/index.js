@@ -52,6 +52,9 @@ import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
+import PublishSupply from '../views/PublishSupply'
+import PurchaseList from '../views/PurchaseList'
+import PublishNeed from '../views/PublishNeed'
 import ExpertGuide from '../views/ExpertGuide'
 import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
 import AllQuestions from '../views/AllQuestions'
@@ -60,7 +63,7 @@ import AllQuestions from '../views/AllQuestions'
 Vue.use(VueRouter)
 
 
-// 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
+// ���ElementUI�������е�vue-router��3.0�汾�����ظ���˵���������
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -89,8 +92,20 @@ const routes = [
         component: HomeGoods
       },
       {
+        path: 'publishSupply',
+        component: PublishSupply
+      },
+      {
         path: 'purchase',
         component: HomePurchase
+      },
+      {
+        path: 'purchaseList',
+        component: PurchaseList
+      },
+      {
+        path: 'publishNeed',
+        component: PublishNeed
       },
       {
         path: 'knowledge',

@@ -1,21 +1,21 @@
 <template>
   <div style="width:900px;height:100%">
-    <published-message :ctype="type" :cdesciibe="describe"></published-message>
+    <category-grid :categories="categories" :columns="2"></category-grid>
   </div>
 </template>
 
 <script>
-import PublishedMessage from "../components/PublishedMessageAdmin.vue";
+import CategoryGrid from "../components/CategoryGrid.vue";
 export default {
   data() {
     return {
-      type: "needs",
-      describe: "需求",
+      categories: [
+        { title: '蔬菜', sub: ['叶菜类','瓜类','豆类','根菜类'], icon: require('../assets/img/food.png') },
+        { title: '水果', sub: ['仁果类','核果类','浆果类','柑橘类'], icon: require('../assets/img/fruit.png') }
+      ]
     };
   },
-  components: {
-    PublishedMessage,
-  },
+  components: { CategoryGrid },
   created() {
     this.$store.commit("updatePublishActiveIndex", "4-2");
   },

@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// 查询专家信息
+// ��ѯר����Ϣ
 export function getExpertInfo(params) {
   return request({
       method: 'get',
@@ -12,7 +12,7 @@ export function getExpertInfo(params) {
   })
 }
 
-// 修改专家信息
+// �޸�ר����Ϣ
 export function editExpertInfo(params) {
   return request({
       method: 'post',

@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// æ ¹æ®ç”¨æˆ·åæŸ¥è¯¢é—®ç­”  kindï¼šæ™®é€šç”¨æˆ·ï¼šquestionerï¼›ä¸“å®¶ï¼šexpert
+// ¸ù¾İÓÃ»§Ãû²éÑ¯ÎÊ´ğ  kind£ºÆÕÍ¨ÓÃ»§£ºquestioner£»×¨¼Ò£ºexpert
 export function selectQuestionByUser(params) {
   return request({
       method: 'get',
@@ -8,11 +8,11 @@ export function selectQuestionByUser(params) {
       headers: {
           'Authorization': window.localStorage.token,
       },
-      // data:paramsçœ‹åœŸå£¤ç‰¹ç‚¹ï¼Œä¸€èˆ¬æ²™åœŸä¸ºä¸€å‘¨ä¸€æ¬¡
+      // data:params ¿´Í¼Æ¬ÌØµã£¬Ò»°ãÉ³Ä®ÎªÒ»ÖÜÒ»´Î
   })
 }
 
-// æŸ¥è¯¢é—®ç­”æ ¹æ®id
+// ²éÑ¯ÎÊ´ğ¸ù¾İid
 export function selectQuestionByUserId(params) {
   return request({
       method: 'get',
@@ -24,7 +24,7 @@ export function selectQuestionByUserId(params) {
   })
 }
 
-// æ ¹æ®idä¿®æ”¹
+// ¸ù¾İidĞŞ¸Ä
 export function reviseQuestionByUserId(params) {
   return request({
       method: 'put',
@@ -36,7 +36,7 @@ export function reviseQuestionByUserId(params) {
   })
 }
 
-// æ ¹æ®idåˆ é™¤
+// ¸ù¾İidÉ¾³ı
 export function delQuestionByUserId(params) {
   return request({
       method: 'delete',
@@ -48,7 +48,7 @@ export function delQuestionByUserId(params) {
   })
 }
 
-// æ ¹æ®ç”¨æˆ·åæŸ¥è¯¢é¢„çº¦  kindï¼šæ™®é€šç”¨æˆ·ï¼šquestionerï¼›ä¸“å®¶ï¼šexpert
+// ¸ù¾İÓÃ»§Ãû²éÑ¯Ô¤Ô¼  kind£ºÆÕÍ¨ÓÃ»§£ºquestioner£»×¨¼Ò£ºexpert
 export function selectAppointByUser(params) {
   return request({
       method: 'get',
@@ -60,7 +60,7 @@ export function selectAppointByUser(params) {
   })
 }
 
-// æ ¹æ®idä¿®æ”¹é¢„çº¦
+// ¸ù¾İidĞŞ¸ÄÔ¤Ô¼
 export function reviseAppointByUserId(params) {
   return request({
       method: 'put',
@@ -72,7 +72,7 @@ export function reviseAppointByUserId(params) {
   })
 }
 
-// æ ¹æ®idåˆ é™¤é¢„çº¦
+// ¸ù¾İidÉ¾³ıÔ¤Ô¼
 export function delAppointByUserId(params) {
   return request({
       method: 'delete',

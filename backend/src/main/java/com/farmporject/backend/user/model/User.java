@@ -1,11 +1,7 @@
 package com.farmporject.backend.user.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -15,14 +11,27 @@ import com.farmporject.backend.finance.model.LoanRecord;
 import com.farmporject.backend.finance.model.LoanUserStatus;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, unique = true)
     private Long id;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(nullable = false, unique = true, length = 64)
+    private String username;
+
+    @Column(nullable = false, length = 128)
+    private String passwordHash;
+
+    @Column(length = 64)
+    private String nickname;
+
+    @Column(length = 256)
+    private String avatar;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "role", nullable = false)
     private String role; // finance板块中："FARMER" 或 "STAFF"
@@ -42,13 +51,52 @@ public class User {
     public User() {
     }
 
-    // Getters and Setters
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getRole() {
@@ -57,14 +105,6 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /* finance：staff */

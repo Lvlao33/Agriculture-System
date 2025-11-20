@@ -1,7 +1,7 @@
 import { request } from '../utils/request'
 
 
-// æ·»åŠ åˆ°æ”¶è—å¤¹
+// Ìí¼Óµ½ÊÕ²Ø¼Ğ
 export function addOrderToCollect(params) {
     return request({
         method: 'post',
@@ -12,7 +12,7 @@ export function addOrderToCollect(params) {
     })
 }
 
-// å±•ç¤ºæ”¶è—å¤¹åˆ—è¡¨
+// Õ¹Ê¾ÊÕ²Ø¼ĞÁĞ±í
 export function showcollect(params) {
     return request({
         method: 'get',
@@ -23,7 +23,7 @@ export function showcollect(params) {
     })
 }
 
-// æ”¶è—å¤¹åˆ é™¤å•†å“
+// ÊÕ²Ø¼ĞÉ¾³ıÉÌÆ·
 export function collectdelete(params) {
     return request({
         method: 'delete',
@@ -36,7 +36,7 @@ export function collectdelete(params) {
 
 
 
-// æ·»åŠ å•†å“åˆ°è´­ç‰©è½¦
+// Ìí¼ÓÉÌÆ·µ½¹ºÎï³µ
 export function addOrderToCart(params) {
     return request({
         method: 'post',
@@ -47,7 +47,7 @@ export function addOrderToCart(params) {
     })
 }
 
-// è´­ç‰©è½¦åˆ é™¤å•†å“
+// ¹ºÎï³µÉ¾³ıÉÌÆ·
 export function cartDeleteOrder(params) {
     return request({
         method: 'delete',
@@ -58,7 +58,7 @@ export function cartDeleteOrder(params) {
     })
 }
 
-// å±•ç¤ºè´­ç‰©è½¦åˆ—è¡¨
+// Õ¹Ê¾¹ºÎï³µÁĞ±í
 export function cartShow(params) {
     return request({
         method: 'get',
@@ -69,7 +69,7 @@ export function cartShow(params) {
     })
 }
 
-// æ›´æ–°å•†å“æ•°é‡  /cart/update/{id}/{count}
+// ¸üĞÂÉÌÆ·ÊıÁ¿  /cart/update/{id}/{count}
 export function updateGoodsCount(params) {
     return request({
         method: 'put',
