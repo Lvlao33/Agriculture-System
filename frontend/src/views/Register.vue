@@ -72,18 +72,18 @@ export default {
         return;
       } else {
         userRegister({
-          userName: this.userName,
+          username: this.userName,
           password: this.password,
-          nickName: this.nickName,
+          nickname: this.nickName,
           avatar: "rongxiaotong.gif",
         })
           .then((res) => {
-            if (res.flag == true) {
-              alert(res.message);
+            if (res && res.success) {
+              alert('注册成功');
               this.$store.commit("updateLoginUserNickname", this.nickName);
               this.$router.push("/login").catch((err) => err);
             } else {
-              alert(res.data);
+              alert(res && res.message ? res.message : '注册失败');
             }
           })
           .catch((err) => {

@@ -108,13 +108,12 @@ export default {
               alert("密码不能为空");
               return;
             } else {
-              if (res.flag == true) {
-                // 在Vuex中存储token
-                this.$store.commit("setToken", res.data);
-
+              if (res && res.success) {
+                const token = res.data && res.data.token ? res.data.token : '';
+                this.$store.commit("setToken", token);
                 this.$router.push("/home").catch((err) => err);
               } else {
-                alert(res.message);
+                alert(res && res.message ? res.message : '登录失败');
               }
             }
           })

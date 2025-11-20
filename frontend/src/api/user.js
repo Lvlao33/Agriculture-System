@@ -4,7 +4,7 @@ import { request } from '../utils/request'
 export function forgetPassword(params) {
     return request({
         method: 'post',
-        url: 'user/forgetPassword',
+        url: '/api/user/forgetPassword',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -16,7 +16,7 @@ export function forgetPassword(params) {
 export function userLogin(params) {
     return request({
         method: 'post',
-        url: 'user/login',
+        url: '/api/auth/login',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -28,7 +28,7 @@ export function userLogin(params) {
 export function userRegister(params) {
     return request({
         method: 'post',
-        url: 'user/add',
+        url: '/api/auth/register',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -40,7 +40,7 @@ export function userRegister(params) {
 export function loginSelectByUsername(params) {
     return request({
         method: 'get',
-        url: 'user/loginSelectByUsername',
+        url: '/api/user/' + (params.username || params.user_name || ''),
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -51,7 +51,7 @@ export function loginSelectByUsername(params) {
 export function loginUpdateByUsername(params) {
     return request({
         method: 'post',
-        url: 'user/loginUpdateByUsername',
+        url: '/api/user/loginUpdateByUsername',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -63,7 +63,7 @@ export function loginUpdateByUsername(params) {
 export function selectUserByUsername(params) {
     return request({
         method: 'get',
-        url: 'user/' + params.user_name,
+        url: '/api/user/' + params.user_name,
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -74,7 +74,7 @@ export function selectUserByUsername(params) {
 export function deleteUserByUsername(params) {
     return request({
         method: 'delete',
-        url: 'user/' + params.user_name,
+        url: '/api/user/' + params.user_name,
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -85,7 +85,7 @@ export function deleteUserByUsername(params) {
 export function updateUserByUsername(params) {
     return request({
         method: 'put',
-        url: 'user/' + params.user_name,
+        url: '/api/user/' + params.user_name,
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -97,7 +97,7 @@ export function updateUserByUsername(params) {
 export function selectAllUserPage(params) {
     return request({
         method: 'get',
-        url: 'user/search/' + params.pageNum,
+        url: '/api/user/search/' + params.pageNum,
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -108,7 +108,7 @@ export function selectAllUserPage(params) {
 export function updateUserPassword(params) {
     return request({
         method: 'post',
-        url: 'user/loginUpdatePassword',
+        url: '/api/user/loginUpdatePassword',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
