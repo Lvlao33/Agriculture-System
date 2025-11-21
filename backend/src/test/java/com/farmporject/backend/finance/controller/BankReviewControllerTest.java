@@ -58,48 +58,52 @@ class BankReviewControllerTest {
     @Test
     public void approve_returnsOkWhenServiceSucceeds() {
         String id = "123";
-        when(loanService.submitByLoanId(123L, Status.APPROVED)).thenReturn(true);
+        Long operatorId = 9L;
+        when(loanService.submitByLoanId(123L, Status.APPROVED, operatorId, "approved by bank")).thenReturn(true);
 
-        ResponseEntity<?> response = controller.approve(id);
+        ResponseEntity<?> response = controller.approve(id, operatorId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("approved 123", response.getBody());
-        verify(loanService).submitByLoanId(123L, Status.APPROVED);
+        verify(loanService).submitByLoanId(123L, Status.APPROVED, operatorId, "approved by bank");
     }
 
     @Test
     public void approve_returnsBadRequestWhenServiceFails() {
         String id = "456";
-        when(loanService.submitByLoanId(456L, Status.APPROVED)).thenReturn(false);
+        Long operatorId = 11L;
+        when(loanService.submitByLoanId(456L, Status.APPROVED, operatorId, "approved by bank")).thenReturn(false);
 
-        ResponseEntity<?> response = controller.approve(id);
+        ResponseEntity<?> response = controller.approve(id, operatorId);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("failed to approve 456", response.getBody());
-        verify(loanService).submitByLoanId(456L, Status.APPROVED);
+        verify(loanService).submitByLoanId(456L, Status.APPROVED, operatorId, "approved by bank");
     }
 
     @Test
     public void reject_returnsOkWhenServiceSucceeds() {
         String id = "789";
-        when(loanService.submitByLoanId(789L, Status.REJECTED)).thenReturn(true);
+        Long operatorId = 15L;
+        when(loanService.submitByLoanId(789L, Status.REJECTED, operatorId, "rejected by bank")).thenReturn(true);
 
-        ResponseEntity<?> response = controller.reject(id);
+        ResponseEntity<?> response = controller.reject(id, operatorId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("rejected 789", response.getBody());
-        verify(loanService).submitByLoanId(789L, Status.REJECTED);
+        verify(loanService).submitByLoanId(789L, Status.REJECTED, operatorId, "rejected by bank");
     }
 
     @Test
     public void reject_returnsBadRequestWhenServiceFails() {
         String id = "987";
-        when(loanService.submitByLoanId(987L, Status.REJECTED)).thenReturn(false);
+        Long operatorId = 20L;
+        when(loanService.submitByLoanId(987L, Status.REJECTED, operatorId, "rejected by bank")).thenReturn(false);
 
-        ResponseEntity<?> response = controller.reject(id);
+        ResponseEntity<?> response = controller.reject(id, operatorId);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("failed to reject 987", response.getBody());
-        verify(loanService).submitByLoanId(987L, Status.REJECTED);
+        verify(loanService).submitByLoanId(987L, Status.REJECTED, operatorId, "rejected by bank");
     }
 }

@@ -39,7 +39,6 @@ import guideDetail from '../views/guideDetail'
 import AllExpert from '../views/AllExpert'
 import question from '../views/Question'
 import appointment from '../views/Appointment'
-import Financing from '../views/Financing'
 import SmartMatch from '../views/SmartMatch'
 import SmartMatchPage from '../views/SmartMatchPage'
 import FinancingDetails from '../views/FinancingDetails'
@@ -159,10 +158,6 @@ const routes = [
         path: 'collect',
         component: HomeCollect
 
-      },
-      {
-        path: 'financing',
-        component: Financing
       },
       {
         path: 'smartMatch',

@@ -95,12 +95,12 @@ class LoanServiceTest {
     void uploadFileByLoanId() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
-        when(loanFileService.uploadFile(loan, file)).thenReturn(true);
+        when(loanFileService.uploadFile(loan, file, "ID")).thenReturn(true);
 
-        assertTrue(loanService.uploadFileByLoanId(1L, file));
-        verify(loanFileService).uploadFile(loan, file);
+        assertTrue(loanService.uploadFileByLoanId(1L, file, "ID"));
+        verify(loanFileService).uploadFile(loan, file, "ID");
 
-        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file));
+        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID"));
     }
 
     @Test
@@ -110,10 +110,12 @@ class LoanServiceTest {
         when(loanRepository.findById(2L)).thenReturn(Optional.of(loanToUpdate));
         when(loanRepository.save(any(Loan.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertTrue(loanService.submitByLoanId(2L, Status.APPROVED));
+        when(userRepository.findById(100L)).thenReturn(Optional.of(user));
+
+        assertTrue(loanService.submitByLoanId(2L, Status.APPROVED, 100L, "ok"));
         assertEquals(Status.APPROVED, loanToUpdate.getStatus());
 
-        assertFalse(loanService.submitByLoanId(null, Status.APPROVED));
+        assertFalse(loanService.submitByLoanId(null, Status.APPROVED, 100L, "ok"));
     }
 
     @Test

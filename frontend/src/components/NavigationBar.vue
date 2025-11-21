@@ -42,7 +42,6 @@
           <template v-slot:title>融资服务</template>
           <el-menu-item index="6-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
           <el-menu-item index="6-2" @click.native="smartMatchBtn">智能匹配</el-menu-item>
-          <el-menu-item index="6-3" @click.native="financingBtn">申请记录</el-menu-item>
         </el-submenu>
         <div class="userin" v-if="$store.state.loginUserNickname == ''"></div>
         <el-submenu index="7" v-else>
@@ -141,9 +140,6 @@ export default {
     },
     userManage(){
       this.$router.push("/home/usermanage").catch((err) => err);
-    },
-    financingBtn() {
-      this.$router.push("/home/financing").catch((err) => err);
     },
     loanInfoBtn() {
       this.$router.push("/home/smartMatch").catch((err) => err);
