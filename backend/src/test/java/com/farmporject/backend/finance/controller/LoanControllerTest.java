@@ -42,19 +42,19 @@ class LoanControllerTest {
         loan.setId(88L);
         when(loanService.apply(dto, 9L)).thenReturn(loan);
 
-        ResponseEntity<?> okResponse = controller.apply(dto, null, request);
+        ResponseEntity<?> okResponse = controller.apply(dto, null, null, request);
         assertEquals(HttpStatus.OK, okResponse.getStatusCode());
         assertEquals("Loan application and file upload success", okResponse.getBody());
 
         reset(loanService);
         when(loanService.apply(dto, 9L)).thenReturn(null);
-        ResponseEntity<?> failResponse = controller.apply(dto, null, request);
+        ResponseEntity<?> failResponse = controller.apply(dto, null, null, request);
         assertEquals(HttpStatus.BAD_REQUEST, failResponse.getStatusCode());
         assertEquals("Loan application failed", failResponse.getBody());
 
         reset(loanService);
         when(loanService.apply(dto, 9L)).thenThrow(new RuntimeException("boom"));
-        ResponseEntity<?> errorResponse = controller.apply(dto, null, request);
+        ResponseEntity<?> errorResponse = controller.apply(dto, null, null, request);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, errorResponse.getStatusCode());
         assertEquals("Exception: boom", errorResponse.getBody());
     }

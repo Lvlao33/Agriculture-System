@@ -58,7 +58,7 @@ class LoanFileServiceTest {
             return file;
         });
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile);
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
 
         assertTrue(result);
         verify(loanFileRepository).save(any(LoanFile.class));
@@ -74,7 +74,7 @@ class LoanFileServiceTest {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "proof.txt", "text/plain", "content".getBytes());
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile);
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
 
         assertFalse(result);
         verify(loanFileRepository, never()).save(any());
@@ -87,7 +87,7 @@ class LoanFileServiceTest {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "../hack.png", "image/png", "content".getBytes());
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile);
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
 
         assertFalse(result);
         verify(loanFileRepository, never()).save(any());
