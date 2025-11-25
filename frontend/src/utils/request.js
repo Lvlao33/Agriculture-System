@@ -1,35 +1,35 @@
-// 创建axios实例并配置基础URL
-// 设置了完整的baseURL，axios会直接向远程服务器发送请求，不会经过开发服务器的代理
+// 锟斤拷锟斤拷axios实锟斤拷锟斤拷锟斤拷锟矫伙拷锟斤拷URL
+// 锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷baseURL锟斤拷axios锟斤拷直锟斤拷锟斤拷远锟教凤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟襟，诧拷锟结经锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟侥达拷锟斤拷
 import axios from 'axios'
 
 export function request(config) {
-    // 创建axios的实例
+    // 锟斤拷锟斤拷axios锟斤拷实锟斤拷
     const instance = axios.create({
         // baseURL: 'http://3958b99l28.zicp.vip',
         //baseURL: 'http://119.3.180.117:9090',
         // baseURL: process.env.VUE_APP_Address,
         timeout: 100000,
-        // 设置默认请求头，确保使用UTF-8编码
+        // 锟斤拷锟斤拷默锟斤拷锟斤拷锟斤拷头锟斤拷确锟斤拷使锟斤拷UTF-8锟斤拷锟斤拷
         headers: {
             'Content-Type': 'application/json;charset=UTF-8'
         }
     })
-    // axios.interceptors  全局拦截
-    // 请求拦截
-    instance.interceptors.request.use(config => { // 拦截请求
-        // 确保请求头包含UTF-8编码
+    // axios.interceptors  全锟斤拷锟斤拷锟斤拷
+    // 锟斤拷锟斤拷锟斤拷锟斤拷
+    instance.interceptors.request.use(config => { // 锟斤拷锟斤拷锟斤拷锟斤拷
+        // 确锟斤拷锟斤拷锟斤拷头锟斤拷锟斤拷UTF-8锟斤拷锟斤拷
         if (config.headers) {
             config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json;charset=UTF-8';
         }
-        return config // 若拦截到需要原封不动的返回
+        return config // 锟斤拷锟斤拷锟截碉拷锟斤拷要原锟解不锟斤拷锟侥凤拷锟斤拷
     }, err => { })
-    // 响应拦截
+    // 锟斤拷应锟斤拷锟斤拷
     instance.interceptors.response.use(res => {
         return res.data
     }, err => {
         console.log(err);
     })
-    // 3.发送真正的网络请求
+    // 3.锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
     return instance(config)
 
 }
