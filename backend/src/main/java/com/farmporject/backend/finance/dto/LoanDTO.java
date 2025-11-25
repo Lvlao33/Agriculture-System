@@ -10,18 +10,20 @@ public class LoanDTO {
     private String loanPurpose;
     private Integer loanTermMonths;
     private BigDecimal interestRate;
-    private String remark;  //可为空
+    private String remark; // 可为空
 
     private List<Long> userIds; // 普通用户 ID 数组
     private Long loanProductId; // 贷款产品 ID
-    private Long staffId; // 工作人员 ID    //一开始创建可为空
-    private Long operatorId; // 操作人员 ID     //可能是用户也有可能是员工
+    private Long staffId; // 工作人员 ID //一开始创建可为空
+    private Long operatorId; // 操作人员 ID //可能是用户也有可能是员工
+
+    private Long id; // 贷款 ID //可能为空
 
     public LoanDTO() {
     }
 
     public LoanDTO(BigDecimal loanAmount, String loanPurpose, Integer loanTermMonths, BigDecimal interestRate,
-            String remark, List<Long> userIds, Long loanProductId, Long staffId, Long operatorId) {
+            String remark, List<Long> userIds, Long loanProductId, Long staffId, Long operatorId, Long id) {
         this.loanAmount = loanAmount;
         this.loanPurpose = loanPurpose;
         this.loanTermMonths = loanTermMonths;
@@ -31,6 +33,7 @@ public class LoanDTO {
         this.loanProductId = loanProductId;
         this.staffId = staffId;
         this.operatorId = operatorId;
+        this.id = id;
     }
 
     // Getters and Setters
@@ -104,5 +107,13 @@ public class LoanDTO {
 
     public void setOperatorId(Long operatorId) {
         this.operatorId = operatorId;
-    }   
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

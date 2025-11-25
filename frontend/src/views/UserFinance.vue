@@ -5,7 +5,7 @@
         <h2>我的贷款</h2>
         <p>查看当前账户提交的所有贷款申请状态。</p>
       </div>
-      <el-button type="primary" size="small" @click="$router.push('/home/loanApply')">
+      <el-button type="primary" size="small" @click="$router.push('/home/smartMatch')">
         继续申请
       </el-button>
     </div>
@@ -49,9 +49,21 @@
             <el-tag :type="getStatusType(loan.status)">
               {{ getStatusLabel(loan.status) }}
             </el-tag>
-            <el-button type="primary" size="mini" @click="openEditDialog(loan)">
-              修改资料
-            </el-button>
+            <el-tooltip
+              effect="dark"
+              :content="canEditLoan(loan.status) ? '修改这条贷款资料' : '当前状态不可修改'"
+              placement="top"
+            >
+              <el-button
+                :type="canEditLoan(loan.status) ? 'primary' : 'info'"
+                size="mini"
+                :disabled="!canEditLoan(loan.status)"
+                plain
+                @click="openEditDialog(loan)"
+              >
+                修改资料
+              </el-button>
+            </el-tooltip>
           </div>
         </div>
 
@@ -213,6 +225,9 @@ export default {
     getStatusType(status) {
       return this.statusMap[status]?.type || "info";
     },
+    canEditLoan(status) {
+      return status === "CREATED" || status === "REVIEWING";
+    },
     formatCurrency(value) {
       if (value === null || value === undefined) return "--";
       const number = Number(value);
@@ -242,6 +257,10 @@ export default {
       return new Date(value).toLocaleDateString("zh-CN");
     },
     openEditDialog(loan) {
+      if (!this.canEditLoan(loan?.status)) {
+        this.$message.warning("当前状态不可修改");
+        return;
+      }
       // 确保 loanId 存在
       if (!loan || !loan.id) {
         this.$message.error("无法获取贷款记录ID");

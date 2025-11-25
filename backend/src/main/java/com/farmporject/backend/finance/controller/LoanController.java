@@ -81,15 +81,12 @@ public class LoanController {
 
     // 修改融资申请详情
     @PostMapping("/{loan_id}/update")
-    public ResponseEntity<?> update(@PathVariable("loan_id") Long loanId, @RequestBody Loan loan) {
+    public ResponseEntity<?> update(@PathVariable("loan_id") Long loanId, @RequestBody LoanDTO loanDto) {
         try {
-            // 确保路径参数中的 loanId 与请求体中的 id 一致
             if (loanId == null) {
                 return ResponseEntity.status(400).body("loan_id is required");
             }
-            // 设置 loan 的 id 为路径参数中的 loanId
-            loan.setId(loanId);
-            if (loanService.update(loan)) {
+            if (loanService.update(loanId, loanDto)) {
                 return ResponseEntity.ok().body("update loan success");
             } else {
                 return ResponseEntity.status(400).body("update loan failed");

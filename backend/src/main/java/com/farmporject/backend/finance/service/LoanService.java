@@ -240,21 +240,32 @@ public class LoanService {
     /**
      * 修改贷款申请资料
      * 
-     * @param loan 贷款申请信息
+     * @param loanId  贷款申请信息
+     * @param loanDto 贷款申请信息 DTO
      * @return true 如果成功保存到数据库，false 如果保存失败
      */
-    public boolean update(Loan loan) {
+    public boolean update(Long loanId, LoanDTO loanDto) {
         try {
             // 确保必要字段不为空
-            if (loan == null || loan.getId() == null) {
+            if (loanId == null || loanDto == null) {
                 return false;
             }
 
             // 确保存在
-            repo.findById(loan.getId()).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+            repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
 
-            // 设置更新时间
-            loan.setUpdateDate(java.time.LocalDateTime.now());
+            // 如果loan的贷款记录处于除CREATED和REVIEWING以外的状态，则不允许修改
+            Loan loan = repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+            if (loan.getStatus() != Status.CREATED && loan.getStatus() != Status.REVIEWING) {
+                throw new RuntimeException("贷款申请状态不允许修改");
+            }
+
+            // 设置更新
+            loan.setLoanAmount(loanDto.getLoanAmount());
+            loan.setLoanTermMonths(loanDto.getLoanTermMonths());
+            loan.setLoanPurpose(loanDto.getLoanPurpose());
+            loan.setRemark(loanDto.getRemark());
+            loan.setUpdateDate(LocalDateTime.now());
 
             // 保存到数据库并确认是否成功
             Loan savedLoan = repo.save(loan);
