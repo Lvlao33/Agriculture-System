@@ -13,9 +13,13 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+<<<<<<< HEAD
     private static final String DEFAULT_ROLE = "FARMER";
 
     private final UserRepository userRepository;  //
+=======
+    private final UserRepository userRepository; //
+>>>>>>> 46a041a8f89dac39107ceb1a850e754e150a491a
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -30,7 +34,11 @@ public class UserService {
         user.setPasswordHash(hashPassword(rawPassword));
         user.setNickname(nickname);
         user.setAvatar(avatar);
+<<<<<<< HEAD
         user.setRole(DEFAULT_ROLE);
+=======
+        user.setRole("FARMER");
+>>>>>>> 46a041a8f89dac39107ceb1a850e754e150a491a
         return userRepository.save(user);
     }
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +22,17 @@ public class LoanFileService {
 
     public LoanFileService(LoanFileRepository loanFileRepository) {
         this.loanFileRepository = loanFileRepository;
+    }
+
+    /**
+     * 根据loanID获取该笔贷款资料文件列表
+     * 
+     * @param loanId 贷款ID
+     * @return files 贷款资料文件列表
+     * 
+     */
+    public List<LoanFile> getLoanFiles(Long loanId) {
+        return loanFileRepository.findLoanFilesByLoanId(loanId);
     }
 
     /**
