@@ -50,6 +50,7 @@ class UserServiceTest {
 
         assertEquals("alice", created.getUsername());
         assertNotEquals("pwd", created.getPasswordHash());
+        assertEquals("FARMER", created.getRole());
 
         when(userRepository.existsByUsername("alice")).thenReturn(true);
         assertThrows(IllegalArgumentException.class, () -> userService.register("alice", "pwd", "", ""));
