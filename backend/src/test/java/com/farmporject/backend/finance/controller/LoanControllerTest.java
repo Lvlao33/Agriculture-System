@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,29 +62,31 @@ class LoanControllerTest {
 
     @Test
     void list() {
-        ResponseEntity<?> response = controller.list();
+        when(loanService.findLoanListByUserId(null)).thenReturn(List.of());
+        ResponseEntity<?> response = controller.list(null);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("loan list", response.getBody());
+        assertTrue(response.getBody() instanceof List);
     }
 
     @Test
     void update() {
         Loan loan = new Loan();
+        Long loanId = 1L;
         when(loanService.update(loan)).thenReturn(true);
 
-        ResponseEntity<?> success = controller.update(loan);
+        ResponseEntity<?> success = controller.update(loanId, loan);
         assertEquals(HttpStatus.OK, success.getStatusCode());
         assertEquals("update loan success", success.getBody());
 
         reset(loanService);
         when(loanService.update(loan)).thenReturn(false);
-        ResponseEntity<?> fail = controller.update(loan);
+        ResponseEntity<?> fail = controller.update(loanId, loan);
         assertEquals(HttpStatus.BAD_REQUEST, fail.getStatusCode());
         assertEquals("update loan failed", fail.getBody());
 
         reset(loanService);
         when(loanService.update(loan)).thenThrow(new RuntimeException("err"));
-        ResponseEntity<?> error = controller.update(loan);
+        ResponseEntity<?> error = controller.update(loanId, loan);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, error.getStatusCode());
         assertEquals("update loan exception: err", error.getBody());
     }
