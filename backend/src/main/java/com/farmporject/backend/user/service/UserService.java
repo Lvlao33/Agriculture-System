@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+    private static final String DEFAULT_ROLE = "FARMER";
+
     private final UserRepository userRepository;  //
 
     public UserService(UserRepository userRepository) {
@@ -28,6 +30,7 @@ public class UserService {
         user.setPasswordHash(hashPassword(rawPassword));
         user.setNickname(nickname);
         user.setAvatar(avatar);
+        user.setRole(DEFAULT_ROLE);
         return userRepository.save(user);
     }
 

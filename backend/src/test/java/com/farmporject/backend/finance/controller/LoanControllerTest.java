@@ -70,23 +70,23 @@ class LoanControllerTest {
 
     @Test
     void update() {
-        Loan loan = new Loan();
+        LoanDTO loanDto = new LoanDTO();
         Long loanId = 1L;
-        when(loanService.update(loan)).thenReturn(true);
+        when(loanService.update(loanId, loanDto)).thenReturn(true);
 
-        ResponseEntity<?> success = controller.update(loanId, loan);
+        ResponseEntity<?> success = controller.update(loanId, loanDto);
         assertEquals(HttpStatus.OK, success.getStatusCode());
         assertEquals("update loan success", success.getBody());
 
         reset(loanService);
-        when(loanService.update(loan)).thenReturn(false);
-        ResponseEntity<?> fail = controller.update(loanId, loan);
+        when(loanService.update(loanId, loanDto)).thenReturn(false);
+        ResponseEntity<?> fail = controller.update(loanId, loanDto);
         assertEquals(HttpStatus.BAD_REQUEST, fail.getStatusCode());
         assertEquals("update loan failed", fail.getBody());
 
         reset(loanService);
-        when(loanService.update(loan)).thenThrow(new RuntimeException("err"));
-        ResponseEntity<?> error = controller.update(loanId, loan);
+        when(loanService.update(loanId, loanDto)).thenThrow(new RuntimeException("err"));
+        ResponseEntity<?> error = controller.update(loanId, loanDto);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, error.getStatusCode());
         assertEquals("update loan exception: err", error.getBody());
     }

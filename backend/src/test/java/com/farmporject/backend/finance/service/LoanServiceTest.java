@@ -132,12 +132,25 @@ class LoanServiceTest {
 
     @Test
     void update() {
+        LoanDTO dto = new LoanDTO();
+        dto.setLoanAmount(BigDecimal.ONE);
+        dto.setLoanTermMonths(12);
+        dto.setLoanPurpose("upgrade equipment");
+        dto.setRemark("urgent");
+
+        loan.setStatus(Status.CREATED);
+
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
         when(loanRepository.save(loan)).thenReturn(loan);
 
-        assertTrue(loanService.update(loan));
+        assertTrue(loanService.update(1L, dto));
+        assertEquals(BigDecimal.ONE, loan.getLoanAmount());
+        assertEquals(12, loan.getLoanTermMonths());
+        assertEquals("upgrade equipment", loan.getLoanPurpose());
+        assertEquals("urgent", loan.getRemark());
         assertNotNull(loan.getUpdateDate());
 
-        assertFalse(loanService.update(null));
+        assertFalse(loanService.update(null, dto));
+        assertFalse(loanService.update(1L, null));
     }
 }

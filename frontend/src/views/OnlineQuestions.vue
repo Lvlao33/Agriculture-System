@@ -4,9 +4,18 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">在线问答</h2>
+        <el-input
+          v-model.trim="searchKeyword"
+          placeholder="输入关键词搜索问答"
+          clearable
+          prefix-icon="el-icon-search"
+          class="search-input"
+          @keyup.enter.native="handleSearch"
+          @clear="handleSearch"
+        ></el-input>
         <el-button 
           type="primary" 
-          icon="el-icon-edit" 
+          icon="el-icon-plus" 
           class="ask-btn"
           @click="goToAskQuestion"
         >
@@ -80,9 +89,11 @@ export default {
   data() {
     return {
       questionsList: [],
+      allQuestions: [],
       total: 0,
       pageSize: 10,
-      currentPage: 1
+      currentPage: 1,
+      searchKeyword: ''
     }
   },
   created() {
@@ -105,11 +116,8 @@ export default {
 
       // 临时使用模拟数据
       const allData = this.getMockData()
-      this.total = allData.length
-      // 分页处理
-      const start = (this.currentPage - 1) * this.pageSize
-      const end = start + this.pageSize
-      this.questionsList = allData.slice(start, end)
+      this.allQuestions = allData
+      this.applyFilter()
     },
     // 模拟数据
     getMockData() {
@@ -228,8 +236,13 @@ export default {
     // 分页变化
     handlePageChange(page) {
       this.currentPage = page
-      this.loadQuestions()
+      this.applyFilter()
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    // 关键词搜索
+    handleSearch() {
+      this.currentPage = 1
+      this.applyFilter()
     },
     // 跳转到提问页面
     goToAskQuestion() {
@@ -239,6 +252,22 @@ export default {
         this.$message.warning('请先登录')
         this.$router.push('/login').catch(() => {})
       }
+    },
+    // 根据关键词过滤并分页
+    applyFilter() {
+      const keyword = this.searchKeyword.trim().toLowerCase()
+      const source = this.allQuestions || []
+      const filtered = keyword
+        ? source.filter(item => {
+            const title = (item.title || '').toLowerCase()
+            const questioner = (item.questioner || '').toLowerCase()
+            return title.includes(keyword) || questioner.includes(keyword)
+          })
+        : source
+      this.total = filtered.length
+      const start = (this.currentPage - 1) * this.pageSize
+      const end = start + this.pageSize
+      this.questionsList = filtered.slice(start, end)
     },
     // 跳转到详情页面
     goToDetail(item) {
@@ -264,22 +293,23 @@ export default {
   width: 100%;
   min-height: calc(100vh - 200px);
   background-color: #f5f5f5;
-  padding: 20px 0;
+  padding: 10px 0;
 
   .questions-wrapper {
     width: 1100px;
     margin: 0 auto;
     background-color: #fff;
     border-radius: 8px;
-    padding: 30px;
+    padding: 8px 30px 30px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
       border-bottom: 2px solid #67C23A;
 
       .page-title {
@@ -287,17 +317,52 @@ export default {
         font-weight: bold;
         color: #333;
         margin: 0;
+        display: flex;
+        align-items: center;
+        height: 48px;
+      }
+
+      .search-input {
+        flex: 1;
+        max-width: 520px;
+
+        &::v-deep .el-input__inner {
+          height: 48px;
+          line-height: 48px;
+          border-radius: 999px;
+          border: none;
+          background: #f5f6fb;
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+          padding-left: 48px;
+          font-size: 16px;
+        }
+
+        &::v-deep .el-input__prefix {
+          left: 18px;
+          display: flex;
+          align-items: center;
+          color: #6b6f7b;
+        }
+
+        &::v-deep .el-input__suffix {
+          right: 16px;
+          display: flex;
+          align-items: center;
+        }
       }
 
       .ask-btn {
-        background-color: #67C23A;
-        border-color: #67C23A;
+        background-image: linear-gradient(135deg, #5f8bff, #3c6dff);
+        border: none;
         font-size: 16px;
-        padding: 12px 24px;
+        height: 48px;
+        line-height: 46px;
+        padding: 0 30px;
+        border-radius: 999px;
+        box-shadow: 0 6px 16px rgba(90, 129, 255, 0.35);
 
         &:hover {
-          background-color: #5daf34;
-          border-color: #5daf34;
+          opacity: 0.9;
         }
       }
     }
