@@ -1,6 +1,9 @@
 package com.farmporject.backend.finance.repository;
 
 import com.farmporject.backend.finance.model.LoanFile;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +14,5 @@ import org.springframework.stereotype.Repository;
 public interface LoanFileRepository extends JpaRepository<LoanFile, Long> {
     // 上传文件 jpa自带
     // LoanFile save(LoanFile loanFile);
+    List<LoanFile> findLoanFilesByLoanId(Long loanId);
 }

@@ -327,4 +327,18 @@ public class LoanService {
         // 直接提取Loan列表
         return loanUserStatuses.stream().map(LoanUserStatus::getLoan).collect(Collectors.toList());
     }
+
+    /**
+     * 根据贷款id查询贷款文件列表
+     * 
+     * @param loanId 贷款id
+     * @return 贷款文件列表
+     */
+    @Transactional(readOnly = true)
+    public List<LoanFile> findLoanFileList(Long loanId) {
+        if (loanId == null || repo.findById(loanId) == null)
+            throw new RuntimeException("贷款申请不存在");
+        return loanFileService.getLoanFiles(loanId);
+    }
+
 }

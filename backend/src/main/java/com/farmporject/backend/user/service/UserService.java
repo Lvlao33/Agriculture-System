@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;  //
+    private final UserRepository userRepository; //
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -28,6 +28,7 @@ public class UserService {
         user.setPasswordHash(hashPassword(rawPassword));
         user.setNickname(nickname);
         user.setAvatar(avatar);
+        user.setRole("FARMER");
         return userRepository.save(user);
     }
 

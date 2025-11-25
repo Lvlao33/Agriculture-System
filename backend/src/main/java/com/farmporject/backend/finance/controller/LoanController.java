@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.dto.LoanDTO;
+import com.farmporject.backend.finance.model.LoanFile;
 
 import java.util.List;
 
@@ -96,4 +97,36 @@ public class LoanController {
         }
     }
 
+    // 根据贷款ID获得融资文件资料
+    @GetMapping("/{loan_id}/files")
+    public ResponseEntity<?> files(@PathVariable("loan_id") Long loanId) {
+        try {
+            List<LoanFile> loanFiles = loanService.findLoanFileList(loanId);
+            return ResponseEntity.ok().body(loanFiles);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("loan file list exception: " + e.getMessage());
+        }
+    }
+
+    // 修改融资文件资料
+    @PostMapping("/{loan_id}/upload")
+    public ResponseEntity<?> upload(@PathVariable("loan_id") Long loanId,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "fileType", required = false) String fileType) {
+        try {
+            if (loanId == null) {
+                return ResponseEntity.status(400).body("loan_id is required");
+            }
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.status(400).body("file is required");
+            }
+            if (loanService.uploadFileByLoanId(loanId, file, fileType)) {
+                return ResponseEntity.ok().body("upload file success");
+            } else {
+                return ResponseEntity.status(400).body("upload file failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("upload file exception: " + e.getMessage());
+        }
+    }
 }
