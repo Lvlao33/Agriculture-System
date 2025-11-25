@@ -45,25 +45,10 @@
             <span class="product-name">{{ loan.loanProduct?.name || '自定义贷款' }}</span>
             <span class="product-bank">{{ loan.loanProduct?.bank || '银行待确认' }}</span>
           </div>
-          <div class="card-actions">
+          <div class="status-chip">
             <el-tag :type="getStatusType(loan.status)">
               {{ getStatusLabel(loan.status) }}
             </el-tag>
-            <el-tooltip
-              effect="dark"
-              :content="canEditLoan(loan.status) ? '修改这条贷款资料' : '当前状态不可修改'"
-              placement="top"
-            >
-              <el-button
-                :type="canEditLoan(loan.status) ? 'primary' : 'info'"
-                size="mini"
-                :disabled="!canEditLoan(loan.status)"
-                plain
-                @click="openEditDialog(loan)"
-              >
-                修改资料
-              </el-button>
-            </el-tooltip>
           </div>
         </div>
 
@@ -95,6 +80,28 @@
             {{ loan.remark || '暂无备注' }}
           </el-descriptions-item>
         </el-descriptions>
+
+        <div
+          class="card-footer"
+          v-if="canEditLoan(loan.status)"
+        >
+          <el-button
+            type="primary"
+            size="mini"
+            plain
+            @click="openEditDialog(loan)"
+          >
+            修改资料
+          </el-button>
+          <el-button
+            type="success"
+            size="mini"
+            plain
+            @click="openFileDialog(loan)"
+          >
+            补充文件
+          </el-button>
+        </div>
       </el-card>
     </div>
 
@@ -143,11 +150,111 @@
         </el-button>
       </template>
     </el-dialog>
+    <el-dialog
+      title="补充贷款资料"
+      :visible.sync="fileDialogVisible"
+      width="650px"
+      @close="resetFileDialog"
+    >
+      <template v-if="fileLoan">
+        <p class="dialog-subtitle">
+          贷款编号 #{{ fileLoan.id }} · {{ fileLoan.loanProduct?.name || "自定义贷款" }}
+        </p>
+      </template>
+
+      <el-skeleton v-if="fileLoading" animated :rows="6" />
+
+      <div v-else>
+        <section class="files-section">
+          <div class="section-heading">
+            <h4>已上传文件</h4>
+            <el-button type="text" size="small" @click="fetchLoanFiles(fileLoan?.id)">
+              刷新
+            </el-button>
+          </div>
+
+          <el-empty v-if="!loanFiles.length" description="暂无已上传文件" />
+
+          <el-table
+            v-else
+            :data="loanFiles"
+            size="small"
+            border
+            class="file-table"
+          >
+            <el-table-column prop="fileType" label="文件类型" width="140" />
+            <el-table-column prop="fileName" label="文件名" />
+            <el-table-column prop="updatedAt" label="更新时间" width="180">
+              <template #default="{ row }">
+                {{ formatDateTime(row.updatedAt) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="120">
+              <template #default="{ row }">
+                <el-link type="primary" @click="openLoanFile(row)">
+                  查看
+                </el-link>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+
+        <el-divider>上传新文件</el-divider>
+
+        <el-form label-width="100px" class="supplement-form">
+          <el-form-item label="文件类型" required>
+            <el-select
+              v-model="supplementForm.fileType"
+              placeholder="请选择文件类型"
+              style="width: 100%"
+            >
+              <el-option
+                v-for="option in fileTypeOptions"
+                :key="option.value"
+                :label="option.label"
+                :value="option.value"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="选择文件" required>
+            <el-upload
+              ref="supplementUploadRef"
+              class="upload-block"
+              :auto-upload="false"
+              :limit="1"
+              :before-upload="beforeSupplementUpload"
+              :on-change="handleSupplementChange"
+              :on-remove="handleRemoveSupplementFile"
+              :http-request="handleSupplementUpload"
+            >
+              <el-button slot="trigger" type="primary" size="small">
+                选择文件
+              </el-button>
+              <div slot="tip" class="upload-tip">
+                支持 PDF、JPG、PNG、DOC、DOCX，大小不超过 10MB
+              </div>
+            </el-upload>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <el-button @click="fileDialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          :loading="uploadingFile"
+          @click="submitSupplementUpload"
+        >
+          上传文件
+        </el-button>
+      </template>
+    </el-dialog>    
   </div>
 </template>
 
 <script>
-import { getLoanList, updateLoan } from "../api/finance.js";
+import { getLoanList, updateLoan,getLoanFiles,uploadLoanFile } from "../api/finance.js";
 
 export default {
   name: "UserFinance",
@@ -158,6 +265,23 @@ export default {
       loadError: "",
       editDialogVisible: false,
       editLoading: false,
+      fileDialogVisible: false,
+      fileLoading: false,
+      fileLoan: null,
+      loanFiles: [],
+      uploadingFile: false,
+      supplementForm: {
+        fileType: "",
+        fileList: [],
+      },
+      fileTypeOptions: [
+        { label: "身份证扫描件", value: "身份证扫描件" },
+        { label: "营业执照", value: "营业执照" },
+        { label: "银行流水", value: "银行流水" },
+        { label: "贷款申请表", value: "贷款申请表" },
+        { label: "收入证明", value: "收入证明" },
+        { label: "其他", value: "其他" },
+      ],
       editForm: {
         id: null,
         loanAmount: "",
@@ -261,12 +385,10 @@ export default {
         this.$message.warning("当前状态不可修改");
         return;
       }
-      // 确保 loanId 存在
       if (!loan || !loan.id) {
         this.$message.error("无法获取贷款记录ID");
         return;
       }
-      console.log("Opening edit dialog for loan ID:", loan.id);
       this.editForm = {
         id: loan.id,
         loanAmount: loan.loanAmount,
@@ -294,7 +416,6 @@ export default {
     },
     submitEdit() {
       if (!this.$refs.editFormRef) return;
-      // 验证 loanId 是否存在
       if (!this.editForm.id) {
         this.$message.error("贷款ID不能为空");
         return;
@@ -305,7 +426,6 @@ export default {
         try {
           const loanId = this.editForm.id;
           const payload = this.buildUpdatePayload();
-          console.log("Updating loan with ID:", loanId, "Payload:", payload);
           const response = await updateLoan(loanId, payload);
           if (response && response.success === false) {
             this.$message.error(response.message || "修改失败，请稍后再试");
@@ -331,6 +451,129 @@ export default {
         loanPurpose: this.editForm.loanPurpose,
         remark: this.editForm.remark,
       };
+    },
+    async openFileDialog(loan) {
+      this.fileLoan = loan;
+      this.fileDialogVisible = true;
+      this.supplementForm = {
+        fileType: "",
+        fileList: [],
+      };
+      await this.fetchLoanFiles(loan?.id);
+    },
+    async fetchLoanFiles(loanId) {
+      if (!loanId) return;
+      this.fileLoading = true;
+      try {
+        const response = await getLoanFiles(loanId);
+        if (Array.isArray(response)) {
+          this.loanFiles = response;
+        } else if (response && Array.isArray(response.data)) {
+          this.loanFiles = response.data;
+        } else {
+          this.loanFiles = [];
+        }
+      } catch (error) {
+        console.error("Failed to fetch loan files:", error);
+        this.$message.error("获取文件列表失败，请稍后再试");
+      } finally {
+        this.fileLoading = false;
+      }
+    },
+    resetFileDialog() {
+      this.fileDialogVisible = false;
+      this.fileLoan = null;
+      this.loanFiles = [];
+      this.supplementForm = {
+        fileType: "",
+        fileList: [],
+      };
+      this.uploadingFile = false;
+      if (this.$refs.supplementUploadRef) {
+        this.$refs.supplementUploadRef.clearFiles();
+      }
+    },
+    beforeSupplementUpload(file) {
+      const allowedTypes = /\.(pdf|jpg|jpeg|png|doc|docx)$/i;
+      const isValid = allowedTypes.test(file.name);
+      if (!isValid) {
+        this.$message.error("上传文件格式不正确");
+        return false;
+      }
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (!isLt10M) {
+        this.$message.error("上传文件大小不能超过 10MB");
+        return false;
+      }
+      if (!this.supplementForm.fileType) {
+        this.$message.warning("请先选择文件类型");
+        return false;
+      }
+      return true;
+    },
+    handleSupplementChange(file, fileList) {
+      this.supplementForm.fileList = fileList;
+    },
+    handleRemoveSupplementFile(file, fileList) {
+      this.supplementForm.fileList = fileList;
+    },
+    submitSupplementUpload() {
+      if (!this.fileLoan?.id) {
+        this.$message.error("贷款ID缺失，无法上传文件");
+        return;
+      }
+      if (!this.supplementForm.fileType) {
+        this.$message.warning("请先选择文件类型");
+        return;
+      }
+      if (!this.supplementForm.fileList.length) {
+        this.$message.warning("请先选择要上传的文件");
+        return;
+      }
+      if (this.$refs.supplementUploadRef) {
+        this.uploadingFile = true;
+        this.$refs.supplementUploadRef.submit();
+      }
+    },
+    async handleSupplementUpload(options) {
+      const { file, onSuccess, onError } = options;
+      if (!this.fileLoan?.id) {
+        this.uploadingFile = false;
+        onError && onError(new Error("loanId missing"));
+        return;
+      }
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("fileType", this.supplementForm.fileType || "其他");
+        await uploadLoanFile(this.fileLoan.id, formData);
+        this.$message.success("文件上传成功");
+        this.supplementForm.fileList = [];
+        if (this.$refs.supplementUploadRef) {
+          this.$refs.supplementUploadRef.clearFiles();
+        }
+        await this.fetchLoanFiles(this.fileLoan.id);
+        onSuccess && onSuccess();
+      } catch (error) {
+        console.error("Failed to upload file:", error);
+        this.$message.error("文件上传失败，请稍后再试");
+        onError && onError(error);
+      } finally {
+        this.uploadingFile = false;
+      }
+    },
+    openLoanFile(file) {
+      if (file?.filePath && /^https?:\/\//i.test(file.filePath)) {
+        window.open(file.filePath, "_blank");
+      } else if (file?.filePath) {
+        this.$alert(
+          `文件已存储在服务器：${file.filePath}\n请联系管理员获取该文件。`,
+          "文件路径",
+          { confirmButtonText: "知道了" }
+        );
+      } else {
+        this.$message.info("当前文件暂无可预览的地址");
+      }
     },
   },
   created() {
@@ -375,11 +618,47 @@ export default {
   border-radius: 12px;
 }
 
+.card-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.dialog-subtitle {
+  margin: 0 0 12px;
+  color: #666;
+}
+
+.files-section {
+  margin-bottom: 16px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.file-table {
+  margin-bottom: 12px;
+}
+
+.upload-block {
+  width: 100%;
+}
+
+.upload-tip {
+  color: #999;
+  margin-top: 6px;
 }
 
 .title-group {
@@ -404,14 +683,9 @@ export default {
   color: #999;
 }
 
-.card-actions {
+.status-chip {
   display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.card-actions .el-button {
-  padding: 6px 12px;
+  justify-content: flex-end;
 }
 
 .mt-16 {
