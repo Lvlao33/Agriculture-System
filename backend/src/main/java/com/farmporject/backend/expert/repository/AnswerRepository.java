@@ -24,4 +24,8 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
     @Query("SELECT a FROM Answer a WHERE a.content LIKE %:keyword%")
     List<Answer> findByContentContaining(String keyword);
+
+    List<Answer> findByExpertIdAndQuestionId(Long expertId, Long questionId);
+
+    List<Answer> findByQuestionId(Long questionId);
 }
