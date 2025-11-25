@@ -57,6 +57,9 @@ import PublishNeed from '../views/PublishNeed'
 import ExpertGuide from '../views/ExpertGuide'
 import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
 import AllQuestions from '../views/AllQuestions'
+import OnlineQuestions from '../views/OnlineQuestions'
+import QuestionDetail from '../views/QuestionDetail'
+import AskQuestion from '../views/AskQuestion'
 
 
 Vue.use(VueRouter)
@@ -133,6 +136,18 @@ const routes = [
       {
         path: 'allQuestions',
         component: AllQuestions
+      },
+      {
+        path: 'onlineQuestions',
+        component: OnlineQuestions
+      },
+      {
+        path: 'questionDetail/:id',
+        component: QuestionDetail
+      },
+      {
+        path: 'askQuestion',
+        component: AskQuestion
       },
       {
         path: 'allExpert',

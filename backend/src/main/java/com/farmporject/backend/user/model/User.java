@@ -34,7 +34,7 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "role", nullable = false)
+    @Column(name = "role")
     private String role; // finance板块中："FARMER" 或 "STAFF"
 
     @OneToMany(mappedBy = "user")

@@ -484,7 +484,7 @@ export default {
     // 快速操作
     handleQuickAction(type) {
       if (type === 'question') {
-        this.$router.push("/home/question").catch((err) => err);
+        this.$router.push("/home/onlineQuestions").catch((err) => err);
       } else if (type === 'appointment') {
         this.$router.push("/home/appointment").catch((err) => err);
       } else if (type === 'allExpert') {
