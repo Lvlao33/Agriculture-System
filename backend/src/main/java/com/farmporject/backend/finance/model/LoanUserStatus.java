@@ -2,20 +2,23 @@ package com.farmporject.backend.finance.model;
 
 import jakarta.persistence.*;
 import com.farmporject.backend.user.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class LoanUserStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "loan_user_status_id",nullable = false)
+    @Column(name = "loan_user_status_id", nullable = false)
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "loan_id")
     private Loan loan; // 关联贷款
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user; // 关联农户
 

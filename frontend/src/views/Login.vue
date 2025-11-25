@@ -117,6 +117,9 @@ export default {
                   const avatar = user.avatar || '';
                   this.$store.commit("updateLoginUserNickname", nickname);
                   this.$store.commit("updateLoginUserAvatar", avatar);
+                  if (user.id !== undefined && user.id !== null) {
+                    this.$store.commit("updateLoginUserId", user.id);
+                  }
                 }
                 this.$router.push("/home").catch((err) => err);
               } else {

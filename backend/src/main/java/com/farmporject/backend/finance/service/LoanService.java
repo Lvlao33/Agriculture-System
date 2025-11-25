@@ -13,10 +13,9 @@ import com.farmporject.backend.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
-
 import org.springframework.http.HttpStatus;
+import java.util.stream.Collectors;
 import org.springframework.web.server.ResponseStatusException;
-
 import org.springframework.transaction.annotation.Transactional;
 
 // 功能：贷款业务逻辑（申请处理、验证、保存、审批交互等）。
@@ -300,5 +299,21 @@ public class LoanService {
             // logger.error("Failed to assign loan application", e);
         }
         return false;
+    }
+
+    /**
+     * 根据用户id查询贷款申请列表
+     * 
+     * @param userId 用户id
+     * @return 贷款申请列表
+     */
+    @Transactional(readOnly = true)
+    public List<Loan> findLoanListByUserId(Long userId) {
+        // 查询user
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
+        // 查询user对应的loanUserStatus
+        List<LoanUserStatus> loanUserStatuses = user.getLoanUserStatuses();
+        // 直接提取Loan列表
+        return loanUserStatuses.stream().map(LoanUserStatus::getLoan).collect(Collectors.toList());
     }
 }

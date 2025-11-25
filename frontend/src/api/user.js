@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// �һ�����
+// 忘记密码
 export function forgetPassword(params) {
     return request({
         method: 'post',
@@ -12,7 +12,7 @@ export function forgetPassword(params) {
     })
 }
 
-// �û���¼
+// 登录
 export function userLogin(params) {
     return request({
         method: 'post',
@@ -24,7 +24,7 @@ export function userLogin(params) {
     })
 }
 
-// �û�ע��
+// 注册
 export function userRegister(params) {
     return request({
         method: 'post',
@@ -36,7 +36,7 @@ export function userRegister(params) {
     })
 }
 
-// �û���¼֮�󣬸����û���չʾ���˻�����Ϣ
+// 根据用户名查询登录信息
 export function loginSelectByUsername(params) {
     return request({
         method: 'get',
@@ -47,7 +47,7 @@ export function loginSelectByUsername(params) {
     })
 }
 
-// �û���¼֮�󣬸����û����޸ĸ��˻�����Ϣ
+// 根据用户名修改登录信息
 export function loginUpdateByUsername(params) {
     return request({
         method: 'post',
@@ -59,7 +59,7 @@ export function loginUpdateByUsername(params) {
     })
 }
 
-// �����û�����ѯ�û�
+// 根据用户名查询用户信息
 export function selectUserByUsername(params) {
     return request({
         method: 'get',
@@ -70,7 +70,7 @@ export function selectUserByUsername(params) {
     })
 }
 
-// �����û���ɾ���û�
+// 根据用户名删除用户
 export function deleteUserByUsername(params) {
     return request({
         method: 'delete',
@@ -81,7 +81,7 @@ export function deleteUserByUsername(params) {
     })
 }
 
-// �����û����޸��û���Ϣ
+// 根据用户名修改用户信息
 export function updateUserByUsername(params) {
     return request({
         method: 'put',
@@ -92,8 +92,7 @@ export function updateUserByUsername(params) {
         },
     })
 }
-
-// ��ҳ��ѯ�����û�
+// 查询所有用户信息
 export function selectAllUserPage(params) {
     return request({
         method: 'get',
@@ -103,8 +102,7 @@ export function selectAllUserPage(params) {
         },
     })
 }
-
-// �޸��û�����
+// 修改用户密码
 export function updateUserPassword(params) {
     return request({
         method: 'post',

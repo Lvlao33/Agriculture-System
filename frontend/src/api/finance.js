@@ -1,155 +1,155 @@
 import { request } from '../utils/request'
 
-// ���ӵ��˴���
-export function addFinance(params) {
-    return request({
-        method: 'post',
-        url: '/finance/add',
-        data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ������ϴ���
-export function addFinanceMulti(params) {
-    return request({
-        method: 'post',
-        url: '/finance/addFinanceMulti',
-        data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ���в�ѯ�ӿ�
-export function selectBank() {
-    return request({
-        method: 'get',
-        url: '/finance/selectbank',
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ��ѯ��������
-export function selectIntention() {
-    return request({
-        method: 'get',
-        url: '/finance/selectIntentionByName',
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ������������
-export function insertIntention(params) {
-    return request({
-        method: 'post',
-        url: '/finance/insertIntentionByName',
-        data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// �޸���������
-export function updateIntention(params) {
-    return request({
-        method: 'put',
-        url: '/finance/updateIntentionByName',
-        data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ɾ����������
-export function deleteIntention() {
-    return request({
-        method: 'delete',
-        url: '/finance/deleteIntentionByName',
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ��ѯ�Ƽ���
-export function selectRecommned() {
-    return request({
-        method: 'get',
-        url: '/finance/selectRecommendByName',
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
+// // 添加贷款产品
+// export function addFinance(params) {
+//     return request({
+//         method: 'post',
+//         url: '/finance/add',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 添加联合贷款
+// export function addFinanceMulti(params) {
+//     return request({
+//         method: 'post',
+//         url: '/finance/addFinanceMulti',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 查询银行
+// export function selectBank() {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectbank',
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 查询意向
+// export function selectIntention() {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectIntentionByName',
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 插入意向
+// export function insertIntention(params) {
+//     return request({
+//         method: 'post',
+//         url: '/finance/insertIntentionByName',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 更新意向
+// export function updateIntention(params) {
+//     return request({
+//         method: 'put',
+//         url: '/finance/updateIntentionByName',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+//
+// // 删除意向
+// export function deleteIntention() {
+//     return request({
+//         method: 'delete',
+//         url: '/finance/deleteIntentionByName',
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 查找推荐人
+// export function selectRecommned() {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectRecommendByName',
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
 
-// ��ѯ���˴�������Ϣ
-export function selectFinaceUser(bank_id) {
-    return request({
-        method: 'get',
-        url: '/finance/selectFinaceUser/' + bank_id.bank_id,
-        data: bank_id,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ��ѯ��ϴ�������Ϣ
-export function selectTwoUser(bank_id) {
-    return request({
-        method: 'get',
-        url: '/finance/selectTwoUser/' + bank_id.bank_id,
-        data: bank_id,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ��ѯ�����������
-export function selectByName() {
-    return request({
-        method: 'get',
-        url: '/finance/selectByName/',
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// �޸Ĵ����������
-export function updateById(params) {
-    return request({
-        method: 'put',
-        url: '/finance/update/',
-        data:params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ɾ����������
-export function deleteById(financeId) {
-    return request({
-        method: 'delete',
-        url: '/finance/delete/'+financeId.financeId,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-// ����id��ѯ������Ϣ����Ϣ����
-export function selectFinaceById(params) {
-    return request({
-        method: 'get',
-        url: 'finance/selectById/' + params.id,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
+// // 查找同个银行的贷款证人
+// export function selectFinaceUser(bank_id) {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectFinaceUser/' + bank_id.bank_id,
+//         data: bank_id,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 查找同个银行的两个贷款人
+// export function selectTwoUser(bank_id) {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectTwoUser/' + bank_id.bank_id,
+//         data: bank_id,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 根据名字搜索
+// export function selectByName() {
+//     return request({
+//         method: 'get',
+//         url: '/finance/selectByName/',
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 根据id更新贷款产品
+// export function updateById(params) {
+//     return request({
+//         method: 'put',
+//         url: '/finance/update/',
+//         data:params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 根据id删除贷款产品
+// export function deleteById(financeId) {
+//     return request({
+//         method: 'delete',
+//         url: '/finance/delete/'+financeId.financeId,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
+// // 根据id查询贷款产品信息
+// export function selectFinaceById(params) {
+//     return request({
+//         method: 'get',
+//         url: 'finance/selectById/' + params.id,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
 
-// ��ȡ�����Ʒ�б�
+// 获得贷款产品列表
 export function getLoanProducts() {
     return request({
         method: 'get',
@@ -160,7 +160,7 @@ export function getLoanProducts() {
     })
 }
 
-// ��ȡ�����Ʒ����
+// 获得贷款详情
 export function getLoanProductDetail(productId) {
     return request({
         method: 'get',
@@ -171,20 +171,8 @@ export function getLoanProductDetail(productId) {
     })
 }
 
-// // �������
-// export function applyLoan(params) {
-//     return request({
-//         method: 'post',
-//         url: '/api/finance/loans/apply',
-//         data: params,
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//             'Content-Type': 'application/json',
-//         },
-//     })
-// }
 
-// �������ϴ����� (multipart/form-data)
+// 申请贷款(multipart/form-data)
 export function applyLoanWithFiles(formData) {
     return request({
         method: 'post',
@@ -197,26 +185,27 @@ export function applyLoanWithFiles(formData) {
     })
 }
 
-// �ϴ������ļ�
-// export function uploadLoanFile(loanId, file) {
-//     const formData = new FormData();
-//     formData.append('file', file);
-//     return request({
-//         method: 'post',
-//         url: `/api/finance/loans/${loanId}/upload`,
-//         data: formData,
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//             // Do not set Content-Type; let axios set the correct boundary
-//         },
-//     })
-// }
-
-// ��ȡ���������б�
-export function getLoanList() {
-    return request({
+// 获得贷款申请列表
+export function getLoanList(userId) {
+    const config = {
         method: 'get',
         url: '/api/finance/loans',
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    }
+    if (userId) {
+        config.params = { userId }
+    }
+    return request(config)
+}
+
+// 更新贷款申请
+export function updateLoan(loanId, payload) {
+    return request({
+        method: 'post',
+        url: `/api/finance/loans/${loanId}/update`,
+        data: payload,
         headers: {
             'Authorization': window.localStorage.token,
         },

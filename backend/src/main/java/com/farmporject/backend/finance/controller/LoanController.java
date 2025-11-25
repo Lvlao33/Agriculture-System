@@ -9,6 +9,8 @@ import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.dto.LoanDTO;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /** 融资-融资申请 */
@@ -66,16 +68,27 @@ public class LoanController {
         }
     }
 
-    // 融资申请列表
+    // 根据userid获取融资申请列表
     @GetMapping
-    public ResponseEntity<?> list() {
-        return ResponseEntity.ok().body("loan list");
+    public ResponseEntity<?> list(@RequestParam(value = "userId", required = false) Long userId) {
+        try {
+            List<Loan> loans = loanService.findLoanListByUserId(userId);
+            return ResponseEntity.ok().body(loans);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("loan list exception: " + e.getMessage());
+        }
     }
 
     // 修改融资申请详情
     @PostMapping("/{loan_id}/update")
-    public ResponseEntity<?> update(@ModelAttribute Loan loan) {
+    public ResponseEntity<?> update(@PathVariable("loan_id") Long loanId, @RequestBody Loan loan) {
         try {
+            // 确保路径参数中的 loanId 与请求体中的 id 一致
+            if (loanId == null) {
+                return ResponseEntity.status(400).body("loan_id is required");
+            }
+            // 设置 loan 的 id 为路径参数中的 loanId
+            loan.setId(loanId);
             if (loanService.update(loan)) {
                 return ResponseEntity.ok().body("update loan success");
             } else {

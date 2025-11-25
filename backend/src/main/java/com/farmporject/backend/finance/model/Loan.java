@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.farmporject.backend.user.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 贷款实体（Loan）的数据模型，映射到数据库表 `loans`。
@@ -81,6 +82,7 @@ public class Loan implements Serializable {
     // 表与表的关系
     /** 关联的农户ID（外键） */
     @OneToMany(mappedBy = "loan")
+    @JsonIgnore
     private List<LoanUserStatus> loanUserStatuses; // 贷款与多个农户的多对多关系
 
     /** 所关联的产品ID */
@@ -90,6 +92,7 @@ public class Loan implements Serializable {
 
     /** 所关联的资料文件ID */
     @OneToMany(mappedBy = "loan")
+    @JsonIgnore
     private List<LoanFile> loanFiles; // 资料文件与 Loan 的多对一关系
 
     /** 所关联的处理人员 */
@@ -99,6 +102,7 @@ public class Loan implements Serializable {
 
     /** 关联的贷款记录ID */
     @OneToMany(mappedBy = "loan")
+    @JsonIgnore
     private List<LoanRecord> loanRecords; // 贷款记录与 Loan 的多对一关系
 
     public Loan() {

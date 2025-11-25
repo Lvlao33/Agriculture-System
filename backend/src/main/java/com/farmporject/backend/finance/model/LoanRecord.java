@@ -13,13 +13,14 @@ import jakarta.persistence.EnumType;
 import java.time.LocalDateTime;
 
 import com.farmporject.backend.user.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class LoanRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "loan_record_id",nullable = false)
+    @Column(name = "loan_record_id", nullable = false)
     private Long id;
 
     @Column(name = "record_details", length = 1000)
@@ -34,12 +35,14 @@ public class LoanRecord {
 
     @ManyToOne
     @JoinColumn(name = "loan_id")
+    @JsonIgnore
     private Loan loan; // 贷款记录与 Loan 的多对一关系
 
     // 与所有的user 无论是农户还是承销商
     // 操作者
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user; // 贷款记录与 User 的多对一关系
 
     public LoanRecord() {

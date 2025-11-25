@@ -13,6 +13,7 @@ export default new Vuex.Store({
     user: '',
     loginUserNickname: localStorage.getItem('loginUserNickname') ? localStorage.getItem('loginUserNickname') : '',
     loginUserAvatar: localStorage.getItem('loginUserAvatar') ? localStorage.getItem('loginUserAvatar') : '',
+    loginUserId: localStorage.getItem('loginUserId') ? Number(localStorage.getItem('loginUserId')) : '',
     activeIndex: '1',
     publishActiveIndex: '1',
     userActiveIndex: '1-1',
@@ -76,6 +77,14 @@ export default new Vuex.Store({
         localStorage.removeItem('loginUserAvatar')
       }
     },
+    updateLoginUserId(state, value) {
+      state.loginUserId = value
+      if (value || value === 0) {
+        localStorage.setItem('loginUserId', value)
+      } else {
+        localStorage.removeItem('loginUserId')
+      }
+    },
     updateRole(state, value) {
       state.role = value
     },
@@ -101,9 +110,11 @@ export default new Vuex.Store({
       state.token = ''
       state.loginUserNickname = ''
       state.loginUserAvatar = ''
+      state.loginUserId = ''
       localStorage.removeItem('token');
       localStorage.removeItem('loginUserNickname')
       localStorage.removeItem('loginUserAvatar')
+      localStorage.removeItem('loginUserId')
     }
   },
   actions: {

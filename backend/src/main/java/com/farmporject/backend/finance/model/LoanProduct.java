@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.farmporject.backend.user.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "loan_products")
@@ -71,9 +72,11 @@ public class LoanProduct {
 
     @ManyToOne
     @JoinColumn(name = "staff_id", nullable = false)
+    @JsonIgnore
     private User staff;
 
     @OneToMany(mappedBy = "loanProduct")
+    @JsonIgnore
     private List<Loan> loan;
 
     public LoanProduct() {

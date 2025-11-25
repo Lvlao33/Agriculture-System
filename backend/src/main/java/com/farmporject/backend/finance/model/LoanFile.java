@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,6 +20,7 @@ public class LoanFile {
 
     @ManyToOne
     @JoinColumn(name = "loan_id", nullable = false)
+    @JsonIgnore
     private Loan loan; // 与贷款申请相关联
 
     @Column(name = "file_name", length = 255)
