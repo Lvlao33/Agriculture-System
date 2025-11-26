@@ -37,6 +37,8 @@ class LoanServiceTest {
     private LoanUserStatusRepository loanUserStatusRepository;
     @Mock
     private LoanRecordRepository loanRecordRepository;
+    @Mock
+    private LoanRecordService loanRecordService;
 
     @InjectMocks
     private LoanService loanService;
@@ -106,7 +108,7 @@ class LoanServiceTest {
         assertTrue(loanService.uploadFileByLoanId(1L, file, "ID"));
         verify(loanFileService).uploadFile(loan, file, "ID", user);
 
-        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID"));
+        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID", 100L));
     }
 
     @Test

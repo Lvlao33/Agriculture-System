@@ -58,6 +58,10 @@ class LoanFileServiceTest {
 
     @Test
     void uploadFile() throws Exception {
+        mockUser = new User();
+        mockUser.setId(1L);
+        mockUser.setNickname("TestUser");
+
         Loan loan = new Loan();
         loan.setId(1L);
         MockMultipartFile multipartFile = new MockMultipartFile(
