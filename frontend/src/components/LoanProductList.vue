@@ -2,9 +2,42 @@
   <div class="loan-product-page">
     <!-- Banner Section -->
     <div class="banner-section">
-      <div class="banner-image">
-        <!-- 图片位置 - 请在此处添加您的banner图片 -->
-        <img src="/img/2.png" alt="Banner Image" class="banner-img" />
+      <div class="carousel-container">
+        <div class="carousel-wrapper">
+          <div
+            v-for="(img, index) in bannerImages"
+            :key="index"
+            class="carousel-item"
+            :class="{
+              'active': index === currentBannerIndex,
+              'prev': index === getPrevIndex(),
+              'next': index === getNextIndex()
+            }"
+            :style="getItemStyle(index)"
+            @click="goToBanner(index)"
+          >
+            <div class="banner-image">
+              <img :src="img.src" :alt="img.alt" class="banner-img" />
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" @click="prevBanner">
+            <i class="el-icon-arrow-left"></i>
+          </button>
+          <button class="carousel-btn next-btn" @click="nextBanner">
+            <i class="el-icon-arrow-right"></i>
+          </button>
+        </div>
+        <div class="carousel-indicators">
+          <span
+            v-for="(img, index) in bannerImages"
+            :key="index"
+            class="indicator"
+            :class="{ active: index === currentBannerIndex }"
+            @click="goToBanner(index)"
+          ></span>
+        </div>
       </div>
     </div>
 
@@ -89,11 +122,22 @@ export default {
       loanProducts: [],
       currentPage: 1,
       pageSize: 4,
-      loading: false
+      loading: false,
+      bannerImages: [
+        { src: '/img/2.png', alt: '贷款服务Banner 1' },
+        { src: '/img/2.png', alt: '贷款服务Banner 2' },
+        { src: '/img/2.png', alt: '贷款服务Banner 3' }
+      ],
+      currentBannerIndex: 0,
+      bannerTimer: null
     }
   },
   mounted() {
     this.loadProducts()
+    this.startBannerAutoPlay()
+  },
+  beforeDestroy() {
+    this.stopBannerAutoPlay()
   },
   computed: {
     totalPages() {
@@ -103,7 +147,7 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       return this.loanProducts.slice(start, end)
-    }
+    },
   },
   methods: {
     async loadProducts() {
@@ -164,6 +208,65 @@ export default {
       localStorage.setItem('loanProduct', JSON.stringify(product));
       const productId = product.id || product.name;
       this.$router.push(`/home/loanApply/${productId}`);
+    },
+    getPrevIndex() {
+      const prev = this.currentBannerIndex - 1
+      return prev < 0 ? this.bannerImages.length - 1 : prev
+    },
+    getNextIndex() {
+      const next = this.currentBannerIndex + 1
+      return next >= this.bannerImages.length ? 0 : next
+    },
+    prevBanner() {
+      this.stopBannerAutoPlay()
+      this.currentBannerIndex = this.getPrevIndex()
+      this.startBannerAutoPlay()
+    },
+    nextBanner() {
+      this.stopBannerAutoPlay()
+      this.currentBannerIndex = this.getNextIndex()
+      this.startBannerAutoPlay()
+    },
+    goToBanner(index) {
+      this.stopBannerAutoPlay()
+      this.currentBannerIndex = index
+      this.startBannerAutoPlay()
+    },
+    getItemStyle(index) {
+      const itemWidth = 1100
+      const gap = 20
+      const activeIndex = this.currentBannerIndex
+      
+      // 计算相对于当前激活项的偏移
+      let offset = index - activeIndex
+      
+      // 处理循环：确保只显示当前、前一张、后一张
+      if (offset > 1) {
+        offset = offset - this.bannerImages.length
+      }
+      if (offset < -1) {
+        offset = offset + this.bannerImages.length
+      }
+      
+      // 只显示当前、前一张、后一张（offset: -1, 0, 1）
+      // 计算X位置：中间为0，左侧为负，右侧为正
+      const x = offset * (itemWidth + gap)
+      
+      return {
+        transform: `translateX(${x}px)`,
+        zIndex: index === activeIndex ? 3 : (Math.abs(offset) === 1 ? 2 : 1)
+      }
+    },
+    startBannerAutoPlay() {
+      this.bannerTimer = setInterval(() => {
+        this.currentBannerIndex = this.getNextIndex()
+      }, 4000)
+    },
+    stopBannerAutoPlay() {
+      if (this.bannerTimer) {
+        clearInterval(this.bannerTimer)
+        this.bannerTimer = null
+      }
     }
   }
 }
@@ -181,27 +284,162 @@ export default {
   height: 400px;
   position: relative;
   overflow: hidden;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
   
-  .banner-image {
+  .carousel-container {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f5f5f5;
+    position: relative;
+    overflow: visible;
     
-    .banner-img {
+    .carousel-wrapper {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .carousel-item {
+      width: 1100px;
+      height: 400px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -550px; // 宽度的一半，用于居中
+      margin-top: -200px; // 高度的一半，用于居中
+      cursor: pointer;
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      .banner-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        
+        .banner-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      }
+      
+      // 当前激活的图片 - 正常大小，居中
+      &.active {
+        opacity: 1;
+        
+        .banner-img {
+          transform: scale(1);
+        }
+      }
+      
+      // 前一张和后一张图片 - 缩小并偏移
+      &.prev,
+      &.next {
+        opacity: 0.75;
+        
+        .banner-img {
+          transform: scale(0.75);
+        }
+      }
+      
+      // 其他图片 - 隐藏
+      &:not(.active):not(.prev):not(.next) {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+    
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 10;
+      pointer-events: none;
+      
+      .carousel-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        pointer-events: all;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        
+        i {
+          font-size: 20px;
+          color: #333;
+        }
+        
+        &:hover {
+          background-color: #fff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          transform: scale(1.1);
+        }
+        
+        &.prev-btn {
+          left: 20px;
+        }
+        
+        &.next-btn {
+          right: 20px;
+        }
+      }
+    }
+    
+    .carousel-indicators {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+      
+      .indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        transition: all 0.3s;
+        
+        &.active {
+          background-color: #4CAF50;
+          width: 24px;
+          border-radius: 5px;
+        }
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.8);
+        }
+      }
     }
   }
 }
 
 .smart-match-section {
   width: 1100px;
-  margin: 10px auto 0 auto;
-  text-align: left;
+  margin: 0 auto 0 auto;
+  text-align: right;
+  padding-bottom: 0;
   
   .smart-match-btn {
     background-color: #4CAF50;
@@ -219,7 +457,7 @@ export default {
 
 .products-container {
   width: 1100px;
-  margin: 12px auto 0 auto;
+  margin: -10px auto 0 auto;
   padding: 0 0 20px 0;
   
   .loading-container {

@@ -70,6 +70,15 @@ public class QAService {
         return questionRepository.save(question);
     }
 
+    public Question updateQuestionAttachments(Long id, List<String> attachmentUrls) {
+        return questionRepository.findById(id)
+                .map(question -> {
+                    question.setAttachmentUrls(attachmentUrls);
+                    return questionRepository.save(question);
+                })
+                .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
+    }
+
     public Question updateQuestionStatus(Long id, Question.QuestionStatus status) {
         return questionRepository.findById(id)
                 .map(question -> {

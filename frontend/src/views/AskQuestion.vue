@@ -39,6 +39,24 @@
             ></el-input>
           </el-form-item>
 
+          <el-form-item label="附件">
+            <el-upload
+              class="qa-attach-uploader"
+              action="#"
+              :auto-upload="false"
+              :file-list="fileList"
+              :on-change="handleFileChange"
+              :on-remove="handleFileRemove"
+              multiple
+              list-type="picture-card"
+              :limit="6"
+              accept="image/*,video/*"
+            >
+              <i class="el-icon-plus"></i>
+            </el-upload>
+            <div class="form-tip attach-tip">支持图片和视频，最多 6 个，每个不超过 20MB</div>
+          </el-form-item>
+
           <el-form-item label="选择专家" prop="expertId">
             <el-select
               v-model="questionForm.expertId"
@@ -92,7 +110,7 @@
 </template>
 
 <script>
-// import { submitQuestion, getExpertList } from '@/api/qa'
+import { submitQuestion, getExpertList } from '@/api/qa'
 
 export default {
   name: 'AskQuestion',
@@ -114,7 +132,8 @@ export default {
         ]
       },
       expertList: [],
-      submitting: false
+      submitting: false,
+      fileList: []
     }
   },
   created() {
@@ -146,26 +165,29 @@ export default {
         if (valid) {
           this.submitting = true
           
-          // TODO: 调用后端接口
-          // submitQuestion(this.questionForm).then(res => {
-          //   if (res.flag) {
-          //     this.$message.success('问题提交成功！')
-          //     this.$router.push('/home/onlineQuestions').catch(() => {})
-          //   } else {
-          //     this.$message.error(res.message || '提交失败')
-          //   }
-          // }).catch(err => {
-          //   this.$message.error('提交失败，请重试')
-          // }).finally(() => {
-          //   this.submitting = false
-          // })
+          const formData = new FormData()
+          formData.append('title', this.questionForm.title)
+          formData.append('content', this.questionForm.content)
+          if (this.questionForm.expertId) {
+            formData.append('expertId', this.questionForm.expertId)
+          }
+          this.fileList.forEach(item => {
+            if (item.raw) {
+              formData.append('files', item.raw)
+            }
+          })
 
-          // 临时模拟提交
-          setTimeout(() => {
-            this.$message.success('问题提交成功！')
-            this.$router.push('/home/onlineQuestions').catch(() => {})
-            this.submitting = false
-          }, 1000)
+          submitQuestion(formData)
+            .then(res => {
+              this.$message.success(res?.message || '问题提交成功！')
+              this.$router.push('/home/onlineQuestions').catch(() => {})
+            })
+            .catch(() => {
+              this.$message.error('提交失败，请重试')
+            })
+            .finally(() => {
+              this.submitting = false
+            })
         } else {
           this.$message.warning('请完善问题信息')
         }
@@ -174,10 +196,17 @@ export default {
     // 重置表单
     resetForm() {
       this.$refs.questionForm.resetFields()
+      this.fileList = []
     },
     // 返回上一页
     goBack() {
       this.$router.go(-1)
+    },
+    handleFileChange(file, fileList) {
+      this.fileList = fileList
+    },
+    handleFileRemove(file, fileList) {
+      this.fileList = fileList
     }
   }
 }
@@ -242,6 +271,16 @@ export default {
         font-size: 12px;
         color: #999;
         margin-top: 5px;
+      }
+
+      .attach-tip {
+        margin-left: 2px;
+      }
+
+      .qa-attach-uploader {
+        /deep/ .el-upload {
+          border-radius: 8px;
+        }
       }
     }
 

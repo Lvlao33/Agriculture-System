@@ -4,10 +4,12 @@ import { request } from '../utils/request'
 export function getQuestionsList(params) {
   return request({
     method: 'get',
-    url: '/qa/questions',
+    url: '/api/qa/questions',
     params: {
       pageNum: params.pageNum,
-      pageSize: params.pageSize
+      pageSize: params.pageSize,
+      mine: params.mine,
+      keyword: params.keyword
     },
     headers: {
       'Authorization': localStorage.getItem('token')
@@ -40,14 +42,15 @@ export function getAnswersList(params) {
   })
 }
 
-// 提交问题
-export function submitQuestion(data) {
+// 提交问题（支持附件：图片/视频）
+export function submitQuestion(formData) {
   return request({
     method: 'post',
-    url: '/qa/question',
-    data: data,
+    url: '/api/qa/questions',
+    data: formData,
     headers: {
-      'Authorization': localStorage.getItem('token')
+      'Authorization': localStorage.getItem('token'),
+      'Content-Type': 'multipart/form-data'
     }
   })
 }

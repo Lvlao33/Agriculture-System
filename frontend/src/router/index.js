@@ -56,6 +56,7 @@ import ExpertGuide from '../views/ExpertGuide'
 import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
 import AllQuestions from '../views/AllQuestions'
 import OnlineQuestions from '../views/OnlineQuestions'
+import MyQuestions from '../views/MyQuestions'
 import QuestionDetail from '../views/QuestionDetail'
 import AskQuestion from '../views/AskQuestion'
 
@@ -138,6 +139,10 @@ const routes = [
       {
         path: 'onlineQuestions',
         component: OnlineQuestions
+      },
+      {
+        path: 'myQuestions',
+        component: MyQuestions
       },
       {
         path: 'questionDetail/:id',
