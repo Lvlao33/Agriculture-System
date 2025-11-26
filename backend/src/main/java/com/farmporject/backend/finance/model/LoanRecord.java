@@ -42,7 +42,6 @@ public class LoanRecord {
     // 操作者
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     private User user; // 贷款记录与 User 的多对一关系
 
     public LoanRecord() {

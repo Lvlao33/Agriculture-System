@@ -9,13 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
     private static final String DEFAULT_ROLE = "FARMER";
 
-    private final UserRepository userRepository;  //
+    private final UserRepository userRepository; //
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -97,5 +98,12 @@ public class UserService {
 
     private String hashPassword(String rawPassword) {
         return DigestUtils.md5DigestAsHex(rawPassword.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public Optional<User> findUserById(Long id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        return userRepository.findById(id);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.model.LoanFile;
+import com.farmporject.backend.user.model.User;
 import com.farmporject.backend.finance.repository.LoanFileRepository;
 
 import java.time.LocalDateTime;
@@ -42,7 +43,7 @@ public class LoanFileService {
      * @param fileType 文件类型（例如：身份证、收入证明）
      * @return true 如果成功处理文件上传，false 如果失败
      */
-    public boolean uploadFile(Loan loan, MultipartFile file, String fileType) throws Exception {
+    public boolean uploadFile(Loan loan, MultipartFile file, String fileType, User user) throws Exception {
         // 校验文件
         if (checkFile(file)) {
             // 上传文件并获取存储路径
@@ -57,6 +58,7 @@ public class LoanFileService {
             loanFile.setUpdatedAt(LocalDateTime.now());
             // loan.getLoanFiles().add(loanFile);
             loanFile.setLoan(loan);
+            loanFile.setUser(user);
             LoanFile temp = loanFileRepository.save(loanFile);
             if (temp.getId() != null) {
                 return true;

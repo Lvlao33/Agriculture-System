@@ -38,7 +38,7 @@ public class UserController {
     /** 根据用户名查询个人信息 */
     @GetMapping("/loginSelectByUsername")
     public ResponseEntity<ApiResponse<User>> loginSelectByUsername(@RequestParam(required = false) String username,
-                                                                  @RequestHeader(value = "Authorization", required = false) String token) {
+            @RequestHeader(value = "Authorization", required = false) String token) {
         try {
             // 优先使用请求参数中的username
             if (username != null && !username.isEmpty()) {
@@ -101,7 +101,8 @@ public class UserController {
 
     /** 根据用户名修改用户信息 */
     @PutMapping("/{username}")
-    public ResponseEntity<ApiResponse<User>> updateUserByUsername(@PathVariable String username, @RequestBody User updatedUser) {
+    public ResponseEntity<ApiResponse<User>> updateUserByUsername(@PathVariable String username,
+            @RequestBody User updatedUser) {
         try {
             User user = userService.updateUser(username, updatedUser);
             return ResponseEntity.ok(ApiResponse.ok(user));
@@ -138,5 +139,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(ApiResponse.fail(e.getMessage()));
         }
     }
-}
 
+    /** 根据userID查询用户 （用于联合贷款邀请） */
+    @GetMapping("/multi-Inviter/{id}")
+    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body(ApiResponse.fail("用户ID不能为空"));
+        }
+        return userService.findUserById(id)
+                .<ResponseEntity<ApiResponse<User>>>map(user -> ResponseEntity.ok(ApiResponse.ok(user)))
+                .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户不存在")));
+    }
+}

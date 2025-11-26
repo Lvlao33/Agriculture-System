@@ -18,7 +18,6 @@ public class LoanUserStatus {
     private Loan loan; // 关联贷款
 
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user; // 关联农户
 
