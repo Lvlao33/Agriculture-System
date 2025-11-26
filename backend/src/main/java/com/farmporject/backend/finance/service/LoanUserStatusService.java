@@ -19,7 +19,7 @@ public class LoanUserStatusService {
     }
 
     public void updateLoanUserStatus(Long loanId, Long userId, Status status) {
-        LoanUserStatus loanUserStatus = loanUserStatusRepository.findByLoanIdAndUserId(loanId, userId);
+        LoanUserStatus loanUserStatus = loanUserStatusRepository.findByLoan_IdAndUser_Id(loanId, userId);
         if (loanUserStatus == null) {
             return;
         }
