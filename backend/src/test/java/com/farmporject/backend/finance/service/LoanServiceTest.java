@@ -37,6 +37,8 @@ class LoanServiceTest {
     private LoanUserStatusRepository loanUserStatusRepository;
     @Mock
     private LoanRecordRepository loanRecordRepository;
+    @Mock
+    private LoanRecordService loanRecordService;
 
     @InjectMocks
     private LoanService loanService;
@@ -95,12 +97,14 @@ class LoanServiceTest {
     void uploadFileByLoanId() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
-        when(loanFileService.uploadFile(loan, file, "ID")).thenReturn(true);
+        when(userRepository.findById(100L)).thenReturn(Optional.of(user));
+        when(loanFileService.uploadFile(loan, file, "ID", user)).thenReturn(true);
+        when(loanRecordService.createRecord(any(), any(), any(), any())).thenReturn(new LoanRecord());
 
-        assertTrue(loanService.uploadFileByLoanId(1L, file, "ID"));
-        verify(loanFileService).uploadFile(loan, file, "ID");
+        assertTrue(loanService.uploadFileByLoanId(1L, file, "ID", 100L));
+        verify(loanFileService).uploadFile(loan, file, "ID", user);
 
-        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID"));
+        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID", 100L));
     }
 
     @Test

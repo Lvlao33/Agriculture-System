@@ -30,17 +30,19 @@ public class LoanService {
     private final LoanRecordRepository loanRecordRepository;
 
     private final LoanFileService loanFileService;
+    private final LoanRecordService loanRecordService;
 
     @Autowired
     public LoanService(LoanRepository loanRepository, LoanFileService loanFileService, UserRepository userRepository,
             LoanProductRepository loanProductRepository, LoanUserStatusRepository loanUserStatusRepository,
-            LoanRecordRepository loanRecordRepository) {
+            LoanRecordRepository loanRecordRepository, LoanRecordService loanRecordService) {
         this.repo = loanRepository;
         this.loanFileService = loanFileService;
         this.userRepository = userRepository;
         this.loanProductRepository = loanProductRepository;
         this.loanUserStatusRepository = loanUserStatusRepository;
         this.loanRecordRepository = loanRecordRepository;
+        this.loanRecordService = loanRecordService;
     }
 
     /**
@@ -119,14 +121,7 @@ public class LoanService {
 
                 // 新建贷款操作记录
                 // 设置与贷款操作记录的表关联
-                LoanRecord loanRecord = new LoanRecord();
-                loanRecord.setLoan(loan);
-                loanRecord.setRecordDate(java.time.LocalDateTime.now());
-                loanRecord.setRecordDetails("贷款申请");
-                loanRecord.setApplyStatus(Status.CREATED);
-                loanRecord.setUser(operator);
-                loanRecordRepository.save(loanRecord);
-                loan.getLoanRecords().add(loanRecord);
+                loanRecordService.createRecord(loan, operator, "贷款申请", Status.CREATED);
 
                 // 设置与贷款产品的表关联
                 loan.setLoanProduct(loanProduct);
@@ -172,11 +167,17 @@ public class LoanService {
 
         // 调用文件上传服务，保存文件到服务器
         try {
-            return loanFileService.uploadFile(loan, file, fileType, operatorUser);
+            if (loanFileService.uploadFile(loan, file, fileType, operatorUser)) {
+                if (loan.getStatus() == Status.REVIEWING)
+                    loanRecordService.createRecord(loan, operatorUser, fileType, Status.REVIEWING);
+                return true;
+            } else
+                return false;
+            // loanRecordService.createRecord(loan, operatorUser, "上传/补充贷款申请资料",
+            // Status.REVIEWING);
         } catch (Exception e) {
             throw new Exception("文件上传失败: " + e.getMessage());
         }
-
     }
 
     /**
@@ -207,17 +208,18 @@ public class LoanService {
                         }
                     }
 
+                    User operator = userRepository.findById(operatorId)
+                            .orElseThrow(() -> new RuntimeException("操作者不存在"));
+
                     // 新建贷款操作记录
                     // 设置与贷款操作记录的表关联
-                    LoanRecord loanRecord = new LoanRecord();
-                    loanRecord.setLoan(loan);
-                    loanRecord.setRecordDate(java.time.LocalDateTime.now());
-                    loanRecord.setApplyStatus(status);
-                    loanRecord.setRecordDetails(remark);
-                    loanRecord.setUser(
-                            userRepository.findById(operatorId).orElseThrow(() -> new RuntimeException("操作者不存在")));
-
-                    loanRecordRepository.save(loanRecord);
+                    // LoanRecord loanRecord = new LoanRecord();
+                    // loanRecord.setLoan(loan);
+                    // loanRecord.setRecordDate(java.time.LocalDateTime.now());
+                    // loanRecord.setApplyStatus(status);
+                    // loanRecord.setRecordDetails(remark);
+                    // loanRecord.setUser(operator);
+                    LoanRecord loanRecord = loanRecordService.createRecord(loan, operator, "审核贷款申请资料，修改贷款申请状态", status);
                     loan.getLoanRecords().add(loanRecord);
 
                     // 保存到数据库并确认是否成功
@@ -276,6 +278,12 @@ public class LoanService {
 
             // 保存到数据库并确认是否成功
             Loan savedLoan = repo.save(loan);
+
+            // 创建修改记录
+            User operator = userRepository.findById(loanDto.getOperatorId())
+                    .orElseThrow(() -> new RuntimeException("操作者不存在"));
+            loanRecordService.createRecord(loan, operator, "修改贷款申请资料", Status.REVIEWING);
+
             // 如果保存成功，savedLoan 会有 ID，返回 true
             return savedLoan.getId() != null;
         } catch (Exception e) {
