@@ -231,7 +231,7 @@ export function uploadLoanFile(loanId, formData) {
         data: formData,
         headers: {
             'Authorization': window.localStorage.token,
-            'Content-Type': 'multipart/form-data'
+            // Content-Type is handled automatically for FormData
         },
     })
 }
@@ -242,6 +242,28 @@ export function toAuthorizationUser(params) {
         method: 'post',
         url: '/finance/toAuthorizationUser',
         data: params,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 获取贷款用户状态列表
+export function getLoanUserStatuses(loanId) {
+    return request({
+        method: 'get',
+        url: `/api/finance/loans/${loanId}/user-statuses`,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 获取贷款处理记录列表
+export function getLoanRecords(loanId) {
+    return request({
+        method: 'get',
+        url: `/api/finance/loans/${loanId}/records`,
         headers: {
             'Authorization': window.localStorage.token,
         },

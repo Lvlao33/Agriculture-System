@@ -34,7 +34,7 @@
 
     <div v-if="loans.length" class="loan-list">
       <el-card
-        v-for="loan in loans"
+        v-for="loan in paginatedLoans"
         :key="loan.id"
         class="loan-card"
         shadow="hover"
@@ -59,7 +59,7 @@
           <el-descriptions-item label="贷款期限">
             {{ formatTerm(loan.loanTermMonths) }}
           </el-descriptions-item>
-          <el-descriptions-item label="利率（年化）">
+          <el-descriptions-item label="利率(年化)">
             {{ formatRate(loan.interestRate) }}
           </el-descriptions-item>
 
@@ -81,29 +81,109 @@
           </el-descriptions-item>
         </el-descriptions>
 
-        <div
-          class="card-footer"
-          v-if="canEditLoan(loan.status)"
-        >
+        <div class="card-footer">
           <el-button
-            type="primary"
-            size="mini"
-            plain
-            @click="openEditDialog(loan)"
+            type="text"
+            :icon="isExpanded(loan.id) ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+            @click="toggleExpand(loan)"
           >
-            修改资料
+            {{ isExpanded(loan.id) ? '收起进度' : '查看进度' }}
           </el-button>
-          <el-button
-            type="success"
-            size="mini"
-            plain
-            @click="openFileDialog(loan)"
-          >
-            补充文件
-          </el-button>
+          <div v-if="canEditLoan(loan.status)">
+            <el-button
+              type="primary"
+              size="mini"
+              plain
+              @click="openEditDialog(loan)"
+            >
+              修改资料
+            </el-button>
+            <el-button
+              type="success"
+              size="mini"
+              plain
+              @click="openFileDialog(loan)"
+            >
+              补充文件
+            </el-button>
+          </div>
         </div>
+
+        <!-- 进度详情展开区域 -->
+        <el-collapse-transition>
+          <div v-show="isExpanded(loan.id)" class="detail-content">
+            <el-divider></el-divider>
+            
+            <div v-loading="loadingDetails[loan.id]">
+              <!-- 进度条 -->
+              <div class="progress-steps">
+                <h4 class="detail-title">申请进度</h4>
+                <el-steps :active="getActiveStep(loan.status)" finish-status="success" align-center>
+                  <el-step 
+                    v-for="(step, index) in steps" 
+                    :key="index" 
+                    :title="step.title"
+                    :status="getStepStatus(loan.status, index)"
+                  ></el-step>
+                </el-steps>
+              </div>
+
+              <el-divider content-position="left">用户状态</el-divider>
+              <div class="user-statuses">
+                <el-table :data="loanDetails[loan.id]?.userStatuses || []" size="mini" style="width: 100%">
+                  <el-table-column label="用户" width="180">
+                    <template slot-scope="scope">
+                      <div class="user-cell">
+                        <el-avatar :size="24" :src="scope.row.user?.avatar"></el-avatar>
+                        <span>{{ scope.row.user?.nickname || scope.row.user?.username || '未知用户' }}</span>
+                      </div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="status" label="状态">
+                    <template slot-scope="scope">
+                      <el-tag size="mini" :type="getStatusType(scope.row.status)">{{ getStatusLabel(scope.row.status) }}</el-tag>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+
+              <el-divider content-position="left">处理记录</el-divider>
+              <div class="records-timeline">
+                <el-timeline>
+                  <el-timeline-item
+                    v-for="(record, index) in loanDetails[loan.id]?.records || []"
+                    :key="index"
+                    :timestamp="formatDateTime(record.recordDate)"
+                    placement="top"
+                  >
+                    <el-card shadow="never" class="record-card">
+                      <h4>{{ getStatusLabel(record.applyStatus) }}</h4>
+                      <p v-if="record.recordDetails">{{ record.recordDetails }}</p>
+                      <p class="operator-info" v-if="record.user">
+                        操作人: {{ record.user.nickname || record.user.username }}
+                      </p>
+                    </el-card>
+                  </el-timeline-item>
+                  <el-timeline-item v-if="!loanDetails[loan.id]?.records?.length" timestamp="暂无记录">
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+            </div>
+          </div>
+        </el-collapse-transition>
       </el-card>
     </div>
+
+    <el-pagination
+      v-if="loans.length > pageSize"
+      @current-change="handlePageChange"
+      :current-page="currentPage"
+      :page-size="pageSize"
+      layout="total, prev, pager, next, jumper"
+      :total="loans.length"
+      class="pagination-container"
+    >
+    </el-pagination>
 
     <el-dialog
       title="修改贷款资料"
@@ -254,7 +334,8 @@
 </template>
 
 <script>
-import { getLoanList, updateLoan,getLoanFiles,uploadLoanFile } from "../api/finance.js";
+import { getLoanList, updateLoan, getLoanFiles, uploadLoanFile, getLoanUserStatuses, getLoanRecords } from "../api/finance.js";
+import { searchUserById } from "../api/user";
 
 export default {
   name: "UserFinance",
@@ -306,11 +387,32 @@ export default {
         CLEARED_NORMAL: { label: "正常结清", type: "success" },
         CLEARED_EARLY: { label: "提前结清", type: "success" },
       },
+      loanDetails: {},
+      loadingDetails: {},
+      steps: [
+        { title: "提交申请", status: "CREATED" },
+        { title: "银行审核", status: "REVIEWING" },
+        { title: "审批结果", status: ["APPROVED", "REJECTED"] },
+        { title: "签约", status: "SIGNED" },
+        { title: "还款中", status: "REPAYING" },
+        { title: "结清", status: ["CLEARED_NORMAL", "CLEARED_EARLY"] },
+      ],
+      expandedLoans: [],
+      currentPage: 1,
+      pageSize: 5,
     };
   },
   computed: {
     currentUserId() {
       return this.$store.state.loginUserId || window.localStorage.getItem("loginUserId");
+    },
+    paginatedLoans() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.loans.slice(start, end);
+    },
+    expandedSet() {
+      return new Set(this.expandedLoans);
     },
   },
   watch: {
@@ -546,6 +648,7 @@ export default {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("fileType", this.supplementForm.fileType || "其他");
+        formData.append("operatorId", this.currentUserId);
         await uploadLoanFile(this.fileLoan.id, formData);
         this.$message.success("文件上传成功");
         this.supplementForm.fileList = [];
@@ -575,6 +678,112 @@ export default {
         this.$message.info("当前文件暂无可预览的地址");
       }
     },
+    isExpanded(loanId) {
+      return this.expandedSet.has(loanId);
+    },
+    toggleExpand(loan) {
+      const index = this.expandedLoans.indexOf(loan.id);
+      if (index > -1) {
+        this.expandedLoans.splice(index, 1);
+      } else {
+        this.expandedLoans.push(loan.id);
+        this.fetchLoanDetails(loan.id);
+      }
+    },
+    async fetchLoanDetails(loanId) {
+      if (this.loanDetails[loanId]) return; // Already fetched
+      
+      this.$set(this.loadingDetails, loanId, true);
+      try {
+        const [statusesRes, recordsRes] = await Promise.all([
+          getLoanUserStatuses(loanId),
+          getLoanRecords(loanId)
+        ]);
+        
+        const details = {
+          userStatuses: [],
+          records: []
+        };
+
+        if (statusesRes && (Array.isArray(statusesRes) || Array.isArray(statusesRes.data))) {
+          details.userStatuses = Array.isArray(statusesRes) ? statusesRes : statusesRes.data;
+        }
+        
+        if (recordsRes && (Array.isArray(recordsRes) || Array.isArray(recordsRes.data))) {
+          details.records = Array.isArray(recordsRes) ? recordsRes : recordsRes.data;
+        }
+
+        this.$set(this.loanDetails, loanId, details);
+
+        // Fetch user details for user statuses
+        if (details.userStatuses && details.userStatuses.length > 0) {
+          const userPromises = details.userStatuses.map(async (status) => {
+            // Check if user object is already populated or if we only have userId
+            // The backend might return a user object with null fields if not fully populated
+            // But based on previous context, we might need to fetch it if it's missing or incomplete
+            // Actually, the user removed @JsonIgnore, so user object SHOULD be there.
+            // But the user request says: "根据返回的loanuserstatus中的userid可以调用...这个接口将信息加载出来"
+            // So I should fetch it.
+            // Let's assume status.user might be null or we need to enrich it.
+            // Or maybe status.user.id is available.
+            
+            let userId = status.user?.id;
+            // If status.user is null, maybe there is a userId field? 
+            // The model has 'User user', so it should be in 'user' object.
+            
+            if (userId) {
+              try {
+                const userRes = await searchUserById(userId);
+                if (userRes && userRes.success && userRes.data) {
+                  // Update the user info in the status object
+                  // We need to be careful to update the reactive object
+                  this.$set(status, 'user', { ...status.user, ...userRes.data });
+                }
+              } catch (err) {
+                console.error(`Failed to fetch user ${userId}`, err);
+              }
+            }
+          });
+          await Promise.all(userPromises);
+        }
+
+      } catch (error) {
+        console.error("Fetch details error:", error);
+        this.$message.error("获取详情失败");
+      } finally {
+        this.$set(this.loadingDetails, loanId, false);
+      }
+    },
+    getActiveStep(status) {
+      for (let i = 0; i < this.steps.length; i++) {
+        const stepStatus = this.steps[i].status;
+        if (Array.isArray(stepStatus)) {
+          if (stepStatus.includes(status)) return i + 1;
+        } else {
+          if (stepStatus === status) return i + 1;
+        }
+      }
+      return 0;
+    },
+    getStepStatus(currentStatus, stepIndex) {
+      // If current status is REJECTED and this is the result step (index 2), return error
+      if (currentStatus === 'REJECTED' && stepIndex === 2) return 'error';
+      
+      const activeStep = this.getActiveStep(currentStatus);
+      if (stepIndex < activeStep) return 'success';
+      if (stepIndex === activeStep - 1) return 'process'; // activeStep is 1-based
+      return 'wait';
+    },
+    handlePageChange(page) {
+      this.currentPage = page;
+      // Scroll to top of loan list
+      this.$nextTick(() => {
+        const loanList = document.querySelector('.loan-list');
+        if (loanList) {
+          loanList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
   },
   created() {
     this.fetchLoans();
@@ -611,11 +820,12 @@ export default {
 .loan-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .loan-card {
   border-radius: 12px;
+  margin-bottom: 0;
 }
 
 .card-footer {
@@ -690,5 +900,60 @@ export default {
 
 .mt-16 {
   margin-top: 16px;
+}
+
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.detail-content {
+  padding: 20px 0 0 0;
+}
+
+.detail-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.progress-steps {
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.records-timeline {
+  margin-top: 16px;
+  padding-left: 10px;
+}
+
+.record-card {
+  padding: 10px;
+  
+  h4 {
+    margin: 0 0 5px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .operator-info {
+    margin-top: 5px;
+    color: #999;
+    font-style: italic;
+  }
 }
 </style>

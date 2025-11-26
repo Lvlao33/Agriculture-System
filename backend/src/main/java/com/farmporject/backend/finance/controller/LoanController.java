@@ -52,7 +52,8 @@ public class LoanController {
                         fileType = fileTypes.get(i);
                     }
 
-                    boolean ok = loanService.uploadFileByLoanId(appliedLoan.getId(), mf, fileType);
+                    boolean ok = loanService.uploadFileByLoanId(appliedLoan.getId(), mf, fileType,
+                            loanDTO.getOperatorId());
                     if (!ok)
                         anyUploadFailed = true;
                 }
@@ -112,7 +113,8 @@ public class LoanController {
     @PostMapping("/{loan_id}/upload")
     public ResponseEntity<?> upload(@PathVariable("loan_id") Long loanId,
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "fileType", required = false) String fileType) {
+            @RequestParam(value = "fileType", required = false) String fileType,
+            @RequestParam(value = "operatorId", required = false) Long operatorId) {
         try {
             if (loanId == null) {
                 return ResponseEntity.status(400).body("loan_id is required");
@@ -120,7 +122,7 @@ public class LoanController {
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.status(400).body("file is required");
             }
-            if (loanService.uploadFileByLoanId(loanId, file, fileType)) {
+            if (loanService.uploadFileByLoanId(loanId, file, fileType, operatorId)) {
                 return ResponseEntity.ok().body("upload file success");
             } else {
                 return ResponseEntity.status(400).body("upload file failed");

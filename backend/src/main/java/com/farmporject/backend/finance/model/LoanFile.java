@@ -7,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+
+import com.farmporject.backend.user.model.User;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
@@ -22,6 +25,11 @@ public class LoanFile {
     @JoinColumn(name = "loan_id", nullable = false)
     @JsonIgnore
     private Loan loan; // 与贷款申请相关联
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user; // 操作用户
 
     @Column(name = "file_name", length = 255)
     private String fileName;
@@ -93,5 +101,13 @@ public class LoanFile {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

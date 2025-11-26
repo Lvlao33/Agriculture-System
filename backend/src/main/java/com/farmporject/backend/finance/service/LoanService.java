@@ -154,18 +154,25 @@ public class LoanService {
      * @param loanId   贷款ID
      * @param file     文件
      * @param fileType 文件类型
+     * @param operator 操作人
      * @return true 如果成功处理文件上传，false 如果失败
      */
-    public boolean uploadFileByLoanId(Long loanId, MultipartFile file, String fileType) throws Exception {
+    public boolean uploadFileByLoanId(Long loanId, MultipartFile file, String fileType, Long operatorId)
+            throws Exception {
         // 先查询贷款申请信息
         if (loanId == null) {
             throw new Exception("贷款ID不能为空");
         }
         Loan loan = repo.findById(loanId).orElseThrow(() -> new Exception("贷款申请不存在"));
 
+        // 查询操作人
+        if (operatorId == null)
+            throw new Exception("操作人不能为空");
+        User operatorUser = userRepository.findById(operatorId).orElseThrow(() -> new Exception("操作人不存在"));
+
         // 调用文件上传服务，保存文件到服务器
         try {
-            return loanFileService.uploadFile(loan, file, fileType);
+            return loanFileService.uploadFile(loan, file, fileType, operatorUser);
         } catch (Exception e) {
             throw new Exception("文件上传失败: " + e.getMessage());
         }
