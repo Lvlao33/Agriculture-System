@@ -4,23 +4,35 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <h2 class="page-title">在线问答</h2>
-        <el-input
-          v-model.trim="searchKeyword"
-          placeholder="输入关键词搜索问答"
-          clearable
-          prefix-icon="el-icon-search"
-          class="search-input"
-          @keyup.enter.native="handleSearch"
-          @clear="handleSearch"
-        ></el-input>
-        <el-button 
-          type="primary" 
-          icon="el-icon-plus" 
-          class="ask-btn"
-          @click="goToAskQuestion"
-        >
-          我要提问
-        </el-button>
+        <div class="search-action-row">
+          <el-input
+            v-model.trim="searchKeyword"
+            placeholder="输入关键词搜索问答记录"
+            clearable
+            prefix-icon="el-icon-search"
+            class="search-input"
+            @keyup.enter.native="handleSearch"
+            @clear="handleSearch"
+          ></el-input>
+          <div class="action-buttons">
+            <el-button
+              class="ask-mini-btn"
+              type="primary"
+              plain
+              @click="goToAskQuestion"
+            >
+              我要提问
+            </el-button>
+            <el-button
+              class="records-btn"
+              type="primary"
+              plain
+              @click="goToMyQuestions"
+            >
+              我的问答记录
+            </el-button>
+          </div>
+        </div>
       </div>
 
       <!-- 问答列表 -->
@@ -51,6 +63,7 @@
                 <span>专家：{{ item.expertName }}</span>
               </span>
             </div>
+
           </div>
           <div class="question-status">
             <el-tag v-if="item.answerCount > 0" type="success" size="small">已解答</el-tag>
@@ -269,6 +282,14 @@ export default {
       const end = start + this.pageSize
       this.questionsList = filtered.slice(start, end)
     },
+    goToMyQuestions() {
+      if (localStorage.getItem('token')) {
+        this.$router.push('/home/myQuestions').catch(() => {})
+      } else {
+        this.$message.warning('请先登录')
+        this.$router.push('/login').catch(() => {})
+      }
+    },
     // 跳转到详情页面
     goToDetail(item) {
       this.$router.push(`/home/questionDetail/${item.id}`).catch(() => {})
@@ -305,9 +326,9 @@ export default {
 
     .page-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
       margin-bottom: 12px;
       padding-bottom: 8px;
       border-bottom: 2px solid #67C23A;
@@ -317,24 +338,30 @@ export default {
         font-weight: bold;
         color: #333;
         margin: 0;
+        line-height: 1.2;
+        height: auto;
+      }
+
+      .search-action-row {
+        width: 100%;
         display: flex;
         align-items: center;
-        height: 48px;
+        gap: 18px;
+        margin-top: -4px;
       }
 
       .search-input {
         flex: 1;
-        max-width: 520px;
 
         &::v-deep .el-input__inner {
-          height: 48px;
-          line-height: 48px;
+          height: 46px;
+          line-height: 46px;
           border-radius: 999px;
           border: none;
           background: #f5f6fb;
           box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
-          padding-left: 48px;
-          font-size: 16px;
+          padding-left: 46px;
+          font-size: 15px;
         }
 
         &::v-deep .el-input__prefix {
@@ -345,24 +372,38 @@ export default {
         }
 
         &::v-deep .el-input__suffix {
-          right: 16px;
+          right: 14px;
           display: flex;
           align-items: center;
         }
       }
 
-      .ask-btn {
-        background-image: linear-gradient(135deg, #5f8bff, #3c6dff);
-        border: none;
-        font-size: 16px;
-        height: 48px;
-        line-height: 46px;
-        padding: 0 30px;
+
+      .action-buttons {
+        margin-left: auto;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-shrink: 0;
+        gap: 12px;
+      }
+
+      .ask-mini-btn,
+      .records-btn {
+        height: 46px;
+        line-height: 44px;
+        padding: 0 22px;
         border-radius: 999px;
-        box-shadow: 0 6px 16px rgba(90, 129, 255, 0.35);
+        font-size: 14px;
+        border: 1px solid #5f8bff;
+        transition: all 0.2s ease;
+        color: #3062ff;
+        background: rgba(95, 139, 255, 0.08);
 
         &:hover {
-          opacity: 0.9;
+          background: rgba(95, 139, 255, 0.18);
+          color: #1f3fbf;
+          border-color: #2f54eb;
         }
       }
     }
@@ -495,4 +536,5 @@ export default {
   }
 }
 </style>
+
 
