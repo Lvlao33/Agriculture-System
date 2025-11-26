@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.farmporject.backend.finance.service.LoanService;
-import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.dto.LoanDTO;
-import com.farmporject.backend.finance.model.LoanFile;
+import com.farmporject.backend.finance.model.*;
 
 import java.util.List;
 
@@ -97,6 +96,7 @@ public class LoanController {
         }
     }
 
+    /* LoanFile 相关接口 */
     // 根据贷款ID获得融资文件资料
     @GetMapping("/{loan_id}/files")
     public ResponseEntity<?> files(@PathVariable("loan_id") Long loanId) {
@@ -127,6 +127,30 @@ public class LoanController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("upload file exception: " + e.getMessage());
+        }
+    }
+
+    /* LoanUserStatus 相关接口 */
+    // 根据LoanID查询LoanUserStatus列表
+    @GetMapping("/{loan_id}/user-statuses")
+    public ResponseEntity<?> userStatuses(@PathVariable("loan_id") Long loanId) {
+        try {
+            List<LoanUserStatus> loanUserStatuses = loanService.findLoanUserStatusList(loanId);
+            return ResponseEntity.ok().body(loanUserStatuses);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("loan user status list exception: " + e.getMessage());
+        }
+    }
+
+    /* LoanRecord 相关接口 */
+    // 根据LoanID查询LoanRecord列表
+    @GetMapping("/{loan_id}/records")
+    public ResponseEntity<?> records(@PathVariable("loan_id") Long loanId) {
+        try {
+            List<LoanRecord> loanRecords = loanService.findLoanRecordList(loanId);
+            return ResponseEntity.ok().body(loanRecords);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("loan record list exception: " + e.getMessage());
         }
     }
 }

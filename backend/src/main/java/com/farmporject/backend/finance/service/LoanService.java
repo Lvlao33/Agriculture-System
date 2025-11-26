@@ -341,4 +341,29 @@ public class LoanService {
         return loanFileService.getLoanFiles(loanId);
     }
 
+    /**
+     * 根据贷款id查询用户状态列表
+     * 
+     * @param loanId 贷款id
+     * @return 用户状态列表
+     */
+    @Transactional(readOnly = true)
+    public List<LoanUserStatus> findLoanUserStatusList(Long loanId) {
+        if (loanId == null || repo.findById(loanId) == null)
+            throw new RuntimeException("贷款申请不存在");
+        return loanUserStatusRepository.findByLoanId(loanId);
+    }
+
+    /**
+     * 根据贷款ID查询贷款记录列表
+     * 
+     * @param loanId 贷款ID
+     * @return 贷款记录列表
+     */
+    @Transactional(readOnly = true)
+    public List<LoanRecord> findLoanRecordList(Long loanId) {
+        if (loanId == null || repo.findById(loanId) == null)
+            throw new RuntimeException("贷款申请不存在");
+        return loanRecordRepository.findByLoanId(loanId);
+    }
 }

@@ -113,3 +113,14 @@ export function updateUserPassword(params) {
         },
     })
 }
+
+// 根据userID查询用户
+export function searchUserById(id) {
+    return request({
+        method: 'get',
+        url: '/api/user/multi-Inviter/' + id,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
