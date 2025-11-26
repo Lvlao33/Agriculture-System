@@ -16,8 +16,6 @@ import purchaseDetails from '../views/purchaseDetails'
 import User from '../views/User'
 import UserInfo from '../views/UserInfo'
 import UserFinance from '../views/UserFinance'
-import UserAddress from '../views/UserAddress'
-import UserPassword from '../views/UserPassword'
 import PublishNav from '../components/PublishNav.vue'
 import PublishGoods from '../views/PublishGoods'
 import PublishNeeds from '../views/PublishNeeds'
@@ -227,14 +225,6 @@ const routes = [
             path: 'userinfo',
             component: UserInfo
 
-          },
-          {
-            path: 'useraddress',
-            component: UserAddress
-          },
-          {
-            path: 'userpassword',
-            component: UserPassword
           },
           {
             path: 'publishedgoods',

@@ -45,7 +45,7 @@
         </el-submenu>
         <div class="userin" v-if="$store.state.loginUserNickname == ''"></div>
         <el-submenu index="7" v-else>
-          <template v-slot:title>设置</template>
+          <template v-slot:title>个人中心</template>
           <!--   -->
           <el-menu-item index="7-1" @click.native="userPage">个人中心</el-menu-item>
           <el-menu-item index="7-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>

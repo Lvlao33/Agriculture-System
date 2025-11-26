@@ -3,7 +3,9 @@ package com.farmporject.backend.finance.service;
 import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.model.LoanFile;
 import com.farmporject.backend.finance.repository.LoanFileRepository;
+import com.farmporject.backend.user.model.User;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,14 @@ class LoanFileServiceTest {
     private LoanFileService loanFileService;
 
     private final AtomicReference<Path> createdFolder = new AtomicReference<>();
+    
+    private User user;
+
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setId(100L);
+    }
 
     @AfterEach
     void cleanup() throws IOException {
@@ -58,7 +68,7 @@ class LoanFileServiceTest {
             return file;
         });
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID", user);
 
         assertTrue(result);
         verify(loanFileRepository).save(any(LoanFile.class));
@@ -74,7 +84,7 @@ class LoanFileServiceTest {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "proof.txt", "text/plain", "content".getBytes());
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID", user);
 
         assertFalse(result);
         verify(loanFileRepository, never()).save(any());
@@ -87,7 +97,7 @@ class LoanFileServiceTest {
         MockMultipartFile multipartFile = new MockMultipartFile(
                 "file", "../hack.png", "image/png", "content".getBytes());
 
-        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID");
+        boolean result = loanFileService.uploadFile(loan, multipartFile, "ID", user);
 
         assertFalse(result);
         verify(loanFileRepository, never()).save(any());
