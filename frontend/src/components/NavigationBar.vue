@@ -5,9 +5,9 @@
         <div style="display:flex;flex-direction:row;justify-content:flex-start;align-items:center;">
           <img src="../assets/img/logo.png" style="height:50px;" alt="" />
           <div class="logo-text">
-            <div>融销通</div>
+            <div>铻嶉攢閫�?</div>
             <div style="font-size:12px;margin-top:5px;color: #666;">
-              农产品融销一体化平台
+              鍐滀骇鍝佽瀺閿€涓€浣撳寲骞冲�?
             </div>
           </div>
           
@@ -15,8 +15,8 @@
         
       </div>
       <div class="userin" v-if="$store.state.loginUserNickname == ''">
-        <span @click="Login" class="login">登录</span> |
-        <span @click="Register" class="register">注册</span>
+        <span @click="Login" class="login">鐧诲�?</span> |
+        <span @click="Register" class="register">娉ㄥ�?</span>
       </div>
       <div class="userlogin" v-else >
         <button @click="userPage" class="nick">
@@ -34,8 +34,30 @@
         active-text-color="#fff"
         id="menu">
         <el-menu-item index="1" class="item" @click="frontBtn">首页</el-menu-item>
-        <el-menu-item index="2" class="item" @click="tradeBtn">农产品交易</el-menu-item>
-        <el-menu-item index="4" class="item" @click="guideBtn">专家指导</el-menu-item>
+        <el-menu-item
+          index="2"
+          class="item"
+          @click="tradeBtn"
+          v-if="isFarmerRole"
+        >农产品交�?</el-menu-item>
+        <el-menu-item
+          index="3"
+          class="item"
+          @click="expertWorkBtn"
+          v-if="isExpertRole"
+        >专家工作�?</el-menu-item>
+        <el-menu-item
+          index="4"
+          class="item"
+          @click="bankWorkBtn"
+          v-if="isBankRole"
+        >银行�?</el-menu-item>
+        <el-menu-item
+          index="5"
+          class="item"
+          @click="guideBtn"
+          v-if="isFarmerRole || isExpertRole"
+        >专家指导</el-menu-item>
         <el-submenu index="6">
           <template v-slot:title>融资服务</template>
           <el-menu-item index="6-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
@@ -44,12 +66,11 @@
         <div class="userin" v-if="$store.state.loginUserNickname == ''"></div>
         <el-submenu index="7" v-else>
           <template v-slot:title>个人中心</template>
-          <!--   -->
           <el-menu-item index="7-1" @click.native="userPage">个人中心</el-menu-item>
           <el-menu-item index="7-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>
           <el-menu-item index="7-4" @click.native="goodsManage" v-if="$store.getters.isAdmin">商品管理</el-menu-item>
           <el-menu-item index="7-5" @click.native="handleAbout">关于我们</el-menu-item>
-          <el-menu-item index="7-6" @click.native="logout">退出</el-menu-item>
+          <el-menu-item index="7-6" @click.native="logout">退�?</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
@@ -80,6 +101,18 @@ export default {
   computed: {
     userNickname() {
       return this.$store.state.loginUserNickname;
+    },
+    currentRole() {
+      return this.$store.state.userRole || 'farmer';
+    },
+    isFarmerRole() {
+      return this.currentRole === 'farmer';
+    },
+    isExpertRole() {
+      return this.currentRole === 'expert';
+    },
+    isBankRole() {
+      return this.currentRole === 'bank';
     }
   },
   methods: {
@@ -94,7 +127,7 @@ export default {
       this.$store.commit("updateLoginUserNickname", "");
       this.$store.commit("updateLoginUserAvatar", "");
       this.$store.commit("removeStorage");
-      this.$router.push("/home").catch((err) => err);
+      this.$router.push(this.getDefaultHome()).catch((err) => err);
       if (sessionStorage.getItem("/order/needs/pageCode")) {
         sessionStorage.removeItem("/order/needs/pageCode");
       }
@@ -110,6 +143,12 @@ export default {
     },
     tradeBtn() {
       this.$router.push("/home/trade").catch((err) => err);
+    },
+    expertWorkBtn() {
+      this.$router.push("/home/expertWork").catch((err) => err);
+    },
+    bankWorkBtn() {
+      this.$router.push("/home/bankWork").catch((err) => err);
     },
     collectBtn(){
       this.$router.push("/home/collect").catch((err) => err);
@@ -141,6 +180,15 @@ export default {
     },
     openMessage(){
       this.$router.push("/message").catch((err) => err);
+    },
+    getDefaultHome() {
+      const map = {
+        farmer: "/home/trade",
+        expert: "/home/expertWork",
+        bank: "/home/bankWork",
+      };
+      const role = this.$store.state.userRole || 'farmer';
+      return map[role] || "/home/trade";
     }
   },
   created() {
@@ -257,9 +305,9 @@ export default {
   height: 300px;
   left: 50%;
   margin-left: 593px;
-  top: 200px; /* 指定div距离顶部的位置 */
+  top: 200px; /* 鎸囧畾div璺濈椤堕儴鐨勪綅缃�? */
   border-radius: 20px 0 0 20px;
-  padding: 10px; /* 内边距,根据需要进行调整 */
+  padding: 10px; /* 鍐呰竟璺�?,鏍规嵁闇€瑕佽繘琛岃皟鏁�? */
   background-color: #fff;
   box-shadow: -3px 2px 7px rgba(0, 0, 0, 0.2);
 }
