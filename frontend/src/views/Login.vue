@@ -15,7 +15,7 @@
               class="form-control"
               id="username"
               name="username"
-              placeholder="请输入账号"
+              placeholder="请输入账�?"
               v-model="acount"
           />
         </div>
@@ -35,7 +35,7 @@
         <div class="form-group" style="display:flex">
           <input  type="text"    class="form-control" v-model="verificationCode" placeholder="请输入验证码"  style="width: 200px"/>
           <div @click="refreshCode">
-            <!--验证码组件-->
+            <!--验证码组�?-->
             <s-identify :identifyCode="identifyCode"></s-identify>
           </div>
         </div>
@@ -87,12 +87,12 @@ export default {
     loginBtn() {
 
       if(!this.verificationCode){
-        alert("验证码不能为空");
+        alert("验证码不能为�?");
         return;
       }
 
       if(this.verificationCode != this.identifyCode){
-        alert("验证码不一致");
+        alert("验证码不一�?");
         return;
       }
 
@@ -102,7 +102,7 @@ export default {
       })
           .then((res) => {
             if (this.acount == "") {
-              alert("用户名不能为空");
+              alert("用户名不能为�?");
               return;
             } else if (this.password == "") {
               alert("密码不能为空");
@@ -121,7 +121,10 @@ export default {
                     this.$store.commit("updateLoginUserId", user.id);
                   }
                 }
-                this.$router.push("/home").catch((err) => err);
+                const role = this.resolveUserRole(res, user);
+                this.$store.commit("setUserRole", role);
+                const target = this.getDefaultHome(role);
+                this.$router.push(target).catch((err) => err);
               } else {
                 alert(res && res.message ? res.message : '登录失败');
               }
@@ -130,6 +133,34 @@ export default {
           .catch((err) => {
             console.log(err);
           });
+    },
+    resolveUserRole(res, user) {
+      const fallback = 'farmer';
+      const data = res && res.data ? res.data : {};
+      const directRole = data.role || data.userRole || data.identity;
+      const roles = data.roles || data.roleList;
+      let role = directRole;
+      if (!role && Array.isArray(roles) && roles.length > 0) {
+        role = roles[0];
+      }
+      if (!role && user) {
+        role = user.role || user.identity || user.type;
+      }
+      if (typeof role === 'string') {
+        const normalized = role.toLowerCase();
+        if (['farmer', 'expert', 'bank'].includes(normalized)) {
+          return normalized;
+        }
+      }
+      return fallback;
+    },
+    getDefaultHome(role) {
+      const map = {
+        farmer: "/home/trade",
+        expert: "/home/expertWork",
+        bank: "/home/bankWork",
+      };
+      return map[role] || "/home/trade";
     },
   },
   created() {},

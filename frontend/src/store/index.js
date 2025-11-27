@@ -6,6 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     role: [],
+    userRole: localStorage.getItem('userRole') || 'farmer',
     detailData: [],
     orderId: 0,
     changedOrderId: 0,
@@ -46,6 +47,18 @@ export default new Vuex.Store({
       }
       return false;
     },
+    currentRole(state) {
+      return state.userRole || 'farmer'
+    },
+    isFarmerRole(state) {
+      return state.userRole === 'farmer'
+    },
+    isExpertRole(state) {
+      return state.userRole === 'expert'
+    },
+    isBankRole(state) {
+      return state.userRole === 'bank'
+    }
   },
   mutations: {
     updateOrderId(state, value) {
@@ -88,6 +101,11 @@ export default new Vuex.Store({
     updateRole(state, value) {
       state.role = value
     },
+    setUserRole(state, value) {
+      const role = value || 'farmer'
+      state.userRole = role
+      localStorage.setItem('userRole', role)
+    },
     updatePaymentInfo(state, value) {
       state.paymentInfo = value
     },
@@ -111,10 +129,12 @@ export default new Vuex.Store({
       state.loginUserNickname = ''
       state.loginUserAvatar = ''
       state.loginUserId = ''
+      state.userRole = 'farmer'
       localStorage.removeItem('token');
       localStorage.removeItem('loginUserNickname')
       localStorage.removeItem('loginUserAvatar')
       localStorage.removeItem('loginUserId')
+      localStorage.removeItem('userRole')
     }
   },
   actions: {

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
 
 import Login from '../views/Login'
 import Register from '../views/Register'
@@ -7,6 +8,8 @@ import Home from '../views/Home'
 import HomeGoods from '../views/HomeGoods'
 import HomePurchase from '../views/HomePurchase'
 import HomeTrade from '../views/HomeTrade'
+import HomeExpert from '../views/HomeExpert'
+import HomeBank from '../views/HomeBank'
 import HomeKnowledge from '../views/HomeKnowledge'
 import KnowledgeDetail from '../views/KnowledgeDetail'
 import HomeCollect from '../views/HomeCollect'
@@ -60,6 +63,7 @@ import OnlineQuestions from '../views/OnlineQuestions'
 import MyQuestions from '../views/MyQuestions'
 import QuestionDetail from '../views/QuestionDetail'
 import AskQuestion from '../views/AskQuestion'
+import ExpertDashboard from '../views/ExpertDashboard'
 
 
 Vue.use(VueRouter)
@@ -84,14 +88,24 @@ const routes = [
         path: '',
         redirect: 'front'
       },
-
       {
         path: 'front',
         component: FrontPage
       },
       {
         path: 'trade',
-        component: HomeTrade
+        component: HomeTrade,
+        meta: { roles: ['farmer'] }
+      },
+      {
+        path: 'expertWork',
+        component: HomeExpert,
+        meta: { roles: ['expert'] }
+      },
+      {
+        path: 'bankWork',
+        component: HomeBank,
+        meta: { roles: ['bank'] }
       },
       {
         path: 'goods',
@@ -132,6 +146,10 @@ const routes = [
       {
         path: 'expertGuide',
         component: ExpertGuide
+      },
+      {
+        path: 'expert-dashboard',
+        component: ExpertDashboard
       },
       {
         path: 'expertKnowledgeList',
@@ -344,6 +362,29 @@ const routes = [
 const router = new VueRouter({
   routes,
   mode: 'hash',
+})
+
+const roleHomeMap = {
+  farmer: '/home/trade',
+  expert: '/home/expertWork',
+  bank: '/home/bankWork'
+}
+
+router.beforeEach((to, from, next) => {
+  const role = store.state.userRole || 'farmer'
+  if (to.path === '/home' || to.path === '/home/front') {
+    const target = roleHomeMap[role] || '/home/trade'
+    if (to.path !== target) {
+      return next(target)
+    }
+  }
+  if (to.meta && to.meta.roles) {
+    if (!to.meta.roles.includes(role)) {
+      const fallback = roleHomeMap[role] || '/home/trade'
+      return next(fallback)
+    }
+  }
+  next()
 })
 
 export default router

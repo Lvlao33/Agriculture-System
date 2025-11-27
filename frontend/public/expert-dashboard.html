@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专家智慧工作台 - 农产品交易系统</title>
+  <style>
+    :root {
+      --brand:#4b8fe2;
+      --brand-dark:#1f6fd1;
+      --mint:#e3f2ff;
+      --bg:#f5f7fb;
+      --gray:#6b7280;
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box;font-family:"Microsoft YaHei",Helvetica,Arial,sans-serif;}
+    body{margin:0;background:var(--bg);color:#1f2937;}
+    header{
+      background:linear-gradient(120deg,var(--brand) 0%,var(--brand-dark) 70%);
+      color:#fff;
+      padding:20px 36px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:0 6px 15px rgba(31,111,209,0.25);
+    }
+    .brand{display:flex;align-items:center;gap:14px;font-size:22px;font-weight:700;}
+    nav a{
+      color:#fff;
+      text-decoration:none;
+      margin-left:22px;
+      font-size:15px;
+      opacity:.85;
+    }
+    nav a:hover{opacity:1;}
+    .container{max-width:1220px;margin:0 auto;padding:30px 18px 60px;}
+    .hero{
+      background:var(--card);
+      border-radius:18px;
+      padding:30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:26px;
+      box-shadow:0 10px 30px rgba(75,143,226,0.2);
+    }
+    .hero h1{margin:0 0 10px;font-size:30px;}
+    .hero p{margin:0;color:var(--gray);line-height:1.6;}
+    .hero button{
+      margin-top:18px;
+      padding:12px 26px;
+      border:none;
+      border-radius:999px;
+      background:var(--brand);
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(75,143,226,0.35);
+    }
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:26px;
+    }
+    .stat-card{
+      background:var(--card);
+      border-radius:14px;
+      padding:18px 20px;
+      box-shadow:0 8px 24px rgba(15,23,42,0.08);
+    }
+    .stat-label{color:var(--gray);font-size:14px;}
+    .stat-value{font-size:30px;font-weight:700;margin:6px 0;}
+    .stat-trend{font-size:13px;color:#10b981;}
+    .layout{
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:20px;
+    }
+    section{
+      background:var(--card);
+      border-radius:16px;
+      padding:22px;
+      margin-bottom:20px;
+      box-shadow:0 10px 28px rgba(15,23,42,0.05);
+    }
+    section h2{
+      margin:0 0 16px;
+      font-size:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    section h2 span{font-size:14px;color:var(--gray);}
+    ul{margin:0;padding:0;list-style:none;}
+    li{
+      padding:14px 0;
+      border-bottom:1px solid #edf2f7;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    li:last-child{border-bottom:none;}
+    .tag{
+      padding:4px 12px;
+      border-radius:999px;
+      font-size:12px;
+      color:#fff;
+    }
+    .tag-blue{background:#2563eb;}
+    .tag-green{background:#10b981;}
+    .tag-orange{background:#fb923c;}
+    .calendar{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:6px;
+      margin-top:6px;
+      font-size:13px;
+    }
+    .calendar div{
+      background:var(--mint);
+      border-radius:8px;
+      padding:10px;
+      text-align:center;
+    }
+    .calendar .active{
+      background:var(--brand);
+      color:#fff;
+      box-shadow:0 6px 14px rgba(75,143,226,0.4);
+    }
+    .shortcuts{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+    .shortcuts button{
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      color:#1f2937;
+      background:#eff6ff;
+    }
+    footer{
+      text-align:center;
+      padding:18px 0 30px;
+      color:var(--gray);
+      font-size:13px;
+    }
+    @media(max-width:960px){
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+      .layout{grid-template-columns:1fr;}
+      header{flex-direction:column;gap:12px;}
+      nav a{margin-left:10px;}
+    }
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr;}
+      .hero{flex-direction:column;align-items:flex-start;}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="logo.png" alt="logo" width="44" height="44">
+      专家智慧工作台
+    </div>
+    <nav>
+      <a href="#">首页</a>
+      <a href="#">专家助力</a>
+      <a href="#">农技问答</a>
+      <a href="#">预约管理</a>
+      <a href="#">知识库</a>
+      <a href="#">个人中心</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <div>
+        <h1>欢迎回来，王教授！</h1>
+        <p>今日共有 5 条待回复咨询、3 场田间指导预约。请优先完成紧急问题的解答，系统已为您同步最新农情报告。</p>
+        <button>开始答疑</button>
+      </div>
+      <img src="https://cdn.jsdelivr.net/gh/konng/assets/expert-hero.svg" alt="expert" width="240" height="150">
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">待回复问题</div>
+        <div class="stat-value">5</div>
+        <div class="stat-trend">紧急：2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">今日预约</div>
+        <div class="stat-value">3</div>
+        <div class="stat-trend">现场指导 1 · 视频 2</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本周知识发布</div>
+        <div class="stat-value">7</div>
+        <div class="stat-trend">阅读量 +18%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">专家评分</div>
+        <div class="stat-value">4.9</div>
+        <div class="stat-trend">来自 126 条评价</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div>
+        <section>
+          <h2>最新农技问答 <span>优先处理紧急咨询</span></h2>
+          <ul>
+            <li>
+              <div>
+                <strong>【紧急】柑橘叶片发黄如何处理？</strong><br>
+                <small>来自：赣南果农 · 提交于 09:12</small>
+              </div>
+              <span class="tag tag-orange">待回复</span>
+            </li>
+            <li>
+              <div>
+                <strong>大棚番茄卷叶，是否缺钙？</strong><br>
+                <small>来自：寿光合作社 · 提交于 08:40</small>
+              </div>
+              <span class="tag tag-blue">待复核</span>
+            </li>
+            <li>
+              <div>
+                <strong>水稻穗期病害防控方案</strong><br>
+                <small>来自：洞庭湖农场 · 提交于 昨日 21:05</small>
+              </div>
+              <span class="tag tag-green">已回复</span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>预约服务安排 <span>自动同步至专家日历</span></h2>
+          <ul>
+            <li>
+              <div>
+                <strong>10:30 远程视频咨询</strong><br>
+                <small>对象：昌吉番茄基地 · 主题：肥水管理</small>
+              </div>
+              <span class="tag tag-blue">即将开始</span>
+            </li>
+            <li>
+              <div>
+                <strong>14:00 现场指导</strong><br>
+                <small>对象：平谷大桃合作社 · 主题：病虫害监测</small>
+              </div>
+              <span class="tag tag-orange">需出行</span>
+            </li>
+            <li>
+              <div>
+                <strong>19:30 群直播答疑</strong><br>
+                <small>对象：平台入驻农户 · 主题：秋冬保温</small>
+              </div>
+              <span class="tag tag-green">已确认</span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>知识内容创作 <span>管理我的发布</span></h2>
+          <ul>
+            <li>
+              <div>
+                <strong>《小麦纹枯病绿色防控指南》</strong><br>
+                <small>状态：已发布 · 阅读 3200</small>
+              </div>
+              <span class="tag tag-green">通过审核</span>
+            </li>
+            <li>
+              <div>
+                <strong>《设施蔬菜温湿调控技巧》</strong><br>
+                <small>状态：待审核 · 预计上线 11/30</small>
+              </div>
+              <span class="tag tag-blue">审核中</span>
+            </li>
+            <li>
+              <div>
+                <strong>《农机检修保养月历》</strong><br>
+                <small>状态：草稿 · 最后修改 11/25</small>
+              </div>
+              <span class="tag tag-orange">完善中</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div>
+        <section>
+          <h2>工作日历</h2>
+          <div class="calendar">
+            <div>27</div><div>28</div><div class="active">29</div>
+            <div>30</div><div>1</div><div>2</div><div>3</div>
+            <div>4</div><div>5</div><div>6</div>
+            <div>7</div><div>8</div><div>9</div><div>10</div>
+          </div>
+          <p style="margin:12px 0 0;color:var(--gray);font-size:13px;">
+            今日安排：答疑 2 · 线下 1 · 直播 1
+          </p>
+        </section>
+
+        <section>
+          <h2>系统通知</h2>
+          <ul>
+            <li>
+              <span>平台推送：11 月农情监测报告上线</span>
+              <small style="color:var(--gray);">1 小时前</small>
+            </li>
+            <li>
+              <span>预约提醒：请确认 12/01 田间指导</span>
+              <small style="color:var(--gray);">昨天</small>
+            </li>
+            <li>
+              <span>知识审核：有 2 篇内容待编辑</span>
+              <small style="color:var(--gray);">2 天前</small>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>快捷操作</h2>
+          <div class="shortcuts">
+            <button>发布知识</button>
+            <button>批量回复</button>
+            <button>管理预约</button>
+            <button>查看评价</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    ? 2025 农产品交易系统 · 专家助力农业数字化
+  </footer>
+</body>
+</html>
+
+
