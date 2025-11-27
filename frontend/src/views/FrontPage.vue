@@ -16,10 +16,13 @@
 
         <div class="hero-right">
           <div class="headline-header">
-            <span class="tab active">今日要闻</span>
+            <span class="tab active">近日要闻</span>
           </div>
           <ul class="headline-list">
-            <li v-for="(text, idx) in headlines" :key="idx">{{ text }}</li>
+            <li v-for="(item, idx) in headlines" :key="idx">
+              <span class="headline-text">{{ item.title }}</span>
+              <span class="headline-date">{{ item.date }}</span>
+            </li>
           </ul>
         </div>
       </section>
@@ -273,19 +276,33 @@ export default {
         { src: require('@/assets/img/pro2.jpg'), name: '农产品二' },
         { src: require('@/assets/img/pro3.jpg'), name: '农产品三' }
       ],
-      headlines: [
-        '韩长赋：确保水稻产量稳定在2亿吨以上',
-        '黄浦江大闸蟹今开捕',
-        '新疆农用地土壤环境总体优良',
-        '河南秋收基本结束 麦播超四成',
-        '河北沧州开展农产品质量安全普法宣传',
-        '安徽农业产业化交易会举行',
-        '禄丰县：做大特色产业助农增收',
-        '黑龙江抢收保收 打赢秋收战役',
-        '陇南市已建成高标准农田600多万亩',
-        '柯城区全面启动养殖污染治理',
-        '永安上坪乡：粮食喜获丰收'
-      ],
+      headlines: (() => {
+        const titles = [
+          '韩长赋：确保水稻产量稳定在2亿吨以上',
+          '黄浦江大闸蟹今开捕',
+          '新疆农用地土壤环境总体优良',
+          '河南秋收基本结束 麦播超四成',
+          '河北沧州开展农产品质量安全普法宣传',
+          '安徽农业产业化交易会举行',
+          '禄丰县：做大特色产业助农增收',
+          '黑龙江抢收保收 打赢秋收战役',
+          '陇南市已建成高标准农田600多万亩',
+          '柯城区全面启动养殖污染治理',
+          '永安上坪乡：粮食喜获丰收'
+        ]
+        const formatDate = (daysAgo) => {
+          const date = new Date()
+          date.setDate(date.getDate() - daysAgo)
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          return `${year}-${month}-${day}`
+        }
+        return titles.map((title, index) => ({
+          title,
+          date: formatDate(index + 1)
+        }))
+      })(),
       techCards: [
         {
           title: '蔬菜技术',
@@ -627,14 +644,28 @@ export default {
     border-top: none;
     line-height: 22px;
     li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 13px;
       padding: 4px 0;
       color: #333;
       cursor: pointer;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      &:hover { color: @primary; }
+      &:hover { 
+        .headline-text { color: @primary; }
+      }
+      .headline-text {
+        flex: 1;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .headline-date {
+        flex-shrink: 0;
+        margin-left: 10px;
+        font-size: 12px;
+        color: #999;
+      }
     }
   }
 }
