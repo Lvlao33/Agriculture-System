@@ -5,11 +5,10 @@
       <!-- 轮播 + 公告 -->
       <section class="hero">
         <div class="carousel">
-          <el-carousel :interval="4000" height="220px" indicator-position="outside">
+          <el-carousel :interval="4000" height="400px" indicator-position="outside">
             <el-carousel-item v-for="(img, idx) in imageList" :key="idx">
               <div class="carousel-item">
                 <img :src="img.src" :alt="img.name" @error="e => e.target.src = require('../assets/img/placeholder.jpg')" />
-                <div class="caption">{{ img.name }}</div>
           </div>
             </el-carousel-item>
           </el-carousel>
@@ -538,27 +537,46 @@ export default {
 /* 轮播 */
 .hero {
   display: flex;
-  gap: 160;
+  gap: 20px;
   margin-bottom: 20px;
   @media (max-width: 500px) {
     flex-direction: column;
   }
 }
 .carousel {
-  width: 500px;
+  flex: 1;
   height: 400px;
   border-radius: 8px;
   overflow: hidden;
+  margin-top: 10px;
+  
+  /deep/ .el-carousel {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /deep/ .el-carousel__container {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /deep/ .el-carousel__item {
+    border-radius: 8px;
+    overflow: hidden;
+  }
 }
 .carousel-item {
-  position:sticky;
-  width: 400;
-  height: 400;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .carousel-item img {
-  width: 500;
-  height: 500px;
-  object-fit: cover; /* 保持比例裁剪 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 保持比例裁剪，适配容器 */
+  border-radius: 8px;
 }
 .caption {
     position: absolute;
