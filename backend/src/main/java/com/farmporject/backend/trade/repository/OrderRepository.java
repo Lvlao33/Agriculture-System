@@ -1,10 +1,16 @@
 package com.farmporject.backend.trade.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.farmporject.backend.trade.model.Order;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // 预留：接入 JPA/MyBatis 后操作数据库
+    List<Order> findByUserIdOrderByCreateTimeDesc(Long userId);
+    List<Order> findBySellerIdOrderByCreateTimeDesc(Long sellerId);
+    List<Order> findByStatusOrderByCreateTimeDesc(String status);
+    List<Order> findByUserIdAndStatusOrderByCreateTimeDesc(Long userId, String status);
+    List<Order> findBySellerIdAndStatusOrderByCreateTimeDesc(Long sellerId, String status);
+    List<Order> findByPaymentStatusOrderByCreateTimeDesc(String paymentStatus);
 }
