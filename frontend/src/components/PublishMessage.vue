@@ -1,7 +1,7 @@
 <template>
   <div class="publish-message">
-    <el-form ref="form" :model="form" label-width="70px" style="margin-top:50px;">
-      <el-form-item label="Ê∑ªÂä†ÂõæÁâá">
+    <el-form ref="form" :model="form" label-width="90px" class="publish-form">
+      <el-form-item label="…œº‹Õº∆¨">
         <el-upload
           class="orders-img_el_upload"
           :action="upurl"
@@ -15,26 +15,63 @@
           :on-error="handleError"
           :file-list="fileList"
           :class="{ disUoloadSty: noneBtnImg }"
-          ref="upload">
-          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">Ê∑ªÂä†ÂõæÁâá</span>
+          ref="upload"
+        >
+          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">ÃÌº”Õº∆¨</span>
         </el-upload>
       </el-form-item>
-      <el-form-item label="Ê†áÈ¢ò">
-        <el-input v-model="form.title"  style="width:800px;" placeholder="Ê∑ªÂä†Ê†áÈ¢ò"></el-input>
+
+      <el-form-item label="…Ã∆∑±ÍÃ‚">
+        <el-input
+          v-model="form.title"
+          style="width:800px;"
+          placeholder="«Î ‰»Î…Ã∆∑±ÍÃ‚"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="ÂÜÖÂÆπ">
-        <el-input type="textarea"  style="width:800px;" v-model="form.content" placeholder="Ê∑ªÂä†ÂÜÖÂÆπ"></el-input>
+
+      <el-form-item label="…Ã∆∑√Ë ˆ">
+        <el-input
+          type="textarea"
+          style="width:800px;"
+          v-model="form.content"
+          placeholder="«ÎÃÓ–¥œÍœ∏µƒ…Ã∆∑√Ë ˆ"
+          :rows="4"
+        ></el-input>
       </el-form-item>
-      <el-form-item label="ÂÆö‰ª∑">
-        <el-input v-model="form.price" style="width:100px;"></el-input>
+
+      <el-form-item label="…Ã∆∑∑÷¿‡">
+        <el-cascader
+          v-model="form.categoryPath"
+          :options="categoryOptions"
+          :props="{ expandTrigger: 'hover' }"
+          clearable
+          style="width:400px;"
+          placeholder="«Î—°‘Ò…Ã∆∑À˘ Ù∑÷¿‡"
+        ></el-cascader>
+      </el-form-item>
+
+      <el-form-item label="…Ã∆∑º€∏Ò">
+        <el-input
+          v-model="form.price"
+          style="width:150px;"
+          placeholder="«Î ‰»Îº€∏Ò"
+        >
+          <template slot="append">‘™</template>
+        </el-input>
       </el-form-item>
     </el-form>
-    <el-button type="success" :disabled="isDisabled" @click="publishClick">ÂèëÂ∏É‰ø°ÊÅØ</el-button>
+
+    <div class="submit-row">
+      <el-button type="success" :disabled="isDisabled" @click="publishClick">
+        ∑¢≤º–≈œ¢
+      </el-button>
+    </div>
   </div>
 </template>
 
 <script>
 import { addOrder } from "../api/order";
+
 export default {
   name: "PublishMessage",
   data() {
@@ -49,15 +86,60 @@ export default {
         Authorization: window.localStorage.token,
       },
       fileList: [],
-      
       imgurl: "",
-      
-      form:{
+      uploadDisabled: false,
+      form: {
         title: "",
         content: "",
         price: "",
         picture: "",
-      }
+        categoryPath: [],
+      },
+      categoryOptions: [
+        {
+          value: "vegetable",
+          label: " ﬂ≤À¿‡",
+          children: [
+            { value: "leafy", label: "“∂≤À¿‡£®≤§≤À°¢…˙≤Àµ»£©" },
+            { value: "root", label: "∏˘æ•¿‡£®¬‹≤∑°¢Õ¡∂πµ»£©" },
+            { value: "gourd", label: "πœπ˚¿‡£®ª∆πœ°¢∑¨«—µ»£©" },
+          ],
+        },
+        {
+          value: "fruit",
+          label: "ÀÆπ˚¿‡",
+          children: [
+            { value: "berry", label: "Ω¨π˚¿‡£®≤››Æ°¢¿∂›Æµ»£©" },
+            { value: "stone", label: "∫Àπ˚¿‡£®Ã“◊”°¢¿Ó◊”µ»£©" },
+            { value: "citrus", label: "∏ÃÈŸ¿‡£®≥»◊”°¢Ë÷◊”µ»£©" },
+          ],
+        },
+        {
+          value: "grain",
+          label: "¡∏ ≥◊˜ŒÔ",
+          children: [
+            { value: "cereals", label: "π»ŒÔ¿‡£®ÀÆµæ°¢–°¬Ûµ»£©" },
+            { value: "beans", label: "∂π¿‡£®¥Û∂π°¢¬Ã∂πµ»£©" },
+          ],
+        },
+        {
+          value: "livestock",
+          label: "–Û«›≤˙∆∑",
+          children: [
+            { value: "meat", label: "»‚¿‡£®÷Ì»‚°¢≈£»‚µ»£©" },
+            { value: "eggMilk", label: "µ∞ƒÃ¿‡£®º¶µ∞°¢≈£ƒÃµ»£©" },
+          ],
+        },
+        {
+          value: "specialty",
+          label: "Ãÿ…´≈©≤˙∆∑",
+          children: [
+            { value: "organic", label: "”–ª˙ ≥∆∑" },
+            { value: "geo", label: "µÿ¿Ì±Í÷æ≤˙∆∑" },
+            { value: "handcraft", label: " ÷π§“’∆∑" },
+          ],
+        },
+      ],
     };
   },
   props: {
@@ -67,31 +149,36 @@ export default {
   },
   computed: {
     isDisabled() {
-      if(this.ctype === 'needs'){
-        return this.form.title == "" || this.form.content == "";
-      }else{
-        return this.form.title == "" || this.form.content == "" || this.form.price == "";
+      if (this.ctype === "needs") {
+        return (
+          this.form.title === "" ||
+          this.form.content === ""
+        );
       }
+      return (
+        this.form.title === "" ||
+        this.form.content === "" ||
+        this.form.price === "" ||
+        !Array.isArray(this.form.categoryPath) ||
+        this.form.categoryPath.length === 0
+      );
     },
   },
   methods: {
-    handleError(err, file, fileList) {
-      this.$message({
-        message: "‰∏ä‰º†Â§±Ë¥•ÔºÅ",
-        type: "success",
-      });
+    handleError(err) {
+      this.$message.error("Õº∆¨…œ¥´ ß∞‹£¨«Î÷ÿ ‘");
       console.log(err);
     },
     handleSuccess(response, file, fileList) {
-      if (file.response.flag == true) {
+      if (response.flag === true) {
         this.fileList = fileList;
-        this.form.picture = file.response.data;
+        this.form.picture = response.data;
         if (fileList.length >= 3) {
           this.uploadDisabled = true;
         }
-        alert(file.response.message);
+        this.$message.success("Õº∆¨…œ¥´≥…π¶");
       } else {
-        alert(file.response.data);
+        this.$message.error(response.message || "…œ¥´ ß∞‹");
       }
     },
     handleChange(file, fileList) {
@@ -99,9 +186,11 @@ export default {
     },
     handleRemove(file, fileList) {
       this.noneBtnImg = fileList.length >= this.limitCountImg;
-      this.fileList.pop();
-      // this.form.photo = "";
+      this.fileList = fileList;
       this.uploadDisabled = false;
+      if (fileList.length === 0) {
+        this.form.picture = "";
+      }
     },
     handlePreview(file) {
       this.dialogImageUrl = file.url;
@@ -110,28 +199,47 @@ export default {
     submitUpload() {
       this.$refs.upload.submit();
     },
+    getCategoryLabel(path) {
+      if (!Array.isArray(path) || path.length === 0) {
+        return "";
+      }
+      const labels = [];
+      let currentLevel = this.categoryOptions;
+      path.forEach((value) => {
+        const node = currentLevel.find((item) => item.value === value);
+        if (node) {
+          labels.push(node.label);
+          currentLevel = node.children || [];
+        }
+      });
+      return labels.join(" / ");
+    },
     publishClick() {
-      if ((this.form.picture == "")&&(this.ctype !== 'needs')) {
-        alert("ÂõæÁâá‰∏çËÉΩ‰∏∫Á©∫");
-      } else {
-        addOrder({
-          title: this.form.title,
-          content: this.form.content,
-          price: this.form.price,
-          type: this.ctype,
-          picture: this.form.picture,
-        }).then((res) => {
-          if (res.flag == true) {
-            this.$message.success(res.message);
+      if (this.ctype !== "needs" && this.form.picture === "") {
+        this.$message.warning("«Î÷¡…Ÿ…œ¥´“ª’≈…Ã∆∑Õº∆¨");
+        return;
+      }
+      const categoryLabel = this.getCategoryLabel(this.form.categoryPath);
+      addOrder({
+        title: this.form.title,
+        content: this.form.content,
+        price: this.form.price,
+        type: this.ctype,
+        picture: this.form.picture,
+        category: categoryLabel,
+      })
+        .then((res) => {
+          if (res.flag === true) {
+            this.$message.success(res.message || "∑¢≤º≥…π¶");
             this.$router.push("/home/user/published" + this.ctype);
           } else {
-            this.$message.error(res.data);
+            this.$message.error(res.message || "∑¢≤º ß∞‹");
           }
         })
         .catch((err) => {
-          console.log("Ê∑ªÂä†Â§±Ë¥•");
+          console.log("∑¢≤º ß∞‹", err);
+          this.$message.error("∑¢≤º ß∞‹£¨«Î…‘∫Û‘Ÿ ‘");
         });
-      }
     },
   },
 };
@@ -139,19 +247,24 @@ export default {
 
 <style lang="less" scoped>
 .disUoloadSty .el-upload--picture-card {
-  display: none; /* ‰∏ä‰º†ÊåâÈíÆÈöêËóè */
+  display: none;
 }
+
 .publish-message {
   width: 1100px;
   margin: 20px auto;
-  padding: 10px 20px;
+  padding: 10px 20px 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .publish-form {
+    margin-top: 20px;
+  }
+
   .orders-img_el_upload {
-    width: 1000px;
-    float: left;
-    height: 148px;
+    width: 100%;
     .el-upload {
-      //   width: 50px;
-      //   height: 20px;
       border: 1px dashed #d9d9d9;
       border-radius: 6px;
       cursor: pointer;
@@ -160,44 +273,18 @@ export default {
       &:hover {
         border-color: #409eff;
       }
-      .el-upload__input {
-        position: absolute;
-        left: -1000px;
-      }
     }
   }
-  .title {
-    width: 1100px;
-    height: 60px;
-    margin-top: 50px;
-    font-size: 22px;
-    outline: none;
-    border: none;
-    border-bottom: 1px solid black;
-  }
-  .content {
-    font-size: 18px;
-    width: 1200px;
-    resize: none;
-    outline: none;
-    border: none;
-    border-bottom: 1px solid black;
-  }
-  .price {
-    font-size: 20px;
-    .price-input {
-      width: 100px;
-      outline: none;
-      border: none;
-      margin: 0 20px;
-    }
-  }
-  .el-button {
-    width: 120px;
-    height: 50px;
+
+  .submit-row {
+    text-align: center;
     margin-top: 20px;
-    margin-left: 540px;
-    font-size: 20px;
+
+    .el-button {
+      width: 160px;
+      height: 44px;
+      font-size: 16px;
+    }
   }
 }
 </style>
