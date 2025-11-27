@@ -2,14 +2,14 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- 顶部操作�? -->
+    <!-- 顶部操作栏 -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="搜索商品..."
+          placeholder="搜索商品名称、产地..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
@@ -21,13 +21,13 @@
         class="publish-btn"
         @click="handlePublish"
       >
-        发布货源
+        发布商品
       </el-button>
     </div>
 
     <!-- 主要内容区域 -->
     <div class="main-content">
-      <!-- 左侧分类�? -->
+      <!-- 左侧分类栏 -->
       <div class="category-sidebar">
         <div class="category-title">商品分类</div>
         <div
@@ -44,7 +44,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>水果�?</span>
+          <span>水果类</span>
         </div>
         <div
           class="category-item"
@@ -52,7 +52,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>蔬菜�?</span>
+          <span>蔬菜类</span>
         </div>
         <div
           class="category-item"
@@ -60,7 +60,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>粮食�?</span>
+          <span>粮食类</span>
         </div>
         <div
           class="category-item"
@@ -68,7 +68,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>畜牧�?</span>
+          <span>畜牧类</span>
         </div>
         <div
           class="category-item"
@@ -80,7 +80,7 @@
         </div>
       </div>
 
-      <!-- 右侧商品展示�? -->
+      <!-- 右侧商品展示区 -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
@@ -90,15 +90,16 @@
           v-for="(item, index) in filteredGoods"
           :key="index"
           class="goods-card"
-          @click="detailsClick(item.orderId)"
+          @click="showGoodsDetail(item)"
         >
           <el-card shadow="hover" :body-style="{ padding: '0' }">
             <div class="goods-image-wrapper">
               <img
                 v-if="item.picture && item.picture !== ''"
-                :src="`/order/${item.picture}`"
+                :src="getImageUrl(item.picture)"
                 class="goods-img"
                 alt="商品图片"
+                @error="handleImageError"
               />
               <img
                 v-else
@@ -112,7 +113,7 @@
                 <i class="el-icon-user"></i>
                 <span>{{ item.ownName || '未知' }}</span>
               </div>
-              <p class="goods-content">{{ item.content || '暂无描述' }}</p>
+              <p class="goods-content">{{ item.content || item.name || '商品名称' }}</p>
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
@@ -126,50 +127,67 @@
       </div>
     </div>
 
-    <!-- 分类详细内容 -->
-    <div class="category-showcase">
-      <div class="showcase-header">
-        <h3>分类精�?</h3>
-        <p>为每个品类提供产地、规格、供货节奏等详细信息，帮助您快速匹配高质量货源�?</p>
-      </div>
-      <div class="showcase-grid">
-        <div
-          class="showcase-card"
-          v-for="category in categoryShowcase"
-          :key="category.key"
-        >
-          <div class="showcase-top">
-            <div class="showcase-info">
-              <h4>{{ category.title }}</h4>
-              <p>{{ category.description }}</p>
-            </div>
-            <img :src="category.image" :alt="category.title" />
-          </div>
-          <ul class="feature-list">
-            <li v-for="(feature, index) in category.features" :key="index">
-              <i class="el-icon-check"></i>
-              <span>{{ feature }}</span>
-            </li>
-          </ul>
-          <div class="sample-goods">
-            <span
-              v-for="sample in category.sampleGoods"
-              :key="sample.name"
-              @click="handleCategoryShowcase(sample.keyword, category.key)"
-            >
-              {{ sample.name }}
-            </span>
-          </div>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="handleCategoryShowcase(category.searchKeyword, category.key)"
+    <!-- 商品详情弹窗 -->
+    <el-dialog
+      :title="detailDialogTitle"
+      :visible.sync="detailDialogVisible"
+      width="80%"
+      :before-close="handleCloseDialog"
+      class="goods-detail-dialog"
+    >
+      <div class="detail-content">
+        <div class="detail-goods-list">
+          <div
+            v-for="(item, index) in similarGoods"
+            :key="index"
+            class="detail-goods-item"
+            @click="goToGoodsDetailPage(item)"
           >
-            查看{{ category.title }}货源
-          </el-button>
+            <div class="detail-goods-image">
+              <img
+                v-if="item.picture && item.picture !== ''"
+                :src="getImageUrl(item.picture)"
+                alt="商品图片"
+                @error="handleImageError"
+              />
+              <img
+                v-else
+                :src="`/order/wutu.gif`"
+                alt="暂无图片"
+              />
+            </div>
+            <div class="detail-goods-info">
+              <div class="detail-goods-name">{{ item.content || item.name || '商品名称' }}</div>
+              <div class="detail-goods-meta">
+                <span class="detail-goods-origin">
+                  <i class="el-icon-location-outline"></i>
+                  {{ item.origin || '产地未知' }}
+                </span>
+                <span class="detail-goods-seller">
+                  <i class="el-icon-user"></i>
+                  {{ item.ownName || '未知卖家' }}
+                </span>
+              </div>
+              <div class="detail-goods-price">
+                <i class="el-icon-coin"></i>
+                ¥{{ item.price || '面议' }}
+              </div>
+              <div class="detail-goods-stock" v-if="item.stock !== undefined">
+                库存：{{ item.stock }}
+              </div>
+            </div>
+            <div class="detail-goods-actions">
+              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">立即购买</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物车</el-button>
+            </div>
+          </div>
+          <div v-if="similarGoods.length === 0" class="empty-detail-state">
+            <i class="el-icon-box"></i>
+            <p>暂无同类商品</p>
+          </div>
         </div>
       </div>
-    </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -180,79 +198,220 @@ export default {
     return {
       searchValue: '',
       selectedCategory: 'all',
-      categoryMap: {
-        'all': '全部商品',
-        'fruit': '水果�?',
-        'vegetable': '蔬菜�?',
-        'grain': '粮食�?',
-        'livestock': '畜牧�?',
-        'other': '其他'
-      },
-      categoryShowcase: [
+      detailDialogVisible: false,
+      detailDialogTitle: '商品详情',
+      currentGoodsItem: null,
+      similarGoods: [],
+      // 示例商品数据（当API返回空数据时使用）
+      defaultGoods: [
+        // 水果类
         {
-          key: 'vegetable',
-          title: '蔬菜�?',
-          description: '基地直供叶菜、根茎类，每日凌晨采摘，4小时内完成预冷打包�?',
-          image: '/kn/pro1.jpg',
-          features: ['日采日配 冷链配�?', '可提供检测报�?', '支持分级分拣'],
-          sampleGoods: [
-            { name: '有机生菜', keyword: '生菜' },
-            { name: '西兰�?', keyword: '西兰�?' },
-            { name: '洪湖莲藕', keyword: '莲藕' }
-          ],
-          searchKeyword: '蔬菜'
+          name: '新鲜苹果',
+          content: '新鲜苹果 红富士 脆甜多汁',
+          price: 12.00,
+          picture: 'pro2.jpg',
+          origin: '山东烟台',
+          ownName: '张果农',
+          category: 'fruit',
+          stock: 500,
+          orderId: 'fruit1',
+          keyword: '苹果'
         },
         {
-          key: 'fruit',
-          title: '水果�?',
-          description: '从华南、川渝、云南等核心产区直发，甜度、大小均可定制�?',
-          image: '/kn/pro2.jpg',
-          features: ['原产地控�?', '破损包赔', '提供空运/冷链双模�?'],
-          sampleGoods: [
-            { name: '赣南脐橙', keyword: '脐橙' },
-            { name: '阳山水蜜�?', keyword: '水蜜�?' },
-            { name: '妃子笑荔�?', keyword: '荔枝' }
-          ],
-          searchKeyword: '水果'
+          name: '优质苹果',
+          content: '优质苹果 有机种植 无农药残留',
+          price: 15.00,
+          picture: 'pro2.jpg',
+          origin: '陕西',
+          ownName: '李农场',
+          category: 'fruit',
+          stock: 300,
+          orderId: 'fruit2',
+          keyword: '苹果'
         },
         {
-          key: 'grain',
-          title: '粮食�?',
-          description: '东北优质寒地稻、优选主体合作社，支持代精加工和包装�?',
-          image: '/kn/rice.png',
-          features: ['产地可追�?', '仓配一体化', '支持金融结算'],
-          sampleGoods: [
-            { name: '五常稻花�?', keyword: '稻花�?' },
-            { name: '高筋小麦', keyword: '小麦' },
-            { name: '有机黄小�?', keyword: '小米' }
-          ],
-          searchKeyword: '粮食'
+          name: '精品苹果',
+          content: '精品苹果 个大饱满 甜度高',
+          price: 18.00,
+          picture: 'pro2.jpg',
+          origin: '新疆',
+          ownName: '王果园',
+          category: 'fruit',
+          stock: 200,
+          orderId: 'fruit3',
+          keyword: '苹果'
         },
         {
-          key: 'livestock',
-          title: '畜牧�?',
-          description: '覆盖肉牛、肉羊、家禽禽蛋等，屠宰加工和冷链运输一条龙服务�?',
-          image: '/kn/pro3.jpg',
-          features: ['定点屠宰', '全程溯源', '可出具检疫证�?'],
-          sampleGoods: [
-            { name: '草原西门塔尔�?', keyword: '西门塔尔' },
-            { name: '散养山地�?', keyword: '土鸡' },
-            { name: '有机鲜蛋', keyword: '鲜蛋' }
-          ],
-          searchKeyword: '畜牧'
+          name: '新鲜橙子',
+          content: '新鲜橙子 汁多味甜 维C丰富',
+          price: 10.00,
+          picture: 'pro2.jpg',
+          origin: '江西',
+          ownName: '陈果农',
+          category: 'fruit',
+          stock: 400,
+          orderId: 'fruit4',
+          keyword: '橙子'
         },
         {
-          key: 'other',
-          title: '特色与深加工',
-          description: '蜂蜜、茶叶、中药材、预制菜等特色货源，支持OEM/ODM�?',
-          image: '/kn/chayangji.jpg',
-          features: ['源头工厂', '资质齐全', '配方可定�?'],
-          sampleGoods: [
-            { name: '古树红茶', keyword: '红茶' },
-            { name: '预制酸菜�?', keyword: '预制�?' },
-            { name: '道地黄芪', keyword: '黄芪' }
-          ],
-          searchKeyword: '特色'
+          name: '优质葡萄',
+          content: '优质葡萄 无籽 甜度高',
+          price: 20.00,
+          picture: 'pro2.jpg',
+          origin: '新疆',
+          ownName: '赵果园',
+          category: 'fruit',
+          stock: 250,
+          orderId: 'fruit5',
+          keyword: '葡萄'
+        },
+        // 蔬菜类
+        {
+          name: '新鲜白菜',
+          content: '新鲜白菜 有机种植 口感脆嫩',
+          price: 5.00,
+          picture: 'pro1.jpg',
+          origin: '山东',
+          ownName: '刘菜农',
+          category: 'vegetable',
+          stock: 800,
+          orderId: 'veg1',
+          keyword: '白菜'
+        },
+        {
+          name: '有机白菜',
+          content: '有机白菜 无农药 绿色健康',
+          price: 8.00,
+          picture: 'pro1.jpg',
+          origin: '河北',
+          ownName: '周农场',
+          category: 'vegetable',
+          stock: 600,
+          orderId: 'veg2',
+          keyword: '白菜'
+        },
+        {
+          name: '新鲜萝卜',
+          content: '新鲜萝卜 白萝卜 清脆爽口',
+          price: 4.00,
+          picture: 'pro1.jpg',
+          origin: '河南',
+          ownName: '吴菜农',
+          category: 'vegetable',
+          stock: 700,
+          orderId: 'veg3',
+          keyword: '萝卜'
+        },
+        {
+          name: '新鲜土豆',
+          content: '新鲜土豆 黄心土豆 品质优良',
+          price: 6.00,
+          picture: 'pro1.jpg',
+          origin: '内蒙古',
+          ownName: '郑农场',
+          category: 'vegetable',
+          stock: 900,
+          orderId: 'veg4',
+          keyword: '土豆'
+        },
+        // 粮食类
+        {
+          name: '优质大米',
+          content: '优质大米 东北大米 香糯可口',
+          price: 45.00,
+          picture: 'rice.png',
+          origin: '黑龙江',
+          ownName: '孙粮农',
+          category: 'grain',
+          stock: 1000,
+          orderId: 'grain1',
+          keyword: '大米'
+        },
+        {
+          name: '有机大米',
+          content: '有机大米 绿色认证 营养丰富',
+          price: 58.00,
+          picture: 'rice.png',
+          origin: '吉林',
+          ownName: '钱农场',
+          category: 'grain',
+          stock: 500,
+          orderId: 'grain2',
+          keyword: '大米'
+        },
+        {
+          name: '优质小麦',
+          content: '优质小麦 高筋小麦 适合做面食',
+          price: 35.00,
+          picture: 'rice.png',
+          origin: '河南',
+          ownName: '周粮农',
+          category: 'grain',
+          stock: 800,
+          orderId: 'grain3',
+          keyword: '小麦'
+        },
+        // 畜牧类
+        {
+          name: '新鲜土鸡蛋',
+          content: '新鲜土鸡蛋 散养 营养丰富',
+          price: 35.00,
+          picture: 'pro3.jpg',
+          origin: '河北',
+          ownName: '李养殖',
+          category: 'livestock',
+          stock: 200,
+          orderId: 'live1',
+          keyword: '鸡蛋'
+        },
+        {
+          name: '有机土鸡蛋',
+          content: '有机土鸡蛋 无激素 品质保证',
+          price: 42.00,
+          picture: 'pro3.jpg',
+          origin: '山东',
+          ownName: '王养殖',
+          category: 'livestock',
+          stock: 150,
+          orderId: 'live2',
+          keyword: '鸡蛋'
+        },
+        {
+          name: '新鲜牛奶',
+          content: '新鲜牛奶 当日配送 营养健康',
+          price: 25.00,
+          picture: 'pro3.jpg',
+          origin: '内蒙古',
+          ownName: '赵牧场',
+          category: 'livestock',
+          stock: 300,
+          orderId: 'live3',
+          keyword: '牛奶'
+        },
+        // 其他
+        {
+          name: '有机茶叶',
+          content: '有机茶叶 原产地直供 品质优良',
+          price: 128.00,
+          picture: 'chayangji.jpg',
+          origin: '福建',
+          ownName: '陈茶农',
+          category: 'other',
+          stock: 100,
+          orderId: 'other1',
+          keyword: '茶叶'
+        },
+        {
+          name: '新鲜玉米',
+          content: '新鲜玉米 甜玉米 口感香甜',
+          price: 15.00,
+          picture: 'farm.jpeg',
+          origin: '河南',
+          ownName: '黄农场',
+          category: 'other',
+          stock: 400,
+          orderId: 'other2',
+          keyword: '玉米'
         }
       ]
     };
@@ -265,19 +424,22 @@ export default {
   },
   computed: {
     filteredGoods() {
-      let goods = this.cgoods || [];
+      // 优先使用传入的商品数据，如果为空则使用示例数据
+      let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // 鎸夊垎绫荤瓫閫夛紙杩欓噷鍙互鏍规嵁瀹為檯鏁版嵁缁撴瀯璋冩暣锛�
+      // 分类筛选
       if (this.selectedCategory !== 'all') {
-        // 濡傛灉鍟嗗搧鏁版嵁涓湁鍒嗙被瀛楁锛屽彲浠ュ湪杩欓噷杩涜绛涢€�?
-        // goods = goods.filter(item => item.category === this.selectedCategory);
+        goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // 鎸夋悳绱㈠叧閿瘝绛涢€�?
+      // 搜索筛选
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
           return (item.content && item.content.toLowerCase().includes(keyword)) ||
+                 (item.name && item.name.toLowerCase().includes(keyword)) ||
+                 (item.keyword && item.keyword.toLowerCase().includes(keyword)) ||
+                 (item.origin && item.origin.toLowerCase().includes(keyword)) ||
                  (item.ownName && item.ownName.toLowerCase().includes(keyword));
         });
       }
@@ -293,21 +455,73 @@ export default {
       this.$emit('handleSearch', this.searchValue);
     },
     handlePublish() {
-      this.$router.push('/home/publishSupply').catch((err) => err);
+      this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
-    detailsClick(orderId) {
-      this.$store.commit("updateOrderId", orderId);
-      this.$router.push(`/home/details?orderId=${orderId}`).catch((err) => err);
+    showGoodsDetail(item) {
+      // 显示商品详情弹窗，显示所有同类商品
+      this.currentGoodsItem = item;
+      this.detailDialogTitle = `${item.content || item.name || '商品'} - 同类商品`;
+      
+      // 根据商品关键词查找同类商品
+      const keyword = item.keyword || this.extractKeyword(item.content || item.name);
+      this.similarGoods = this.filteredGoods.filter(goods => {
+        const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
+        return goodsKeyword === keyword && goods.orderId !== item.orderId;
+      });
+      
+      // 将当前商品也加入列表（放在第一位）
+      this.similarGoods.unshift(item);
+      
+      this.detailDialogVisible = true;
     },
-    handleCategoryShowcase(keyword, categoryKey) {
-      if (categoryKey) {
-        this.selectedCategory = categoryKey;
+    extractKeyword(text) {
+      // 从商品名称中提取关键词（简单实现）
+      if (!text) return '';
+      // 提取常见商品关键词
+      const keywords = ['苹果', '橙子', '葡萄', '白菜', '萝卜', '土豆', '大米', '小麦', '鸡蛋', '牛奶', '茶叶', '玉米'];
+      for (let kw of keywords) {
+        if (text.includes(kw)) {
+          return kw;
+        }
       }
-      if (keyword) {
-        this.searchValue = keyword;
-        // 触发父组件搜索，确保商品列表切换到对应货�?
-        this.handleSearch();
+      return text.substring(0, 2); // 默认取前两个字
+    },
+    handleCloseDialog() {
+      this.detailDialogVisible = false;
+      this.currentGoodsItem = null;
+      this.similarGoods = [];
+    },
+    goToGoodsDetailPage(item) {
+      // 跳转到商品详情页面
+      if (item.orderId) {
+        this.$store.commit("updateOrderId", item.orderId);
+        this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
+    },
+    handleBuyNow(item) {
+      // 立即购买
+      this.goToGoodsDetailPage(item);
+    },
+    handleAddToCart(item) {
+      // 加入购物车
+      this.$emit('addToCart', item);
+      this.$message.success('已加入购物车');
+    },
+    getImageUrl(picture) {
+      // 如果图片路径包含 /kn/ 或 /order/，直接使用
+      if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
+        return picture;
+      }
+      // 如果是 kn 目录下的图片
+      if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
+        return `/kn/${picture}`;
+      }
+      // 默认使用 order 目录
+      return `/order/${picture}`;
+    },
+    handleImageError(event) {
+      // 图片加载失败时，使用默认图片
+      event.target.src = '/order/wutu.gif';
     }
   }
 }
@@ -519,129 +733,138 @@ export default {
       }
     }
   }
+}
 
-  .category-showcase {
-    margin-top: 30px;
-    background: #fff;
-    border-radius: 8px;
+// 商品详情弹窗样式
+/deep/ .goods-detail-dialog {
+  .el-dialog__body {
     padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
 
-    .showcase-header {
-      border-left: 4px solid #67c23a;
-      padding-left: 12px;
-      margin-bottom: 20px;
-
-      h3 {
-        margin: 0;
-        font-size: 20px;
-        color: #303133;
-      }
-
-      p {
-        margin: 6px 0 0 0;
-        color: #909399;
-        font-size: 13px;
-      }
-    }
-
-    .showcase-grid {
+  .detail-content {
+    .detail-goods-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
 
-      .showcase-card {
-        border: 1px solid #f0f0f0;
-        border-radius: 8px;
-        padding: 18px;
+      .detail-goods-item {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        transition: box-shadow 0.3s;
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
 
         &:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          border-color: #409eff;
+          box-shadow: 0 2px 12px rgba(64, 158, 255, 0.2);
+          transform: translateY(-3px);
         }
 
-        .showcase-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-
-          .showcase-info {
-            flex: 1;
-
-            h4 {
-              margin: 0 0 6px 0;
-              font-size: 18px;
-              color: #303133;
-            }
-
-            p {
-              margin: 0;
-              color: #909399;
-              font-size: 13px;
-              line-height: 1.5;
-            }
-          }
+        .detail-goods-image {
+          width: 100%;
+          height: 200px;
+          border-radius: 6px;
+          overflow: hidden;
+          margin-bottom: 15px;
+          background: #f5f5f5;
 
           img {
-            width: 80px;
-            height: 80px;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border-radius: 6px;
           }
         }
 
-        .feature-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
+        .detail-goods-info {
+          flex: 1;
 
-          li {
+          .detail-goods-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .detail-goods-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #666;
+
+            .detail-goods-origin,
+            .detail-goods-seller {
+              display: flex;
+              align-items: center;
+
+              i {
+                margin-right: 5px;
+                color: #909399;
+              }
+            }
+          }
+
+          .detail-goods-price {
+            color: #f56c6c;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            font-size: 13px;
-            color: #606266;
-            margin-bottom: 4px;
 
             i {
-              color: #67c23a;
-              margin-right: 6px;
+              margin-right: 5px;
+              font-size: 16px;
             }
           }
-        }
 
-        .sample-goods {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-
-          span {
-            background: #ecf5ff;
-            color: #409eff;
-            padding: 4px 10px;
-            border-radius: 12px;
+          .detail-goods-stock {
             font-size: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-
-            &:hover {
-              background: #d9ecff;
-            }
+            color: #909399;
+            margin-bottom: 10px;
           }
         }
 
-        .el-button {
-          align-self: flex-start;
+        .detail-goods-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 10px;
+
+          .el-button {
+            flex: 1;
+          }
+        }
+      }
+
+      .empty-detail-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+
+        i {
+          font-size: 64px;
+          margin-bottom: 20px;
+          display: block;
+        }
+
+        p {
+          font-size: 16px;
         }
       }
     }
   }
 }
 
-// 鍝嶅簲寮忚璁�
 @media (max-width: 1200px) {
   .goods-box {
     width: 100%;

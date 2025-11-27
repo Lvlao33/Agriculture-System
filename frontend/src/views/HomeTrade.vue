@@ -55,8 +55,9 @@
               <div class="goods-image">
                 <img 
                   v-if="item.picture && item.picture !== ''"
-                  :src="`/order/${item.picture}`" 
+                  :src="getImageUrl(item.picture)" 
                   alt="商品图片"
+                  @error="handleImageError"
                 />
                 <img 
                   v-else
@@ -146,7 +147,96 @@ export default {
         pendingPayment: 0,
         pendingShipment: 0,
         pendingReceipt: 0
-      }
+      },
+      // 示例商品数据（当API返回空数据时使用）
+      defaultGoods: [
+        {
+          name: '新鲜有机蔬菜',
+          content: '新鲜有机蔬菜',
+          price: 28.00,
+          picture: 'pro1.jpg',
+          origin: '山东',
+          orderId: 'demo1'
+        },
+        {
+          name: '优质水果礼盒',
+          content: '优质水果礼盒',
+          price: 88.00,
+          picture: 'pro2.jpg',
+          origin: '新疆',
+          orderId: 'demo2'
+        },
+        {
+          name: '绿色有机大米',
+          content: '绿色有机大米',
+          price: 45.00,
+          picture: 'rice.png',
+          origin: '东北',
+          orderId: 'demo3'
+        },
+        {
+          name: '新鲜土鸡蛋',
+          content: '新鲜土鸡蛋',
+          price: 35.00,
+          picture: 'pro3.jpg',
+          origin: '河北',
+          orderId: 'demo4'
+        },
+        {
+          name: '有机茶叶',
+          content: '有机茶叶',
+          price: 128.00,
+          picture: 'chayangji.jpg',
+          origin: '福建',
+          orderId: 'demo5'
+        },
+        {
+          name: '新鲜玉米',
+          content: '新鲜玉米',
+          price: 15.00,
+          picture: 'farm.jpeg',
+          origin: '河南',
+          orderId: 'demo6'
+        }
+      ],
+      // 示例求购数据（当API返回空数据时使用）
+      defaultNeeds: [
+        {
+          content: '大量求购新鲜有机蔬菜，要求无农药残留，产地直供',
+          title: '求购有机蔬菜',
+          ownName: '张先生',
+          createTime: new Date().toISOString(),
+          orderId: 'need1'
+        },
+        {
+          content: '急需采购优质苹果，要求甜度高，外观美观，长期合作',
+          title: '求购优质苹果',
+          ownName: '李女士',
+          createTime: new Date(Date.now() - 86400000).toISOString(),
+          orderId: 'need2'
+        },
+        {
+          content: '求购绿色有机大米，需要有机认证，批量采购',
+          title: '求购有机大米',
+          ownName: '王经理',
+          createTime: new Date(Date.now() - 172800000).toISOString(),
+          orderId: 'need3'
+        },
+        {
+          content: '长期收购新鲜土鸡蛋，要求散养，品质优良',
+          title: '求购土鸡蛋',
+          ownName: '赵老板',
+          createTime: new Date(Date.now() - 259200000).toISOString(),
+          orderId: 'need4'
+        },
+        {
+          content: '求购有机茶叶，需要原产地证明，高端品质',
+          title: '求购有机茶叶',
+          ownName: '陈总',
+          createTime: new Date(Date.now() - 345600000).toISOString(),
+          orderId: 'need5'
+        }
+      ]
     };
   },
   mounted() {
@@ -174,11 +264,16 @@ export default {
         pageNum: 1,
         keys: ""
       }).then((res) => {
-        if (res.flag == true) {
-          this.hotGoods = (res.data.list || []).slice(0, 6);
+        if (res.flag == true && res.data.list && res.data.list.length > 0) {
+          this.hotGoods = res.data.list.slice(0, 6);
+        } else {
+          // 如果API返回空数据，使用示例数据
+          this.hotGoods = this.defaultGoods;
         }
       }).catch(err => {
         console.log(err);
+        // API调用失败时，使用示例数据
+        this.hotGoods = this.defaultGoods;
       });
     },
     loadLatestNeeds() {
@@ -186,11 +281,16 @@ export default {
         pageNum: 1,
         keys: ""
       }).then((res) => {
-        if (res.flag == true) {
-          this.latestNeeds = (res.data.list || []).slice(0, 5);
+        if (res.flag == true && res.data.list && res.data.list.length > 0) {
+          this.latestNeeds = res.data.list.slice(0, 5);
+        } else {
+          // 如果API返回空数据，使用示例数据
+          this.latestNeeds = this.defaultNeeds;
         }
       }).catch(err => {
         console.log(err);
+        // API调用失败时，使用示例数据
+        this.latestNeeds = this.defaultNeeds;
       });
     },
     loadOrderStats() {
@@ -198,16 +298,12 @@ export default {
       // 这里可以调用订单统计接口
     },
     goToGoodsDetail(item) {
-      if (item.orderId) {
-        this.$store.commit("updateOrderId", item.orderId);
-        this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
-      }
+      // 点击商品，直接跳转到商品货源页面
+      this.$router.push("/home/goods").catch((err) => err);
     },
     goToPurchaseDetail(item) {
-      if (item.orderId) {
-        this.$store.commit("updateOrderId", item.orderId);
-        this.$router.push(`/home/purchaseDetails?orderId=${item.orderId}`).catch((err) => err);
-      }
+      // 点击求购信息，跳转到求购需求页面
+      this.$router.push("/home/purchase").catch((err) => err);
     },
     formatDate(dateStr) {
       if (!dateStr) return '';
@@ -216,6 +312,22 @@ export default {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    },
+    getImageUrl(picture) {
+      // 如果图片路径包含 /kn/ 或 /order/，直接使用
+      if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
+        return picture;
+      }
+      // 如果是 kn 目录下的图片
+      if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
+        return `/kn/${picture}`;
+      }
+      // 默认使用 order 目录
+      return `/order/${picture}`;
+    },
+    handleImageError(event) {
+      // 图片加载失败时，使用默认图片
+      event.target.src = '/order/wutu.gif';
     }
   }
 };

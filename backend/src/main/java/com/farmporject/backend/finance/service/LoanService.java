@@ -30,19 +30,17 @@ public class LoanService {
     private final LoanRecordRepository loanRecordRepository;
 
     private final LoanFileService loanFileService;
-    private final LoanRecordService loanRecordService;
 
     @Autowired
     public LoanService(LoanRepository loanRepository, LoanFileService loanFileService, UserRepository userRepository,
             LoanProductRepository loanProductRepository, LoanUserStatusRepository loanUserStatusRepository,
-            LoanRecordRepository loanRecordRepository, LoanRecordService loanRecordService) {
+            LoanRecordRepository loanRecordRepository) {
         this.repo = loanRepository;
         this.loanFileService = loanFileService;
         this.userRepository = userRepository;
         this.loanProductRepository = loanProductRepository;
         this.loanUserStatusRepository = loanUserStatusRepository;
         this.loanRecordRepository = loanRecordRepository;
-        this.loanRecordService = loanRecordService;
     }
 
     /**
@@ -121,7 +119,14 @@ public class LoanService {
 
                 // 新建贷款操作记录
                 // 设置与贷款操作记录的表关联
-                loanRecordService.createRecord(loan, operator, "贷款申请", Status.CREATED);
+                LoanRecord loanRecord = new LoanRecord();
+                loanRecord.setLoan(loan);
+                loanRecord.setRecordDate(java.time.LocalDateTime.now());
+                loanRecord.setRecordDetails("贷款申请");
+                loanRecord.setApplyStatus(Status.CREATED);
+                loanRecord.setUser(operator);
+                loanRecordRepository.save(loanRecord);
+                loan.getLoanRecords().add(loanRecord);
 
                 // 设置与贷款产品的表关联
                 loan.setLoanProduct(loanProduct);
@@ -149,31 +154,29 @@ public class LoanService {
      * @param loanId   贷款ID
      * @param file     文件
      * @param fileType 文件类型
+     * @param operator 操作人
      * @return true 如果成功处理文件上传，false 如果失败
      */
-    public boolean uploadFileByLoanId(Long loanId, MultipartFile file, String fileType) throws Exception {
+    public boolean uploadFileByLoanId(Long loanId, MultipartFile file, String fileType, Long operatorId)
+            throws Exception {
         // 先查询贷款申请信息
         if (loanId == null) {
             throw new Exception("贷款ID不能为空");
         }
         Loan loan = repo.findById(loanId).orElseThrow(() -> new Exception("贷款申请不存在"));
 
-        // 获取贷款申请人（从 loanUserStatuses 中取第一个用户）
-        List<LoanUserStatus> userStatuses = loan.getLoanUserStatuses();
-        if (userStatuses == null || userStatuses.isEmpty()) {
-            throw new Exception("贷款申请人信息不存在");
-        }
-        User user = userStatuses.get(0).getUser();
-        if (user == null) {
-            throw new Exception("贷款申请人信息不存在");
-        }
+        // 查询操作人
+        if (operatorId == null)
+            throw new Exception("操作人不能为空");
+        User operatorUser = userRepository.findById(operatorId).orElseThrow(() -> new Exception("操作人不存在"));
 
         // 调用文件上传服务，保存文件到服务器
         try {
-            return loanFileService.uploadFile(loan, file, fileType, user);
+            return loanFileService.uploadFile(loan, file, fileType, operatorUser);
         } catch (Exception e) {
             throw new Exception("文件上传失败: " + e.getMessage());
         }
+
     }
 
     /**
@@ -204,18 +207,17 @@ public class LoanService {
                         }
                     }
 
-                    User operator = userRepository.findById(operatorId)
-                            .orElseThrow(() -> new RuntimeException("操作者不存在"));
-
                     // 新建贷款操作记录
                     // 设置与贷款操作记录的表关联
-                    // LoanRecord loanRecord = new LoanRecord();
-                    // loanRecord.setLoan(loan);
-                    // loanRecord.setRecordDate(java.time.LocalDateTime.now());
-                    // loanRecord.setApplyStatus(status);
-                    // loanRecord.setRecordDetails(remark);
-                    // loanRecord.setUser(operator);
-                    LoanRecord loanRecord = loanRecordService.createRecord(loan, operator, "审核贷款申请资料，修改贷款申请状态", status);
+                    LoanRecord loanRecord = new LoanRecord();
+                    loanRecord.setLoan(loan);
+                    loanRecord.setRecordDate(java.time.LocalDateTime.now());
+                    loanRecord.setApplyStatus(status);
+                    loanRecord.setRecordDetails(remark);
+                    loanRecord.setUser(
+                            userRepository.findById(operatorId).orElseThrow(() -> new RuntimeException("操作者不存在")));
+
+                    loanRecordRepository.save(loanRecord);
                     loan.getLoanRecords().add(loanRecord);
 
                     // 保存到数据库并确认是否成功
@@ -274,12 +276,6 @@ public class LoanService {
 
             // 保存到数据库并确认是否成功
             Loan savedLoan = repo.save(loan);
-
-            // 创建修改记录
-            User operator = userRepository.findById(loanDto.getOperatorId())
-                    .orElseThrow(() -> new RuntimeException("操作者不存在"));
-            loanRecordService.createRecord(loan, operator, "修改贷款申请资料", Status.REVIEWING);
-
             // 如果保存成功，savedLoan 会有 ID，返回 true
             return savedLoan.getId() != null;
         } catch (Exception e) {
@@ -331,25 +327,12 @@ public class LoanService {
      */
     @Transactional(readOnly = true)
     public List<Loan> findLoanListByUserId(Long userId) {
-        // 如果userId为空，返回空列表
-        if (userId == null) {
-            return new ArrayList<>();
-        }
         // 查询user
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return new ArrayList<>();
-        }
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("用户不存在"));
         // 查询user对应的loanUserStatus
-        List<LoanUserStatus> loanUserStatuses = loanUserStatusRepository.findByUser_Id(userId);
-        if (loanUserStatuses == null || loanUserStatuses.isEmpty()) {
-            return new ArrayList<>();
-        }
+        List<LoanUserStatus> loanUserStatuses = user.getLoanUserStatuses();
         // 直接提取Loan列表
-        return loanUserStatuses.stream()
-                .map(LoanUserStatus::getLoan)
-                .filter(loan -> loan != null)
-                .collect(Collectors.toList());
+        return loanUserStatuses.stream().map(LoanUserStatus::getLoan).collect(Collectors.toList());
     }
 
     /**
@@ -365,4 +348,29 @@ public class LoanService {
         return loanFileService.getLoanFiles(loanId);
     }
 
+    /**
+     * 根据贷款id查询用户状态列表
+     * 
+     * @param loanId 贷款id
+     * @return 用户状态列表
+     */
+    @Transactional(readOnly = true)
+    public List<LoanUserStatus> findLoanUserStatusList(Long loanId) {
+        if (loanId == null || repo.findById(loanId) == null)
+            throw new RuntimeException("贷款申请不存在");
+        return loanUserStatusRepository.findByLoanId(loanId);
+    }
+
+    /**
+     * 根据贷款ID查询贷款记录列表
+     * 
+     * @param loanId 贷款ID
+     * @return 贷款记录列表
+     */
+    @Transactional(readOnly = true)
+    public List<LoanRecord> findLoanRecordList(Long loanId) {
+        if (loanId == null || repo.findById(loanId) == null)
+            throw new RuntimeException("贷款申请不存在");
+        return loanRecordRepository.findByLoanId(loanId);
+    }
 }
