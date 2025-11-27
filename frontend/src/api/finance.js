@@ -200,17 +200,6 @@ export function getLoanList(userId) {
     return request(config)
 }
 
-// 根据贷款ID获取已上传文件
-export function getLoanFiles(loanId) {
-    return request({
-        method: 'get',
-        url: `/api/finance/loans/${loanId}/files`,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-
 // 更新贷款申请
 export function updateLoan(loanId, payload) {
     return request({
@@ -223,47 +212,12 @@ export function updateLoan(loanId, payload) {
     })
 }
 
-// 补充贷款文件
-export function uploadLoanFile(loanId, formData) {
-    return request({
-        method: 'post',
-        url: `/api/finance/loans/${loanId}/upload`,
-        data: formData,
-        headers: {
-            'Authorization': window.localStorage.token,
-            // Content-Type is handled automatically for FormData
-        },
-    })
-}
-
 // 授权用户
 export function toAuthorizationUser(params) {
     return request({
         method: 'post',
         url: '/finance/toAuthorizationUser',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-
-// 获取贷款用户状态列表
-export function getLoanUserStatuses(loanId) {
-    return request({
-        method: 'get',
-        url: `/api/finance/loans/${loanId}/user-statuses`,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
-
-// 获取贷款处理记录列表
-export function getLoanRecords(loanId) {
-    return request({
-        method: 'get',
-        url: `/api/finance/loans/${loanId}/records`,
         headers: {
             'Authorization': window.localStorage.token,
         },

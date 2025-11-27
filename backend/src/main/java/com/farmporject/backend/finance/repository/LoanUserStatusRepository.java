@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface LoanUserStatusRepository extends JpaRepository<LoanUserStatus, Long> {
     List<LoanUserStatus> findByLoanId(Long loanId);
-
-    LoanUserStatus findByLoanIdAndUserId(Long loanId, Long userId);
+    List<LoanUserStatus> findByUser_Id(Long userId);
+    LoanUserStatus findByLoan_IdAndUser_Id(Long loanId, Long userId);
 }

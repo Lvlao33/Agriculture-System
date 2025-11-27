@@ -58,36 +58,6 @@
           </el-form-item>
         </div>
 
-        <!-- 联合贷款用户 -->
-        <div class="form-section">
-          <h3 class="section-title">联合贷款用户（选填）</h3>
-          <el-form-item label="添加联合贷款人">
-            <div style="width: 300px;">
-              <el-input 
-                v-model="coBorrowerId" 
-                placeholder="请输入用户ID" 
-                @keyup.enter.native="searchCoBorrower"
-              >
-                <el-button slot="append" icon="el-icon-search" @click="searchCoBorrower" :loading="searching">搜索</el-button>
-              </el-input>
-            </div>
-            <div class="form-tip">最多可添加 5 位联合贷款人 (当前: {{ coBorrowers.length }}/5)</div>
-          </el-form-item>
-          
-          <div class="co-borrowers-list" v-if="coBorrowers.length > 0">
-            <div v-for="(user, index) in coBorrowers" :key="user.id" class="co-borrower-card">
-              <div class="user-info">
-                <el-avatar :size="40" :src="user.avatar || 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"></el-avatar>
-                <div class="text-info">
-                  <div class="nickname">{{ user.nickname || '未知用户' }}</div>
-                  <div class="user-id">ID: {{ user.id }}</div>
-                </div>
-              </div>
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="removeCoBorrower(index)"></el-button>
-            </div>
-          </div>
-        </div>
-
         <!-- 其他材料 -->
         <div class="form-section">
           <h3 class="section-title">其他材料</h3>
@@ -146,7 +116,6 @@
 
 <script>
 import { applyLoan, applyLoanWithFiles, uploadLoanFile, getLoanProducts } from '../api/finance'
-import { searchUserById } from '../api/user'
 
 export default {
   name: 'LoanApply',
@@ -162,9 +131,6 @@ export default {
         interestRate: null,
         productId: null
       },
-      coBorrowerId: '',
-      coBorrowers: [],
-      searching: false,
       rules: {
         loanAmount: [
           { required: true, message: '请输入申请金额', trigger: 'blur' },
@@ -378,41 +344,10 @@ export default {
           };
 
           // Create FormData including loan fields and all files
-          // Create FormData including loan fields and all files
           const formData = new FormData();
-          
-          // 获取当前用户ID
-          let currentUserId = this.$store.state.loginUserId;
-          if (!currentUserId) {
-             // 尝试从 localStorage 获取
-             currentUserId = localStorage.getItem('loginUserId');
-          }
-          // 如果还是没有，尝试从 token 解析 (针对 tk_id_username 格式)
-          if (!currentUserId) {
-             const token = localStorage.getItem('token');
-             if (token && token.startsWith('tk_')) {
-                const parts = token.split('_');
-                if (parts.length >= 2) {
-                   currentUserId = parts[1];
-                }
-             }
-          }
-
-          if (!currentUserId) {
-             this.$message.error('无法获取用户信息，请重新登录');
-             this.submitting = false;
-             return;
-          }
-
-          // 构建 userIds 列表
-          const userIds = [currentUserId];
-          if (this.coBorrowers && this.coBorrowers.length > 0) {
-             this.coBorrowers.forEach(user => {
-                userIds.push(user.id);
-             });
-          }
-
-          formData.append('userIds', userIds.join(',')); // 对应 LoanDTO.userIds
+          // 从 store 或 localStorage 获取当前登录用户 ID
+          const currentUserId = this.$store.state.loginUserId || window.localStorage.getItem('loginUserId') || '1';
+          formData.append('userIds', currentUserId); // 对应 LoanDTO.userIds
           formData.append('operatorId', currentUserId); // 对应 LoanDTO.operatorId
           formData.append('loanAmount', this.loanForm.loanAmount);
           formData.append('loanPurpose', this.loanForm.loanPurpose);
@@ -461,52 +396,6 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
-    },
-    async searchCoBorrower() {
-      if (!this.coBorrowerId) {
-        this.$message.warning('请输入用户ID');
-        return;
-      }
-      
-      // 检查上限
-      if (this.coBorrowers.length >= 5) {
-        this.$message.warning('最多只能添加 5 位联合贷款人');
-        return;
-      }
-
-      // 不能添加自己
-      const currentUserId = this.$store.state.loginUserId || localStorage.getItem('loginUserId');
-      if (currentUserId && String(this.coBorrowerId) === String(currentUserId)) {
-        this.$message.warning('不能添加自己为联合贷款用户');
-        return;
-      }
-
-      // 检查是否已添加
-      const exists = this.coBorrowers.some(u => String(u.id) === String(this.coBorrowerId));
-      if (exists) {
-        this.$message.warning('该用户已在列表中');
-        return;
-      }
-
-      this.searching = true;
-      try {
-        const response = await searchUserById(this.coBorrowerId);
-        if (response && response.success) {
-          this.coBorrowers.push(response.data);
-          this.$message.success('添加成功');
-          this.coBorrowerId = ''; // 清空输入框
-        } else {
-          this.$message.error(response.message || '未找到该用户');
-        }
-      } catch (error) {
-        console.error('Search user error:', error);
-        this.$message.error('查询用户失败');
-      } finally {
-        this.searching = false;
-      }
-    },
-    removeCoBorrower(index) {
-      this.coBorrowers.splice(index, 1);
     }
   }
 }
@@ -639,43 +528,6 @@ export default {
 
     /deep/ .el-form-item__content {
       margin-left: 0 !important;
-    }
-  }
-}
-
-.co-borrowers-list {
-  margin-left: 150px; /* Align with form content */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.co-borrower-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  background-color: #f0f9eb;
-  border: 1px solid #e1f3d8;
-  border-radius: 4px;
-  width: 300px;
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-
-    .text-info {
-      .nickname {
-        font-weight: bold;
-        color: #333;
-        font-size: 14px;
-      }
-      .user-id {
-        font-size: 12px;
-        color: #999;
-      }
     }
   }
 }

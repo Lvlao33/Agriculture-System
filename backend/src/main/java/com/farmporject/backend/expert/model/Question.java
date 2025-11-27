@@ -27,6 +27,12 @@ public class Question {
     @JoinColumn(name = "expert_id")
     private Expert expert;
 
+    /** 附件（图片 / 视频）的访问路径列表 */
+    @ElementCollection
+    @CollectionTable(name = "question_attachments", joinColumns = @JoinColumn(name = "question_id"))
+    @Column(name = "file_url")
+    private List<String> attachmentUrls;
+
     @ElementCollection
     @CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "tag")
@@ -63,6 +69,9 @@ public class Question {
 
     public Expert getExpert() { return expert; }
     public void setExpert(Expert expert) { this.expert = expert; }
+
+    public List<String> getAttachmentUrls() { return attachmentUrls; }
+    public void setAttachmentUrls(List<String> attachmentUrls) { this.attachmentUrls = attachmentUrls; }
 
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }

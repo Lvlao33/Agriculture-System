@@ -96,15 +96,19 @@ class LoanServiceTest {
     @Test
     void uploadFileByLoanId() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
+        
+        // 设置 loan 关联的 LoanUserStatus 和 User
+        LoanUserStatus loanUserStatus = new LoanUserStatus();
+        loanUserStatus.setUser(user);
+        loan.getLoanUserStatuses().add(loanUserStatus);
+        
         when(loanRepository.findById(1L)).thenReturn(Optional.of(loan));
-        when(userRepository.findById(100L)).thenReturn(Optional.of(user));
         when(loanFileService.uploadFile(loan, file, "ID", user)).thenReturn(true);
-        when(loanRecordService.createRecord(any(), any(), any(), any())).thenReturn(new LoanRecord());
 
-        assertTrue(loanService.uploadFileByLoanId(1L, file, "ID", 100L));
+        assertTrue(loanService.uploadFileByLoanId(1L, file, "ID"));
         verify(loanFileService).uploadFile(loan, file, "ID", user);
 
-        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID", 100L));
+        assertThrows(Exception.class, () -> loanService.uploadFileByLoanId(null, file, "ID"));
     }
 
     @Test

@@ -7,38 +7,18 @@
           :active-text-color="'#67C23A'"
           class="el-menu-vertical-demo"
         >
-          <el-submenu index="1">
-            <template v-slot:title>
-              <i class="el-icon-user-solid"></i>
-              <span>我的信息</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="1-1" @click="UserInfoClick">
-                <i class="el-icon-info"></i>
-                基本信息
-              </el-menu-item>
-              <el-menu-item
-                index="1-4"
-                v-if="$store.getters.isExpert"
-                @click="handleExperInfo"
-              >
-                <i class="el-icon-info"></i>
-                专家信息
-              </el-menu-item>
-              <el-menu-item
-                index="1-2"
-                @click="UserAddressClick"
-                v-if="!$store.getters.isExpert && !$store.getters.isAdmin"
-              >
-                <i class="el-icon-s-home"></i>
-                收货地址
-              </el-menu-item>
-              <el-menu-item index="1-3" @click="UserPasswordClick">
-                <i class="el-icon-s-tools"></i>
-                修改密码
-              </el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
+          <el-menu-item index="1-1" @click="UserInfoClick">
+            <i class="el-icon-info"></i>
+            我的信息
+          </el-menu-item>
+          <el-menu-item
+            index="1-4"
+            v-if="$store.getters.isExpert"
+            @click="handleExperInfo"
+          >
+            <i class="el-icon-info"></i>
+            专家信息
+          </el-menu-item>
           <el-submenu
             index="2"
             v-if="!$store.getters.isExpert && !$store.getters.isAdmin"
@@ -141,12 +121,6 @@ export default {
     },
     UserInfoClick() {
       this.$router.push("/home/user/userinfo").catch((err) => err);
-    },
-    UserAddressClick() {
-      this.$router.push("/home/user/useraddress").catch((err) => err);
-    },
-    UserPasswordClick() {
-      this.$router.push("/home/user/userpassword").catch((err) => err);
     },
     PublishedGoodsClick() {
       this.$router.push("/home/user/publishedgoods").catch((err) => err);

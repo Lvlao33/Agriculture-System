@@ -6,6 +6,7 @@ import Register from '../views/Register'
 import Home from '../views/Home'
 import HomeGoods from '../views/HomeGoods'
 import HomePurchase from '../views/HomePurchase'
+import HomeTrade from '../views/HomeTrade'
 import HomeKnowledge from '../views/HomeKnowledge'
 import KnowledgeDetail from '../views/KnowledgeDetail'
 import HomeCollect from '../views/HomeCollect'
@@ -16,8 +17,6 @@ import purchaseDetails from '../views/purchaseDetails'
 import User from '../views/User'
 import UserInfo from '../views/UserInfo'
 import UserFinance from '../views/UserFinance'
-import UserAddress from '../views/UserAddress'
-import UserPassword from '../views/UserPassword'
 import PublishNav from '../components/PublishNav.vue'
 import PublishGoods from '../views/PublishGoods'
 import PublishNeeds from '../views/PublishNeeds'
@@ -58,6 +57,7 @@ import ExpertGuide from '../views/ExpertGuide'
 import ExpertKnowledgeList from '../views/ExpertKnowledgeList'
 import AllQuestions from '../views/AllQuestions'
 import OnlineQuestions from '../views/OnlineQuestions'
+import MyQuestions from '../views/MyQuestions'
 import QuestionDetail from '../views/QuestionDetail'
 import AskQuestion from '../views/AskQuestion'
 
@@ -65,7 +65,7 @@ import AskQuestion from '../views/AskQuestion'
 Vue.use(VueRouter)
 
 
-// ï¿½ï¿½ï¿½ElementUIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½vue-routerï¿½ï¿½3.0ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ÐÞ¸´ElementUIµ¼º½À¸Óëvue-routerµÄ3.0°æ±¾³åÍ»ÎÊÌâ?
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -88,6 +88,10 @@ const routes = [
       {
         path: 'front',
         component: FrontPage
+      },
+      {
+        path: 'trade',
+        component: HomeTrade
       },
       {
         path: 'goods',
@@ -140,6 +144,10 @@ const routes = [
       {
         path: 'onlineQuestions',
         component: OnlineQuestions
+      },
+      {
+        path: 'myQuestions',
+        component: MyQuestions
       },
       {
         path: 'questionDetail/:id',
@@ -227,14 +235,6 @@ const routes = [
             path: 'userinfo',
             component: UserInfo
 
-          },
-          {
-            path: 'useraddress',
-            component: UserAddress
-          },
-          {
-            path: 'userpassword',
-            component: UserPassword
           },
           {
             path: 'publishedgoods',

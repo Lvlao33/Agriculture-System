@@ -1,25 +1,31 @@
 <template>
   <div class="user-avatar">
-    <img :src="$store.state.imgShowRoad + '/file/' + cUserAvatar" alt="" class="avatar"/>
-    <el-form label-width="100px">
-      <el-upload
-        class="user-avatar_el_upload"
-        :action="upurl"
-        :headers="upheaders"
-        :limit="1"
-        list-type="picture-card"
-        :on-change="handleChange"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :on-success="handleSuccess"
-        :on-error="handleError"
-        :file-list="fileList"
-        :class="{ disUoloadSty: noneBtnImg }"
-        ref="upload">
-        
-        <span class="user-avatar_el_upload_btn" @click.stop="submitUpload">上传头像</span>
-      </el-upload>
-    </el-form>
+    <div class="avatar-display" @click="submitUpload">
+      <img
+        v-if="cUserAvatar"
+        :src="$store.state.imgShowRoad + '/file/' + cUserAvatar"
+        alt="头像"
+        class="avatar"
+      />
+      <div v-else class="avatar placeholder">
+        <i class="el-icon-user"></i>
+      </div>
+      <div class="avatar-overlay">
+        <i class="el-icon-camera"></i>
+        <span>更换头像</span>
+      </div>
+    </div>
+    <el-upload
+      class="avatar-uploader"
+      :action="upurl"
+      :headers="upheaders"
+      :limit="1"
+      :show-file-list="false"
+      :on-change="handleChange"
+      :on-success="handleSuccess"
+      :on-error="handleError"
+      ref="upload">
+    </el-upload>
   </div>
 </template>
 
@@ -89,38 +95,71 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.disUoloadSty .el-upload--picture-card {
-  display: none; /* 上传按钮隐藏 */
-}
 .user-avatar {
-  width: 1200px;
-  height: 150px;
-  .avatar {
-    float: left;
-    width: 148px;
-    height: 148px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .avatar-display {
+    position: relative;
+    cursor: pointer;
     border-radius: 50%;
-  }
-  .user-avatar_el_upload {
-    width: 1000px;
-    float: left;
-    height: 148px;
-    .el-upload {
-      //   width: 50px;
-      //   height: 20px;
-      border: 1px dashed #d9d9d9;
-      border-radius: 6px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      &:hover {
-        border-color: #409eff;
-      }
-      .el-upload__input {
-        position: absolute;
-        left: -1000px;
-      }
+    overflow: hidden;
+    
+    &:hover .avatar-overlay {
+      opacity: 1;
     }
+  }
+  
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar.placeholder {
+    background: #e5e7f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    border: 2px solid #d0d4e6;
+
+    i {
+      font-size: 42px;
+    }
+  }
+  
+  .avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 50%;
+    
+    i {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    
+    span {
+      font-size: 12px;
+    }
+  }
+  
+  .avatar-uploader {
+    display: none;
   }
 }
 </style>

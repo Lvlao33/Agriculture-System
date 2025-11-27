@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * 交易模块-商品管理
- * 路由前缀：/api/trade/products
+ * 路由前缀�?/api/trade/products
  * - GET /api/trade/products 商品列表
  * - POST /api/trade/products 新建商品
  * - GET /api/trade/products/{id} 商品详情
