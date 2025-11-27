@@ -364,24 +364,16 @@ const router = new VueRouter({
   mode: 'hash',
 })
 
-const roleHomeMap = {
-  farmer: '/home/trade',
-  expert: '/home/expertWork',
-  bank: '/home/bankWork'
-}
-
 router.beforeEach((to, from, next) => {
   const role = store.state.userRole || 'farmer'
-  if (to.path === '/home' || to.path === '/home/front') {
-    const target = roleHomeMap[role] || '/home/trade'
-    if (to.path !== target) {
-      return next(target)
-    }
+  // 统一首页：任何角色都可以访问 /home 和 /home/front，不做角色重定向
+  if (to.path === '/home') {
+    return next('/home/front')
   }
+  // 对带有角色限制的页面做拦截：不符合角色时，统一退回到首页
   if (to.meta && to.meta.roles) {
     if (!to.meta.roles.includes(role)) {
-      const fallback = roleHomeMap[role] || '/home/trade'
-      return next(fallback)
+      return next('/home/front')
     }
   }
   next()

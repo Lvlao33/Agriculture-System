@@ -155,12 +155,8 @@ export default {
       return fallback;
     },
     getDefaultHome(role) {
-      const map = {
-        farmer: "/home/trade",
-        expert: "/home/expertWork",
-        bank: "/home/bankWork",
-      };
-      return map[role] || "/home/trade";
+      // 登录后所有角色统一进入原来的首页
+      return "/home/front";
     },
   },
   created() {},
