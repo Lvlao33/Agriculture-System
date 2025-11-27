@@ -3,14 +3,14 @@
     <div class="search3">
       <el-input v-model="searchValue" maxlength="100" clearable style="width:290px;"/>
       <img src="../assets/img/search.png" class="search-icon" @click="handleSearch"/>&nbsp;&nbsp;
-        <i style="color:#696969;font-size:13px;font-style:normal;">&nbsp;鐑棬鎼滅储锛�
-          <a class="tag-item" @click="handleTopicDetail('鑻规灉')">鑻规灉</a> 
-          <a class="tag-item" @click="handleTopicDetail('鏂扮枂鍝堝瘑鐡�')">鏂扮枂鍝堝瘑鐡�</a>  
-          <a class="tag-item" @click="handleTopicDetail('妯辨')">妯辨</a>  
-          <a class="tag-item" @click="handleTopicDetail('瑗跨孩鏌�')">瑗跨孩鏌�</a>  
-          <a class="tag-item" @click="handleTopicDetail('姘寸ɑ')">姘寸ɑ</a>  
-          <a class="tag-item" @click="handleTopicDetail('鐜夌背')">鐜夌背</a>  
-          <a class="tag-item" @click="handleTopicDetail('璧ｅ崡鑴愭')">璧ｅ崡鑴愭</a> 
+        <i style="color:#696969;font-size:13px;font-style:normal;">&nbsp;热门搜索�?
+          <a class="tag-item" @click="handleTopicDetail('苹果')">苹果</a> 
+          <a class="tag-item" @click="handleTopicDetail('新疆哈密�?')">新疆哈密�?</a>  
+          <a class="tag-item" @click="handleTopicDetail('葡萄')">葡萄</a>  
+          <a class="tag-item" @click="handleTopicDetail('西红�?')">西红�?</a>  
+          <a class="tag-item" @click="handleTopicDetail('水稻')">水稻</a>  
+          <a class="tag-item" @click="handleTopicDetail('玉米')">玉米</a>  
+          <a class="tag-item" @click="handleTopicDetail('赣南脐橙')">赣南脐橙</a> 
         </i>
     </div>
     <div class="purchase-content">
@@ -18,7 +18,7 @@
       :key="index" class="purchase-item"
       @click="detailsClick(item.orderId)">
         <div class="title">
-          <span class="tips">{{item.type === 'needs'?'[姹傝喘]':''}}</span>
+          <span class="tips">{{item.type === 'needs'?'[采购]':''}}</span>
           <span class="title-content">{{item.content}}</span>
         </div>
         <div class="content">{{item.title}}</div>
@@ -106,15 +106,15 @@ export default {
       border-bottom: 1px solid #eee;
       .title{
         width: 620px;
-        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
+        /*文字用省略号替代超出部分*/
         text-overflow: ellipsis;
-        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 1;
-        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏冪礌鎺掑垪鏂瑰紡*/
+        /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;
         .tips{
           color: #999;
@@ -130,15 +130,15 @@ export default {
       .content{
         width: 300px;
         margin-left: 20px;
-        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
+        /*超出的部分隐�?*/
         overflow: hidden;
-        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
+        /*文字用省略号替代超出部分*/
         text-overflow: ellipsis;
-        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
+        /*弹性伸缩盒子模型显�?*/
         display: -webkit-box;
-        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
+        /*限制在一个块元素显示文本的行�?*/
         -webkit-line-clamp: 1;
-        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏� 绱犳帓鍒楁柟寮�*/
+        /*设置或检索伸缩盒对象的子元素排列方式*/
         -webkit-box-orient: vertical;
       }
       .update-time{

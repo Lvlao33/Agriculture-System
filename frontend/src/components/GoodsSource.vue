@@ -2,7 +2,7 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- 顶部操作栏 -->
+    <!-- 顶部操作�? -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
@@ -27,7 +27,7 @@
 
     <!-- 主要内容区域 -->
     <div class="main-content">
-      <!-- 左侧分类栏 -->
+      <!-- 左侧分类�? -->
       <div class="category-sidebar">
         <div class="category-title">商品分类</div>
         <div
@@ -44,7 +44,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>水果类</span>
+          <span>水果�?</span>
         </div>
         <div
           class="category-item"
@@ -52,7 +52,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>蔬菜类</span>
+          <span>蔬菜�?</span>
         </div>
         <div
           class="category-item"
@@ -60,7 +60,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>粮食类</span>
+          <span>粮食�?</span>
         </div>
         <div
           class="category-item"
@@ -68,7 +68,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>畜牧类</span>
+          <span>畜牧�?</span>
         </div>
         <div
           class="category-item"
@@ -80,7 +80,7 @@
         </div>
       </div>
 
-      <!-- 右侧商品展示区 -->
+      <!-- 右侧商品展示�? -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
@@ -129,8 +129,8 @@
     <!-- 分类详细内容 -->
     <div class="category-showcase">
       <div class="showcase-header">
-        <h3>分类精选</h3>
-        <p>为每个品类提供产地、规格、供货节奏等详细信息，帮助您快速匹配高质量货源。</p>
+        <h3>分类精�?</h3>
+        <p>为每个品类提供产地、规格、供货节奏等详细信息，帮助您快速匹配高质量货源�?</p>
       </div>
       <div class="showcase-grid">
         <div
@@ -182,61 +182,61 @@ export default {
       selectedCategory: 'all',
       categoryMap: {
         'all': '全部商品',
-        'fruit': '水果类',
-        'vegetable': '蔬菜类',
-        'grain': '粮食类',
-        'livestock': '畜牧类',
+        'fruit': '水果�?',
+        'vegetable': '蔬菜�?',
+        'grain': '粮食�?',
+        'livestock': '畜牧�?',
         'other': '其他'
       },
       categoryShowcase: [
         {
           key: 'vegetable',
-          title: '蔬菜类',
-          description: '基地直供叶菜、根茎类，每日凌晨采摘，4小时内完成预冷打包。',
+          title: '蔬菜�?',
+          description: '基地直供叶菜、根茎类，每日凌晨采摘，4小时内完成预冷打包�?',
           image: '/kn/pro1.jpg',
-          features: ['日采日配 冷链配送', '可提供检测报告', '支持分级分拣'],
+          features: ['日采日配 冷链配�?', '可提供检测报�?', '支持分级分拣'],
           sampleGoods: [
             { name: '有机生菜', keyword: '生菜' },
-            { name: '西兰花', keyword: '西兰花' },
+            { name: '西兰�?', keyword: '西兰�?' },
             { name: '洪湖莲藕', keyword: '莲藕' }
           ],
           searchKeyword: '蔬菜'
         },
         {
           key: 'fruit',
-          title: '水果类',
-          description: '从华南、川渝、云南等核心产区直发，甜度、大小均可定制。',
+          title: '水果�?',
+          description: '从华南、川渝、云南等核心产区直发，甜度、大小均可定制�?',
           image: '/kn/pro2.jpg',
-          features: ['原产地控货', '破损包赔', '提供空运/冷链双模式'],
+          features: ['原产地控�?', '破损包赔', '提供空运/冷链双模�?'],
           sampleGoods: [
             { name: '赣南脐橙', keyword: '脐橙' },
-            { name: '阳山水蜜桃', keyword: '水蜜桃' },
-            { name: '妃子笑荔枝', keyword: '荔枝' }
+            { name: '阳山水蜜�?', keyword: '水蜜�?' },
+            { name: '妃子笑荔�?', keyword: '荔枝' }
           ],
           searchKeyword: '水果'
         },
         {
           key: 'grain',
-          title: '粮食类',
-          description: '东北优质寒地稻、优选主体合作社，支持代精加工和包装。',
+          title: '粮食�?',
+          description: '东北优质寒地稻、优选主体合作社，支持代精加工和包装�?',
           image: '/kn/rice.png',
-          features: ['产地可追溯', '仓配一体化', '支持金融结算'],
+          features: ['产地可追�?', '仓配一体化', '支持金融结算'],
           sampleGoods: [
-            { name: '五常稻花香', keyword: '稻花香' },
+            { name: '五常稻花�?', keyword: '稻花�?' },
             { name: '高筋小麦', keyword: '小麦' },
-            { name: '有机黄小米', keyword: '小米' }
+            { name: '有机黄小�?', keyword: '小米' }
           ],
           searchKeyword: '粮食'
         },
         {
           key: 'livestock',
-          title: '畜牧类',
-          description: '覆盖肉牛、肉羊、家禽禽蛋等，屠宰加工和冷链运输一条龙服务。',
+          title: '畜牧�?',
+          description: '覆盖肉牛、肉羊、家禽禽蛋等，屠宰加工和冷链运输一条龙服务�?',
           image: '/kn/pro3.jpg',
-          features: ['定点屠宰', '全程溯源', '可出具检疫证明'],
+          features: ['定点屠宰', '全程溯源', '可出具检疫证�?'],
           sampleGoods: [
-            { name: '草原西门塔尔牛', keyword: '西门塔尔' },
-            { name: '散养山地鸡', keyword: '土鸡' },
+            { name: '草原西门塔尔�?', keyword: '西门塔尔' },
+            { name: '散养山地�?', keyword: '土鸡' },
             { name: '有机鲜蛋', keyword: '鲜蛋' }
           ],
           searchKeyword: '畜牧'
@@ -244,12 +244,12 @@ export default {
         {
           key: 'other',
           title: '特色与深加工',
-          description: '蜂蜜、茶叶、中药材、预制菜等特色货源，支持OEM/ODM。',
+          description: '蜂蜜、茶叶、中药材、预制菜等特色货源，支持OEM/ODM�?',
           image: '/kn/chayangji.jpg',
-          features: ['源头工厂', '资质齐全', '配方可定制'],
+          features: ['源头工厂', '资质齐全', '配方可定�?'],
           sampleGoods: [
             { name: '古树红茶', keyword: '红茶' },
-            { name: '预制酸菜鱼', keyword: '预制菜' },
+            { name: '预制酸菜�?', keyword: '预制�?' },
             { name: '道地黄芪', keyword: '黄芪' }
           ],
           searchKeyword: '特色'
@@ -269,11 +269,11 @@ export default {
       
       // 鎸夊垎绫荤瓫閫夛紙杩欓噷鍙互鏍规嵁瀹為檯鏁版嵁缁撴瀯璋冩暣锛�
       if (this.selectedCategory !== 'all') {
-        // 濡傛灉鍟嗗搧鏁版嵁涓湁鍒嗙被瀛楁锛屽彲浠ュ湪杩欓噷杩涜绛涢€�
+        // 濡傛灉鍟嗗搧鏁版嵁涓湁鍒嗙被瀛楁锛屽彲浠ュ湪杩欓噷杩涜绛涢€�?
         // goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // 鎸夋悳绱㈠叧閿瘝绛涢€�
+      // 鎸夋悳绱㈠叧閿瘝绛涢€�?
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
@@ -305,7 +305,7 @@ export default {
       }
       if (keyword) {
         this.searchValue = keyword;
-        // 触发父组件搜索，确保商品列表切换到对应货源
+        // 触发父组件搜索，确保商品列表切换到对应货�?
         this.handleSearch();
       }
     }

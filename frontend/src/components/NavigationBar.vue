@@ -7,7 +7,7 @@
           <div class="logo-text">
             <div>融销通</div>
             <div style="font-size:12px;margin-top:5px;color: #666;">
-              农产品融销一体平台
+              农产品融销一体化平台
             </div>
           </div>
           
@@ -34,10 +34,8 @@
         active-text-color="#fff"
         id="menu">
         <el-menu-item index="1" class="item" @click="frontBtn">首页</el-menu-item>
-        <el-menu-item index="2" class="item" @click="goodsBtn">商品货源</el-menu-item>
-        <el-menu-item index="3" class="item" @click="purchaseBtn">求购需求</el-menu-item>
+        <el-menu-item index="2" class="item" @click="tradeBtn">农产品交易</el-menu-item>
         <el-menu-item index="4" class="item" @click="guideBtn">专家指导</el-menu-item>
-        <el-menu-item index="5" class="item" @click="shopCartBtn">订单信息</el-menu-item>
         <el-submenu index="6">
           <template v-slot:title>融资服务</template>
           <el-menu-item index="6-1" @click.native="loanInfoBtn">贷款信息</el-menu-item>
@@ -110,20 +108,14 @@ export default {
     frontBtn() {
       this.$router.push("/home/front").catch((err) => err);
     },
-    purchaseBtn() {
-      this.$router.push("/home/purchase").catch((err) => err);
-    },
-    goodsBtn() {
-      this.$router.push("/home/goods").catch((err) => err);
+    tradeBtn() {
+      this.$router.push("/home/trade").catch((err) => err);
     },
     collectBtn(){
       this.$router.push("/home/collect").catch((err) => err);
     },
     guideBtn() {
       this.$router.push("/home/expertGuide").catch((err) => err);
-    },
-    shopCartBtn() {
-      this.$router.push("/home/orderInfo").catch((err) => err);
     },
     userPage() {
       this.$router.push("/home/user").catch((err) => err);
@@ -267,7 +259,7 @@ export default {
   margin-left: 593px;
   top: 200px; /* 指定div距离顶部的位置 */
   border-radius: 20px 0 0 20px;
-  padding: 10px; /* 内边距,根据需要进行修改 */
+  padding: 10px; /* 内边距,根据需要进行调整 */
   background-color: #fff;
   box-shadow: -3px 2px 7px rgba(0, 0, 0, 0.2);
 }

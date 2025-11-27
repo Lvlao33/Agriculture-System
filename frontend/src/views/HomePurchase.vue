@@ -2,7 +2,7 @@
   <div class="purchase-catalog">
     <el-backtop target=".home-content"></el-backtop>
     
-    <!-- 顶部标题栏 -->
+    <!-- 顶部标题�? -->
     <div class="catalog-header">
       <div class="header-title">产品采购目录</div>
       <el-button 
@@ -20,38 +20,38 @@
       <!-- 左列 -->
       <div class="catalog-column">
         <div class="category-section">
-          <div class="category-title" @click="goToCategoryList({ key: 'vegetable', name: '蔬菜类' })">
-            <span class="category-bullet">■</span>
-            蔬菜类
+          <div class="category-title" @click="goToCategoryList({ key: 'vegetable', name: '蔬菜�?' })">
+            <span class="category-bullet">�?</span>
+            蔬菜�?
           </div>
           <div class="subcategory-list">
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
-              <span class="subcategory-title">叶菜类</span>
+              <span class="subcategory-bullet">�?</span>
+              <span class="subcategory-title">叶菜�?</span>
               <span class="subcategory-items">：油菜、香菜、苋菜、莴苣、蕹菜、白菜、青梗菜、芥菜、芹菜、菠菜、菜薹、落葵、茼蒿、茴香、乌塌菜</span>
             </div>
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
-              <span class="subcategory-title">甘蓝类</span>
+              <span class="subcategory-bullet">�?</span>
+              <span class="subcategory-title">甘蓝�?</span>
               <span class="subcategory-items">：甘蓝、花椰菜、芥蓝、青花菜</span>
             </div>
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
-              <span class="subcategory-title">根菜类</span>
-              <span class="subcategory-items">：芜菁、胡萝卜、萝卜</span>
+              <span class="subcategory-bullet">�?</span>
+              <span class="subcategory-title">根菜�?</span>
+              <span class="subcategory-items">：芜菁、胡萝卜、萝�?</span>
             </div>
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
-              <span class="subcategory-title">葱蒜类</span>
-              <span class="subcategory-items">：洋葱、葱、大蒜、韭菜</span>
+              <span class="subcategory-bullet">�?</span>
+              <span class="subcategory-title">葱蒜�?</span>
+              <span class="subcategory-items">：洋葱、葱、大蒜、韭�?</span>
             </div>
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
-              <span class="subcategory-title">水生类</span>
-              <span class="subcategory-items">：茭白、荸荠</span>
+              <span class="subcategory-bullet">�?</span>
+              <span class="subcategory-title">水生�?</span>
+              <span class="subcategory-items">：茭白、荸�?</span>
             </div>
             <div class="subcategory-item">
-              <span class="subcategory-bullet">◆</span>
+              <span class="subcategory-bullet">�?</span>
               <span class="subcategory-title">其他</span>
               <span class="subcategory-items">：紫苏、砧木、野生蔬菜、芽类蔬菜、香椿、草石蚕、朝鲜蓟、姜、牛蒡、食用菌</span>
             </div>
@@ -63,19 +63,19 @@
       <div class="catalog-column">
         <div class="category-section">
           <div class="category-title" @click="goToCategoryList({ key: 'melon', name: '瓜类' })">
-            <span class="category-bullet">■</span>
+            <span class="category-bullet">�?</span>
             瓜类
           </div>
           <div class="subcategory-list">
             <div class="subcategory-item">
-              <span class="subcategory-items">西葫芦、西瓜、冬瓜、佛手瓜、葫芦、黄瓜、节瓜、苦瓜、木瓜、南瓜、丝瓜、甜瓜、蛇瓜</span>
+              <span class="subcategory-items">西葫芦、西瓜、冬瓜、佛手瓜、葫芦、黄瓜、节瓜、苦瓜、木瓜、南瓜、丝瓜、甜瓜、蛇�?</span>
             </div>
           </div>
         </div>
 
         <div class="category-section">
           <div class="category-title" @click="goToCategoryList({ key: 'bean', name: '豆类' })">
-            <span class="category-bullet">■</span>
+            <span class="category-bullet">�?</span>
             豆类
           </div>
           <div class="subcategory-list">
@@ -86,37 +86,37 @@
         </div>
 
         <div class="category-section">
-          <div class="category-title" @click="goToCategoryList({ key: 'solanaceous', name: '茄果类' })">
-            <span class="category-bullet">■</span>
-            茄果类
+          <div class="category-title" @click="goToCategoryList({ key: 'solanaceous', name: '茄果�?' })">
+            <span class="category-bullet">�?</span>
+            茄果�?
           </div>
           <div class="subcategory-list">
             <div class="subcategory-item">
-              <span class="subcategory-items">番茄、辣椒、茄子、甜椒</span>
+              <span class="subcategory-items">番茄、辣椒、茄子、甜�?</span>
             </div>
           </div>
         </div>
 
         <div class="category-section">
-          <div class="category-title" @click="goToCategoryList({ key: 'tuber', name: '薯芋类' })">
-            <span class="category-bullet">■</span>
-            薯芋类
+          <div class="category-title" @click="goToCategoryList({ key: 'tuber', name: '薯芋�?' })">
+            <span class="category-bullet">�?</span>
+            薯芋�?
           </div>
           <div class="subcategory-list">
             <div class="subcategory-item">
-              <span class="subcategory-items">芋、甘薯、马铃薯、山药</span>
+              <span class="subcategory-items">芋、甘薯、马铃薯、山�?</span>
             </div>
           </div>
         </div>
 
         <div class="category-section">
-          <div class="category-title" @click="goToCategoryList({ key: 'perennial', name: '多年生' })">
-            <span class="category-bullet">■</span>
-            多年生
+          <div class="category-title" @click="goToCategoryList({ key: 'perennial', name: '多年�?' })">
+            <span class="category-bullet">�?</span>
+            多年�?
           </div>
           <div class="subcategory-list">
             <div class="subcategory-item">
-              <span class="subcategory-items">食用百合、菜用玉米、黄秋葵、芦笋、草莓、黄花菜、竹笋</span>
+              <span class="subcategory-items">食用百合、菜用玉米、黄秋葵、芦笋、草莓、黄花菜、竹�?</span>
             </div>
           </div>
         </div>
@@ -144,15 +144,15 @@ export default {
   data() {
     return {
       categories: [
-        { key: 'vegetable', name: '蔬菜类', icon: 'el-icon-food' },
+        { key: 'vegetable', name: '蔬菜�?', icon: 'el-icon-food' },
         { key: 'melon', name: '瓜类', icon: 'el-icon-grape' },
         { key: 'bean', name: '豆类', icon: 'el-icon-coffee-cup' },
-        { key: 'solanaceous', name: '茄果类', icon: 'el-icon-cherry' },
-        { key: 'tuber', name: '薯芋类', icon: 'el-icon-box' },
-        { key: 'perennial', name: '多年生', icon: 'el-icon-menu' },
-        { key: 'fruit', name: '水果类', icon: 'el-icon-grape' },
-        { key: 'grain', name: '粮食类', icon: 'el-icon-coffee-cup' },
-        { key: 'livestock', name: '畜牧类', icon: 'el-icon-cherry' },
+        { key: 'solanaceous', name: '茄果�?', icon: 'el-icon-cherry' },
+        { key: 'tuber', name: '薯芋�?', icon: 'el-icon-box' },
+        { key: 'perennial', name: '多年�?', icon: 'el-icon-menu' },
+        { key: 'fruit', name: '水果�?', icon: 'el-icon-grape' },
+        { key: 'grain', name: '粮食�?', icon: 'el-icon-coffee-cup' },
+        { key: 'livestock', name: '畜牧�?', icon: 'el-icon-cherry' },
         { key: 'other', name: '其他', icon: 'el-icon-box' }
       ]
     };

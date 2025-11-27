@@ -6,6 +6,7 @@ import Register from '../views/Register'
 import Home from '../views/Home'
 import HomeGoods from '../views/HomeGoods'
 import HomePurchase from '../views/HomePurchase'
+import HomeTrade from '../views/HomeTrade'
 import HomeKnowledge from '../views/HomeKnowledge'
 import KnowledgeDetail from '../views/KnowledgeDetail'
 import HomeCollect from '../views/HomeCollect'
@@ -64,7 +65,7 @@ import AskQuestion from '../views/AskQuestion'
 Vue.use(VueRouter)
 
 
-// ï¿½ï¿½ï¿½ElementUIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½vue-routerï¿½ï¿½3.0ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ÐÞ¸´ElementUIµ¼º½À¸Óëvue-routerµÄ3.0°æ±¾³åÍ»ÎÊÌâ?
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -87,6 +88,10 @@ const routes = [
       {
         path: 'front',
         component: FrontPage
+      },
+      {
+        path: 'trade',
+        component: HomeTrade
       },
       {
         path: 'goods',

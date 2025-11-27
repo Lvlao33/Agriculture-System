@@ -1,5 +1,5 @@
-//配置开发服务器和代理
-//只在请求发送到开发服务器时生效
+//配置开发服务器和代�?
+//只在请求发送到开发服务器时生�?
 module.exports = {
   // 关闭 ESLint 报错阻断（否则一堆报错导致无法启动）
   lintOnSave: false,
@@ -7,7 +7,7 @@ module.exports = {
   // 转译依赖
   transpileDependencies: [],
 
-  // 配置静态资源
+  // 配置静态资�?
   publicPath: '/',
   assetsDir: 'static',
 

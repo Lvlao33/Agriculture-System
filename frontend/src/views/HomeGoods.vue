@@ -1,14 +1,14 @@
 <!--商品货源-->
 <template>
   <div class="home-goods">
-    <goods-sourse :cgoods="goods" @handleSearch="handleSearch"></goods-sourse>
+    <goods-source :cgoods="goods" @handleSearch="handleSearch"></goods-source>
     <pagination @item-click="pageClick" :cUrl="url" :cTotal="total" :cPageSize="pageSize"></pagination>
   </div>
 </template>
 
 <script>
 import { selectGoodsPage } from "../api/order";
-import GoodsSourse from "../components/GoodsSource.vue";
+import GoodsSource from "../components/GoodsSource.vue";
 import Pagination from "../components/Pagination.vue";
 export default {
   data() {
@@ -51,7 +51,7 @@ export default {
   },
   components: {
     Pagination,
-    GoodsSourse,
+    GoodsSource,
   },
 };
 </script>
