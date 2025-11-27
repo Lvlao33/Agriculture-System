@@ -25,9 +25,9 @@ public class ExpertDashboardController {
         data.put("pendingQuestions", 5);
         data.put("urgentCount", 2);
         data.put("todayAppointments", 3);
-        data.put("appointmentSummary", "ÊÓÆµ 2 ¡¤ ÏßÏÂ 1");
+        data.put("appointmentSummary", "è§†é¢‘ 2 ä¸ª ç°åœº 1");
         data.put("publishedKnowledge", 7);
-        data.put("knowledgeTrend", "ÔÄ¶ÁÁ¿ +18%");
+        data.put("knowledgeTrend", "é˜…è¯»é‡ +18%");
         data.put("expertScore", 4.9);
         data.put("reviewCount", 126);
         return ResponseEntity.ok(ApiResponse.success(data));
@@ -36,9 +36,9 @@ public class ExpertDashboardController {
     @GetMapping("/questions")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> questions() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildQuestion("q1", "½ô¼±", "¸ÌéÙÒ¶Æ¬·¢»ÆÈçºÎ´¦Àí£¿", "¸ÓÄÏ¹ûÅ©", "09:12", "´ı»Ø¸´", "pending"),
-                buildQuestion("q2", "¸ßÓÅ", "´óÅï·¬ÇÑ¾íÒ¶ÊÇ·ñÈ±¸Æ£¿", "ÊÙ¹âºÏ×÷Éç", "08:40", "´ı¸´ºË", "review"),
-                buildQuestion("q3", "³£¹æ", "Ë®µ¾ËëÆÚ²¡º¦·À¿Ø·½°¸", "¶´Í¥ºşÅ©³¡", "×òÌì 21:05", "ÒÑ»Ø¸´", "done")
+                buildQuestion("q1", "ç´§æ€¥", "ç•ªèŒ„å¶ç‰‡å‘é»„åŸå› æœªè§£å†³", "å±±ä¸œå†œæˆ·", "09:12", "å¾…å›å¤", "pending"),
+                buildQuestion("q2", "ç´§æ€¥", "é»„ç“œå·å¶æ˜¯å¦ç¼ºé’™ï¼Ÿ", "æ²³åŒ—ç§æ¤æˆ·", "08:40", "å®¡æ ¸ä¸­", "review"),
+                buildQuestion("q3", "æ™®é€š", "æ°´ç¨»æŠ½ç©—æœŸæ–½è‚¥è¦ç‚¹", "å®¶åº­å†œåœºä¸»", "æ˜¨å¤© 21:05", "å·²å›å¤", "done")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -46,9 +46,9 @@ public class ExpertDashboardController {
     @GetMapping("/appointments")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> appointments() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildAppointment("a1", "10:30", "ÊÓÆµ×ÉÑ¯", "²ı¼ª·¬ÇÑ»ùµØ", "·ÊË®¹ÜÀí", "¼´½«¿ªÊ¼", "review"),
-                buildAppointment("a2", "14:00", "ÏÖ³¡Ö¸µ¼", "Æ½¹È´óÌÒºÏ×÷Éç", "²¡³æº¦¼à²â", "Ğè³öĞĞ", "pending"),
-                buildAppointment("a3", "19:30", "ÈºÖ±²¥´ğÒÉ", "Æ½Ì¨Èë×¤Å©»§", "Çï¶¬±£ÎÂ", "ÒÑÈ·ÈÏ", "done")
+                buildAppointment("a1", "10:30", "è§†é¢‘å’¨è¯¢", "å¹³åº¦å¤§æ£šåˆä½œç¤¾", "æœæ ‘ç®¡ç†", "ç­‰å¾…å¼€å§‹", "review"),
+                buildAppointment("a2", "14:00", "ç°åœºæŒ‡å¯¼", "å¹³åº¦å¤§æ£šåˆä½œç¤¾", "ç—…è™«å®³é˜²æ²»", "è¿›è¡Œä¸­", "pending"),
+                buildAppointment("a3", "19:30", "ç¾¤ç›´æ’­è¯¾", "å¹³å°å…¥é©»å†œæˆ·", "ç§‹å†¬ç®¡ç†", "å¾…ç¡®è®¤", "done")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -56,9 +56,9 @@ public class ExpertDashboardController {
     @GetMapping("/knowledge")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> knowledge() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildKnowledge("k1", "Ğ¡ÂóÎÆ¿İ²¡ÂÌÉ«·À¿ØÖ¸ÄÏ", "ÒÑ·¢²¼", 3200, "Í¨¹ıÉóºË", "done"),
-                buildKnowledge("k2", "ÉèÊ©Êß²ËÎÂÊªµ÷¿Ø¼¼ÇÉ", "´ıÉóºË", 0, "ÉóºËÖĞ", "review"),
-                buildKnowledge("k3", "Å©»ú¼ìĞŞ±£ÑøÔÂÀú", "²İ¸å", 0, "ÍêÉÆÖĞ", "pending")
+                buildKnowledge("k1", "å°éº¦èµ¤éœ‰ç—…é˜²æ²»æŒ‡å—", "å·²å‘å¸ƒ", 3200, "é€šè¿‡å®¡æ ¸", "done"),
+                buildKnowledge("k2", "æ¸©å®¤è”¬èœæ¹¿åº¦ç®¡ç†æŠ€å·§", "å¾…å®¡æ ¸", 0, "å¾…å®¡æ ¸", "review"),
+                buildKnowledge("k3", "å†œä¸šæŠ€æœ¯æ¨å¹¿", "è‰ç¨¿", 0, "å¾…å‘å¸ƒ", "pending")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -67,9 +67,9 @@ public class ExpertDashboardController {
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> notifications() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         List<Map<String, String>> list = Arrays.asList(
-                buildNotification("n1", "Æ½Ì¨ÍÆËÍ£º11 ÔÂÅ©Çé¼à²â±¨¸æÉÏÏß", formatter.format(LocalDateTime.now())),
-                buildNotification("n2", "Ô¤Ô¼ÌáĞÑ£ºÇëÈ·ÈÏ 12/01 Ìï¼äÖ¸µ¼", "×òÌì"),
-                buildNotification("n3", "ÖªÊ¶ÉóºË£ºÓĞ 2 ÆªÄÚÈİ´ı±à¼­", "2 ÌìÇ°")
+                buildNotification("n1", "å¹³å°é€šçŸ¥ï¼š11 æœˆå†œæˆ·é—®é¢˜æŠ¥å‘Š", formatter.format(LocalDateTime.now())),
+                buildNotification("n2", "é¢„çº¦æé†’ï¼šè¯·ç¡®è®¤ 12/01 ç°åœºæŒ‡å¯¼", "ä»Šå¤©"),
+                buildNotification("n3", "çŸ¥è¯†å®¡æ ¸ï¼šæœ‰ 2 ç¯‡å†…å®¹å¾…ç¼–è¾‘", "2 å°æ—¶å‰")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -120,5 +120,3 @@ public class ExpertDashboardController {
         return map;
     }
 }
-
-

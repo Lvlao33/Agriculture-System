@@ -12,9 +12,9 @@ public class ExpertController {
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile() {
         Map<String, Object> m = new HashMap<>();
-        m.put("name", "Ê¾Àı×¨¼Ò");
-        m.put("title", "Å©Òµ¼¼Êõ×¨¼Ò");
-        m.put("bio", "¾ßÓĞ¶àÄêÅ©×÷ÎïÔÔÅàÓë²¡³æº¦·ÀÖÎ¾­Ñé¡£");
+        m.put("name", "ç¤ºä¾‹ä¸“å®¶");
+        m.put("title", "å†œä¸šæŠ€æœ¯ä¸“å®¶");
+        m.put("bio", "æ‹¥æœ‰å¤šå¹´å†œä¸šç§æ¤ç»éªŒä¸ç—…è™«å®³é˜²æ²»ç»éªŒã€‚");
         m.put("rating", 4.8);
         return ResponseEntity.ok(m);
     }
@@ -31,8 +31,8 @@ public class ExpertController {
     @GetMapping("/appointments")
     public ResponseEntity<List<Map<String, Object>>> getAppointments() {
         List<Map<String, Object>> list = new ArrayList<>();
-        list.add(appointment("2025-11-28 10:00", "ÓÃ»§A", "ÍÁ¶¹Ê©·Ê½¨Òé", 1L));
-        list.add(appointment("2025-11-29 14:00", "ÓÃ»§B", "¸ÌéÙ²¡³æº¦Õï¶Ï", 2L));
+        list.add(appointment("2025-11-28 10:00", "ç”¨æˆ·A", "æ˜¥å­£æ–½è‚¥æŠ€å·§å’¨è¯¢", 1L));
+        list.add(appointment("2025-11-29 14:00", "ç”¨æˆ·B", "æœæ ‘ç—…è™«å®³é˜²æ²»", 2L));
         return ResponseEntity.ok(list);
     }
 
@@ -57,8 +57,8 @@ public class ExpertController {
     @GetMapping("/knowledges")
     public ResponseEntity<List<Map<String, Object>>> getKnowledges() {
         List<Map<String, Object>> list = new ArrayList<>();
-        list.add(knowledge(1L, "ÍÁ¶¹ÍíÒß²¡·ÀÖÎÒªµã", "×÷Îï²¡º¦"));
-        list.add(knowledge(2L, "¸ÌéÙ»¨ÆÚ¹ÜÀíÖ¸ÄÏ", "¹ûÊ÷¹ÜÀí"));
+        list.add(knowledge(1L, "æ¸©å®¤è”¬èœç§æ¤è¦ç‚¹", "è”¬èœç—…å®³"));
+        list.add(knowledge(2L, "æœæ ‘èŠ±æœŸç®¡ç†æŒ‡å¯¼", "æœæ ‘ç®¡ç†"));
         return ResponseEntity.ok(list);
     }
 
@@ -75,7 +75,7 @@ public class ExpertController {
     public ResponseEntity<List<Map<String, Object>>> getMessages() {
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> m1 = new HashMap<>();
-        m1.put("title", "ĞÂµÄ×ÉÑ¯Ô¤Ô¼");
+        m1.put("title", "æ–°çš„å’¨è¯¢é¢„çº¦");
         m1.put("time", "2025-11-26 09:00");
         list.add(m1);
         return ResponseEntity.ok(list);
@@ -112,39 +112,7 @@ public class ExpertController {
         m.put("id", id);
         m.put("title", title);
         m.put("category", category);
-        m.put("summary", title + " µÄÕªÒª");
+        m.put("summary", title + " çš„æ‘˜è¦");
         return m;
-    }
-}
-package com.farmporject.backend.expert.controller;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-/**
- * ä¸“å®¶æ¨¡å—-ä¸“å®¶ä¿¡æ¯
- * è·¯ç”±å‰ç¼€ï¼?/api/experts
- * - GET /api/experts ä¸“å®¶åˆ—è¡¨
- * - GET /api/experts/{id} ä¸“å®¶è¯¦æƒ…
- */
-@RestController
-@RequestMapping("/api/experts")
-public class ExpertController {
-    /**
-     * ä¸“å®¶åˆ—è¡¨
-     * ç¤ºä¾‹ï¼šGET /api/experts
-     */
-    @GetMapping
-    public ResponseEntity<?> list() {
-        return ResponseEntity.ok().body("experts");
-    }
-
-    /**
-     * ä¸“å®¶è¯¦æƒ…
-     * ç¤ºä¾‹ï¼šGET /api/experts/123
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@PathVariable String id) {
-        return ResponseEntity.ok().body(id);
     }
 }

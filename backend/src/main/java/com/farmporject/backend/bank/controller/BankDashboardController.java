@@ -25,16 +25,16 @@ public class BankDashboardController {
         data.put("riskAlerts", 2);
         data.put("totalCredit", 56_000_000);
         data.put("approvalRate", "92%");
-        data.put("avgProcessingTime", "1.6 Ìì");
+        data.put("avgProcessingTime", "1.6 å¤©");
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
     @GetMapping("/loans")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> loans() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildLoan("L001", "ÕÅ¼ÒÍåºÏ×÷Éç", "ÖÇ»ÛÎÂÊÒÉı¼¶", 1_200_000, "24 ¸öÔÂ", "09:15", "urgent", "¸ßÓÅ"),
-                buildLoan("L002", "Îâ´¨¹ûÅ©", "¸ÌéÙÀäÁ´À©½¨", 600_000, "18 ¸öÔÂ", "08:40", "normal", "³£¹æ"),
-                buildLoan("L003", "Çà´¨ÄÁÒµ", "ËÇÁÏ²É¹ºÖÜ×ª", 350_000, "12 ¸öÔÂ", "×òÌì 17:20", "review", "¸´ºË")
+                buildLoan("L001", "å¼ ä¸‰å†œä¸šåˆä½œç¤¾", "æ™ºæ…§å†œä¸šè´·æ¬¾", 1_200_000, "24 ä¸ªæœˆ", "09:15", "urgent", "ç´§æ€¥"),
+                buildLoan("L002", "æå››å†œåœº", "å†œæœºè®¾å¤‡é‡‡è´­", 600_000, "18 ä¸ªæœˆ", "08:40", "normal", "æ­£å¸¸"),
+                buildLoan("L003", "ç‹äº”ä¼ä¸š", "é¥²æ–™é‡‡è´­å‘¨è½¬", 350_000, "12 ä¸ªæœˆ", "æ˜¨å¤© 17:20", "review", "å®¡æ ¸ä¸­")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -42,8 +42,8 @@ public class BankDashboardController {
     @GetMapping("/matches")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> matches() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildMatch("M001", "Àè´¨²èÒµ", "°×²è¼Ó¹¤", 800_000, "A¼¶", "ÂÌÉ«Å©ÒµÒøĞĞ"),
-                buildMatch("M002", "¹ãË®Ë®²ú", "Ğ¡ÁúÏºÓıÃç", 500_000, "B+¼¶", "Ïç´åÕñĞËÒøĞĞ")
+                buildMatch("M001", "ä¼˜è´¨å†œä¸šä¼ä¸š", "è”¬èœåŠ å·¥", 800_000, "Açº§", "ç»¿è‰²å†œä¸šé“¶è¡Œ"),
+                buildMatch("M002", "æ¸…æ°´æ°´äº§", "å°é¾™è™¾å…»æ®–", 500_000, "B+çº§", "ç°ä»£å†œä¸šé“¶è¡Œ")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -51,8 +51,8 @@ public class BankDashboardController {
     @GetMapping("/alerts")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> alerts() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildAlert("A001", "ÕË»§Á÷¶¯ĞÔÒì³£", "Îâ´¨¹ûÅ©½ü 7 ÈÕÏÖ½ğÁ÷²¨¶¯£¬Ğè¸´ºËÕËÄ¿", "¸´ºË"),
-                buildAlert("A002", "µÖÑºÎï¹ÀÖµµ½ÆÚ", "Çà´¨ÄÁÒµµÖÑºµØ¿éĞèÖØĞÂÆÀ¹À", "ÌáĞÑ")
+                buildAlert("A001", "è´¦æˆ·ä½™é¢å¼‚å¸¸", "æå››å†œåœº 7 å¤©å†…ç°é‡‘æµåŠ¨å¼‚å¸¸ï¼Œéœ€è¦å¤æ ¸è´·æ¬¾é¡¹ç›®", "ç´§æ€¥"),
+                buildAlert("A002", "æŠµæŠ¼ç‰©ä»·å€¼ä¸‹é™", "ç‹äº”ä¼ä¸šæŠµæŠ¼ç‰©ä»·å€¼ä¸‹é™ï¼Œéœ€è¦é‡æ–°è¯„ä¼°", "è­¦å‘Š")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -60,8 +60,8 @@ public class BankDashboardController {
     @GetMapping("/notifications")
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> notifications() {
         List<Map<String, String>> list = Arrays.asList(
-                buildNotice("N001", "×Ü²¿·¢²¼£º11 ÔÂÉæÅ©´û¿îÕş²ß¸üĞÂ", "1 Ğ¡Ê±Ç°"),
-                buildNotice("N002", "ÏµÍ³Î¬»¤£º11/30 01:00-03:00 ÔİÍ£·şÎñ", "×òÌì")
+                buildNotice("N001", "æ€»éƒ¨é€šçŸ¥ï¼š11 æœˆå†œæˆ·è´·æ¬¾æ”¿ç­–æ›´æ–°", "1 å°æ—¶å‰"),
+                buildNotice("N002", "ç³»ç»Ÿç»´æŠ¤ï¼š11/30 01:00-03:00 æš‚åœæœåŠ¡", "ä»Šå¤©")
         );
         return ResponseEntity.ok(ApiResponse.success(list));
     }
@@ -109,5 +109,3 @@ public class BankDashboardController {
         return map;
     }
 }
-
-
