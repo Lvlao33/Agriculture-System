@@ -5,12 +5,11 @@
       <!-- 轮播 + 公告 -->
       <section class="hero">
         <div class="carousel">
-          <el-carousel :interval="4000" height="220px" indicator-position="outside">
+          <el-carousel :interval="4000" height="320px" indicator-position="outside">
             <el-carousel-item v-for="(img, idx) in imageList" :key="idx">
               <div class="carousel-item">
                 <img :src="img.src" :alt="img.name" @error="e => e.target.src = require('../assets/img/placeholder.jpg')" />
-                <div class="caption">{{ img.name }}</div>
-          </div>
+              </div>
             </el-carousel-item>
           </el-carousel>
         </div>
@@ -20,7 +19,10 @@
             <span class="tab active">今日要闻</span>
           </div>
           <ul class="headline-list">
-            <li v-for="(text, idx) in headlines" :key="idx">{{ text }}</li>
+            <li v-for="(item, idx) in headlines" :key="idx">
+              <span class="headline-text">{{ item.text }}</span>
+              <span class="headline-date">{{ item.date }}</span>
+            </li>
           </ul>
         </div>
       </section>
@@ -275,17 +277,17 @@ export default {
         { src: require('@/assets/img/pro3.jpg'), name: '农产品三' }
       ],
       headlines: [
-        '韩长赋：确保水稻产量稳定在2亿吨以上',
-        '黄浦江大闸蟹今开捕',
-        '新疆农用地土壤环境总体优良',
-        '河南秋收基本结束 麦播超四成',
-        '河北沧州开展农产品质量安全普法宣传',
-        '安徽农业产业化交易会举行',
-        '禄丰县：做大特色产业助农增收',
-        '黑龙江抢收保收 打赢秋收战役',
-        '陇南市已建成高标准农田600多万亩',
-        '柯城区全面启动养殖污染治理',
-        '永安上坪乡：粮食喜获丰收'
+        { text: '韩长赋：确保水稻产量稳定在2亿吨以上', date: '2025-10-22' },
+        { text: '黄浦江大闸蟹今开捕', date: '2025-10-22' },
+        { text: '新疆农用地土壤环境总体优良', date: '2025-10-22' },
+        { text: '河南秋收基本结束 麦播超四成', date: '2025-10-22' },
+        { text: '河北沧州开展农产品质量安全普法宣传', date: '2025-10-21' },
+        { text: '安徽农业产业化交易会举行', date: '2025-10-21' },
+        { text: '禄丰县：做大特色产业助农增收', date: '2025-10-21' },
+        { text: '黑龙江抢收保收 打赢秋收战役', date: '2025-10-20' },
+        { text: '陇南市已建成高标准农田600多万亩', date: '2025-10-20' },
+        { text: '柯城区全面启动养殖污染治理', date: '2025-10-19' },
+        { text: '永安上坪乡：粮食喜获丰收', date: '2025-10-19' }
       ],
       techCards: [
         {
@@ -538,84 +540,92 @@ export default {
 /* 轮播 */
 .hero {
   display: flex;
-  gap: 160;
+  gap: 24px;
   margin-bottom: 20px;
-  @media (max-width: 500px) {
+  align-items: stretch;
+  @media (max-width: 768px) {
     flex-direction: column;
   }
 }
 .carousel {
-  width: 500px;
-  height: 400px;
-  border-radius: 8px;
+  flex: 0 0 34%;
+  max-width: 34%;
+  height: 320px;
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 .carousel-item {
-  position:sticky;
-  width: 400;
-  height: 400;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 .carousel-item img {
-  width: 500;
-  height: 500px;
-  object-fit: cover; /* 保持比例裁剪 */
-}
-.caption {
-    position: absolute;
-  left: 10px;
-  bottom: 10px;
-  padding: 4px 8px;
-  font-size: 12px;
-      color: #fff;
-  background: rgba(0,0,0,0.45);
-      border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 铺满容器，无白边黑边 */
+  display: block;
 }
 .topic-thumb{ width:36px; height:36px; object-fit:cover; vertical-align:middle; margin-right:8px; border-radius:4px }
 .carousel img{ max-height:360px }
 .hero-right {
-  flex: 1;
+  flex: 0 0 66%;
+  max-width: 66%;
   min-width: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 320px;
   @media (max-width: 768px) {
     width: 100%;
+    height: auto;
   }
   .headline-header {
     display: flex;
-    height: 36px;
+    height: 48px;
     align-items: center;
-    background: #e0f6da;
-    border: 1px solid #c6e9bf;
-    border-bottom: none;
-    border-radius: 4px 4px 0 0;
+    background: #39b54a;
+    border-radius: 14px 14px 0 0;
     overflow: hidden;
     .tab {
       flex: 1;
       text-align: center;
-      font-size: 14px;
-      color: #666;
-      background: #f2f2f2;
-      padding: 8px 0;
-    }
-    .tab.active {
-      background: #39b54a;
+      font-size: 16px;
       color: #fff;
       font-weight: 600;
     }
   }
   .headline-list {
     list-style: none;
-    padding: 8px 10px;
+    padding: 16px 20px;
     margin: 0;
-    border: 1px solid #e6e6e6;
-    border-top: none;
-    line-height: 22px;
+    line-height: 26px;
+    border-radius: 0 0 14px 14px;
+    flex: 1;
+    overflow: auto;
     li {
-      font-size: 13px;
-      padding: 4px 0;
-      color: #333;
+      font-size: 14px;
+      padding: 6px 0;
+      color: #1f2d3d;
       cursor: pointer;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      .headline-text {
+        flex: 1;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      .headline-date {
+        flex-shrink: 0;
+        font-size: 12px;
+        color: #9ca3af;
+        margin-left: 8px;
+      }
       &:hover { color: @primary; }
     }
   }
