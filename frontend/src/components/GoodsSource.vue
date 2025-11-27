@@ -2,18 +2,18 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- é¡¶éƒ¨æ“ä½œæ ? -->
+    <!-- ¶¥²¿²Ù×÷À¸ -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="æœç´¢å•†å“..."
+          placeholder="ËÑË÷ÉÌÆ·Ãû³Æ¡¢²úµØ..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">æœç´¢</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">ËÑË÷</el-button>
       </div>
       <el-button
         type="success"
@@ -21,22 +21,22 @@
         class="publish-btn"
         @click="handlePublish"
       >
-        å‘å¸ƒè´§æº
+        ·¢²¼ÉÌÆ·
       </el-button>
     </div>
 
-    <!-- ä¸»è¦å†…å®¹åŒºåŸŸ -->
+    <!-- Ö÷ÒªÄÚÈÝÇøÓò -->
     <div class="main-content">
-      <!-- å·¦ä¾§åˆ†ç±»æ ? -->
+      <!-- ×ó²à·ÖÀàÀ¸ -->
       <div class="category-sidebar">
-        <div class="category-title">å•†å“åˆ†ç±»</div>
+        <div class="category-title">ÉÌÆ··ÖÀà</div>
         <div
           class="category-item"
           :class="{ active: selectedCategory === 'all' }"
           @click="selectCategory('all')"
         >
           <i class="el-icon-menu"></i>
-          <span>å…¨éƒ¨å•†å“</span>
+          <span>È«²¿ÉÌÆ·</span>
         </div>
         <div
           class="category-item"
@@ -44,7 +44,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>æ°´æžœç±?</span>
+          <span>Ë®¹ûÀà</span>
         </div>
         <div
           class="category-item"
@@ -52,7 +52,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>è”¬èœç±?</span>
+          <span>Êß²ËÀà</span>
         </div>
         <div
           class="category-item"
@@ -60,7 +60,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>ç²®é£Ÿç±?</span>
+          <span>Á¸Ê³Àà</span>
         </div>
         <div
           class="category-item"
@@ -68,7 +68,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>ç•œç‰§ç±?</span>
+          <span>ÐóÄÁÀà</span>
         </div>
         <div
           class="category-item"
@@ -76,49 +76,50 @@
           @click="selectCategory('other')"
         >
           <i class="el-icon-box"></i>
-          <span>å…¶ä»–</span>
+          <span>ÆäËû</span>
         </div>
       </div>
 
-      <!-- å³ä¾§å•†å“å±•ç¤ºåŒ? -->
+      <!-- ÓÒ²àÉÌÆ·Õ¹Ê¾Çø -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
-          <p>æš‚æ— å•†å“</p>
+          <p>ÔÝÎÞÉÌÆ·</p>
         </div>
         <div
           v-for="(item, index) in filteredGoods"
           :key="index"
           class="goods-card"
-          @click="detailsClick(item.orderId)"
+          @click="showGoodsDetail(item)"
         >
           <el-card shadow="hover" :body-style="{ padding: '0' }">
             <div class="goods-image-wrapper">
               <img
                 v-if="item.picture && item.picture !== ''"
-                :src="`/order/${item.picture}`"
+                :src="getImageUrl(item.picture)"
                 class="goods-img"
-                alt="å•†å“å›¾ç‰‡"
+                alt="ÉÌÆ·Í¼Æ¬"
+                @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
                 class="goods-img"
-                alt="æš‚æ— å›¾ç‰‡"
+                alt="ÔÝÎÞÍ¼Æ¬"
               />
             </div>
             <div class="goods-info">
               <div class="goods-owner">
                 <i class="el-icon-user"></i>
-                <span>{{ item.ownName || 'æœªçŸ¥' }}</span>
+                <span>{{ item.ownName || 'Î´Öª' }}</span>
               </div>
-              <p class="goods-content">{{ item.content || 'æš‚æ— æè¿°' }}</p>
+              <p class="goods-content">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</p>
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
-                  Â¥{{ item.price }}
+                  ?{{ item.price }}
                 </span>
-                <span class="goods-price" v-else>ä»·æ ¼é¢è®®</span>
+                <span class="goods-price" v-else>¼Û¸ñÃæÒé</span>
               </div>
             </div>
           </el-card>
@@ -126,50 +127,67 @@
       </div>
     </div>
 
-    <!-- åˆ†ç±»è¯¦ç»†å†…å®¹ -->
-    <div class="category-showcase">
-      <div class="showcase-header">
-        <h3>åˆ†ç±»ç²¾é€?</h3>
-        <p>ä¸ºæ¯ä¸ªå“ç±»æä¾›äº§åœ°ã€è§„æ ¼ã€ä¾›è´§èŠ‚å¥ç­‰è¯¦ç»†ä¿¡æ¯ï¼Œå¸®åŠ©æ‚¨å¿«é€ŸåŒ¹é…é«˜è´¨é‡è´§æºã€?</p>
-      </div>
-      <div class="showcase-grid">
-        <div
-          class="showcase-card"
-          v-for="category in categoryShowcase"
-          :key="category.key"
-        >
-          <div class="showcase-top">
-            <div class="showcase-info">
-              <h4>{{ category.title }}</h4>
-              <p>{{ category.description }}</p>
-            </div>
-            <img :src="category.image" :alt="category.title" />
-          </div>
-          <ul class="feature-list">
-            <li v-for="(feature, index) in category.features" :key="index">
-              <i class="el-icon-check"></i>
-              <span>{{ feature }}</span>
-            </li>
-          </ul>
-          <div class="sample-goods">
-            <span
-              v-for="sample in category.sampleGoods"
-              :key="sample.name"
-              @click="handleCategoryShowcase(sample.keyword, category.key)"
-            >
-              {{ sample.name }}
-            </span>
-          </div>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="handleCategoryShowcase(category.searchKeyword, category.key)"
+    <!-- ÉÌÆ·ÏêÇéµ¯´° -->
+    <el-dialog
+      :title="detailDialogTitle"
+      :visible.sync="detailDialogVisible"
+      width="80%"
+      :before-close="handleCloseDialog"
+      class="goods-detail-dialog"
+    >
+      <div class="detail-content">
+        <div class="detail-goods-list">
+          <div
+            v-for="(item, index) in similarGoods"
+            :key="index"
+            class="detail-goods-item"
+            @click="goToGoodsDetailPage(item)"
           >
-            æŸ¥çœ‹{{ category.title }}è´§æº
-          </el-button>
+            <div class="detail-goods-image">
+              <img
+                v-if="item.picture && item.picture !== ''"
+                :src="getImageUrl(item.picture)"
+                alt="ÉÌÆ·Í¼Æ¬"
+                @error="handleImageError"
+              />
+              <img
+                v-else
+                :src="`/order/wutu.gif`"
+                alt="ÔÝÎÞÍ¼Æ¬"
+              />
+            </div>
+            <div class="detail-goods-info">
+              <div class="detail-goods-name">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</div>
+              <div class="detail-goods-meta">
+                <span class="detail-goods-origin">
+                  <i class="el-icon-location-outline"></i>
+                  {{ item.origin || '²úµØÎ´Öª' }}
+                </span>
+                <span class="detail-goods-seller">
+                  <i class="el-icon-user"></i>
+                  {{ item.ownName || 'Î´ÖªÂô¼Ò' }}
+                </span>
+              </div>
+              <div class="detail-goods-price">
+                <i class="el-icon-coin"></i>
+                ?{{ item.price || 'ÃæÒé' }}
+              </div>
+              <div class="detail-goods-stock" v-if="item.stock !== undefined">
+                ¿â´æ£º{{ item.stock }}
+              </div>
+            </div>
+            <div class="detail-goods-actions">
+              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">Á¢¼´¹ºÂò</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">¼ÓÈë¹ºÎï³µ</el-button>
+            </div>
+          </div>
+          <div v-if="similarGoods.length === 0" class="empty-detail-state">
+            <i class="el-icon-box"></i>
+            <p>ÔÝÎÞÍ¬ÀàÉÌÆ·</p>
+          </div>
         </div>
       </div>
-    </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -180,79 +198,220 @@ export default {
     return {
       searchValue: '',
       selectedCategory: 'all',
-      categoryMap: {
-        'all': 'å…¨éƒ¨å•†å“',
-        'fruit': 'æ°´æžœç±?',
-        'vegetable': 'è”¬èœç±?',
-        'grain': 'ç²®é£Ÿç±?',
-        'livestock': 'ç•œç‰§ç±?',
-        'other': 'å…¶ä»–'
-      },
-      categoryShowcase: [
+      detailDialogVisible: false,
+      detailDialogTitle: 'ÉÌÆ·ÏêÇé',
+      currentGoodsItem: null,
+      similarGoods: [],
+      // Ê¾ÀýÉÌÆ·Êý¾Ý£¨µ±API·µ»Ø¿ÕÊý¾ÝÊ±Ê¹ÓÃ£©
+      defaultGoods: [
+        // Ë®¹ûÀà
         {
-          key: 'vegetable',
-          title: 'è”¬èœç±?',
-          description: 'åŸºåœ°ç›´ä¾›å¶èœã€æ ¹èŒŽç±»ï¼Œæ¯æ—¥å‡Œæ™¨é‡‡æ‘˜ï¼Œ4å°æ—¶å†…å®Œæˆé¢„å†·æ‰“åŒ…ã€?',
-          image: '/kn/pro1.jpg',
-          features: ['æ—¥é‡‡æ—¥é… å†·é“¾é…é€?', 'å¯æä¾›æ£€æµ‹æŠ¥å‘?', 'æ”¯æŒåˆ†çº§åˆ†æ‹£'],
-          sampleGoods: [
-            { name: 'æœ‰æœºç”Ÿèœ', keyword: 'ç”Ÿèœ' },
-            { name: 'è¥¿å…°èŠ?', keyword: 'è¥¿å…°èŠ?' },
-            { name: 'æ´ªæ¹–èŽ²è—•', keyword: 'èŽ²è—•' }
-          ],
-          searchKeyword: 'è”¬èœ'
+          name: 'ÐÂÏÊÆ»¹û',
+          content: 'ÐÂÏÊÆ»¹û ºì¸»Ê¿ ´àÌð¶àÖ­',
+          price: 12.00,
+          picture: 'pro2.jpg',
+          origin: 'É½¶«ÑÌÌ¨',
+          ownName: 'ÕÅ¹ûÅ©',
+          category: 'fruit',
+          stock: 500,
+          orderId: 'fruit1',
+          keyword: 'Æ»¹û'
         },
         {
-          key: 'fruit',
-          title: 'æ°´æžœç±?',
-          description: 'ä»ŽåŽå—ã€å·æ¸ã€äº‘å—ç­‰æ ¸å¿ƒäº§åŒºç›´å‘ï¼Œç”œåº¦ã€å¤§å°å‡å¯å®šåˆ¶ã€?',
-          image: '/kn/pro2.jpg',
-          features: ['åŽŸäº§åœ°æŽ§è´?', 'ç ´æŸåŒ…èµ”', 'æä¾›ç©ºè¿/å†·é“¾åŒæ¨¡å¼?'],
-          sampleGoods: [
-            { name: 'èµ£å—è„æ©™', keyword: 'è„æ©™' },
-            { name: 'é˜³å±±æ°´èœœæ¡?', keyword: 'æ°´èœœæ¡?' },
-            { name: 'å¦ƒå­ç¬‘è”æž?', keyword: 'è”æž' }
-          ],
-          searchKeyword: 'æ°´æžœ'
+          name: 'ÓÅÖÊÆ»¹û',
+          content: 'ÓÅÖÊÆ»¹û ÓÐ»úÖÖÖ² ÎÞÅ©Ò©²ÐÁô',
+          price: 15.00,
+          picture: 'pro2.jpg',
+          origin: 'ÉÂÎ÷',
+          ownName: 'ÀîÅ©³¡',
+          category: 'fruit',
+          stock: 300,
+          orderId: 'fruit2',
+          keyword: 'Æ»¹û'
         },
         {
-          key: 'grain',
-          title: 'ç²®é£Ÿç±?',
-          description: 'ä¸œåŒ—ä¼˜è´¨å¯’åœ°ç¨»ã€ä¼˜é€‰ä¸»ä½“åˆä½œç¤¾ï¼Œæ”¯æŒä»£ç²¾åŠ å·¥å’ŒåŒ…è£…ã€?',
-          image: '/kn/rice.png',
-          features: ['äº§åœ°å¯è¿½æº?', 'ä»“é…ä¸€ä½“åŒ–', 'æ”¯æŒé‡‘èžç»“ç®—'],
-          sampleGoods: [
-            { name: 'äº”å¸¸ç¨»èŠ±é¦?', keyword: 'ç¨»èŠ±é¦?' },
-            { name: 'é«˜ç­‹å°éº¦', keyword: 'å°éº¦' },
-            { name: 'æœ‰æœºé»„å°ç±?', keyword: 'å°ç±³' }
-          ],
-          searchKeyword: 'ç²®é£Ÿ'
+          name: '¾«Æ·Æ»¹û',
+          content: '¾«Æ·Æ»¹û ¸ö´ó±¥Âú Ìð¶È¸ß',
+          price: 18.00,
+          picture: 'pro2.jpg',
+          origin: 'ÐÂ½®',
+          ownName: 'Íõ¹ûÔ°',
+          category: 'fruit',
+          stock: 200,
+          orderId: 'fruit3',
+          keyword: 'Æ»¹û'
         },
         {
-          key: 'livestock',
-          title: 'ç•œç‰§ç±?',
-          description: 'è¦†ç›–è‚‰ç‰›ã€è‚‰ç¾Šã€å®¶ç¦½ç¦½è›‹ç­‰ï¼Œå± å®°åŠ å·¥å’Œå†·é“¾è¿è¾“ä¸€æ¡é¾™æœåŠ¡ã€?',
-          image: '/kn/pro3.jpg',
-          features: ['å®šç‚¹å± å®°', 'å…¨ç¨‹æº¯æº', 'å¯å‡ºå…·æ£€ç–«è¯æ˜?'],
-          sampleGoods: [
-            { name: 'è‰åŽŸè¥¿é—¨å¡”å°”ç‰?', keyword: 'è¥¿é—¨å¡”å°”' },
-            { name: 'æ•£å…»å±±åœ°é¸?', keyword: 'åœŸé¸¡' },
-            { name: 'æœ‰æœºé²œè›‹', keyword: 'é²œè›‹' }
-          ],
-          searchKeyword: 'ç•œç‰§'
+          name: 'ÐÂÏÊ³È×Ó',
+          content: 'ÐÂÏÊ³È×Ó Ö­¶àÎ¶Ìð Î¬C·á¸»',
+          price: 10.00,
+          picture: 'pro2.jpg',
+          origin: '½­Î÷',
+          ownName: '³Â¹ûÅ©',
+          category: 'fruit',
+          stock: 400,
+          orderId: 'fruit4',
+          keyword: '³È×Ó'
         },
         {
-          key: 'other',
-          title: 'ç‰¹è‰²ä¸Žæ·±åŠ å·¥',
-          description: 'èœ‚èœœã€èŒ¶å¶ã€ä¸­è¯æã€é¢„åˆ¶èœç­‰ç‰¹è‰²è´§æºï¼Œæ”¯æŒOEM/ODMã€?',
-          image: '/kn/chayangji.jpg',
-          features: ['æºå¤´å·¥åŽ‚', 'èµ„è´¨é½å…¨', 'é…æ–¹å¯å®šåˆ?'],
-          sampleGoods: [
-            { name: 'å¤æ ‘çº¢èŒ¶', keyword: 'çº¢èŒ¶' },
-            { name: 'é¢„åˆ¶é…¸èœé±?', keyword: 'é¢„åˆ¶è?' },
-            { name: 'é“åœ°é»„èŠª', keyword: 'é»„èŠª' }
-          ],
-          searchKeyword: 'ç‰¹è‰²'
+          name: 'ÓÅÖÊÆÏÌÑ',
+          content: 'ÓÅÖÊÆÏÌÑ ÎÞ×Ñ Ìð¶È¸ß',
+          price: 20.00,
+          picture: 'pro2.jpg',
+          origin: 'ÐÂ½®',
+          ownName: 'ÕÔ¹ûÔ°',
+          category: 'fruit',
+          stock: 250,
+          orderId: 'fruit5',
+          keyword: 'ÆÏÌÑ'
+        },
+        // Êß²ËÀà
+        {
+          name: 'ÐÂÏÊ°×²Ë',
+          content: 'ÐÂÏÊ°×²Ë ÓÐ»úÖÖÖ² ¿Ú¸Ð´àÄÛ',
+          price: 5.00,
+          picture: 'pro1.jpg',
+          origin: 'É½¶«',
+          ownName: 'Áõ²ËÅ©',
+          category: 'vegetable',
+          stock: 800,
+          orderId: 'veg1',
+          keyword: '°×²Ë'
+        },
+        {
+          name: 'ÓÐ»ú°×²Ë',
+          content: 'ÓÐ»ú°×²Ë ÎÞÅ©Ò© ÂÌÉ«½¡¿µ',
+          price: 8.00,
+          picture: 'pro1.jpg',
+          origin: 'ºÓ±±',
+          ownName: 'ÖÜÅ©³¡',
+          category: 'vegetable',
+          stock: 600,
+          orderId: 'veg2',
+          keyword: '°×²Ë'
+        },
+        {
+          name: 'ÐÂÏÊÂÜ²·',
+          content: 'ÐÂÏÊÂÜ²· °×ÂÜ²· Çå´àË¬¿Ú',
+          price: 4.00,
+          picture: 'pro1.jpg',
+          origin: 'ºÓÄÏ',
+          ownName: 'Îâ²ËÅ©',
+          category: 'vegetable',
+          stock: 700,
+          orderId: 'veg3',
+          keyword: 'ÂÜ²·'
+        },
+        {
+          name: 'ÐÂÏÊÍÁ¶¹',
+          content: 'ÐÂÏÊÍÁ¶¹ »ÆÐÄÍÁ¶¹ Æ·ÖÊÓÅÁ¼',
+          price: 6.00,
+          picture: 'pro1.jpg',
+          origin: 'ÄÚÃÉ¹Å',
+          ownName: 'Ö£Å©³¡',
+          category: 'vegetable',
+          stock: 900,
+          orderId: 'veg4',
+          keyword: 'ÍÁ¶¹'
+        },
+        // Á¸Ê³Àà
+        {
+          name: 'ÓÅÖÊ´óÃ×',
+          content: 'ÓÅÖÊ´óÃ× ¶«±±´óÃ× ÏãÅ´¿É¿Ú',
+          price: 45.00,
+          picture: 'rice.png',
+          origin: 'ºÚÁú½­',
+          ownName: 'ËïÁ¸Å©',
+          category: 'grain',
+          stock: 1000,
+          orderId: 'grain1',
+          keyword: '´óÃ×'
+        },
+        {
+          name: 'ÓÐ»ú´óÃ×',
+          content: 'ÓÐ»ú´óÃ× ÂÌÉ«ÈÏÖ¤ ÓªÑø·á¸»',
+          price: 58.00,
+          picture: 'rice.png',
+          origin: '¼ªÁÖ',
+          ownName: 'Ç®Å©³¡',
+          category: 'grain',
+          stock: 500,
+          orderId: 'grain2',
+          keyword: '´óÃ×'
+        },
+        {
+          name: 'ÓÅÖÊÐ¡Âó',
+          content: 'ÓÅÖÊÐ¡Âó ¸ß½îÐ¡Âó ÊÊºÏ×öÃæÊ³',
+          price: 35.00,
+          picture: 'rice.png',
+          origin: 'ºÓÄÏ',
+          ownName: 'ÖÜÁ¸Å©',
+          category: 'grain',
+          stock: 800,
+          orderId: 'grain3',
+          keyword: 'Ð¡Âó'
+        },
+        // ÐóÄÁÀà
+        {
+          name: 'ÐÂÏÊÍÁ¼¦µ°',
+          content: 'ÐÂÏÊÍÁ¼¦µ° É¢Ñø ÓªÑø·á¸»',
+          price: 35.00,
+          picture: 'pro3.jpg',
+          origin: 'ºÓ±±',
+          ownName: 'ÀîÑøÖ³',
+          category: 'livestock',
+          stock: 200,
+          orderId: 'live1',
+          keyword: '¼¦µ°'
+        },
+        {
+          name: 'ÓÐ»úÍÁ¼¦µ°',
+          content: 'ÓÐ»úÍÁ¼¦µ° ÎÞ¼¤ËØ Æ·ÖÊ±£Ö¤',
+          price: 42.00,
+          picture: 'pro3.jpg',
+          origin: 'É½¶«',
+          ownName: 'ÍõÑøÖ³',
+          category: 'livestock',
+          stock: 150,
+          orderId: 'live2',
+          keyword: '¼¦µ°'
+        },
+        {
+          name: 'ÐÂÏÊÅ£ÄÌ',
+          content: 'ÐÂÏÊÅ£ÄÌ µ±ÈÕÅäËÍ ÓªÑø½¡¿µ',
+          price: 25.00,
+          picture: 'pro3.jpg',
+          origin: 'ÄÚÃÉ¹Å',
+          ownName: 'ÕÔÄÁ³¡',
+          category: 'livestock',
+          stock: 300,
+          orderId: 'live3',
+          keyword: 'Å£ÄÌ'
+        },
+        // ÆäËû
+        {
+          name: 'ÓÐ»ú²èÒ¶',
+          content: 'ÓÐ»ú²èÒ¶ Ô­²úµØÖ±¹© Æ·ÖÊÓÅÁ¼',
+          price: 128.00,
+          picture: 'chayangji.jpg',
+          origin: '¸£½¨',
+          ownName: '³Â²èÅ©',
+          category: 'other',
+          stock: 100,
+          orderId: 'other1',
+          keyword: '²èÒ¶'
+        },
+        {
+          name: 'ÐÂÏÊÓñÃ×',
+          content: 'ÐÂÏÊÓñÃ× ÌðÓñÃ× ¿Ú¸ÐÏãÌð',
+          price: 15.00,
+          picture: 'farm.jpeg',
+          origin: 'ºÓÄÏ',
+          ownName: '»ÆÅ©³¡',
+          category: 'other',
+          stock: 400,
+          orderId: 'other2',
+          keyword: 'ÓñÃ×'
         }
       ]
     };
@@ -265,19 +424,22 @@ export default {
   },
   computed: {
     filteredGoods() {
-      let goods = this.cgoods || [];
+      // ÓÅÏÈÊ¹ÓÃ´«ÈëµÄÉÌÆ·Êý¾Ý£¬Èç¹ûÎª¿ÕÔòÊ¹ÓÃÊ¾ÀýÊý¾Ý
+      let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // éŽ¸å¤ŠåžŽç»«è¤ç“«é–«å¤›ç´™æ©æ¬“å™·é™îˆ™äº’éè§„åµç€¹ç‚ºæª¯éç‰ˆåµç¼æ’´ç€¯ç’‹å†©æš£é”›ï¿½
+      // ·ÖÀàÉ¸Ñ¡
       if (this.selectedCategory !== 'all') {
-        // æ¿¡å‚›ç‰éŸå——æ§éç‰ˆåµæ¶“î…Ÿæ¹é’å—™è¢«ç€›æ¥î†Œé”›å±½å½²æµ ãƒ¥æ¹ªæ©æ¬“å™·æ©æ¶œî”‘ç»›æ¶¢â‚¬ï¿?
-        // goods = goods.filter(item => item.category === this.selectedCategory);
+        goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // éŽ¸å¤‹æ‚³ç»±ãˆ å§é–¿î†¿ç˜ç»›æ¶¢â‚¬ï¿?
+      // ËÑË÷É¸Ñ¡
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
           return (item.content && item.content.toLowerCase().includes(keyword)) ||
+                 (item.name && item.name.toLowerCase().includes(keyword)) ||
+                 (item.keyword && item.keyword.toLowerCase().includes(keyword)) ||
+                 (item.origin && item.origin.toLowerCase().includes(keyword)) ||
                  (item.ownName && item.ownName.toLowerCase().includes(keyword));
         });
       }
@@ -293,21 +455,73 @@ export default {
       this.$emit('handleSearch', this.searchValue);
     },
     handlePublish() {
-      this.$router.push('/home/publishSupply').catch((err) => err);
+      this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
-    detailsClick(orderId) {
-      this.$store.commit("updateOrderId", orderId);
-      this.$router.push(`/home/details?orderId=${orderId}`).catch((err) => err);
+    showGoodsDetail(item) {
+      // ÏÔÊ¾ÉÌÆ·ÏêÇéµ¯´°£¬ÏÔÊ¾ËùÓÐÍ¬ÀàÉÌÆ·
+      this.currentGoodsItem = item;
+      this.detailDialogTitle = `${item.content || item.name || 'ÉÌÆ·'} - Í¬ÀàÉÌÆ·`;
+      
+      // ¸ù¾ÝÉÌÆ·¹Ø¼ü´Ê²éÕÒÍ¬ÀàÉÌÆ·
+      const keyword = item.keyword || this.extractKeyword(item.content || item.name);
+      this.similarGoods = this.filteredGoods.filter(goods => {
+        const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
+        return goodsKeyword === keyword && goods.orderId !== item.orderId;
+      });
+      
+      // ½«µ±Ç°ÉÌÆ·Ò²¼ÓÈëÁÐ±í£¨·ÅÔÚµÚÒ»Î»£©
+      this.similarGoods.unshift(item);
+      
+      this.detailDialogVisible = true;
     },
-    handleCategoryShowcase(keyword, categoryKey) {
-      if (categoryKey) {
-        this.selectedCategory = categoryKey;
+    extractKeyword(text) {
+      // ´ÓÉÌÆ·Ãû³ÆÖÐÌáÈ¡¹Ø¼ü´Ê£¨¼òµ¥ÊµÏÖ£©
+      if (!text) return '';
+      // ÌáÈ¡³£¼ûÉÌÆ·¹Ø¼ü´Ê
+      const keywords = ['Æ»¹û', '³È×Ó', 'ÆÏÌÑ', '°×²Ë', 'ÂÜ²·', 'ÍÁ¶¹', '´óÃ×', 'Ð¡Âó', '¼¦µ°', 'Å£ÄÌ', '²èÒ¶', 'ÓñÃ×'];
+      for (let kw of keywords) {
+        if (text.includes(kw)) {
+          return kw;
+        }
       }
-      if (keyword) {
-        this.searchValue = keyword;
-        // è§¦å‘çˆ¶ç»„ä»¶æœç´¢ï¼Œç¡®ä¿å•†å“åˆ—è¡¨åˆ‡æ¢åˆ°å¯¹åº”è´§æº?
-        this.handleSearch();
+      return text.substring(0, 2); // Ä¬ÈÏÈ¡Ç°Á½¸ö×Ö
+    },
+    handleCloseDialog() {
+      this.detailDialogVisible = false;
+      this.currentGoodsItem = null;
+      this.similarGoods = [];
+    },
+    goToGoodsDetailPage(item) {
+      // Ìø×ªµ½ÉÌÆ·ÏêÇéÒ³Ãæ
+      if (item.orderId) {
+        this.$store.commit("updateOrderId", item.orderId);
+        this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
+    },
+    handleBuyNow(item) {
+      // Á¢¼´¹ºÂò
+      this.goToGoodsDetailPage(item);
+    },
+    handleAddToCart(item) {
+      // ¼ÓÈë¹ºÎï³µ
+      this.$emit('addToCart', item);
+      this.$message.success('ÒÑ¼ÓÈë¹ºÎï³µ');
+    },
+    getImageUrl(picture) {
+      // Èç¹ûÍ¼Æ¬Â·¾¶°üº¬ /kn/ »ò /order/£¬Ö±½ÓÊ¹ÓÃ
+      if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
+        return picture;
+      }
+      // Èç¹ûÊÇ kn Ä¿Â¼ÏÂµÄÍ¼Æ¬
+      if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
+        return `/kn/${picture}`;
+      }
+      // Ä¬ÈÏÊ¹ÓÃ order Ä¿Â¼
+      return `/order/${picture}`;
+    },
+    handleImageError(event) {
+      // Í¼Æ¬¼ÓÔØÊ§°ÜÊ±£¬Ê¹ÓÃÄ¬ÈÏÍ¼Æ¬
+      event.target.src = '/order/wutu.gif';
     }
   }
 }
@@ -519,129 +733,138 @@ export default {
       }
     }
   }
+}
 
-  .category-showcase {
-    margin-top: 30px;
-    background: #fff;
-    border-radius: 8px;
+// ÉÌÆ·ÏêÇéµ¯´°ÑùÊ½
+/deep/ .goods-detail-dialog {
+  .el-dialog__body {
     padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
 
-    .showcase-header {
-      border-left: 4px solid #67c23a;
-      padding-left: 12px;
-      margin-bottom: 20px;
-
-      h3 {
-        margin: 0;
-        font-size: 20px;
-        color: #303133;
-      }
-
-      p {
-        margin: 6px 0 0 0;
-        color: #909399;
-        font-size: 13px;
-      }
-    }
-
-    .showcase-grid {
+  .detail-content {
+    .detail-goods-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 20px;
 
-      .showcase-card {
-        border: 1px solid #f0f0f0;
-        border-radius: 8px;
-        padding: 18px;
+      .detail-goods-item {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        transition: box-shadow 0.3s;
+        background: #fff;
+        border: 1px solid #e4e7ed;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
 
         &:hover {
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          border-color: #409eff;
+          box-shadow: 0 2px 12px rgba(64, 158, 255, 0.2);
+          transform: translateY(-3px);
         }
 
-        .showcase-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 10px;
-
-          .showcase-info {
-            flex: 1;
-
-            h4 {
-              margin: 0 0 6px 0;
-              font-size: 18px;
-              color: #303133;
-            }
-
-            p {
-              margin: 0;
-              color: #909399;
-              font-size: 13px;
-              line-height: 1.5;
-            }
-          }
+        .detail-goods-image {
+          width: 100%;
+          height: 200px;
+          border-radius: 6px;
+          overflow: hidden;
+          margin-bottom: 15px;
+          background: #f5f5f5;
 
           img {
-            width: 80px;
-            height: 80px;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            border-radius: 6px;
           }
         }
 
-        .feature-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
+        .detail-goods-info {
+          flex: 1;
 
-          li {
+          .detail-goods-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .detail-goods-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #666;
+
+            .detail-goods-origin,
+            .detail-goods-seller {
+              display: flex;
+              align-items: center;
+
+              i {
+                margin-right: 5px;
+                color: #909399;
+              }
+            }
+          }
+
+          .detail-goods-price {
+            color: #f56c6c;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
             display: flex;
             align-items: center;
-            font-size: 13px;
-            color: #606266;
-            margin-bottom: 4px;
 
             i {
-              color: #67c23a;
-              margin-right: 6px;
+              margin-right: 5px;
+              font-size: 16px;
             }
           }
-        }
 
-        .sample-goods {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-
-          span {
-            background: #ecf5ff;
-            color: #409eff;
-            padding: 4px 10px;
-            border-radius: 12px;
+          .detail-goods-stock {
             font-size: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-
-            &:hover {
-              background: #d9ecff;
-            }
+            color: #909399;
+            margin-bottom: 10px;
           }
         }
 
-        .el-button {
-          align-self: flex-start;
+        .detail-goods-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 10px;
+
+          .el-button {
+            flex: 1;
+          }
+        }
+      }
+
+      .empty-detail-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+
+        i {
+          font-size: 64px;
+          margin-bottom: 20px;
+          display: block;
+        }
+
+        p {
+          font-size: 16px;
         }
       }
     }
   }
 }
 
-// éå¶…ç°²å¯®å¿šî†•ç’ï¿½
 @media (max-width: 1200px) {
   .goods-box {
     width: 100%;
