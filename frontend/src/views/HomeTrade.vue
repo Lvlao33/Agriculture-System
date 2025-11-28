@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import { selectGoodsPage, selectNeedsPage } from "../api/order";
+import { selectGoodsPage, selectNeedsPage } from "../api/trade";
 
 export default {
   name: "HomeTrade",

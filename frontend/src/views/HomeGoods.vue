@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { selectGoodsPage } from "../api/order";
+import { selectGoodsPage } from "../api/trade";
 import GoodsSource from "../components/GoodsSource.vue";
 import Pagination from "../components/Pagination.vue";
 export default {

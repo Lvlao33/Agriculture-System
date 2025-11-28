@@ -1,4 +1,4 @@
-package com.farmporject.backend.trade.model;
+package main.java.com.farmporject.backend.trade.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;

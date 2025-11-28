@@ -227,7 +227,7 @@
 </template>
 
 <script>
-import { selectBuyByUserName, selectAllPage, deleteOrderById } from "../api/order";
+import { selectBuyByUserName, selectAllPage, deleteOrderById } from "../api/trade";
 import { addOrderToCart } from "../api/cart";
 
 export default {
