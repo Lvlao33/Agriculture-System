@@ -5,9 +5,9 @@
         <div style="display:flex;flex-direction:row;justify-content:flex-start;align-items:center;">
           <img src="../assets/img/logo.png" style="height:50px;" alt="" />
           <div class="logo-text">
-            <div>铻嶉攢閫�?</div>
+            <div>融销通</div>
             <div style="font-size:12px;margin-top:5px;color: #666;">
-              鍐滀骇鍝佽瀺閿€涓€浣撳寲骞冲�?
+              农产品融销一体化平台
             </div>
           </div>
           
@@ -15,8 +15,8 @@
         
       </div>
       <div class="userin" v-if="$store.state.loginUserNickname == ''">
-        <span @click="Login" class="login">鐧诲�?</span> |
-        <span @click="Register" class="register">娉ㄥ�?</span>
+        <span @click="Login" class="login">登录</span> |
+        <span @click="Register" class="register">注册</span>
       </div>
       <div class="userlogin" v-else >
         <button @click="userPage" class="nick">
@@ -39,19 +39,19 @@
           class="item"
           @click="tradeBtn"
           v-if="isFarmerRole"
-        >农产品交�?</el-menu-item>
+        >农产品交易</el-menu-item>
         <el-menu-item
           index="3"
           class="item"
           @click="expertWorkBtn"
           v-if="isExpertRole"
-        >专家工作�?</el-menu-item>
+        >专家工作台</el-menu-item>
         <el-menu-item
           index="4"
           class="item"
           @click="bankWorkBtn"
           v-if="isBankRole"
-        >银行�?</el-menu-item>
+        >银行工作台</el-menu-item>
         <el-menu-item
           index="5"
           class="item"
@@ -70,7 +70,7 @@
           <el-menu-item index="7-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>
           <el-menu-item index="7-4" @click.native="goodsManage" v-if="$store.getters.isAdmin">商品管理</el-menu-item>
           <el-menu-item index="7-5" @click.native="handleAbout">关于我们</el-menu-item>
-          <el-menu-item index="7-6" @click.native="logout">退�?</el-menu-item>
+          <el-menu-item index="7-6" @click.native="logout">退出</el-menu-item>
         </el-submenu>
       </el-menu>
     </div>
@@ -305,9 +305,9 @@ export default {
   height: 300px;
   left: 50%;
   margin-left: 593px;
-  top: 200px; /* 鎸囧畾div璺濈椤堕儴鐨勪綅缃�? */
+  top: 200px; /* 指定div距离顶部的位置 */
   border-radius: 20px 0 0 20px;
-  padding: 10px; /* 鍐呰竟璺�?,鏍规嵁闇€瑕佽繘琛岃皟鏁�? */
+  padding: 10px; /* 内边距，根据需要进行调整 */
   background-color: #fff;
   box-shadow: -3px 2px 7px rgba(0, 0, 0, 0.2);
 }
