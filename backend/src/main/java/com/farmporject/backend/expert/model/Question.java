@@ -1,5 +1,7 @@
 package com.farmporject.backend.expert.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,30 +20,40 @@ public class Question {
     @Column(length = 2000, nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
+    @Column(name = "user_name")
     private String userName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expert_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Expert expert;
 
     /** 附件（图片 / 视频）的访问路径列表 */
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "question_attachments", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "file_url")
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<String> attachmentUrls;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
     @Column(name = "tag")
+    @org.hibernate.annotations.Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<String> tags;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private QuestionStatus status = QuestionStatus.PENDING;
 
+    @Column(name = "create_time")
     private LocalDateTime createTime;
+    
+    @Column(name = "update_time")
     private LocalDateTime updateTime;
 
     public enum QuestionStatus {

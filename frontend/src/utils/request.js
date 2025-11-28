@@ -27,7 +27,16 @@ export function request(config) {
     instance.interceptors.response.use(res => {
         return res.data
     }, err => {
-        console.log(err);
+        console.error('请求失败:', err);
+        // 如果有响应，返回响应数据；否则抛出错误
+        if (err.response) {
+            console.error('响应状态:', err.response.status);
+            console.error('响应数据:', err.response.data);
+            // 返回错误响应数据，让调用方可以处理
+            return Promise.reject(err.response.data || err);
+        }
+        // 网络错误或其他错误
+        return Promise.reject(err);
     })
     // 3.������������������
     return instance(config)

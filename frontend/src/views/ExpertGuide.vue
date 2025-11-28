@@ -375,7 +375,7 @@ export default {
     };
   },
   created() {
-    this.$store.commit("updateActiveIndex", "4");
+    this.$store.commit("updateActiveIndex", "5");
     this.loadData();
   },
   methods: {
@@ -391,7 +391,7 @@ export default {
         keys: '',
         pageSize: 5
       }).then((res) => {
-        if (res.flag == true) {
+        if (res && res.flag == true) {
           this.expertList = res.data.list || [];
           this.expertTotal = res.data.total || 0;
         }
@@ -410,7 +410,7 @@ export default {
         keys: '',
         pageSize: 3
       }).then((res) => {
-        if (res.flag == true && res.data && res.data.list && res.data.list.length > 0) {
+        if (res && res.flag == true && res.data && res.data.list && res.data.list.length > 0) {
           // 将后端数据合并到列表中
           const backendList = res.data.list.map(item => ({
             questionId: item.questionId,
@@ -449,7 +449,7 @@ export default {
         pageNum: this.knowledgeCount,
         pageSize: 100 // 获取更多数据以便排序和显示
       }).then((res) => {
-        if (res.flag == true) {
+        if (res && res.flag == true) {
           let list = res.data.list || [];
           // 将后端数据映射为包含url字段的格式
           const backendList = list.map(item => ({

@@ -1,5 +1,5 @@
-//配置开发服务器和代�?
-//只在请求发送到开发服务器时生�?
+//配置开发服务器和代�?
+//只在请求发送到开发服务器时生�?
 module.exports = {
   // 关闭 ESLint 报错阻断（否则一堆报错导致无法启动）
   lintOnSave: false,
@@ -7,7 +7,7 @@ module.exports = {
   // 转译依赖
   transpileDependencies: [],
 
-  // 配置静态资�?
+  // 配置静态资�?
   publicPath: '/',
   assetsDir: 'static',
 
@@ -17,7 +17,10 @@ module.exports = {
     proxy: {
       '/api': {
         target: 'http://localhost:8080', // 后端服务地址
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false, // 如果是 https 接口，需要配置这个参数
+        ws: true, // 代理 websockets
+        logLevel: 'debug' // 开启调试日志
         // 不重写路径，因为后端接口路径已经包含 /api
       },
       '/order': {
