@@ -34,6 +34,7 @@ class AuthControllerTest {
         user.setUsername("alice");
         user.setNickname("Alice");
         user.setAvatar("avatar.png");
+        user.setRole("FARMER");
 
         when(userService.validateLogin("alice", "pwd")).thenReturn(Optional.of(user));
 
@@ -51,14 +52,14 @@ class AuthControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, fail.getStatusCode());
         assertFalse(fail.getBody().isSuccess());
-        assertEquals("用户名或密码错误", fail.getBody().getMessage());
+        assertEquals("Invalid username or password", fail.getBody().getMessage());
     }
 
     @Test
     void register() {
         User user = new User();
         user.setUsername("alice");
-        when(userService.register(eq("alice"), eq("pwd"), eq("Alice"), eq("avatar.png"))).thenReturn(user);
+        when(userService.register(eq("alice"), eq("pwd"), eq("Alice"), eq("avatar.png"), eq(""))).thenReturn(user);
 
         ResponseEntity<ApiResponse<User>> response = authController
                 .register(Map.of("username", "alice", "password", "pwd", "nickname", "Alice", "avatar", "avatar.png"));

@@ -38,10 +38,26 @@
             placeholder="请输入密码"
           />
         </div>
+        <div class="form-group">
+          <label>选择角色</label>
+          <div class="role-options">
+            <label>
+              <input type="radio" value="farmer" v-model="role" />
+              农户端
+            </label>
+            <label>
+              <input type="radio" value="expert" v-model="role" />
+              专家端
+            </label>
+            <label>
+              <input type="radio" value="bank" v-model="role" />
+              银行端
+            </label>
+          </div>
+        </div>
         <button class="btn btn-success btn-block" @click="registerBtn">
           注册
         </button>
-        <!-- <input type="submit" value="tijiao" /> -->
       </div>
       <div class="message">
         <p>已有账号? <router-link to="/login">点击登录</router-link>.</p>
@@ -58,6 +74,7 @@ export default {
       userName: "",
       password: "",
       nickName: "",
+      role: "farmer",
     };
   },
   methods: {
@@ -76,6 +93,7 @@ export default {
           password: this.password,
           nickname: this.nickName,
           avatar: "rongxiaotong.gif",
+          role: this.role,
         })
           .then((res) => {
             if (res && res.success) {
@@ -97,37 +115,47 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import url("../../node_modules/bootstrap/dist/css/bootstrap.css");
-body {
-  background-color: #f9f9f9;
-}
+// 移除了无效的 @import，建议在 main.js 中全局引入
 .register-box {
   box-sizing: border-box;
-  // width: 1897px;
   height: 800px;
   padding-top: 150px;
   background: url("../assets/img/rice.png");
   background-size: 1897px 920px;
+  
   .register {
     width: 340px;
     margin: 0 auto;
     color: #333;
+    
     .header {
       height: 40px;
       text-align: center;
+      
       h1 {
         margin: 0;
         font-size: 26px;
         color: white;
       }
     }
+    
     #register_form {
       padding: 20px;
       margin-bottom: 15px;
       border: 1px solid #d8dee2;
       border-radius: 5px;
       background-color: #fff;
+      
+      .role-options {
+        display: flex;
+        justify-content: space-between;
+        
+        label {
+          font-weight: normal;
+        }
+      }
     }
+    
     .message {
       padding: 10px;
       padding-bottom: 0;
@@ -138,4 +166,9 @@ body {
     }
   }
 }
+
+// body 样式在 scoped 中无效，建议移到全局样式或删除
+// body {
+//   background-color: #f9f9f9;
+// }
 </style>
