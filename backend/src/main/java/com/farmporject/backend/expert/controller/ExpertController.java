@@ -3,21 +3,27 @@ package com.farmporject.backend.expert.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.farmporject.backend.expert.service.ExpertService;
+
 import java.util.*;
 
+/**
+ * 专家相关接口
+ */
 @RestController
 @RequestMapping("/api/expert")
 public class ExpertController {
 
+    private final ExpertService expertService;
+
+    public ExpertController(ExpertService expertService) {
+        this.expertService = expertService;
+    }
+
     // 获得专家介绍详情
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getProfile() {
-        Map<String, Object> m = new HashMap<>();
-        m.put("name", "示例专家");
-        m.put("title", "农业技术专家");
-        m.put("bio", "拥有多年农业种植经验与病虫害防治经验。");
-        m.put("rating", 4.8);
-        return ResponseEntity.ok(m);
+    public ResponseEntity<?> getProfile() {
+        return ResponseEntity.ok(expertService.getAllExperts());
     }
 
     // 更新专家介绍详情

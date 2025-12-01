@@ -1,6 +1,5 @@
 package com.farmporject.backend.expert.controller;
 
-import com.farmporject.backend.common.api.ApiResponse;
 import com.farmporject.backend.expert.model.Answer;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;

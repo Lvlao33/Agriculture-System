@@ -1,62 +1,32 @@
-package com.farmporject.backend.expert.model;
+package com.farmporject.backend.expert.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
-import com.farmporject.backend.user.model.User;
-
-/**
- * 专家实体类
- * 为user的延伸
- */
-@Entity
-@Table(name = "experts")
-public class Expert extends User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ExpertDTO {
     private Long id;
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(nullable = false)
+    private Long userId;
     private String name;
-
-    @Column(nullable = false)
     private String title;
-
     private String avatar;
-
-    @Column(length = 1000)
     private String description;
-
-    @ElementCollection
-    @CollectionTable(name = "expert_specialties", joinColumns = @JoinColumn(name = "expert_id"))
-    @Column(name = "specialty")
-    private List<String> specialties;
-
     private Integer experienceYears;
-
     private String contactInfo;
-
-    @Column(nullable = false)
     private Boolean isAvailable = true;
-
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private List<String> specialties;
 
-    // 默认构造函数
-    public Expert() {
+    // 默认构造方法
+    public ExpertDTO() {
     }
 
     // 全参构造函数
-    public Expert(Long id, String name, String title, String avatar, String description,
-            List<String> specialties, Integer experienceYears, String contactInfo,
+    public ExpertDTO(Long id, Long userId, String name, String title, String avatar,
+            String description, List<String> specialties, Integer experienceYears, String contactInfo,
             Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
         this.id = id;
+        this.userId = userId;
         this.name = name;
         this.title = title;
         this.avatar = avatar;
@@ -68,14 +38,22 @@ public class Expert extends User {
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
-
     // Getters and Setters
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -158,47 +136,4 @@ public class Expert extends User {
         this.updateTime = updateTime;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        createTime = LocalDateTime.now();
-        updateTime = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updateTime = LocalDateTime.now();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Expert))
-            return false;
-        Expert expert = (Expert) o;
-        return Objects.equals(id, expert.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Expert{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
-                ", isAvailable=" + isAvailable +
-                '}';
-    }
 }
