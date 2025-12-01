@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.farmporject.backend.expert.dto.AppointmentDTO;
-import com.farmporject.backend.expert.model.Appointment;
 import com.farmporject.backend.expert.service.AppointmentService;
 
 /**
@@ -42,6 +41,14 @@ public class AppointmentController {
         } else {
             return ResponseEntity.status(400).body("appointment creation failed");
         }
+    }
 
+    /**
+     * 根据用户ID获取预约列表
+     * 示例：GET /api/appointments/{userId}/all
+     */
+    @GetMapping("/{userId}/all")
+    public ResponseEntity<?> listByUserId(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok().body(appointmentService.getUserAppointments(userId));
     }
 }

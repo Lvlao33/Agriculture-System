@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,8 +37,22 @@ public class AppointmentService {
         return appointmentRepository.findAll();
     }
 
-    public List<Appointment> getUserAppointments(Long userId) {
-        return appointmentRepository.findByUserIdOrderByCreateTimeDesc(userId);
+    @Transactional
+    public List<AppointmentDTO> getUserAppointments(Long userId) {
+        List<Appointment> appointments = appointmentRepository.findByUserIdOrderByCreateTimeDesc(userId);
+
+        // 转换为DTO
+        List<AppointmentDTO> appointmentDTOs = appointments.stream()
+                .map(appointment -> new AppointmentDTO(
+                        appointment.getUserName(), appointment.getUserContact(), appointment.getAppointmentTime(),
+                        appointment.getDescription(),
+                        appointment.getExpert().getId(), appointment.getUser().getId(),
+                        appointment.getStatus().toString(),
+                        appointment.getCreateTime(), appointment.getUpdateTime(), appointment.getExpert().getName(),
+                        appointment.getId()))
+                .collect(Collectors.toList());
+
+        return appointmentDTOs;
     }
 
     public List<Appointment> getExpertAppointments(Long expertId) {

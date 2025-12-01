@@ -12,6 +12,20 @@ export function addAppointment(params) {
     })
 }
 
+//根据用户ID获取预约列表
+export function getAppointmentListByUserId(userId) {
+    return request({
+        method: 'get',
+        url: `api/appointment/${userId}/all`,
+        data: {
+            userId,
+        },
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
 // 获取预约列表
 export function getAppointmentList(params) {
     return request({
