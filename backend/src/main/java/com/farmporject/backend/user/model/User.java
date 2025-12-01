@@ -10,7 +10,6 @@ import com.farmporject.backend.finance.model.Loan;
 import com.farmporject.backend.finance.model.LoanProduct;
 import com.farmporject.backend.finance.model.LoanRecord;
 import com.farmporject.backend.finance.model.LoanUserStatus;
-import com.farmporject.backend.expert.model.Appointment;
 import com.farmporject.backend.expert.model.Question;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
