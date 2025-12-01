@@ -25,53 +25,53 @@ public class ExpertDashboardController {
         data.put("pendingQuestions", 5);
         data.put("urgentCount", 2);
         data.put("todayAppointments", 3);
-        data.put("appointmentSummary", "视频 2 个 现场 1");
+        data.put("appointmentSummary", "Video 2 / Onsite 1");
         data.put("publishedKnowledge", 7);
-        data.put("knowledgeTrend", "阅读量 +18%");
+        data.put("knowledgeTrend", "Readings +18%");
         data.put("expertScore", 4.9);
         data.put("reviewCount", 126);
-        return ResponseEntity.ok(ApiResponse.success(data));
+        return ResponseEntity.ok(ApiResponse.ok(data));
     }
 
     @GetMapping("/questions")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> questions() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildQuestion("q1", "紧急", "番茄叶片发黄原因未解决", "山东农户", "09:12", "待回复", "pending"),
-                buildQuestion("q2", "紧急", "黄瓜卷叶是否缺钙？", "河北种植户", "08:40", "审核中", "review"),
-                buildQuestion("q3", "普通", "水稻抽穗期施肥要点", "家庭农场主", "昨天 21:05", "已回复", "done")
+                buildQuestion("q1", "urgent", "Tomato leaf spots spreading cause unknown", "Shandong farm", "09:12", "waiting reply", "pending"),
+                buildQuestion("q2", "urgent", "Does corn ear rot need calcium?", "NE grower", "08:40", "under review", "review"),
+                buildQuestion("q3", "normal", "Rice heading management tips", "Jiangxi co-op", "21:05", "answered", "done")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/appointments")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> appointments() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildAppointment("a1", "10:30", "视频咨询", "平度大棚合作社", "果树管理", "等待开始", "review"),
-                buildAppointment("a2", "14:00", "现场指导", "平度大棚合作社", "病虫害防治", "进行中", "pending"),
-                buildAppointment("a3", "19:30", "群直播课", "平台入驻农户", "秋冬管理", "待确认", "done")
+                buildAppointment("a1", "10:30", "Video consult", "Morning Veg Co-op", "Greenhouse care", "pending start", "review"),
+                buildAppointment("a2", "14:00", "Onsite coaching", "Field Orchard", "Frost prevention", "in progress", "pending"),
+                buildAppointment("a3", "19:30", "Live class", "Open course", "Autumn rotation", "confirmed", "done")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/knowledge")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> knowledge() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildKnowledge("k1", "小麦赤霉病防治指南", "已发布", 3200, "通过审核", "done"),
-                buildKnowledge("k2", "温室蔬菜湿度管理技巧", "待审核", 0, "待审核", "review"),
-                buildKnowledge("k3", "农业技术推广", "草稿", 0, "待发布", "pending")
+                buildKnowledge("k1", "Low-temp protection guide", "published", 3200, "approved", "done"),
+                buildKnowledge("k2", "Rice-shrimp disease control", "reviewing", 0, "editing", "review"),
+                buildKnowledge("k3", "Agri IoT promotion", "draft", 0, "pending release", "pending")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/notifications")
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> notifications() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         List<Map<String, String>> list = Arrays.asList(
-                buildNotification("n1", "平台通知：11 月农户问题报告", formatter.format(LocalDateTime.now())),
-                buildNotification("n2", "预约提醒：请确认 12/01 现场指导", "今天"),
-                buildNotification("n3", "知识审核：有 2 篇内容待编辑", "2 小时前")
+                buildNotification("n1", "Platform: Nov farmer issues report", formatter.format(LocalDateTime.now())),
+                buildNotification("n2", "Reminder: confirm 12/01 onsite session", "today"),
+                buildNotification("n3", "Knowledge review: 2 drafts pending", "2 hours ago")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     private Map<String, Object> buildQuestion(String id, String priority, String title,

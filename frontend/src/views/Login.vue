@@ -137,7 +137,7 @@ export default {
     resolveUserRole(res, user) {
       const fallback = 'farmer';
       const data = res && res.data ? res.data : {};
-      const directRole = data.role || data.userRole || data.identity;
+      const directRole = data.roleKey || data.role || data.roleCode || data.userRole || data.identity;
       const roles = data.roles || data.roleList;
       let role = directRole;
       if (!role && Array.isArray(roles) && roles.length > 0) {
@@ -150,6 +150,9 @@ export default {
         const normalized = role.toLowerCase();
         if (['farmer', 'expert', 'bank'].includes(normalized)) {
           return normalized;
+        }
+        if (['staff', 'finance', 'banker'].includes(normalized)) {
+          return 'bank';
         }
       }
       return fallback;

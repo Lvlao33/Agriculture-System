@@ -25,45 +25,45 @@ public class BankDashboardController {
         data.put("riskAlerts", 2);
         data.put("totalCredit", 56_000_000);
         data.put("approvalRate", "92%");
-        data.put("avgProcessingTime", "1.6 天");
-        return ResponseEntity.ok(ApiResponse.success(data));
+        data.put("avgProcessingTime", "1.6 days");
+        return ResponseEntity.ok(ApiResponse.ok(data));
     }
 
     @GetMapping("/loans")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> loans() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildLoan("L001", "张三农业合作社", "智慧农业贷款", 1_200_000, "24 个月", "09:15", "urgent", "紧急"),
-                buildLoan("L002", "李四农场", "农机设备采购", 600_000, "18 个月", "08:40", "normal", "正常"),
-                buildLoan("L003", "王五企业", "饲料采购周转", 350_000, "12 个月", "昨天 17:20", "review", "审核中")
+                buildLoan("L001", "GreenField Co-op", "Smart farming loan", 1_200_000, "24 months", "09:15", "urgent", "urgent"),
+                buildLoan("L002", "SpringRain Farm", "Machinery purchase", 600_000, "18 months", "08:40", "normal", "normal"),
+                buildLoan("L003", "Harvest Fruit Ltd", "Input circulation", 350_000, "12 months", "17:20", "review", "review")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/matches")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> matches() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildMatch("M001", "优质农业企业", "蔬菜加工", 800_000, "A级", "绿色农业银行"),
-                buildMatch("M002", "清水水产", "小龙虾养殖", 500_000, "B+级", "现代农业银行")
+                buildMatch("M001", "Hengxin Veg Co-op", "Cold-chain upgrade", 800_000, "A", "Green Agri Bank"),
+                buildMatch("M002", "Qinghe Aquatics", "Crayfish farming", 500_000, "B+", "Modern Agri Bank")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/alerts")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> alerts() {
         List<Map<String, Object>> list = Arrays.asList(
-                buildAlert("A001", "账户余额异常", "李四农场 7 天内现金流动异常，需要复核贷款项目", "紧急"),
-                buildAlert("A002", "抵押物价值下降", "王五企业抵押物价值下降，需要重新评估", "警告")
+                buildAlert("A001", "Cash flow warning", "SpringRain Farm cash flow fluctuated in 7 days, please review plan", "urgent"),
+                buildAlert("A002", "Collateral value drop", "Harvest Fruit collateral value reduced, re-evaluate immediately", "alert")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     @GetMapping("/notifications")
     public ResponseEntity<ApiResponse<List<Map<String, String>>>> notifications() {
         List<Map<String, String>> list = Arrays.asList(
-                buildNotice("N001", "总部通知：11 月农户贷款政策更新", "1 小时前"),
-                buildNotice("N002", "系统维护：11/30 01:00-03:00 暂停服务", "今天")
+                buildNotice("N001", "Head office: Nov subsidy policy update", "1 hour ago"),
+                buildNotice("N002", "Maintenance: 11/30 01:00-03:00 service pause", "today")
         );
-        return ResponseEntity.ok(ApiResponse.success(list));
+        return ResponseEntity.ok(ApiResponse.ok(list));
     }
 
     private Map<String, Object> buildLoan(String id, String farmer, String product,

@@ -2,18 +2,18 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- é¡¶éƒ¨æ“ä½œæ  -->
+    <!-- ¶¥²¿²Ù×÷À¸ -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="æœç´¢å•†å“åç§°ã€äº§åœ°..."
+          placeholder="ËÑË÷ÉÌÆ·Ãû³Æ¡¢²úµØ..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">æœç´¢</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">ËÑË÷</el-button>
       </div>
       <el-button
         type="success"
@@ -21,22 +21,22 @@
         class="publish-btn"
         @click="handlePublish"
       >
-        å‘å¸ƒå•†å“
+        ·¢²¼ÉÌÆ·
       </el-button>
     </div>
 
-    <!-- ä¸»è¦å†…å®¹åŒºåŸŸ -->
+    <!-- Ö÷ÒªÄÚÈİÇøÓò -->
     <div class="main-content">
-      <!-- å·¦ä¾§åˆ†ç±»æ  -->
+      <!-- ×ó²à·ÖÀàÀ¸ -->
       <div class="category-sidebar">
-        <div class="category-title">å•†å“åˆ†ç±»</div>
+        <div class="category-title">ÉÌÆ··ÖÀà</div>
         <div
           class="category-item"
           :class="{ active: selectedCategory === 'all' }"
           @click="selectCategory('all')"
         >
           <i class="el-icon-menu"></i>
-          <span>å…¨éƒ¨å•†å“</span>
+          <span>È«²¿ÉÌÆ·</span>
         </div>
         <div
           class="category-item"
@@ -44,7 +44,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>æ°´æœç±»</span>
+          <span>Ë®¹ûÀà</span>
         </div>
         <div
           class="category-item"
@@ -52,7 +52,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>è”¬èœç±»</span>
+          <span>Êß²ËÀà</span>
         </div>
         <div
           class="category-item"
@@ -60,7 +60,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>ç²®é£Ÿç±»</span>
+          <span>Á¸Ê³Àà</span>
         </div>
         <div
           class="category-item"
@@ -68,7 +68,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>ç•œç‰§ç±»</span>
+          <span>ĞóÄÁÀà</span>
         </div>
         <div
           class="category-item"
@@ -76,15 +76,15 @@
           @click="selectCategory('other')"
         >
           <i class="el-icon-box"></i>
-          <span>å…¶ä»–</span>
+          <span>ÆäËû</span>
         </div>
       </div>
 
-      <!-- å³ä¾§å•†å“å±•ç¤ºåŒº -->
+      <!-- ÓÒ²àÉÌÆ·Õ¹Ê¾Çø -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
-          <p>æš‚æ— å•†å“</p>
+          <p>ÔİÎŞÉÌÆ·</p>
         </div>
         <div
           v-for="(item, index) in filteredGoods"
@@ -98,28 +98,28 @@
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
                 class="goods-img"
-                alt="å•†å“å›¾ç‰‡"
+                alt="ÉÌÆ·Í¼Æ¬"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
                 class="goods-img"
-                alt="æš‚æ— å›¾ç‰‡"
+                alt="ÔİÎŞÍ¼Æ¬"
               />
             </div>
             <div class="goods-info">
               <div class="goods-owner">
                 <i class="el-icon-user"></i>
-                <span>{{ item.ownName || 'æœªçŸ¥' }}</span>
+                <span>{{ item.ownName || 'Î´Öª' }}</span>
               </div>
-              <p class="goods-content">{{ item.content || item.name || 'å•†å“åç§°' }}</p>
+              <p class="goods-content">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</p>
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
-                  Â¥{{ item.price }}
+                  ?{{ item.price }}
                 </span>
-                <span class="goods-price" v-else>ä»·æ ¼é¢è®®</span>
+                <span class="goods-price" v-else>¼Û¸ñÃæÒé</span>
               </div>
             </div>
           </el-card>
@@ -127,7 +127,7 @@
       </div>
     </div>
 
-    <!-- å•†å“è¯¦æƒ…å¼¹çª— -->
+    <!-- ÉÌÆ·ÏêÇéµ¯´° -->
     <el-dialog
       :title="detailDialogTitle"
       :visible.sync="detailDialogVisible"
@@ -147,43 +147,43 @@
               <img
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
-                alt="å•†å“å›¾ç‰‡"
+                alt="ÉÌÆ·Í¼Æ¬"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
-                alt="æš‚æ— å›¾ç‰‡"
+                alt="ÔİÎŞÍ¼Æ¬"
               />
             </div>
             <div class="detail-goods-info">
-              <div class="detail-goods-name">{{ item.content || item.name || 'å•†å“åç§°' }}</div>
+              <div class="detail-goods-name">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</div>
               <div class="detail-goods-meta">
                 <span class="detail-goods-origin">
                   <i class="el-icon-location-outline"></i>
-                  {{ item.origin || 'äº§åœ°æœªçŸ¥' }}
+                  {{ item.origin || '²úµØÎ´Öª' }}
                 </span>
                 <span class="detail-goods-seller">
                   <i class="el-icon-user"></i>
-                  {{ item.ownName || 'æœªçŸ¥å–å®¶' }}
+                  {{ item.ownName || 'Î´ÖªÂô¼Ò' }}
                 </span>
               </div>
               <div class="detail-goods-price">
                 <i class="el-icon-coin"></i>
-                Â¥{{ item.price || 'é¢è®®' }}
+                ?{{ item.price || 'ÃæÒé' }}
               </div>
               <div class="detail-goods-stock" v-if="item.stock !== undefined">
-                åº“å­˜ï¼š{{ item.stock }}
+                ¿â´æ£º{{ item.stock }}
               </div>
             </div>
             <div class="detail-goods-actions">
-              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">ç«‹å³è´­ä¹°</el-button>
-              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">åŠ å…¥è´­ç‰©è½¦</el-button>
+              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">Á¢¼´¹ºÂò</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">¼ÓÈë¹ºÎï³µ</el-button>
             </div>
           </div>
           <div v-if="similarGoods.length === 0" class="empty-detail-state">
             <i class="el-icon-box"></i>
-            <p>æš‚æ— åŒç±»å•†å“</p>
+            <p>ÔİÎŞÍ¬ÀàÉÌÆ·</p>
           </div>
         </div>
       </div>
@@ -199,219 +199,219 @@ export default {
       searchValue: '',
       selectedCategory: 'all',
       detailDialogVisible: false,
-      detailDialogTitle: 'å•†å“è¯¦æƒ…',
+      detailDialogTitle: 'ÉÌÆ·ÏêÇé',
       currentGoodsItem: null,
       similarGoods: [],
-      // ç¤ºä¾‹å•†å“æ•°æ®ï¼ˆå½“APIè¿”å›ç©ºæ•°æ®æ—¶ä½¿ç”¨ï¼‰
+      // Ê¾ÀıÉÌÆ·Êı¾İ£¨µ±API·µ»Ø¿ÕÊı¾İÊ±Ê¹ÓÃ£©
       defaultGoods: [
-        // æ°´æœç±»
+        // Ë®¹ûÀà
         {
-          name: 'æ–°é²œè‹¹æœ',
-          content: 'æ–°é²œè‹¹æœ çº¢å¯Œå£« è„†ç”œå¤šæ±',
+          name: 'ĞÂÏÊÆ»¹û',
+          content: 'ĞÂÏÊÆ»¹û ºì¸»Ê¿ ´àÌğ¶àÖ­',
           price: 12.00,
           picture: 'pro2.jpg',
-          origin: 'å±±ä¸œçƒŸå°',
-          ownName: 'å¼ æœå†œ',
+          origin: 'É½¶«ÑÌÌ¨',
+          ownName: 'ÕÅ¹ûÅ©',
           category: 'fruit',
           stock: 500,
           orderId: 'fruit1',
-          keyword: 'è‹¹æœ'
+          keyword: 'Æ»¹û'
         },
         {
-          name: 'ä¼˜è´¨è‹¹æœ',
-          content: 'ä¼˜è´¨è‹¹æœ æœ‰æœºç§æ¤ æ— å†œè¯æ®‹ç•™',
+          name: 'ÓÅÖÊÆ»¹û',
+          content: 'ÓÅÖÊÆ»¹û ÓĞ»úÖÖÖ² ÎŞÅ©Ò©²ĞÁô',
           price: 15.00,
           picture: 'pro2.jpg',
-          origin: 'é™•è¥¿',
-          ownName: 'æå†œåœº',
+          origin: 'ÉÂÎ÷',
+          ownName: 'ÀîÅ©³¡',
           category: 'fruit',
           stock: 300,
           orderId: 'fruit2',
-          keyword: 'è‹¹æœ'
+          keyword: 'Æ»¹û'
         },
         {
-          name: 'ç²¾å“è‹¹æœ',
-          content: 'ç²¾å“è‹¹æœ ä¸ªå¤§é¥±æ»¡ ç”œåº¦é«˜',
+          name: '¾«Æ·Æ»¹û',
+          content: '¾«Æ·Æ»¹û ¸ö´ó±¥Âú Ìğ¶È¸ß',
           price: 18.00,
           picture: 'pro2.jpg',
-          origin: 'æ–°ç–†',
-          ownName: 'ç‹æœå›­',
+          origin: 'ĞÂ½®',
+          ownName: 'Íõ¹ûÔ°',
           category: 'fruit',
           stock: 200,
           orderId: 'fruit3',
-          keyword: 'è‹¹æœ'
+          keyword: 'Æ»¹û'
         },
         {
-          name: 'æ–°é²œæ©™å­',
-          content: 'æ–°é²œæ©™å­ æ±å¤šå‘³ç”œ ç»´Cä¸°å¯Œ',
+          name: 'ĞÂÏÊ³È×Ó',
+          content: 'ĞÂÏÊ³È×Ó Ö­¶àÎ¶Ìğ Î¬C·á¸»',
           price: 10.00,
           picture: 'pro2.jpg',
-          origin: 'æ±Ÿè¥¿',
-          ownName: 'é™ˆæœå†œ',
+          origin: '½­Î÷',
+          ownName: '³Â¹ûÅ©',
           category: 'fruit',
           stock: 400,
           orderId: 'fruit4',
-          keyword: 'æ©™å­'
+          keyword: '³È×Ó'
         },
         {
-          name: 'ä¼˜è´¨è‘¡è„',
-          content: 'ä¼˜è´¨è‘¡è„ æ— ç±½ ç”œåº¦é«˜',
+          name: 'ÓÅÖÊÆÏÌÑ',
+          content: 'ÓÅÖÊÆÏÌÑ ÎŞ×Ñ Ìğ¶È¸ß',
           price: 20.00,
           picture: 'pro2.jpg',
-          origin: 'æ–°ç–†',
-          ownName: 'èµµæœå›­',
+          origin: 'ĞÂ½®',
+          ownName: 'ÕÔ¹ûÔ°',
           category: 'fruit',
           stock: 250,
           orderId: 'fruit5',
-          keyword: 'è‘¡è„'
+          keyword: 'ÆÏÌÑ'
         },
-        // è”¬èœç±»
+        // Êß²ËÀà
         {
-          name: 'æ–°é²œç™½èœ',
-          content: 'æ–°é²œç™½èœ æœ‰æœºç§æ¤ å£æ„Ÿè„†å«©',
+          name: 'ĞÂÏÊ°×²Ë',
+          content: 'ĞÂÏÊ°×²Ë ÓĞ»úÖÖÖ² ¿Ú¸Ğ´àÄÛ',
           price: 5.00,
           picture: 'pro1.jpg',
-          origin: 'å±±ä¸œ',
-          ownName: 'åˆ˜èœå†œ',
+          origin: 'É½¶«',
+          ownName: 'Áõ²ËÅ©',
           category: 'vegetable',
           stock: 800,
           orderId: 'veg1',
-          keyword: 'ç™½èœ'
+          keyword: '°×²Ë'
         },
         {
-          name: 'æœ‰æœºç™½èœ',
-          content: 'æœ‰æœºç™½èœ æ— å†œè¯ ç»¿è‰²å¥åº·',
+          name: 'ÓĞ»ú°×²Ë',
+          content: 'ÓĞ»ú°×²Ë ÎŞÅ©Ò© ÂÌÉ«½¡¿µ',
           price: 8.00,
           picture: 'pro1.jpg',
-          origin: 'æ²³åŒ—',
-          ownName: 'å‘¨å†œåœº',
+          origin: 'ºÓ±±',
+          ownName: 'ÖÜÅ©³¡',
           category: 'vegetable',
           stock: 600,
           orderId: 'veg2',
-          keyword: 'ç™½èœ'
+          keyword: '°×²Ë'
         },
         {
-          name: 'æ–°é²œèåœ',
-          content: 'æ–°é²œèåœ ç™½èåœ æ¸…è„†çˆ½å£',
+          name: 'ĞÂÏÊÂÜ²·',
+          content: 'ĞÂÏÊÂÜ²· °×ÂÜ²· Çå´àË¬¿Ú',
           price: 4.00,
           picture: 'pro1.jpg',
-          origin: 'æ²³å—',
-          ownName: 'å´èœå†œ',
+          origin: 'ºÓÄÏ',
+          ownName: 'Îâ²ËÅ©',
           category: 'vegetable',
           stock: 700,
           orderId: 'veg3',
-          keyword: 'èåœ'
+          keyword: 'ÂÜ²·'
         },
         {
-          name: 'æ–°é²œåœŸè±†',
-          content: 'æ–°é²œåœŸè±† é»„å¿ƒåœŸè±† å“è´¨ä¼˜è‰¯',
+          name: 'ĞÂÏÊÍÁ¶¹',
+          content: 'ĞÂÏÊÍÁ¶¹ »ÆĞÄÍÁ¶¹ Æ·ÖÊÓÅÁ¼',
           price: 6.00,
           picture: 'pro1.jpg',
-          origin: 'å†…è’™å¤',
-          ownName: 'éƒ‘å†œåœº',
+          origin: 'ÄÚÃÉ¹Å',
+          ownName: 'Ö£Å©³¡',
           category: 'vegetable',
           stock: 900,
           orderId: 'veg4',
-          keyword: 'åœŸè±†'
+          keyword: 'ÍÁ¶¹'
         },
-        // ç²®é£Ÿç±»
+        // Á¸Ê³Àà
         {
-          name: 'ä¼˜è´¨å¤§ç±³',
-          content: 'ä¼˜è´¨å¤§ç±³ ä¸œåŒ—å¤§ç±³ é¦™ç³¯å¯å£',
+          name: 'ÓÅÖÊ´óÃ×',
+          content: 'ÓÅÖÊ´óÃ× ¶«±±´óÃ× ÏãÅ´¿É¿Ú',
           price: 45.00,
           picture: 'rice.png',
-          origin: 'é»‘é¾™æ±Ÿ',
-          ownName: 'å­™ç²®å†œ',
+          origin: 'ºÚÁú½­',
+          ownName: 'ËïÁ¸Å©',
           category: 'grain',
           stock: 1000,
           orderId: 'grain1',
-          keyword: 'å¤§ç±³'
+          keyword: '´óÃ×'
         },
         {
-          name: 'æœ‰æœºå¤§ç±³',
-          content: 'æœ‰æœºå¤§ç±³ ç»¿è‰²è®¤è¯ è¥å…»ä¸°å¯Œ',
+          name: 'ÓĞ»ú´óÃ×',
+          content: 'ÓĞ»ú´óÃ× ÂÌÉ«ÈÏÖ¤ ÓªÑø·á¸»',
           price: 58.00,
           picture: 'rice.png',
-          origin: 'å‰æ—',
-          ownName: 'é’±å†œåœº',
+          origin: '¼ªÁÖ',
+          ownName: 'Ç®Å©³¡',
           category: 'grain',
           stock: 500,
           orderId: 'grain2',
-          keyword: 'å¤§ç±³'
+          keyword: '´óÃ×'
         },
         {
-          name: 'ä¼˜è´¨å°éº¦',
-          content: 'ä¼˜è´¨å°éº¦ é«˜ç­‹å°éº¦ é€‚åˆåšé¢é£Ÿ',
+          name: 'ÓÅÖÊĞ¡Âó',
+          content: 'ÓÅÖÊĞ¡Âó ¸ß½îĞ¡Âó ÊÊºÏ×öÃæÊ³',
           price: 35.00,
           picture: 'rice.png',
-          origin: 'æ²³å—',
-          ownName: 'å‘¨ç²®å†œ',
+          origin: 'ºÓÄÏ',
+          ownName: 'ÖÜÁ¸Å©',
           category: 'grain',
           stock: 800,
           orderId: 'grain3',
-          keyword: 'å°éº¦'
+          keyword: 'Ğ¡Âó'
         },
-        // ç•œç‰§ç±»
+        // ĞóÄÁÀà
         {
-          name: 'æ–°é²œåœŸé¸¡è›‹',
-          content: 'æ–°é²œåœŸé¸¡è›‹ æ•£å…» è¥å…»ä¸°å¯Œ',
+          name: 'ĞÂÏÊÍÁ¼¦µ°',
+          content: 'ĞÂÏÊÍÁ¼¦µ° É¢Ñø ÓªÑø·á¸»',
           price: 35.00,
           picture: 'pro3.jpg',
-          origin: 'æ²³åŒ—',
-          ownName: 'æå…»æ®–',
+          origin: 'ºÓ±±',
+          ownName: 'ÀîÑøÖ³',
           category: 'livestock',
           stock: 200,
           orderId: 'live1',
-          keyword: 'é¸¡è›‹'
+          keyword: '¼¦µ°'
         },
         {
-          name: 'æœ‰æœºåœŸé¸¡è›‹',
-          content: 'æœ‰æœºåœŸé¸¡è›‹ æ— æ¿€ç´  å“è´¨ä¿è¯',
+          name: 'ÓĞ»úÍÁ¼¦µ°',
+          content: 'ÓĞ»úÍÁ¼¦µ° ÎŞ¼¤ËØ Æ·ÖÊ±£Ö¤',
           price: 42.00,
           picture: 'pro3.jpg',
-          origin: 'å±±ä¸œ',
-          ownName: 'ç‹å…»æ®–',
+          origin: 'É½¶«',
+          ownName: 'ÍõÑøÖ³',
           category: 'livestock',
           stock: 150,
           orderId: 'live2',
-          keyword: 'é¸¡è›‹'
+          keyword: '¼¦µ°'
         },
         {
-          name: 'æ–°é²œç‰›å¥¶',
-          content: 'æ–°é²œç‰›å¥¶ å½“æ—¥é…é€ è¥å…»å¥åº·',
+          name: 'ĞÂÏÊÅ£ÄÌ',
+          content: 'ĞÂÏÊÅ£ÄÌ µ±ÈÕÅäËÍ ÓªÑø½¡¿µ',
           price: 25.00,
           picture: 'pro3.jpg',
-          origin: 'å†…è’™å¤',
-          ownName: 'èµµç‰§åœº',
+          origin: 'ÄÚÃÉ¹Å',
+          ownName: 'ÕÔÄÁ³¡',
           category: 'livestock',
           stock: 300,
           orderId: 'live3',
-          keyword: 'ç‰›å¥¶'
+          keyword: 'Å£ÄÌ'
         },
-        // å…¶ä»–
+        // ÆäËû
         {
-          name: 'æœ‰æœºèŒ¶å¶',
-          content: 'æœ‰æœºèŒ¶å¶ åŸäº§åœ°ç›´ä¾› å“è´¨ä¼˜è‰¯',
+          name: 'ÓĞ»ú²èÒ¶',
+          content: 'ÓĞ»ú²èÒ¶ Ô­²úµØÖ±¹© Æ·ÖÊÓÅÁ¼',
           price: 128.00,
           picture: 'chayangji.jpg',
-          origin: 'ç¦å»º',
-          ownName: 'é™ˆèŒ¶å†œ',
+          origin: '¸£½¨',
+          ownName: '³Â²èÅ©',
           category: 'other',
           stock: 100,
           orderId: 'other1',
-          keyword: 'èŒ¶å¶'
+          keyword: '²èÒ¶'
         },
         {
-          name: 'æ–°é²œç‰ç±³',
-          content: 'æ–°é²œç‰ç±³ ç”œç‰ç±³ å£æ„Ÿé¦™ç”œ',
+          name: 'ĞÂÏÊÓñÃ×',
+          content: 'ĞÂÏÊÓñÃ× ÌğÓñÃ× ¿Ú¸ĞÏãÌğ',
           price: 15.00,
           picture: 'farm.jpeg',
-          origin: 'æ²³å—',
-          ownName: 'é»„å†œåœº',
+          origin: 'ºÓÄÏ',
+          ownName: '»ÆÅ©³¡',
           category: 'other',
           stock: 400,
           orderId: 'other2',
-          keyword: 'ç‰ç±³'
+          keyword: 'ÓñÃ×'
         }
       ]
     };
@@ -424,15 +424,15 @@ export default {
   },
   computed: {
     filteredGoods() {
-      // ä¼˜å…ˆä½¿ç”¨ä¼ å…¥çš„å•†å“æ•°æ®ï¼Œå¦‚æœä¸ºç©ºåˆ™ä½¿ç”¨ç¤ºä¾‹æ•°æ®
+      // ÓÅÏÈÊ¹ÓÃ´«ÈëµÄÉÌÆ·Êı¾İ£¬Èç¹ûÎª¿ÕÔòÊ¹ÓÃÊ¾ÀıÊı¾İ
       let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // åˆ†ç±»ç­›é€‰
+      // ·ÖÀàÉ¸Ñ¡
       if (this.selectedCategory !== 'all') {
         goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // æœç´¢ç­›é€‰
+      // ËÑË÷É¸Ñ¡
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
@@ -458,33 +458,33 @@ export default {
       this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
     showGoodsDetail(item) {
-      // æ˜¾ç¤ºå•†å“è¯¦æƒ…å¼¹çª—ï¼Œæ˜¾ç¤ºæ‰€æœ‰åŒç±»å•†å“
+      // ÏÔÊ¾ÉÌÆ·ÏêÇéµ¯´°£¬ÏÔÊ¾ËùÓĞÍ¬ÀàÉÌÆ·
       this.currentGoodsItem = item;
-      this.detailDialogTitle = `${item.content || item.name || 'å•†å“'} - åŒç±»å•†å“`;
+      this.detailDialogTitle = `${item.content || item.name || 'ÉÌÆ·'} - Í¬ÀàÉÌÆ·`;
       
-      // æ ¹æ®å•†å“å…³é”®è¯æŸ¥æ‰¾åŒç±»å•†å“
+      // ¸ù¾İÉÌÆ·¹Ø¼ü´Ê²éÕÒÍ¬ÀàÉÌÆ·
       const keyword = item.keyword || this.extractKeyword(item.content || item.name);
       this.similarGoods = this.filteredGoods.filter(goods => {
         const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
         return goodsKeyword === keyword && goods.orderId !== item.orderId;
       });
       
-      // å°†å½“å‰å•†å“ä¹ŸåŠ å…¥åˆ—è¡¨ï¼ˆæ”¾åœ¨ç¬¬ä¸€ä½ï¼‰
+      // ½«µ±Ç°ÉÌÆ·Ò²¼ÓÈëÁĞ±í£¨·ÅÔÚµÚÒ»Î»£©
       this.similarGoods.unshift(item);
       
       this.detailDialogVisible = true;
     },
     extractKeyword(text) {
-      // ä»å•†å“åç§°ä¸­æå–å…³é”®è¯ï¼ˆç®€å•å®ç°ï¼‰
+      // ´ÓÉÌÆ·Ãû³ÆÖĞÌáÈ¡¹Ø¼ü´Ê£¨¼òµ¥ÊµÏÖ£©
       if (!text) return '';
-      // æå–å¸¸è§å•†å“å…³é”®è¯
-      const keywords = ['è‹¹æœ', 'æ©™å­', 'è‘¡è„', 'ç™½èœ', 'èåœ', 'åœŸè±†', 'å¤§ç±³', 'å°éº¦', 'é¸¡è›‹', 'ç‰›å¥¶', 'èŒ¶å¶', 'ç‰ç±³'];
+      // ÌáÈ¡³£¼ûÉÌÆ·¹Ø¼ü´Ê
+      const keywords = ['Æ»¹û', '³È×Ó', 'ÆÏÌÑ', '°×²Ë', 'ÂÜ²·', 'ÍÁ¶¹', '´óÃ×', 'Ğ¡Âó', '¼¦µ°', 'Å£ÄÌ', '²èÒ¶', 'ÓñÃ×'];
       for (let kw of keywords) {
         if (text.includes(kw)) {
           return kw;
         }
       }
-      return text.substring(0, 2); // é»˜è®¤å–å‰ä¸¤ä¸ªå­—
+      return text.substring(0, 2); // Ä¬ÈÏÈ¡Ç°Á½¸ö×Ö
     },
     handleCloseDialog() {
       this.detailDialogVisible = false;
@@ -492,35 +492,35 @@ export default {
       this.similarGoods = [];
     },
     goToGoodsDetailPage(item) {
-      // è·³è½¬åˆ°å•†å“è¯¦æƒ…é¡µé¢
+      // Ìø×ªµ½ÉÌÆ·ÏêÇéÒ³Ãæ
       if (item.orderId) {
         this.$store.commit("updateOrderId", item.orderId);
         this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
     },
     handleBuyNow(item) {
-      // ç«‹å³è´­ä¹°
+      // Á¢¼´¹ºÂò
       this.goToGoodsDetailPage(item);
     },
     handleAddToCart(item) {
-      // åŠ å…¥è´­ç‰©è½¦
+      // ¼ÓÈë¹ºÎï³µ
       this.$emit('addToCart', item);
-      this.$message.success('å·²åŠ å…¥è´­ç‰©è½¦');
+      this.$message.success('ÒÑ¼ÓÈë¹ºÎï³µ');
     },
     getImageUrl(picture) {
-      // å¦‚æœå›¾ç‰‡è·¯å¾„åŒ…å« /kn/ æˆ– /order/ï¼Œç›´æ¥ä½¿ç”¨
+      // Èç¹ûÍ¼Æ¬Â·¾¶°üº¬ /kn/ »ò /order/£¬Ö±½ÓÊ¹ÓÃ
       if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
         return picture;
       }
-      // å¦‚æœæ˜¯ kn ç›®å½•ä¸‹çš„å›¾ç‰‡
+      // Èç¹ûÊÇ kn Ä¿Â¼ÏÂµÄÍ¼Æ¬
       if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
         return `/kn/${picture}`;
       }
-      // é»˜è®¤ä½¿ç”¨ order ç›®å½•
+      // Ä¬ÈÏÊ¹ÓÃ order Ä¿Â¼
       return `/order/${picture}`;
     },
     handleImageError(event) {
-      // å›¾ç‰‡åŠ è½½å¤±è´¥æ—¶ï¼Œä½¿ç”¨é»˜è®¤å›¾ç‰‡
+      // Í¼Æ¬¼ÓÔØÊ§°ÜÊ±£¬Ê¹ÓÃÄ¬ÈÏÍ¼Æ¬
       event.target.src = '/order/wutu.gif';
     }
   }
@@ -735,7 +735,7 @@ export default {
   }
 }
 
-// å•†å“è¯¦æƒ…å¼¹çª—æ ·å¼
+// ÉÌÆ·ÏêÇéµ¯´°ÑùÊ½
 /deep/ .goods-detail-dialog {
   .el-dialog__body {
     padding: 20px;

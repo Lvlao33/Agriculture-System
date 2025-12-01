@@ -6,9 +6,9 @@
         <el-avatar :size="80" :icon="user.avatar ? '' : 'el-icon-user'" />
       </div>
       <div class="meta">
-        <h3>{{ user.name || '×¨¼ÒêÇ³Æ' }}</h3>
-        <p class="tag">{{ user.title || 'Å©Òµ×¨¼Ò' }}</p>
-        <el-button size="mini" @click="edit">±à¼­×ÊÁÏ</el-button>
+        <h3>{{ user.name || 'ä¸“å®¶æ˜µç§°' }}</h3>
+        <p class="tag">{{ user.title || 'å†œä¸šä¸“å®¶' }}</p>
+        <el-button size="mini" @click="edit">ç¼–è¾‘èµ„æ–™</el-button>
       </div>
     </div>
   </el-card>
@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     edit() {
-      this.$message.info('±à¼­×ÊÁÏ¹¦ÄÜ´ıÊµÏÖ£¨½Ó¿Ú: PUT /api/expert/profile£©')
+      this.$message.info('ç¼–è¾‘èµ„æ–™åŠŸèƒ½å¾…å®ç°ï¼ˆæ¥å£: PUT /api/expert/profileï¼‰')
     }
   },
   mounted() {
