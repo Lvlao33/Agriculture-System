@@ -5,12 +5,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import com.farmporject.backend.user.model.User;
+
+/**
+ * 专家实体类
+ * 为user的延伸
+ */
 @Entity
 @Table(name = "experts")
-public class Expert {
+public class Expert extends User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(nullable = false)
     private String name;
@@ -39,12 +49,13 @@ public class Expert {
     private LocalDateTime updateTime;
 
     // 默认构造函数
-    public Expert() {}
+    public Expert() {
+    }
 
     // 全参构造函数
     public Expert(Long id, String name, String title, String avatar, String description,
-                  List<String> specialties, Integer experienceYears, String contactInfo,
-                  Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
+            List<String> specialties, Integer experienceYears, String contactInfo,
+            Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
         this.id = id;
         this.name = name;
         this.title = title;
@@ -59,38 +70,93 @@ public class Expert {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getName() {
+        return name;
+    }
 
-    public String getAvatar() { return avatar; }
-    public void setAvatar(String avatar) { this.avatar = avatar; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getTitle() {
+        return title;
+    }
 
-    public List<String> getSpecialties() { return specialties; }
-    public void setSpecialties(List<String> specialties) { this.specialties = specialties; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public Integer getExperienceYears() { return experienceYears; }
-    public void setExperienceYears(Integer experienceYears) { this.experienceYears = experienceYears; }
+    public String getAvatar() {
+        return avatar;
+    }
 
-    public String getContactInfo() { return contactInfo; }
-    public void setContactInfo(String contactInfo) { this.contactInfo = contactInfo; }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
 
-    public Boolean getIsAvailable() { return isAvailable; }
-    public void setIsAvailable(Boolean isAvailable) { this.isAvailable = isAvailable; }
+    public String getDescription() {
+        return description;
+    }
 
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public LocalDateTime getUpdateTime() { return updateTime; }
-    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
+    public List<String> getSpecialties() {
+        return specialties;
+    }
+
+    public void setSpecialties(List<String> specialties) {
+        this.specialties = specialties;
+    }
+
+    public Integer getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(Integer experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
+    }
+
+    public Boolean getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(Boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -105,8 +171,10 @@ public class Expert {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Expert)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Expert))
+            return false;
         Expert expert = (Expert) o;
         return Objects.equals(id, expert.id);
     }

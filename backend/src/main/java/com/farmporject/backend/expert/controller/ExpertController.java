@@ -9,6 +9,7 @@ import java.util.*;
 @RequestMapping("/api/expert")
 public class ExpertController {
 
+    // 获得专家介绍详情
     @GetMapping("/profile")
     public ResponseEntity<Map<String, Object>> getProfile() {
         Map<String, Object> m = new HashMap<>();
@@ -19,6 +20,7 @@ public class ExpertController {
         return ResponseEntity.ok(m);
     }
 
+    // 更新专家介绍详情
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, Object> payload) {
         // TODO: persist changes; currently echo back
@@ -28,6 +30,7 @@ public class ExpertController {
         return ResponseEntity.ok(resp);
     }
 
+    // 获得预约列表
     @GetMapping("/appointments")
     public ResponseEntity<List<Map<String, Object>>> getAppointments() {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -36,6 +39,7 @@ public class ExpertController {
         return ResponseEntity.ok(list);
     }
 
+    // 接受预约
     @PostMapping("/appointments/{id}/accept")
     public ResponseEntity<Map<String, Object>> acceptAppointment(@PathVariable Long id) {
         Map<String, Object> r = new HashMap<>();
@@ -45,6 +49,7 @@ public class ExpertController {
         return ResponseEntity.ok(r);
     }
 
+    // 拒绝预约
     @PostMapping("/appointments/{id}/reject")
     public ResponseEntity<Map<String, Object>> rejectAppointment(@PathVariable Long id) {
         Map<String, Object> r = new HashMap<>();
@@ -54,6 +59,7 @@ public class ExpertController {
         return ResponseEntity.ok(r);
     }
 
+    // 获得知识库列表
     @GetMapping("/knowledges")
     public ResponseEntity<List<Map<String, Object>>> getKnowledges() {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -62,6 +68,7 @@ public class ExpertController {
         return ResponseEntity.ok(list);
     }
 
+    // 发布知识
     @PostMapping("/knowledges")
     public ResponseEntity<Map<String, Object>> publishKnowledge(@RequestBody Map<String, Object> payload) {
         Map<String, Object> r = new HashMap<>();
@@ -93,7 +100,7 @@ public class ExpertController {
     public ResponseEntity<Map<String, Object>> getAnalytics() {
         Map<String, Object> m = new HashMap<>();
         m.put("visits", Arrays.asList(10, 15, 12, 20, 18));
-        m.put("dates", Arrays.asList("2025-11-22","2025-11-23","2025-11-24","2025-11-25","2025-11-26"));
+        m.put("dates", Arrays.asList("2025-11-22", "2025-11-23", "2025-11-24", "2025-11-25", "2025-11-26"));
         return ResponseEntity.ok(m);
     }
 

@@ -29,7 +29,7 @@ public class AppointmentService {
         return appointmentRepository.findAll();
     }
 
-    public List<Appointment> getUserAppointments(String userId) {
+    public List<Appointment> getUserAppointments(Long userId) {
         return appointmentRepository.findByUserIdOrderByCreateTimeDesc(userId);
     }
 
@@ -41,7 +41,7 @@ public class AppointmentService {
         return appointmentRepository.findByStatusOrderByCreateTimeDesc(status);
     }
 
-    public List<Appointment> getUserAppointmentsByStatus(String userId, Appointment.AppointmentStatus status) {
+    public List<Appointment> getUserAppointmentsByStatus(Long userId, Appointment.AppointmentStatus status) {
         return appointmentRepository.findByUserIdAndStatusOrderByCreateTimeDesc(userId, status);
     }
 
@@ -64,7 +64,8 @@ public class AppointmentService {
     public Appointment createAppointment(Appointment appointment) {
         // 验证专家是否存在且可预约
         Expert expert = expertRepository.findById(appointment.getExpert().getId())
-                .orElseThrow(() -> new RuntimeException("Expert not found with id: " + appointment.getExpert().getId()));
+                .orElseThrow(
+                        () -> new RuntimeException("Expert not found with id: " + appointment.getExpert().getId()));
 
         if (!expert.getIsAvailable()) {
             throw new RuntimeException("Expert is not available for appointment");

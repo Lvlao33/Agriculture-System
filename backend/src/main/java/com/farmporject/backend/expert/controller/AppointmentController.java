@@ -23,9 +23,9 @@ public class AppointmentController {
 
     /**
      * 创建预约
-     * 示例：POST /api/appointments
+     * 示例：POST /api/appointments/add
      */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> create() {
         return ResponseEntity.status(201).body("appointment created");
     }

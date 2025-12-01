@@ -32,6 +32,10 @@ public class ExpertService {
         return expertRepository.findById(id);
     }
 
+    public Optional<Expert> getExpertByUserId(Long userId) {
+        return expertRepository.findByUser_Id(userId);
+    }
+
     public List<Expert> searchExpertsBySpecialty(String specialty) {
         return expertRepository.findBySpecialtiesContaining(specialty);
     }
