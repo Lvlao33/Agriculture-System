@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
@@ -21,4 +22,6 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     List<Expert> findByNameContainingIgnoreCase(String name);
 
     List<Expert> findByTitleContainingIgnoreCase(String title);
+
+    Optional<Expert> findByUser_Id(Long userId);
 }

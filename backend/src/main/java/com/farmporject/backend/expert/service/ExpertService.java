@@ -1,7 +1,10 @@
 package com.farmporject.backend.expert.service;
 
+import com.farmporject.backend.expert.dto.ExpertDTO;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.repository.ExpertRepository;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +18,39 @@ public class ExpertService {
 
     private final ExpertRepository expertRepository;
 
+    private ExpertDTO tranExpertDTO(Expert expert) {
+        if (expert == null) {
+            return null; // 如果传入的专家实体为空，返回null
+        }
+
+        // 强制初始化 specialties 集合
+        Hibernate.initialize(expert.getSpecialties());
+
+        ExpertDTO expertDTO = new ExpertDTO();
+        expertDTO.setId(expert.getId());
+        expertDTO.setUserId(expert.getUser().getId());
+        expertDTO.setName(expert.getName());
+        expertDTO.setTitle(expert.getTitle());
+        expertDTO.setAvatar(expert.getUser().getAvatar());
+        expertDTO.setDescription(expert.getDescription());
+        expertDTO.setSpecialties(expert.getSpecialties());
+        expertDTO.setExperienceYears(expert.getExperienceYears());
+        expertDTO.setContactInfo(expert.getContactInfo());
+        expertDTO.setIsAvailable(expert.getIsAvailable());
+        expertDTO.setCreateTime(expert.getCreateTime());
+        expertDTO.setUpdateTime(expert.getUpdateTime());
+        return expertDTO;
+    }
+
     @Autowired
     public ExpertService(ExpertRepository expertRepository) {
         this.expertRepository = expertRepository;
     }
 
-    public List<Expert> getAllExperts() {
-        return expertRepository.findAll();
+    @Transactional
+    public List<ExpertDTO> getAllExperts() {
+        List<Expert> experts = expertRepository.findAll();
+        return experts.stream().map(this::tranExpertDTO).toList();
     }
 
     public List<Expert> getAvailableExperts() {
@@ -30,6 +59,10 @@ public class ExpertService {
 
     public Optional<Expert> getExpertById(Long id) {
         return expertRepository.findById(id);
+    }
+
+    public Optional<Expert> getExpertByUserId(Long userId) {
+        return expertRepository.findByUser_Id(userId);
     }
 
     public List<Expert> searchExpertsBySpecialty(String specialty) {
