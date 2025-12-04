@@ -39,6 +39,14 @@ module.exports = {
       '/kn': {
         target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true
+      },
+      '/user': {
+        target: 'http://localhost:8080', // 后端服务地址
+        changeOrigin: true
+      },
+      '/question': {
+        target: 'http://localhost:8080', // 后端服务地址
+        changeOrigin: true
       }
     }
   }

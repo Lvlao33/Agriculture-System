@@ -4,6 +4,7 @@ import com.farmporject.backend.common.api.ApiResponse;
 import com.farmporject.backend.expert.model.Answer;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;
+import com.farmporject.backend.expert.service.ExpertService;
 import com.farmporject.backend.expert.service.QAService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,11 @@ import java.util.Map;
 public class QAController {
 
     private final QAService qaService;
+    private final ExpertService expertService;
 
-    public QAController(QAService qaService) {
+    public QAController(QAService qaService, ExpertService expertService) {
         this.qaService = qaService;
+        this.expertService = expertService;
     }
 
     /**
@@ -522,6 +525,163 @@ public class QAController {
             Map<String, Object> response = new HashMap<>();
             response.put("flag", false);
             response.put("message", "删除问题失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * GET /question/findExpert/{pageNum}
+     * 获取专家列表（分页，用于前端专家指导页面）
+     */
+    @GetMapping("/question/findExpert/{pageNum}")
+    public ResponseEntity<Map<String, Object>> findExpert(
+            @PathVariable Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+        try {
+            System.out.println("=== 获取专家列表（分页） ===");
+            System.out.println("pageNum: " + pageNum + ", pageSize: " + pageSize);
+            
+            // 获取所有专家
+            List<Expert> allExperts = expertService.getAllExperts();
+            System.out.println("查询到专家总数: " + allExperts.size());
+            
+            // 手动分页
+            int total = allExperts.size();
+            int start = (pageNum - 1) * pageSize;
+            int end = Math.min(start + pageSize, total);
+            List<Expert> pagedList = start < total ? allExperts.subList(start, end) : new ArrayList<>();
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            for (Expert expert : pagedList) {
+                try {
+                    Map<String, Object> item = new HashMap<>();
+                    // 映射为前端需要的字段格式
+                    item.put("realName", expert.getName() != null ? expert.getName() : "");
+                    item.put("position", expert.getTitle() != null ? expert.getTitle() : "");
+                    item.put("profession", expert.getTitle() != null ? expert.getTitle() : ""); // 专业使用 title
+                    item.put("belong", expert.getDescription() != null ? expert.getDescription() : ""); // 单位使用 description
+                    item.put("phone", expert.getContactInfo() != null ? expert.getContactInfo() : "");
+                    item.put("userName", expert.getId() != null ? "expert_" + expert.getId() : ""); // 用于提问和预约
+                    item.put("id", expert.getId());
+                    item.put("avatar", expert.getAvatar());
+                    item.put("isAvailable", expert.getIsAvailable() != null ? expert.getIsAvailable() : true);
+                    
+                    // 处理 specialties 集合，避免懒加载异常
+                    try {
+                        List<String> specialties = expert.getSpecialties();
+                        item.put("specialties", specialties != null ? specialties : new ArrayList<>());
+                    } catch (Exception e) {
+                        System.err.println("获取专家专长失败 (专家ID: " + expert.getId() + "): " + e.getMessage());
+                        item.put("specialties", new ArrayList<>());
+                    }
+                    
+                    resultList.add(item);
+                    System.out.println("成功处理专家: " + expert.getName());
+                } catch (Exception e) {
+                    System.err.println("处理专家失败 (专家ID: " + expert.getId() + "): " + e.getClass().getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            System.out.println("成功转换 " + resultList.size() + " 个专家数据");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("flag", true);
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", resultList);
+            data.put("total", total);
+            response.put("data", data);
+            
+            System.out.println("返回数据，总数: " + total + ", 当前页: " + resultList.size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("=== 获取专家列表失败 ===");
+            System.err.println("错误信息: " + e.getMessage());
+            System.err.println("错误类型: " + e.getClass().getName());
+            e.printStackTrace();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("flag", false);
+            response.put("message", "获取专家列表失败: " + e.getMessage());
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", new ArrayList<>());
+            data.put("total", 0);
+            response.put("data", data);
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * GET /question/findExpertByKeys/{keys}/{pageNum}
+     * 根据关键词搜索专家列表（分页）
+     */
+    @GetMapping("/question/findExpertByKeys/{keys}/{pageNum}")
+    public ResponseEntity<Map<String, Object>> findExpertByKeys(
+            @PathVariable String keys,
+            @PathVariable Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+        try {
+            System.out.println("=== 搜索专家列表 ===");
+            System.out.println("关键词: " + keys + ", pageNum: " + pageNum + ", pageSize: " + pageSize);
+            
+            // 根据关键词搜索专家
+            List<Expert> allExperts = expertService.searchExpertsByKeyword(keys);
+            System.out.println("搜索到专家总数: " + allExperts.size());
+            
+            // 手动分页
+            int total = allExperts.size();
+            int start = (pageNum - 1) * pageSize;
+            int end = Math.min(start + pageSize, total);
+            List<Expert> pagedList = start < total ? allExperts.subList(start, end) : new ArrayList<>();
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            for (Expert expert : pagedList) {
+                try {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("realName", expert.getName() != null ? expert.getName() : "");
+                    item.put("position", expert.getTitle() != null ? expert.getTitle() : "");
+                    item.put("profession", expert.getTitle() != null ? expert.getTitle() : "");
+                    item.put("belong", expert.getDescription() != null ? expert.getDescription() : "");
+                    item.put("phone", expert.getContactInfo() != null ? expert.getContactInfo() : "");
+                    item.put("userName", expert.getId() != null ? "expert_" + expert.getId() : "");
+                    item.put("id", expert.getId());
+                    item.put("avatar", expert.getAvatar());
+                    item.put("isAvailable", expert.getIsAvailable() != null ? expert.getIsAvailable() : true);
+                    
+                    try {
+                        List<String> specialties = expert.getSpecialties();
+                        item.put("specialties", specialties != null ? specialties : new ArrayList<>());
+                    } catch (Exception e) {
+                        item.put("specialties", new ArrayList<>());
+                    }
+                    
+                    resultList.add(item);
+                } catch (Exception e) {
+                    System.err.println("处理专家失败 (专家ID: " + expert.getId() + "): " + e.getMessage());
+                }
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("flag", true);
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", resultList);
+            data.put("total", total);
+            response.put("data", data);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("搜索专家列表失败: " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("flag", false);
+            response.put("message", "搜索专家列表失败: " + e.getMessage());
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", new ArrayList<>());
+            data.put("total", 0);
+            response.put("data", data);
             return ResponseEntity.status(500).body(response);
         }
     }

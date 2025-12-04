@@ -21,7 +21,21 @@ public class ExpertService {
     }
 
     public List<Expert> getAllExperts() {
-        return expertRepository.findAll();
+        List<Expert> experts = expertRepository.findAll();
+        
+        // 初始化懒加载的集合，避免 LazyInitializationException
+        for (Expert expert : experts) {
+            try {
+                if (expert.getSpecialties() != null) {
+                    expert.getSpecialties().size(); // 触发懒加载
+                }
+            } catch (Exception e) {
+                // 如果懒加载失败，设置为空列表
+                expert.setSpecialties(new java.util.ArrayList<>());
+            }
+        }
+        
+        return experts;
     }
 
     public List<Expert> getAvailableExperts() {
