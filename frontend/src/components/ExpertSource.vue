@@ -31,7 +31,7 @@
       >
         <div class="expert-avatar-wrapper">
           <img 
-            :src="$store.state.imgShowRoad + '/file/' + 'experta.png'" 
+            src="/person.png"
             alt="专家头像" 
             class="expert-avatar"
           />

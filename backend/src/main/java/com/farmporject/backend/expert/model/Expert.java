@@ -1,5 +1,6 @@
 package com.farmporject.backend.expert.model;
 
+import com.farmporject.backend.user.model.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +12,10 @@ public class Expert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String name;
@@ -41,7 +46,7 @@ public class Expert {
     // 默认构造函数
     public Expert() {}
 
-    // 全参构造函数
+    // 全参构造函数（不包含 user，通常通过 setter 设置）
     public Expert(Long id, String name, String title, String avatar, String description,
                   List<String> specialties, Integer experienceYears, String contactInfo,
                   Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
@@ -61,6 +66,9 @@ public class Expert {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

@@ -173,8 +173,9 @@
 </template>
 
 <script>
-import { selectQuestions, selectExpert } from "../api/order";
+import { selectQuestions } from "../api/order";
 import { selectKnowledgesPage } from "../api/knowledge";
+import { selectExperts } from "../api/expert";
 
 export default {
   name: "ExpertGuide",
@@ -386,17 +387,22 @@ export default {
     },
     // 加载专家列表
     loadExperts() {
-      selectExpert({
+      selectExperts({
         pageNum: this.expertCount,
-        keys: '',
-        pageSize: 5
+        pageSize: 5,
+        keys: ''
       }).then((res) => {
-        if (res && res.flag == true) {
+        if (res && res.flag === true && res.data) {
           this.expertList = res.data.list || [];
           this.expertTotal = res.data.total || 0;
+        } else {
+          this.expertList = [];
+          this.expertTotal = 0;
         }
       }).catch(err => {
         console.log(err);
+        this.expertList = [];
+        this.expertTotal = 0;
       });
     },
     // 加载热门问答

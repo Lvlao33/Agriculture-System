@@ -5,32 +5,26 @@
       <h1 class="page-title">专家信息</h1>
       <p class="page-subtitle">汇聚农业领域专业人才，为您提供全方位的技术指导与咨询服务</p>
       <div class="expert-stats">
-        <span class="stat-item">共 <strong>{{ total }}</strong> 位专家</span>
+        <span class="stat-item">当前已入驻 <strong>{{ total }}</strong> 位专家</span>
       </div>
     </div>
 
     <!-- 主要内容区 -->
     <div class="page-content">
       <expert-source :cgoods="goods" @handleSearch="handleSearch"></expert-source>
-      <pagination @item-click="pageClick" :cUrl="url" :cTotal="total" :cPageSize="pageSize"></pagination>
     </div>
   </div>
 </template>
 <script>
-import { selectExpert } from "../api/order";
+import { selectExperts } from "../api/expert";
 import ExpertSource from "../components/ExpertSource.vue";
-import Pagination from "../components/Pagination.vue";
 export default {
   data() {
     return {
       goods: [],
       total: 0,
-      pageSize: 30,
+      pageSize: 50,
       searchValue:'',
-      url: "/order/goods/",
-      goodsCount: sessionStorage.getItem("/order/goods/pageCode")
-        ? sessionStorage.getItem("/order/goods/pageCode")
-        : 1,
     };
   },
   mounted() {
@@ -38,30 +32,31 @@ export default {
     this.getData()
   },
   methods: {
-    pageClick(item) {
-      this.goods = item;
-    },
     handleSearch(val){
       this.searchValue = val
       this.getData()
     },
     getData(){
-      selectExpert({
-        pageNum: this.goodsCount,
-        keys:this.searchValue
+      selectExperts({
+        pageNum: 1,
+        pageSize: this.pageSize,
+        keys: this.searchValue
       }).then((res) => {
-        console.log('ressss--',res,res.data,res.data.lis)
-        if (res.flag == true) {
-          this.goods = res.data.list;
-          this.total = res.data.total;
+        if (res.flag === true && res.data) {
+          this.goods = res.data.list || [];
+          this.total = res.data.total || 0;
         } else {
-          // alert(res.data.data);
+          this.goods = [];
+          this.total = 0;
         }
+      }).catch(err => {
+        console.error(err);
+        this.goods = [];
+        this.total = 0;
       });
     }
   },
   components: {
-    Pagination,
     ExpertSource,
   },
 };

@@ -26,20 +26,25 @@ public class ExpertService {
         // 强制初始化 specialties 集合
         Hibernate.initialize(expert.getSpecialties());
 
-        ExpertDTO expertDTO = new ExpertDTO();
-        expertDTO.setId(expert.getId());
-        expertDTO.setUserId(expert.getUser().getId());
-        expertDTO.setName(expert.getName());
-        expertDTO.setTitle(expert.getTitle());
-        expertDTO.setAvatar(expert.getUser().getAvatar());
-        expertDTO.setDescription(expert.getDescription());
-        expertDTO.setSpecialties(expert.getSpecialties());
-        expertDTO.setExperienceYears(expert.getExperienceYears());
-        expertDTO.setContactInfo(expert.getContactInfo());
-        expertDTO.setIsAvailable(expert.getIsAvailable());
-        expertDTO.setCreateTime(expert.getCreateTime());
-        expertDTO.setUpdateTime(expert.getUpdateTime());
-        return expertDTO;
+        ExpertDTO dto = new ExpertDTO();
+        dto.setId(expert.getId());
+        if (expert.getUser() != null) {
+            dto.setUserId(expert.getUser().getId());
+            dto.setUsername(expert.getUser().getUsername());
+            dto.setAvatar(expert.getUser().getAvatar());
+        } else {
+            dto.setAvatar(expert.getAvatar());
+        }
+        dto.setName(expert.getName());
+        dto.setTitle(expert.getTitle());
+        dto.setDescription(expert.getDescription());
+        dto.setSpecialties(expert.getSpecialties());
+        dto.setExperienceYears(expert.getExperienceYears());
+        dto.setContactInfo(expert.getContactInfo());
+        dto.setIsAvailable(expert.getIsAvailable());
+        dto.setCreateTime(expert.getCreateTime());
+        dto.setUpdateTime(expert.getUpdateTime());
+        return dto;
     }
 
     @Autowired
