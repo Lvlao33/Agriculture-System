@@ -256,7 +256,18 @@ public class QAService {
      * 获取所有专家列表
      */
     public List<Expert> getAllExperts() {
-        return expertRepository.findAll();
+        List<Expert> experts = expertRepository.findAll();
+        // Initialize lazy collections
+        for (Expert expert : experts) {
+            try {
+                if (expert.getSpecialties() != null) {
+                    expert.getSpecialties().size(); // Trigger lazy load
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return experts;
     }
 
     // Question view and like methods

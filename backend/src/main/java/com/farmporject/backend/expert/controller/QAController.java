@@ -27,6 +27,7 @@ import java.util.Map;
  * 根据前端接口规范实现
  */
 @RestController
+@RequestMapping("/api/qa")
 public class QAController {
 
     private final UserService userService;
@@ -44,7 +45,7 @@ public class QAController {
      * 获取问答列表
      * 参数: pageNum, pageSize, mine, keyword
      */
-    @GetMapping("/api/qa/questions")
+    @GetMapping("/questions")
     public ResponseEntity<Map<String, Object>> getQuestionsList(
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
@@ -177,8 +178,13 @@ public class QAController {
                         item.put("tags", new ArrayList<>());
                     }
 
-                    // 暂时不查询答案数量，避免懒加载问题
-                    item.put("answerCount", 0);
+                    // 查询答案数量
+                    try {
+                        int answerCount = qaService.getQuestionAnswersCount(q.getId());
+                        item.put("answerCount", answerCount);
+                    } catch (Exception e) {
+                        item.put("answerCount", 0);
+                    }
 
                     // 处理expert字段，避免懒加载
                     item.put("expert", null);
@@ -243,7 +249,7 @@ public class QAController {
      * GET /qa/question/{id}
      * 获取问题详情
      */
-    @GetMapping("/qa/question/{id}")
+    @GetMapping("question/{id}")
     public ResponseEntity<Map<String, Object>> getQuestionDetail(@PathVariable Long id) {
         try {
             Question question = qaService.getQuestionById(id)
@@ -306,7 +312,7 @@ public class QAController {
      * 获取回答列表
      * 参数: questionId
      */
-    @GetMapping("/qa/answers")
+    @GetMapping("/answers")
     public ResponseEntity<Map<String, Object>> getAnswersList(
             @RequestParam(value = "questionId", required = true) Long questionId) {
         try {
@@ -355,7 +361,7 @@ public class QAController {
      * POST /api/qa/questions
      * 提交问题（支持附件）
      */
-    @PostMapping(value = "/api/qa/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitQuestion(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
@@ -432,7 +438,7 @@ public class QAController {
      * POST /qa/answer
      * 提交回答
      */
-    @PostMapping("/qa/answer")
+    @PostMapping("/answer")
     public ResponseEntity<Map<String, Object>> submitAnswer(
             @RequestBody Map<String, Object> request,
             @RequestHeader(value = "Authorization", required = false) String token) {
@@ -483,7 +489,7 @@ public class QAController {
      * GET /api/qa/test
      * 测试接口：直接查询数据库，返回原始数据
      */
-    @GetMapping("/api/qa/test")
+    @GetMapping("/test")
     public ResponseEntity<Map<String, Object>> testQuery() {
         try {
             System.out.println("=== 测试查询 ===");
@@ -515,7 +521,7 @@ public class QAController {
      * GET /qa/experts
      * 获取专家列表
      */
-    @GetMapping("/qa/experts")
+    @GetMapping("/experts")
     public ResponseEntity<Map<String, Object>> getExpertList() {
         try {
             List<Expert> experts = qaService.getAllExperts();
@@ -526,10 +532,10 @@ public class QAController {
                 item.put("id", expert.getId());
                 item.put("name", expert.getName());
                 item.put("title", expert.getTitle());
-                item.put("avatar", expert.getAvatar());
-                item.put("description", expert.getDescription());
-                item.put("specialties", expert.getSpecialties());
-                item.put("isAvailable", expert.getIsAvailable());
+                // item.put("avatar", expert.getAvatar());
+                // item.put("description", expert.getDescription());
+                // item.put("specialties", expert.getSpecialties());
+                // item.put("isAvailable", expert.getIsAvailable());
                 resultList.add(item);
             }
 
@@ -550,7 +556,7 @@ public class QAController {
      * DELETE /api/qa/questions/{id}
      * 删除问题
      */
-    @DeleteMapping("/api/qa/questions/{id}")
+    @DeleteMapping("/questions/{id}")
     public ResponseEntity<Map<String, Object>> deleteQuestion(@PathVariable Long id) {
         try {
             System.out.println("=== 删除问题 ===");

@@ -71,7 +71,7 @@ export function submitAnswer(data) {
 export function getExpertList() {
   return request({
     method: 'get',
-    url: '/qa/experts',
+    url: '/api/qa/experts',
     headers: {
       'Authorization': localStorage.getItem('token')
     }

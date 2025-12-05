@@ -68,11 +68,11 @@
               <el-option
                 v-for="expert in expertList"
                 :key="expert.id"
-                :label="`${expert.realName} - ${expert.position}`"
+                :label="`${expert.name} - ${expert.title}`"
                 :value="expert.id"
               >
-                <span style="float: left">{{ expert.realName }}</span>
-                <span style="float: right; color: #8492a6; font-size: 13px">{{ expert.position }}</span>
+                <span style="float: left">{{ expert.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ expert.title }}</span>
               </el-option>
             </el-select>
             <div class="form-tip">不选择专家时，所有专家都可以回答您的问题</div>
@@ -143,21 +143,21 @@ export default {
   methods: {
     // 加载专家列表
     loadExpertList() {
-      // TODO: 调用后端接口
-      // getExpertList().then(res => {
-      //   if (res.flag) {
-      //     this.expertList = res.data || []
-      //   }
-      // })
+      //TODO: 调用后端接口
+      getExpertList().then(res => {
+        if (res.flag) {
+          this.expertList = res.data || []
+        }
+      })
 
-      // 临时使用模拟数据
-      this.expertList = [
-        { id: 1, realName: '李教授', position: '高级农艺师' },
-        { id: 2, realName: '王专家', position: '高级畜牧师' },
-        { id: 3, realName: '刘教授', position: '高级兽医师' },
-        { id: 4, realName: '陈专家', position: '高级农艺师' },
-        { id: 5, realName: '周专家', position: '高级园艺师' }
-      ]
+      // // 临时使用模拟数据
+      // this.expertList = [
+      //   { id: 1, realName: '李教授', position: '高级农艺师' },
+      //   { id: 2, realName: '王专家', position: '高级畜牧师' },
+      //   { id: 3, realName: '刘教授', position: '高级兽医师' },
+      //   { id: 4, realName: '陈专家', position: '高级农艺师' },
+      //   { id: 5, realName: '周专家', position: '高级园艺师' }
+      // ]
     },
     // 提交问题
     submitQuestion() {
