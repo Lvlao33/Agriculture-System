@@ -1,7 +1,7 @@
 <template>
   <div class="publish-message">
     <el-form ref="form" :model="form" label-width="90px" class="publish-form">
-      <el-form-item label="ÉÏ¼ÜÍ¼Æ¬">
+      <el-form-item label="ä¸Šæ¶å›¾ç‰‡">
         <el-upload
           class="orders-img_el_upload"
           :action="upurl"
@@ -17,53 +17,53 @@
           :class="{ disUoloadSty: noneBtnImg }"
           ref="upload"
         >
-          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">Ìí¼ÓÍ¼Æ¬</span>
+          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">æ·»åŠ å›¾ç‰‡</span>
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="ÉÌÆ·±êÌâ">
+      <el-form-item label="å•†å“æ ‡é¢˜">
         <el-input
           v-model="form.title"
           style="width:800px;"
-          placeholder="ÇëÊäÈëÉÌÆ·±êÌâ"
+          placeholder="è¯·è¾“å…¥å•†å“æ ‡é¢˜"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="ÉÌÆ·ÃèÊö">
+      <el-form-item label="å•†å“æè¿°">
         <el-input
           type="textarea"
           style="width:800px;"
           v-model="form.content"
-          placeholder="ÇëÌîĞ´ÏêÏ¸µÄÉÌÆ·ÃèÊö"
+          placeholder="è¯·å¡«å†™è¯¦ç»†çš„å•†å“æè¿°"
           :rows="4"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="ÉÌÆ··ÖÀà">
+      <el-form-item label="å•†å“åˆ†ç±»">
         <el-cascader
           v-model="form.categoryPath"
           :options="categoryOptions"
           :props="{ expandTrigger: 'hover' }"
           clearable
           style="width:400px;"
-          placeholder="ÇëÑ¡ÔñÉÌÆ·ËùÊô·ÖÀà"
+          placeholder="è¯·é€‰æ‹©å•†å“æ‰€å±åˆ†ç±»"
         ></el-cascader>
       </el-form-item>
 
-      <el-form-item label="ÉÌÆ·¼Û¸ñ">
+      <el-form-item label="å•†å“ä»·æ ¼">
         <el-input
           v-model="form.price"
           style="width:150px;"
-          placeholder="ÇëÊäÈë¼Û¸ñ"
+          placeholder="è¯·è¾“å…¥ä»·æ ¼"
         >
-          <template slot="append">Ôª</template>
+          <template slot="append">å…ƒ</template>
         </el-input>
       </el-form-item>
     </el-form>
 
     <div class="submit-row">
       <el-button type="success" :disabled="isDisabled" @click="publishClick">
-        ·¢²¼ĞÅÏ¢
+        å‘å¸ƒä¿¡æ¯
       </el-button>
     </div>
   </div>
@@ -98,45 +98,45 @@ export default {
       categoryOptions: [
         {
           value: "vegetable",
-          label: "Êß²ËÀà",
+          label: "è”¬èœç±»",
           children: [
-            { value: "leafy", label: "Ò¶²ËÀà£¨²¤²Ë¡¢Éú²ËµÈ£©" },
-            { value: "root", label: "¸ù¾¥Àà£¨ÂÜ²·¡¢ÍÁ¶¹µÈ£©" },
-            { value: "gourd", label: "¹Ï¹ûÀà£¨»Æ¹Ï¡¢·¬ÇÑµÈ£©" },
+            { value: "leafy", label: "å¶èœç±»ï¼ˆè èœã€ç”Ÿèœç­‰ï¼‰" },
+            { value: "root", label: "æ ¹èŒç±»ï¼ˆèåœã€åœŸè±†ç­‰ï¼‰" },
+            { value: "gourd", label: "ç“œæœç±»ï¼ˆé»„ç“œã€ç•ªèŒ„ç­‰ï¼‰" },
           ],
         },
         {
           value: "fruit",
-          label: "Ë®¹ûÀà",
+          label: "æ°´æœç±»",
           children: [
-            { value: "berry", label: "½¬¹ûÀà£¨²İİ®¡¢À¶İ®µÈ£©" },
-            { value: "stone", label: "ºË¹ûÀà£¨ÌÒ×Ó¡¢Àî×ÓµÈ£©" },
-            { value: "citrus", label: "¸ÌéÙÀà£¨³È×Ó¡¢èÖ×ÓµÈ£©" },
+            { value: "berry", label: "æµ†æœç±»ï¼ˆè‰è“ã€è“è“ç­‰ï¼‰" },
+            { value: "stone", label: "æ ¸æœç±»ï¼ˆæ¡ƒå­ã€æå­ç­‰ï¼‰" },
+            { value: "citrus", label: "æŸ‘æ©˜ç±»ï¼ˆæ©™å­ã€æŸšå­ç­‰ï¼‰" },
           ],
         },
         {
           value: "grain",
-          label: "Á¸Ê³×÷Îï",
+          label: "ç²®é£Ÿä½œç‰©",
           children: [
-            { value: "cereals", label: "¹ÈÎïÀà£¨Ë®µ¾¡¢Ğ¡ÂóµÈ£©" },
-            { value: "beans", label: "¶¹Àà£¨´ó¶¹¡¢ÂÌ¶¹µÈ£©" },
+            { value: "cereals", label: "è°·ç‰©ç±»ï¼ˆæ°´ç¨»ã€å°éº¦ç­‰ï¼‰" },
+            { value: "beans", label: "è±†ç±»ï¼ˆå¤§è±†ã€ç»¿è±†ç­‰ï¼‰" },
           ],
         },
         {
           value: "livestock",
-          label: "ĞóÇİ²úÆ·",
+          label: "ç•œç¦½äº§å“",
           children: [
-            { value: "meat", label: "ÈâÀà£¨ÖíÈâ¡¢Å£ÈâµÈ£©" },
-            { value: "eggMilk", label: "µ°ÄÌÀà£¨¼¦µ°¡¢Å£ÄÌµÈ£©" },
+            { value: "meat", label: "è‚‰ç±»ï¼ˆçŒªè‚‰ã€ç‰›è‚‰ç­‰ï¼‰" },
+            { value: "eggMilk", label: "è›‹å¥¶ç±»ï¼ˆé¸¡è›‹ã€ç‰›å¥¶ç­‰ï¼‰" },
           ],
         },
         {
           value: "specialty",
-          label: "ÌØÉ«Å©²úÆ·",
+          label: "ç‰¹è‰²å†œäº§å“",
           children: [
-            { value: "organic", label: "ÓĞ»úÊ³Æ·" },
-            { value: "geo", label: "µØÀí±êÖ¾²úÆ·" },
-            { value: "handcraft", label: "ÊÖ¹¤ÒÕÆ·" },
+            { value: "organic", label: "æœ‰æœºé£Ÿå“" },
+            { value: "geo", label: "åœ°ç†æ ‡å¿—äº§å“" },
+            { value: "handcraft", label: "æ‰‹å·¥è‰ºå“" },
           ],
         },
       ],
@@ -166,7 +166,7 @@ export default {
   },
   methods: {
     handleError(err) {
-      this.$message.error("Í¼Æ¬ÉÏ´«Ê§°Ü£¬ÇëÖØÊÔ");
+      this.$message.error("å›¾ç‰‡ä¸Šä¼ å¤±è´¥ï¼Œè¯·é‡è¯•");
       console.log(err);
     },
     handleSuccess(response, file, fileList) {
@@ -176,9 +176,9 @@ export default {
         if (fileList.length >= 3) {
           this.uploadDisabled = true;
         }
-        this.$message.success("Í¼Æ¬ÉÏ´«³É¹¦");
+        this.$message.success("å›¾ç‰‡ä¸Šä¼ æˆåŠŸ");
       } else {
-        this.$message.error(response.message || "ÉÏ´«Ê§°Ü");
+        this.$message.error(response.message || "ä¸Šä¼ å¤±è´¥");
       }
     },
     handleChange(file, fileList) {
@@ -216,7 +216,7 @@ export default {
     },
     publishClick() {
       if (this.ctype !== "needs" && this.form.picture === "") {
-        this.$message.warning("ÇëÖÁÉÙÉÏ´«Ò»ÕÅÉÌÆ·Í¼Æ¬");
+        this.$message.warning("è¯·è‡³å°‘ä¸Šä¼ ä¸€å¼ å•†å“å›¾ç‰‡");
         return;
       }
       const categoryLabel = this.getCategoryLabel(this.form.categoryPath);
@@ -230,15 +230,15 @@ export default {
       })
         .then((res) => {
           if (res.flag === true) {
-            this.$message.success(res.message || "·¢²¼³É¹¦");
+            this.$message.success(res.message || "å‘å¸ƒæˆåŠŸ");
             this.$router.push("/home/user/published" + this.ctype);
           } else {
-            this.$message.error(res.message || "·¢²¼Ê§°Ü");
+            this.$message.error(res.message || "å‘å¸ƒå¤±è´¥");
           }
         })
         .catch((err) => {
-          console.log("·¢²¼Ê§°Ü", err);
-          this.$message.error("·¢²¼Ê§°Ü£¬ÇëÉÔºóÔÙÊÔ");
+          console.log("å‘å¸ƒå¤±è´¥", err);
+          this.$message.error("å‘å¸ƒå¤±è´¥ï¼Œè¯·ç¨åå†è¯•");
         });
     },
   },
