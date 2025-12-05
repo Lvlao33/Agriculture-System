@@ -32,8 +32,10 @@ public class AuthController {
                                     "id", user.getId(),
                                     "username", user.getUsername(),
                                     "nickname", user.getNickname(),
-                                    "avatar", user.getAvatar()
-                            )
+                                    "avatar", user.getAvatar(),
+                                    "role", user.getRole() != null ? user.getRole() : "FARMER"
+                            ),
+                            "role", user.getRole() != null ? user.getRole() : "FARMER"
                     )));
                 })
                 .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户名或密码错误")));
@@ -45,7 +47,8 @@ public class AuthController {
         String password = body.getOrDefault("password", "");
         String nickname = body.getOrDefault("nickname", "");
         String avatar = body.getOrDefault("avatar", "");
-        User user = userService.register(username, password, nickname, avatar);
+        String role = body.getOrDefault("role", "FARMER"); // 默认角色为 FARMER
+        User user = userService.register(username, password, nickname, avatar, role);
         return ResponseEntity.status(201).body(ApiResponse.ok(user));
     }
 }

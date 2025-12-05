@@ -1,13 +1,16 @@
 package com.farmporject.backend.expert.service;
 
 import com.farmporject.backend.expert.model.Answer;
+import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;
 import com.farmporject.backend.expert.repository.AnswerRepository;
+import com.farmporject.backend.expert.repository.ExpertRepository;
 import com.farmporject.backend.expert.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,16 +20,50 @@ public class QAService {
 
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
+    private final ExpertRepository expertRepository;
 
     @Autowired
-    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository) {
+    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository, ExpertRepository expertRepository) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
+        this.expertRepository = expertRepository;
     }
 
     // Question methods
     public List<Question> getAllQuestions() {
-        return questionRepository.findAll();
+        // 查询所有问题，然后在内存中排序
+        List<Question> list = questionRepository.findAll();
+        
+        // 初始化懒加载的集合，避免 LazyInitializationException
+        for (Question q : list) {
+            try {
+                if (q.getAttachmentUrls() != null) {
+                    q.getAttachmentUrls().size(); // 触发懒加载
+                }
+            } catch (Exception e) {
+                // 如果懒加载失败，设置为空列表
+                q.setAttachmentUrls(new java.util.ArrayList<>());
+            }
+            try {
+                if (q.getTags() != null) {
+                    q.getTags().size(); // 触发懒加载
+                }
+            } catch (Exception e) {
+                // 如果懒加载失败，设置为空列表
+                q.setTags(new java.util.ArrayList<>());
+            }
+        }
+        
+        // 按更新时间降序排列（如果updateTime为null，使用createTime）
+        list.sort((a, b) -> {
+            LocalDateTime timeA = a.getUpdateTime() != null ? a.getUpdateTime() : a.getCreateTime();
+            LocalDateTime timeB = b.getUpdateTime() != null ? b.getUpdateTime() : b.getCreateTime();
+            if (timeA == null && timeB == null) return 0;
+            if (timeA == null) return 1;
+            if (timeB == null) return -1;
+            return timeB.compareTo(timeA);
+        });
+        return list;
     }
 
     public List<Question> getRecentQuestions() {
@@ -34,7 +71,39 @@ public class QAService {
     }
 
     public List<Question> getUserQuestions(String userId) {
-        return questionRepository.findByUserIdOrderByCreateTimeDesc(userId);
+        // 查询用户问题，然后在内存中排序
+        List<Question> list = questionRepository.findByUserId(userId);
+        
+        // 初始化懒加载的集合，避免 LazyInitializationException
+        for (Question q : list) {
+            try {
+                if (q.getAttachmentUrls() != null) {
+                    q.getAttachmentUrls().size(); // 触发懒加载
+                }
+            } catch (Exception e) {
+                // 如果懒加载失败，设置为空列表
+                q.setAttachmentUrls(new java.util.ArrayList<>());
+            }
+            try {
+                if (q.getTags() != null) {
+                    q.getTags().size(); // 触发懒加载
+                }
+            } catch (Exception e) {
+                // 如果懒加载失败，设置为空列表
+                q.setTags(new java.util.ArrayList<>());
+            }
+        }
+        
+        // 按更新时间降序排列（如果updateTime为null，使用createTime）
+        list.sort((a, b) -> {
+            LocalDateTime timeA = a.getUpdateTime() != null ? a.getUpdateTime() : a.getCreateTime();
+            LocalDateTime timeB = b.getUpdateTime() != null ? b.getUpdateTime() : b.getCreateTime();
+            if (timeA == null && timeB == null) return 0;
+            if (timeA == null) return 1;
+            if (timeB == null) return -1;
+            return timeB.compareTo(timeA);
+        });
+        return list;
     }
 
     public List<Question> getExpertQuestions(Long expertId) {
@@ -110,10 +179,20 @@ public class QAService {
 
     public void deleteQuestion(Long id) {
         if (questionRepository.existsById(id)) {
+            // 先加载问题，清空关联的集合（附件和标签）
+            Question question = questionRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
+            
+            // 清空附件和标签，避免外键约束错误
+            question.setAttachmentUrls(new java.util.ArrayList<>());
+            question.setTags(new java.util.ArrayList<>());
+            questionRepository.save(question); // 保存以删除关联记录
+            
             // 先删除相关的回答
             List<Answer> answers = answerRepository.findByQuestionId(id);
             answerRepository.deleteAll(answers);
 
+            // 最后删除问题本身
             questionRepository.deleteById(id);
         } else {
             throw new RuntimeException("Question not found with id: " + id);
@@ -183,5 +262,19 @@ public class QAService {
     public boolean questionHasAnswer(Long questionId) {
         List<Answer> answers = answerRepository.findByQuestionId(questionId);
         return !answers.isEmpty();
+    }
+
+    /**
+     * 获取问题的答案数量（不加载答案实体，只查询数量）
+     */
+    public int getQuestionAnswersCount(Long questionId) {
+        return answerRepository.findByQuestionId(questionId).size();
+    }
+
+    /**
+     * 获取所有专家列表
+     */
+    public List<Expert> getAllExperts() {
+        return expertRepository.findAll();
     }
 }

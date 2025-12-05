@@ -22,16 +22,35 @@ public class UserService {
     }
 
     public User register(String username, String rawPassword, String nickname, String avatar) {
+        return register(username, rawPassword, nickname, avatar, DEFAULT_ROLE);
+    }
+
+    public User register(String username, String rawPassword, String nickname, String avatar, String role) {
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("用户名已存在");
         }
+        // 验证角色是否有效
+        String validRole = validateRole(role);
         User user = new User();
         user.setUsername(username);
         user.setPasswordHash(hashPassword(rawPassword));
         user.setNickname(nickname);
         user.setAvatar(avatar);
-        user.setRole(DEFAULT_ROLE);
+        user.setRole(validRole);
         return userRepository.save(user);
+    }
+
+    private String validateRole(String role) {
+        if (role == null || role.isEmpty()) {
+            return DEFAULT_ROLE;
+        }
+        // 支持大小写，统一转换为大写
+        String upperRole = role.toUpperCase();
+        if (upperRole.equals("FARMER") || upperRole.equals("EXPERT") || upperRole.equals("BANK")) {
+            return upperRole;
+        }
+        // 如果角色不合法，返回默认角色
+        return DEFAULT_ROLE;
     }
 
     public Optional<User> validateLogin(String username, String rawPassword) {

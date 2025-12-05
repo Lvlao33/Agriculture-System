@@ -1,7 +1,10 @@
 package com.farmporject.backend.expert.service;
 
+import com.farmporject.backend.expert.dto.ExpertDTO;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.repository.ExpertRepository;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +18,44 @@ public class ExpertService {
 
     private final ExpertRepository expertRepository;
 
+    private ExpertDTO tranExpertDTO(Expert expert) {
+        if (expert == null) {
+            return null; // 如果传入的专家实体为空，返回null
+        }
+
+        // 强制初始化 specialties 集合
+        Hibernate.initialize(expert.getSpecialties());
+
+        ExpertDTO dto = new ExpertDTO();
+        dto.setId(expert.getId());
+        if (expert.getUser() != null) {
+            dto.setUserId(expert.getUser().getId());
+            dto.setUsername(expert.getUser().getUsername());
+            dto.setAvatar(expert.getUser().getAvatar());
+        } else {
+            dto.setAvatar(expert.getAvatar());
+        }
+        dto.setName(expert.getName());
+        dto.setTitle(expert.getTitle());
+        dto.setDescription(expert.getDescription());
+        dto.setSpecialties(expert.getSpecialties());
+        dto.setExperienceYears(expert.getExperienceYears());
+        dto.setContactInfo(expert.getContactInfo());
+        dto.setIsAvailable(expert.getIsAvailable());
+        dto.setCreateTime(expert.getCreateTime());
+        dto.setUpdateTime(expert.getUpdateTime());
+        return dto;
+    }
+
     @Autowired
     public ExpertService(ExpertRepository expertRepository) {
         this.expertRepository = expertRepository;
     }
 
-    public List<Expert> getAllExperts() {
-        return expertRepository.findAll();
+    @Transactional
+    public List<ExpertDTO> getAllExperts() {
+        List<Expert> experts = expertRepository.findAll();
+        return experts.stream().map(this::tranExpertDTO).toList();
     }
 
     public List<Expert> getAvailableExperts() {
@@ -30,6 +64,10 @@ public class ExpertService {
 
     public Optional<Expert> getExpertById(Long id) {
         return expertRepository.findById(id);
+    }
+
+    public Optional<Expert> getExpertByUserId(Long userId) {
+        return expertRepository.findByUser_Id(userId);
     }
 
     public List<Expert> searchExpertsBySpecialty(String specialty) {

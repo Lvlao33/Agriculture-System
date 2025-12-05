@@ -52,21 +52,21 @@
               </span>
               <span class="meta-item">
                 <i class="el-icon-user"></i>
-                <span>提问者：{{ item.questioner }}</span>
+                <span>提问者：{{ item.userName || item.questioner || '匿名用户' }}</span>
               </span>
               <span class="meta-item">
                 <i class="el-icon-time"></i>
-                <span>最后更新：{{ formatDate(item.lastUpdateTime || item.createTime) }}</span>
+                <span>最后更新：{{ formatDate(item.updateTime || item.createTime) }}</span>
               </span>
-              <span v-if="item.expertName" class="meta-item">
+              <span v-if="item.expert && item.expert.name" class="meta-item">
                 <i class="el-icon-medal"></i>
-                <span>专家：{{ item.expertName }}</span>
+                <span>专家：{{ item.expert.name }}</span>
               </span>
             </div>
 
           </div>
           <div class="question-status">
-            <el-tag v-if="item.answerCount > 0" type="success" size="small">已解答</el-tag>
+            <el-tag v-if="item.status === 'ANSWERED' || item.answerCount > 0" type="success" size="small">已解答</el-tag>
             <el-tag v-else type="info" size="small">待解答</el-tag>
           </div>
         </div>
@@ -95,7 +95,7 @@
 </template>
 
 <script>
-// import { getQuestionsList } from '@/api/qa'
+import { getQuestionsList } from '@/api/qa'
 
 export default {
   name: 'OnlineQuestions',
@@ -115,22 +115,54 @@ export default {
   },
   methods: {
     // 加载问答列表
-    loadQuestions() {
-      // TODO: 调用后端接口
-      // getQuestionsList({
-      //   pageNum: this.currentPage,
-      //   pageSize: this.pageSize
-      // }).then(res => {
-      //   if (res.flag) {
-      //     this.questionsList = res.data.list || []
-      //     this.total = res.data.total || 0
-      //   }
-      // })
-
-      // 临时使用模拟数据
+    async loadQuestions() {
+      try {
+        const res = await getQuestionsList({
+          pageNum: 1,
+          pageSize: 1000,
+          mine: false
+        })
+        console.log('获取全部问题 - 返回数据:', res)
+        
+        // 处理不同的返回格式
+        let list = []
+        if (res) {
+          // 后端返回格式: { flag: true, data: [...], total: x, pageNum: x, pageSize: x }
+          if (res.flag && res.data && Array.isArray(res.data)) {
+            list = res.data
+            console.log('使用 res.data，数量:', list.length)
+          }
+          // ApiResponse格式: { success: true, data: [...], message: "OK" }
+          else if (res.data && Array.isArray(res.data)) {
+            list = res.data
+            console.log('使用 res.data (无flag)，数量:', list.length)
+          } 
+          // 直接是数组
+          else if (Array.isArray(res)) {
+            list = res
+            console.log('res本身是数组，数量:', list.length)
+          }
+          // 其他格式尝试
+          else if (res.list && Array.isArray(res.list)) {
+            list = res.list
+            console.log('使用 res.list，数量:', list.length)
+          } else {
+            console.warn('无法解析数据格式，res:', res)
+          }
+        } else {
+          console.warn('返回数据为空')
+        }
+        
+        console.log('解析后的问题列表:', list)
+        this.allQuestions = list || []
+        this.applyFilter()
+      } catch (e) {
+        console.error('加载问答列表失败:', e)
+        // 如果API调用失败，使用模拟数据作为降级方案
       const allData = this.getMockData()
       this.allQuestions = allData
       this.applyFilter()
+      }
     },
     // 模拟数据
     getMockData() {
@@ -273,10 +305,17 @@ export default {
       const filtered = keyword
         ? source.filter(item => {
             const title = (item.title || '').toLowerCase()
-            const questioner = (item.questioner || '').toLowerCase()
-            return title.includes(keyword) || questioner.includes(keyword)
+            const userName = ((item.userName || item.questioner) || '').toLowerCase()
+            const content = (item.content || '').toLowerCase()
+            return title.includes(keyword) || userName.includes(keyword) || content.includes(keyword)
           })
         : source
+      // 按最后更新时间倒序排列（优先使用updateTime，如果没有则使用createTime）
+      filtered.sort((a, b) => {
+        const timeA = new Date(a.updateTime || a.createTime || 0).getTime()
+        const timeB = new Date(b.updateTime || b.createTime || 0).getTime()
+        return timeB - timeA
+      })
       this.total = filtered.length
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
