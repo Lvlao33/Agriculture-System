@@ -38,6 +38,19 @@
             placeholder="请输入密码"
           />
         </div>
+        <div class="form-group">
+          <label for="role">用户身份</label>
+          <select
+            class="form-control"
+            id="role"
+            name="role"
+            v-model="role"
+          >
+            <option value="FARMER">农户</option>
+            <option value="EXPERT">专家</option>
+            <option value="BANK">银行</option>
+          </select>
+        </div>
         <button class="btn btn-success btn-block" @click="registerBtn">
           注册
         </button>
@@ -58,6 +71,7 @@ export default {
       userName: "",
       password: "",
       nickName: "",
+      role: "FARMER", // 默认选择农户
     };
   },
   methods: {
@@ -76,6 +90,7 @@ export default {
           password: this.password,
           nickname: this.nickName,
           avatar: "rongxiaotong.gif",
+          role: this.role,
         })
           .then((res) => {
             if (res && res.success) {
