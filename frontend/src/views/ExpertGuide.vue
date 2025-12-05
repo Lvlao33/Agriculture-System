@@ -173,8 +173,9 @@
 </template>
 
 <script>
-import { selectQuestions, selectExpert } from "../api/order";
+import { selectQuestions } from "../api/order";
 import { selectKnowledgesPage } from "../api/knowledge";
+import { selectExperts } from "../api/expert";
 
 export default {
   name: "ExpertGuide",
@@ -375,7 +376,7 @@ export default {
     };
   },
   created() {
-    this.$store.commit("updateActiveIndex", "4");
+    this.$store.commit("updateActiveIndex", "5");
     this.loadData();
   },
   methods: {
@@ -386,17 +387,22 @@ export default {
     },
     // 加载专家列表
     loadExperts() {
-      selectExpert({
+      selectExperts({
         pageNum: this.expertCount,
-        keys: '',
-        pageSize: 5
+        pageSize: 5,
+        keys: ''
       }).then((res) => {
-        if (res.flag == true) {
+        if (res && res.flag === true && res.data) {
           this.expertList = res.data.list || [];
           this.expertTotal = res.data.total || 0;
+        } else {
+          this.expertList = [];
+          this.expertTotal = 0;
         }
       }).catch(err => {
         console.log(err);
+        this.expertList = [];
+        this.expertTotal = 0;
       });
     },
     // 加载热门问答
@@ -410,7 +416,7 @@ export default {
         keys: '',
         pageSize: 3
       }).then((res) => {
-        if (res.flag == true && res.data && res.data.list && res.data.list.length > 0) {
+        if (res && res.flag == true && res.data && res.data.list && res.data.list.length > 0) {
           // 将后端数据合并到列表中
           const backendList = res.data.list.map(item => ({
             questionId: item.questionId,
@@ -449,7 +455,7 @@ export default {
         pageNum: this.knowledgeCount,
         pageSize: 100 // 获取更多数据以便排序和显示
       }).then((res) => {
-        if (res.flag == true) {
+        if (res && res.flag == true) {
           let list = res.data.list || [];
           // 将后端数据映射为包含url字段的格式
           const backendList = list.map(item => ({

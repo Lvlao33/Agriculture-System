@@ -19,9 +19,10 @@ public class Answer {
     @JoinColumn(name = "expert_id", nullable = false)
     private Expert expert;
 
-    @Column(length = 5000, nullable = false)
+    @Column(name = "content", length = 5000, nullable = false)
     private String content;
 
+    @Column(name = "create_time")
     private LocalDateTime createTime;
 
     // 默认构造函数

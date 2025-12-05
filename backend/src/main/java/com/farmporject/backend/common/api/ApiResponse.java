@@ -18,6 +18,10 @@ public class ApiResponse<T> {
         return r;
     }
 
+    public static <T> ApiResponse<T> success(T data) {
+        return ok(data);
+    }
+
     public static <T> ApiResponse<T> fail(String message) {
         ApiResponse<T> r = new ApiResponse<>();
         r.success = false;

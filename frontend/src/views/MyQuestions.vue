@@ -26,20 +26,20 @@
             <div class="question-meta">
               <span class="meta-item">
                 <i class="el-icon-chat-line-round"></i>
-                <span>{{ item.answerCount || 0 }} 个回答</span>
+                <span>{{ getAnswerCount(item) }} 个回答</span>
               </span>
               <span class="meta-item">
                 <i class="el-icon-time"></i>
-                <span>提问时间：{{ formatDate(item.createTime) }}</span>
+                <span>提问时间：{{ formatDate(item.createTime || item.create_time) }}</span>
               </span>
-              <span v-if="item.lastUpdateTime" class="meta-item">
+              <span class="meta-item">
                 <i class="el-icon-refresh"></i>
-                <span>最后更新：{{ formatDate(item.lastUpdateTime) }}</span>
+                <span>最后更新：{{ formatDate(item.updateTime || item.update_time || item.createTime || item.create_time) }}</span>
               </span>
             </div>
           </div>
           <div class="question-status">
-            <el-tag v-if="item.status === 'ANSWERED' || (item.answerCount || 0) > 0"
+            <el-tag v-if="item.status === 'ANSWERED' || item.status === 'answered'"
                     type="success"
                     size="small">
               已解答
@@ -98,29 +98,82 @@ export default {
           pageSize: 1000,
           mine: true
         })
-        const list = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : [])
+        console.log('=== 获取我的问题 ===')
+        console.log('返回的原始数据:', JSON.stringify(res, null, 2))
+        console.log('Token:', localStorage.getItem('token'))
+        console.log('res类型:', typeof res)
+        console.log('res.data类型:', typeof res?.data)
+        console.log('res.data是否为数组:', Array.isArray(res?.data))
+        
+        // 处理不同的返回格式
+        let list = []
+        if (res) {
+          // 后端返回格式: { flag: true, data: [...], total: x, pageNum: x, pageSize: x }
+          if (res.flag && res.data && Array.isArray(res.data)) {
+            list = res.data
+            console.log('使用 res.data，数量:', list.length)
+          }
+          // ApiResponse格式: { success: true, data: [...], message: "OK" }
+          else if (res.data && Array.isArray(res.data)) {
+            list = res.data
+            console.log('使用 res.data (无flag)，数量:', list.length)
+          } 
+          // 直接是数组
+          else if (Array.isArray(res)) {
+            list = res
+            console.log('res本身是数组，数量:', list.length)
+          }
+          // 其他格式尝试
+          else if (res.list && Array.isArray(res.list)) {
+            list = res.list
+            console.log('使用 res.list，数量:', list.length)
+          } else {
+            console.warn('无法解析数据格式，res:', res)
+          }
+        } else {
+          console.warn('返回数据为空')
+        }
+        
+        console.log('解析后的问题列表:', list)
+        console.log('问题列表数量:', list.length)
+        if (list.length > 0) {
+          console.log('第一个问题:', list[0])
+        }
+        
         this.allQuestions = list || []
         this.applyFilter()
+        
+        console.log('最终显示的问题数量:', this.questionsList.length)
       } catch (e) {
-        console.error(e)
-        this.$message.error('加载问答记录失败')
+        console.error('加载问答记录失败:', e)
+        this.$message.error('加载问答记录失败: ' + (e.message || '未知错误'))
       }
     },
     applyFilter() {
       let filtered = this.allQuestions
       if (this.statusFilter === 'answered') {
         filtered = filtered.filter(
-          q => q.status === 'ANSWERED' || (q.answerCount || 0) > 0
+          q => q.status === 'ANSWERED' || q.status === 'answered'
         )
       } else if (this.statusFilter === 'pending') {
         filtered = filtered.filter(
-          q => q.status === 'PENDING' || (q.answerCount || 0) === 0
+          q => !q.status || q.status === 'PENDING' || q.status === 'pending'
         )
       }
+      // 按最后更新时间倒序排列（优先使用updateTime，如果没有则使用createTime）
+      filtered.sort((a, b) => {
+        const timeA = new Date(a.updateTime || a.update_time || a.createTime || a.create_time || 0).getTime()
+        const timeB = new Date(b.updateTime || b.update_time || b.createTime || b.create_time || 0).getTime()
+        return timeB - timeA
+      })
       this.total = filtered.length
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
       this.questionsList = filtered.slice(start, end)
+    },
+    getAnswerCount(item) {
+      // 如果后端返回了answerCount字段，使用它；否则返回0
+      return item.answerCount || 0
     },
     handlePageChange(page) {
       this.currentPage = page
@@ -135,7 +188,19 @@ export default {
     },
     formatDate(value) {
       if (!value) return ''
-      return new Date(value).toLocaleString('zh-CN')
+      try {
+        const date = new Date(value)
+        if (isNaN(date.getTime())) return value
+        return date.toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      } catch (e) {
+        return value
+      }
     }
   }
 }
