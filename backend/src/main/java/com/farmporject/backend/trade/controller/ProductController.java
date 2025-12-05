@@ -5,6 +5,8 @@ import com.farmporject.backend.trade.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,26 +58,85 @@ public class ProductController {
         }
     }
 
+    /**
+     * 兼容前端字段与 token 解析的商品创建
+     * 支持字段映射：
+     * - title -> name
+     * - content -> description
+     * - picture -> imageUrl
+     */
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Product product) {
+    public ResponseEntity<?> create(
+            @RequestBody Map<String, Object> requestBody,
+            @RequestHeader(value = "Authorization", required = false) String token) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (product.getName() == null || product.getName().trim().isEmpty()) {
+            // 解析 sellerId（token 形如 tk_{userId}_{username}）
+            Long sellerId = null;
+            if (token != null && token.startsWith("tk_")) {
+                String[] parts = token.split("_");
+                if (parts.length >= 2) {
+                    try {
+                        sellerId = Long.parseLong(parts[1]);
+                    } catch (NumberFormatException e) {
+                        response.put("flag", false);
+                        response.put("message", "无效的 token 格式");
+                        return ResponseEntity.badRequest().body(response);
+                    }
+                }
+            }
+            if (sellerId == null) {
+                response.put("flag", false);
+                response.put("message", "请先登录");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 字段映射
+            String name = (String) requestBody.getOrDefault("title", requestBody.get("name"));
+            String description = (String) requestBody.getOrDefault("content", requestBody.get("description"));
+            String imageUrl = (String) requestBody.getOrDefault("picture", requestBody.get("imageUrl"));
+            String category = (String) requestBody.get("category");
+
+            if (name == null || name.trim().isEmpty()) {
                 response.put("flag", false);
                 response.put("message", "商品名称不能为空");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            if (product.getPrice() == null || product.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            // 价格解析
+            Object priceObj = requestBody.get("price");
+            BigDecimal price = null;
+            if (priceObj instanceof Number) {
+                price = BigDecimal.valueOf(((Number) priceObj).doubleValue());
+            } else if (priceObj instanceof String) {
+                try {
+                    price = new BigDecimal((String) priceObj);
+                } catch (NumberFormatException e) {
+                    response.put("flag", false);
+                    response.put("message", "价格格式错误");
+                    return ResponseEntity.badRequest().body(response);
+                }
+            }
+            if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
                 response.put("flag", false);
                 response.put("message", "商品价格必须大于0");
                 return ResponseEntity.badRequest().body(response);
             }
 
-            if (product.getSellerId() == null) {
-                response.put("flag", false);
-                response.put("message", "卖家ID不能为空");
-                return ResponseEntity.badRequest().body(response);
+            Product product = new Product();
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setImageUrl(imageUrl);
+            product.setCategory(category);
+            product.setSellerId(sellerId);
+
+            // 默认值
+            if (product.getStock() == null) {
+                product.setStock(0);
+            }
+            if (product.getIsAvailable() == null) {
+                product.setIsAvailable(true);
             }
 
             Product createdProduct = productService.createProduct(product);

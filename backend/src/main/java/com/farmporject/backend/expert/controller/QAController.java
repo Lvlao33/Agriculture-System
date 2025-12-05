@@ -4,8 +4,6 @@ import com.farmporject.backend.expert.model.Answer;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;
 import com.farmporject.backend.expert.service.QAService;
-import com.farmporject.backend.user.model.User;
-import com.farmporject.backend.user.service.UserService;
 import com.farmporject.backend.expert.service.ExpertService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +27,12 @@ import java.util.Map;
 @RestController
 public class QAController {
 
-    private final UserService userService;
     private final ExpertService expertService;
     private final QAService qaService;
 
-    public QAController(UserService userService, QAService qaService, ExpertService expertService) {
+    public QAController(QAService qaService, ExpertService expertService) {
         this.qaService = qaService;
         this.expertService = expertService;
-        this.userService = userService;
     }
 
     /**
@@ -67,8 +63,7 @@ public class QAController {
                     String userId = parts.length >= 2 ? parts[1] : null;
                     System.out.println("提取的userId: " + userId);
                     if (userId != null) {
-                        Long uid = Long.parseLong(userId);
-                        list = qaService.getUserQuestions(uid);
+                        list = qaService.getUserQuestions(userId);
                         System.out.println("查询用户问题，数量: " + (list != null ? list.size() : 0));
                     } else {
                         list = qaService.getAllQuestions();
@@ -129,8 +124,8 @@ public class QAController {
                     item.put("id", q.getId());
                     item.put("title", q.getTitle() != null ? q.getTitle() : "");
                     item.put("content", q.getContent() != null ? q.getContent() : "");
-                    item.put("userId", q.getUser() != null ? q.getUser() : "");
-                    item.put("userName", q.getUser() != null ? q.getUser().getUsername() : "");
+                    item.put("userId", q.getUserId() != null ? q.getUserId() : "");
+                    item.put("userName", q.getUserName() != null ? q.getUserName() : "");
                     item.put("status", q.getStatus() != null ? q.getStatus().name() : "PENDING");
 
                     // 将LocalDateTime转换为字符串，避免序列化问题
@@ -240,8 +235,8 @@ public class QAController {
             questionMap.put("id", question.getId());
             questionMap.put("title", question.getTitle());
             questionMap.put("content", question.getContent());
-            questionMap.put("user", question.getUser());
-            questionMap.put("userName", question.getUser().getUsername());
+            questionMap.put("userId", question.getUserId());
+            questionMap.put("userName", question.getUserName());
             questionMap.put("status", question.getStatus() != null ? question.getStatus().name() : "PENDING");
             questionMap.put("createTime", question.getCreateTime());
             questionMap.put("updateTime", question.getUpdateTime());
@@ -359,14 +354,8 @@ public class QAController {
             question.setContent(content);
             // 登录才能提问
             if (userId != null) {
-                Long uid = Long.parseLong(userId);
-                List<User> users = userService.findUserById(uid).stream().toList();
-                if (users.isEmpty()) {
-                    throw new RuntimeException("用户不存在，无法提交问题");
-                } else {
-                    question.setUser(users.get(0));
-                }
-                question.getUser().setUsername(userName);
+                question.setUserId(userId);
+                question.setUserName(userName != null ? userName : "用户" + userId);
             }
             // User user = new User();
             // question.setUser(user);
@@ -469,7 +458,7 @@ public class QAController {
             if (!allQuestions.isEmpty()) {
                 Question first = allQuestions.get(0);
                 System.out.println(
-                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUser());
+                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUserId());
             }
 
             Map<String, Object> response = new HashMap<>();

@@ -1,6 +1,6 @@
 package com.farmporject.backend.trade.repository;
 
-import main.java.com.farmporject.backend.trade.model.Product;
+import com.farmporject.backend.trade.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -3,8 +3,10 @@ package com.farmporject.backend.expert.repository;
 import com.farmporject.backend.expert.model.Expert;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExpertRepository extends JpaRepository<Expert, Long> {
@@ -21,4 +23,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     List<Expert> findByNameContainingIgnoreCase(String name);
 
     List<Expert> findByTitleContainingIgnoreCase(String title);
+
+    @Query("SELECT e FROM Expert e WHERE e.user.id = :userId")
+    Optional<Expert> findByUser_Id(@Param("userId") Long userId);
 }
