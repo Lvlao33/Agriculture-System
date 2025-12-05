@@ -2,7 +2,6 @@ package com.farmporject.backend.expert.controller;
 
 import com.farmporject.backend.common.api.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/expert/dashboard")
-@CrossOrigin(origins = "*")
 public class ExpertDashboardController {
 
     @GetMapping("/overview")
