@@ -35,10 +35,6 @@
             alt="专家头像" 
             class="expert-avatar"
           />
-          <div class="expert-badge" v-if="item.isAvailable">
-            <i class="el-icon-check"></i>
-            <span>在线</span>
-          </div>
         </div>
         
         <div class="expert-info">
@@ -55,7 +51,7 @@
             </div>
             <div class="detail-item">
               <i class="el-icon-office-building"></i>
-              <span class="detail-label">单位：</span>
+              <span class="detail-label">简介：</span>
               <span class="detail-value">{{ item.belong || '未设置' }}</span>
             </div>
             <div class="detail-item" v-if="item.phone">
@@ -68,22 +64,13 @@
 
         <div class="expert-actions">
           <el-button 
-            type="primary" 
-            plain 
-            icon="el-icon-chat-line-round"
-            @click="handleQuestion(item)"
-            class="action-btn"
-          >
-            向我提问
-          </el-button>
-          <el-button 
             type="success" 
             plain 
             icon="el-icon-date"
             @click="handleAppoint(item)"
             class="action-btn"
           >
-            线下预约
+            预约指导
           </el-button>
         </div>
       </div>
@@ -151,11 +138,7 @@ export default {
 
   // 搜索区域
   .search-section {
-    background-color: white;
-    border-radius: 12px;
-    padding: 30px;
     margin-bottom: 25px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 
     .search-wrapper {
       max-width: 600px;
@@ -166,13 +149,14 @@ export default {
           display: flex;
           border-radius: 24px;
           overflow: hidden;
-          border: 2px solid #e4e7ed;
+          border: 2px solid #dcdfe6;
           transition: all 0.3s;
           background-color: white;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
           &:focus-within {
             border-color: #67C23A;
-            box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.1);
+            box-shadow: 0 2px 12px rgba(103, 194, 58, 0.2);
           }
         }
 
@@ -184,11 +168,12 @@ export default {
           padding-left: 20px;
           font-size: 15px;
           flex: 1;
-          background-color: transparent;
+          background-color: white;
 
           &:focus {
             border: none;
             box-shadow: none;
+            background-color: white;
           }
         }
 
@@ -349,6 +334,8 @@ export default {
       .expert-actions {
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
         gap: 12px;
         flex-shrink: 0;
         min-width: 120px;
@@ -412,8 +399,6 @@ export default {
 @media (max-width: 768px) {
   .expert-source-container {
     .search-section {
-      padding: 20px;
-
       .search-wrapper {
         .search-input {
           /deep/ .el-input__inner {
@@ -450,6 +435,7 @@ export default {
       .expert-actions {
         width: 100%;
         flex-direction: row;
+        justify-content: center;
       }
     }
   }
