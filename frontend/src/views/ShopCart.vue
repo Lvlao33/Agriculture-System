@@ -1,320 +1,581 @@
 <template>
-  <div class="cart">
-    <receiving-address ref="address"></receiving-address>
-    <el-table
-      ref="multipleTable"
-      :data="dataArray"
-      stripe:true
-      tooltip-effect="dark"
-      style="width: 100%;margin-top: 20px;"
-      :reserve-selection="true"
-      :row-key="(row) => { return row.id }"
-      @selection-change="handleSelectionChange"
-      :row-class-name="rowClassName">
-      <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column label="商品">
-        <template v-slot="scope">
-          <div class="goods">
-            <img :src="$store.state.imgShowRoad + '/file/' + scope.row.picture" alt=""/>
-            <div class="info">
-              <h4 class="title">{{ scope.row.title }}</h4>
-              <p class="content">{{ scope.row.content }}</p>
-            </div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="单价" width="120">
-        <template v-slot="scope">
-          <p class="price">￥{{ scope.row.price }}</p>
-        </template>
-      </el-table-column>
-      <el-table-column label="数量" width="180">
-        <template v-slot="scope">
-          <el-input-number v-model="scope.row.count" @change="handleChange($event,scope.row)" :min="1" :max="1000000000" style="width:120px;"></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" show-overflow-tooltip width="100">
-        <template v-slot="scope">
-          <el-button type="info" class="delete-bar" @click="deleteClick(scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div style="margin-top: 20px" class="cancle">
-      <el-button @click="toggleSelection()">取消选择</el-button>
-    </div>
-    <div class="submit">
-      <div class="total-price">
-        <span>总价:￥{{ totalprice }}</span>
+  <div class="shop-cart-container">
+    <!-- 页面头部 -->
+    <div class="cart-header">
+      <h2 class="page-title">
+        <i class="el-icon-shopping-cart-2"></i>
+        购物车
+      </h2>
+      <div class="cart-info">
+        <span class="cart-count">共 <strong>{{ cartItems.length }}</strong> 件商品</span>
       </div>
-      <el-button type="danger" @click="payment" class="place-order">提交订单</el-button>
+    </div>
+
+    <!-- 购物车内容 -->
+    <div class="cart-content" v-if="cartItems.length > 0">
+      <!-- 商品列表 -->
+      <div class="cart-table-wrapper">
+        <el-table
+          :data="cartItems"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+          ref="cartTable"
+          :row-key="getRowKey"
+        >
+          <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
+          
+          <el-table-column label="商品信息" min-width="400">
+            <template v-slot="scope">
+              <div class="goods-info">
+                <div class="goods-image">
+                  <img 
+                    :src="getImageUrl(scope.row.picture || scope.row.image)" 
+                    :alt="scope.row.title || scope.row.name"
+                    @error="handleImageError"
+                  />
+                </div>
+                <div class="goods-details">
+                  <h4 class="goods-title">{{ scope.row.title || scope.row.name || '商品名称' }}</h4>
+                  <p class="goods-desc">{{ scope.row.content || scope.row.description || '商品描述' }}</p>
+                  <div class="goods-spec" v-if="scope.row.spec">
+                    <span>规格：{{ scope.row.spec }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="单价" width="120" align="center">
+            <template v-slot="scope">
+              <span class="price">¥{{ formatPrice(scope.row.price) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="数量" width="180" align="center">
+            <template v-slot="scope">
+              <el-input-number
+                v-model="scope.row.quantity"
+                :min="1"
+                :max="9999"
+                @change="handleQuantityChange(scope.row)"
+                size="small"
+              ></el-input-number>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="小计" width="120" align="center">
+            <template v-slot="scope">
+              <span class="subtotal">¥{{ formatPrice(calculateSubtotal(scope.row)) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" width="100" align="center">
+            <template v-slot="scope">
+              <el-button
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDelete(scope.row)"
+                class="delete-btn"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <!-- 底部操作栏 -->
+      <div class="cart-footer">
+        <div class="footer-left">
+          <el-button @click="toggleSelectAll">{{ isAllSelected ? '取消全选' : '全选' }}</el-button>
+          <el-button @click="handleBatchDelete" :disabled="selectedItems.length === 0">
+            删除选中
+          </el-button>
+        </div>
+        <div class="footer-right">
+          <div class="price-info">
+            <span class="total-label">已选 <strong>{{ selectedItems.length }}</strong> 件商品，合计：</span>
+            <span class="total-price">¥{{ formatPrice(totalPrice) }}</span>
+          </div>
+          <el-button
+            type="danger"
+            size="medium"
+            @click="handleCheckout"
+            :disabled="selectedItems.length === 0"
+            class="checkout-btn"
+          >
+            结算
+          </el-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-cart" v-else>
+      <div class="empty-icon">
+        <i class="el-icon-shopping-cart-2"></i>
+      </div>
+      <p class="empty-text">购物车是空的</p>
+      <p class="empty-desc">快去挑选心仪的商品吧~</p>
+      <el-button type="primary" @click="goShopping">去购物</el-button>
     </div>
   </div>
 </template>
 
 <script>
-import { alipayRoad } from "../api/alipay";
-import { cartDeleteOrder, cartShow,updateGoodsCount } from "../api/cart";
-import ReceivingAddress from "../components/ReceivingAddress.vue";
-import {selectDefaultByOwnName} from "../api/address";
+// 导入购物车相关的 API 接口
+import { cartShow, cartDeleteOrder, updateGoodsCount } from '@/api/cart'
+// TODO: 等待后端接入以下接口：
+// - 批量删除购物车商品接口
+// - 结算接口
+
 export default {
-  inject: ["reload"],
-  components: { ReceivingAddress },
+  name: 'ShopCart',
   data() {
     return {
-      dataArray: [],
-      totalprice: "",
-      addressData:{}
-    };
-  },
-  watch:{
-    multipleSelection(val1,val2){
-      console.log('11111val1',val1)
-      console.log('1111val2',val2)
-    },
-    dataArray(val){
-      console.log('222222val1',val)
-      // console.log('222222val2',val2)
-      // if(val){
-      //   this.calPrice()
-      // }
+      cartItems: [], // 购物车商品列表
+      selectedItems: [], // 选中的商品
+      isAllSelected: false, // 是否全选
+      loading: false, // 加载状态
     }
   },
-  computed: {},
-  methods: {
-    //获取当前的行数
-    rowClassName({ row, rowIndex }) {
-      //把每一行的索引放进row
-      row.index = rowIndex;
-    },
-    payment() {
-      console.log('this.multipleSelection',this.multipleSelection)
-      if(this.multipleSelection&&this.multipleSelection.length>0){
-        alipayRoad({
-          addId: this.addressData.id,
-          tMoney: this.totalprice,
-          shoppingModelList: this.multipleSelection
-        })
-          .then((res) => {
-            this.$store.commit("updatePaymentInfo", res);
-            this.reload();
-            // 打开新页面
-            // window.open(routerData.href, "__blank");
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }else{
-        this.$message.error('请选择商品')
-      }
-    },
-    deleteClick(row) {
-      // console.log('row',row)
-      // cartDeleteOrder({
-      //   order_id: row.shoppingId,
-      // }).then((res) => {
-      //   this.$message.success("删除成功");
-      //   // this.reload();
-      //   this.getOrderList()
-      // }).catch((err) => {
-      //   this.$message.error("删除失败");
-      // });
-      this.$confirm('确认删除该商品?', '删除', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          cartDeleteOrder({
-            order_id: row.shoppingId,
-          }).then((res) => {
-            this.$message.success("删除成功");
-            this.getOrderList()
-          }).catch((err) => {
-            this.$message.error("删除失败");
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
-    },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach((row) => {
-          this.$refs.multipleTable.toggleRowSelection(row);
-          
-        });
-        
-      } else {
-        this.$refs.multipleTable.clearSelection();
-      }
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-      localStorage.setItem('multipleSelection',JSON.stringify(this.multipleSelection))
-      let sum = 0
-      val.forEach(e=>{
-        sum = sum+(Number(e.price)* e.count)
-        this.totalprice = sum
-        console.log('this.totalprice',this.totalprice)
-      })
-    },
-    calPrice(){
-      let sum = 0
-      this.multipleSelection = JSON.parse(localStorage.getItem('multipleSelection'))
-      if(this.multipleSelection&&this.multipleSelection.length>0){
-        this.dataArray.forEach(e=>{
-          this.multipleSelection.forEach(e1 => {
-            if(e.shoppingId === e1.shoppingId){ 
-              console.log('e1.shoppingId',e.count,e1.shoppingId)  
-              sum = sum+(Number(e1.price)* e.count)
-              this.totalprice = sum
-              console.log('---this.totalprice',this.totalprice)
-            }
-          })
-        })
-      }
-    },
-    // 更新商品数量  /cart/update/{id}/{count}
-    handleChange(val,row){
-      if(this.multipleSelection&&this.multipleSelection.length>0){
-        this.multipleSelection.forEach(e => {
-          if(e.shoppingId === row.shoppingId){
-            e.count = val
-          }
-        })
-        localStorage.setItem('multipleSelection',JSON.stringify(this.multipleSelection))
-      }
-
-      updateGoodsCount({
-        count:val,
-        id:row.shoppingId
-      }).then(res=>{
-        this.multipleSelection = JSON.parse(localStorage.getItem('multipleSelection'))
-        this.calPrice()
-      }).catch(err=>{
-        console.log(err)
-      })
-    },
-    getOrderList(){
-      cartShow({}).then((res) => {
-        if (res.flag == true) {
-          this.dataArray = res.data;
-          this.totalprice = 0;
-        } else {
-          this.$message.error('您未登录，请先登录')
-          this.$router.push("/login")
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  computed: {
+    // 计算总价
+    totalPrice() {
+      return this.selectedItems.reduce((total, item) => {
+        return total + (parseFloat(item.price) || 0) * (item.quantity || 1)
+      }, 0)
     }
   },
   created() {
-    if (this.$store.state.token == "") {
-      alert;
-    }
-    this.getOrderList()
-    this.$store.commit("updateActiveIndex", "6");
-    selectDefaultByOwnName({})
-      .then((res) => {
-        this.addressData = res.data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    this.$store.commit('updateActiveIndex', '6')
+    // TODO: 调用后端接口获取购物车列表
+    this.loadCartItems()
   },
-};
-</script>
+  methods: {
+    // 获取购物车列表
+    async loadCartItems() {
+      this.loading = true
+      try {
+        const res = await cartShow({})
+        if (res && res.flag) {
+          // 将后端返回的数据转换为前端需要的格式
+          this.cartItems = (res.data || []).map(item => ({
+            id: item.shoppingId || item.id,
+            cartId: item.shoppingId || item.id,
+            title: item.title || item.name,
+            name: item.title || item.name,
+            content: item.content || item.description,
+            description: item.content || item.description,
+            picture: item.picture || item.image,
+            image: item.picture || item.image,
+            price: item.price,
+            quantity: item.count || item.quantity || 1,
+            count: item.count || item.quantity || 1,
+            spec: item.spec || ''
+          }))
+        } else {
+          this.cartItems = []
+          if (res && res.message) {
+            this.$message.warning(res.message)
+          }
+        }
+      } catch (error) {
+        console.error('加载购物车失败:', error)
+        this.cartItems = []
+        // 如果未登录，不显示错误提示
+        if (error.response && error.response.status !== 401) {
+          this.$message.error('加载购物车失败，请稍后重试')
+        }
+      } finally {
+        this.loading = false
+      }
+    },
 
-<style lang="less" scoped>
-.cart {
-  width: 1100px;
-  margin: 10px auto;
-  background: #fff;
-  padding: 10px 20px;
-  .goods {
-    width: 500px;
-    img {
-      float: left;
-      width: 150px;
-      height: 100px;
-      margin-right: 10px;
-      border-radius: 6px;
-    }
-    .info {
-      // float: left;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-      .title {
-        margin: 0;
+    // 更新商品数量
+    async handleQuantityChange(item) {
+      try {
+        await updateGoodsCount({
+          id: item.cartId || item.id,
+          count: item.quantity
+        })
+        // 同步更新 count 字段
+        item.count = item.quantity
+        this.$message.success('数量已更新')
+        // 重新计算总价
+        this.$forceUpdate()
+      } catch (error) {
+        console.error('更新数量失败:', error)
+        this.$message.error('更新数量失败')
+        // 恢复原值
+        this.loadCartItems()
       }
-      .content {
-        height: 65px;
-        // width: 200px;
-        /*超出的部分隐藏*/
-        overflow: hidden;
-        /*文字用省略号替代超出的部分*/
-        text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
-        display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
-        -webkit-line-clamp: 3;
-        /*设置或检索伸缩盒对象的子元素排列方式*/
-        -webkit-box-orient: vertical;
+    },
+
+    // 删除单个商品
+    async handleDelete(item) {
+      this.$confirm('确定要删除该商品吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        try {
+          await cartDeleteOrder({
+            order_id: item.cartId || item.id
+          })
+          this.$message.success('删除成功')
+          // 从选中列表中移除
+          this.selectedItems = this.selectedItems.filter(i => i.id !== item.id)
+          // 重新加载购物车列表
+          this.loadCartItems()
+        } catch (error) {
+          console.error('删除失败:', error)
+          this.$message.error('删除失败')
+        }
+      }).catch(() => {})
+    },
+
+    // 批量删除
+    async handleBatchDelete() {
+      if (this.selectedItems.length === 0) {
+        this.$message.warning('请选择要删除的商品')
+        return
       }
-    }
-  }
-  .price,
-  .subtotal {
-    color: red;
-  }
-  .count {
-    .itxt {
-      width: 40px;
-      height: 30px;
-      margin: 0 10px;
-    }
-    button {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      padding: 0;
-      text-align: center;
-      line-height: 20px;
-      border: 1px solid darkgray;
-      font-size: 20px;
-    }
-  }
-  .cancle {
-    float: left;
-  }
-  .submit {
-    margin-top: 20px;
-    float: right;
-    width: 300px;
-    height: 40px;
-    .total-price {
-      font-size: 20px;
-      float: left;
-      color: red;
-      // margin-right: 50px;
-      line-height: 40px;
-    }
-    .place-order {
-      float: right;
+      
+      this.$confirm(`确定要删除选中的 ${this.selectedItems.length} 件商品吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        try {
+          // TODO: 等待后端提供批量删除接口
+          // 目前使用循环调用单个删除接口
+          const deletePromises = this.selectedItems.map(item => 
+            cartDeleteOrder({
+              order_id: item.cartId || item.id
+            })
+          )
+          await Promise.all(deletePromises)
+          this.$message.success('删除成功')
+          this.selectedItems = []
+          this.loadCartItems()
+        } catch (error) {
+          console.error('批量删除失败:', error)
+          this.$message.error('删除失败')
+        }
+      }).catch(() => {})
+    },
+
+    // TODO: 结算
+    async handleCheckout() {
+      if (this.selectedItems.length === 0) {
+        this.$message.warning('请选择要结算的商品')
+        return
+      }
+      
+      try {
+        // 等待后端接口接入
+        // const res = await checkout({
+        //   items: this.selectedItems.map(item => ({
+        //     id: item.id,
+        //     quantity: item.quantity
+        //   }))
+        // })
+        // if (res && res.flag) {
+        //   this.$router.push('/home/payment')
+        // } else {
+        //   this.$message.error(res?.message || '结算失败')
+        // }
+        
+        // 临时：跳转到订单页面
+        this.$message.info('结算功能等待后端接入')
+        // this.$router.push('/home/payment')
+      } catch (error) {
+        console.error('结算失败:', error)
+        this.$message.error('结算失败')
+      }
+    },
+
+    // 选择变化
+    handleSelectionChange(selection) {
+      this.selectedItems = selection
+      this.isAllSelected = selection.length === this.cartItems.length && this.cartItems.length > 0
+    },
+
+    // 全选/取消全选
+    toggleSelectAll() {
+      if (this.isAllSelected) {
+        this.$refs.cartTable.clearSelection()
+      } else {
+        this.cartItems.forEach(row => {
+          this.$refs.cartTable.toggleRowSelection(row, true)
+        })
+      }
+    },
+
+    // 计算小计
+    calculateSubtotal(item) {
+      return (parseFloat(item.price) || 0) * (item.quantity || 1)
+    },
+
+    // 格式化价格
+    formatPrice(price) {
+      if (!price && price !== 0) return '0.00'
+      return parseFloat(price).toFixed(2)
+    },
+
+    // 获取图片 URL
+    getImageUrl(picture) {
+      if (!picture) return '/order/wutu.gif'
+      if (picture.startsWith('http')) return picture
+      if (picture.startsWith('/')) return picture
+      return `${this.$store.state.imgShowRoad || ''}/file/${picture}`
+    },
+
+    // 图片加载错误处理
+    handleImageError(event) {
+      event.target.src = '/order/wutu.gif'
+    },
+
+    // 获取行 key
+    getRowKey(row) {
+      return row.id || row.cartId || Math.random()
+    },
+
+    // 去购物
+    goShopping() {
+      this.$router.push('/home/goods')
     }
   }
 }
-.delete-bar {
-  width: 60px;
-  height: 30px;
-  padding: 0;
-  span {
-    margin: 0;
+</script>
+
+<style lang="less" scoped>
+.shop-cart-container {
+  width: 1100px;
+  margin: 0 auto;
+  padding: 20px 0;
+  min-height: calc(100vh - 200px);
+
+  .cart-header {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .page-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      i {
+        color: #f56c6c;
+        font-size: 28px;
+      }
+    }
+
+    .cart-info {
+      .cart-count {
+        font-size: 14px;
+        color: #666;
+
+        strong {
+          color: #f56c6c;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .cart-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .cart-table-wrapper {
+      margin-bottom: 20px;
+
+      .goods-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        .goods-image {
+          width: 100px;
+          height: 100px;
+          border-radius: 6px;
+          overflow: hidden;
+          background: #f5f5f5;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .goods-details {
+          flex: 1;
+          min-width: 0;
+
+          .goods-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 8px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .goods-desc {
+            font-size: 14px;
+            color: #999;
+            margin: 0 0 8px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.5;
+          }
+
+          .goods-spec {
+            font-size: 12px;
+            color: #999;
+          }
+        }
+      }
+
+      .price {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f56c6c;
+      }
+
+      .subtotal {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f56c6c;
+      }
+
+      .delete-btn {
+        color: #f56c6c;
+
+        &:hover {
+          color: #ff8c94;
+        }
+      }
+    }
+
+    .cart-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      margin-top: 20px;
+
+      .footer-left {
+        display: flex;
+        gap: 15px;
+      }
+
+      .footer-right {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .price-info {
+          display: flex;
+          align-items: baseline;
+          gap: 10px;
+
+          .total-label {
+            font-size: 14px;
+            color: #666;
+
+            strong {
+              color: #f56c6c;
+            }
+          }
+
+          .total-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f56c6c;
+          }
+        }
+
+        .checkout-btn {
+          padding: 12px 40px;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  .empty-cart {
+    background: #fff;
+    border-radius: 8px;
+    padding: 80px 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .empty-icon {
+      font-size: 80px;
+      color: #ddd;
+      margin-bottom: 20px;
+
+      i {
+        font-size: 80px;
+      }
+    }
+
+    .empty-text {
+      font-size: 18px;
+      color: #666;
+      margin: 0 0 10px 0;
+    }
+
+    .empty-desc {
+      font-size: 14px;
+      color: #999;
+      margin: 0 0 30px 0;
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 1200px) {
+  .shop-cart-container {
+    width: 95%;
+    padding: 20px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-cart-container {
+    .cart-footer {
+      flex-direction: column;
+      gap: 20px;
+
+      .footer-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
   }
 }
 </style>
