@@ -249,7 +249,7 @@ public class QAController {
      * GET /qa/question/{id}
      * 获取问题详情
      */
-    @GetMapping("question/{id}")
+    @GetMapping("/question/{id}")
     public ResponseEntity<Map<String, Object>> getQuestionDetail(@PathVariable Long id) {
         try {
             Question question = qaService.getQuestionById(id)

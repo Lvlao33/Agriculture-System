@@ -108,7 +108,9 @@ public class QAService {
     }
 
     public Optional<Question> getQuestionById(Long id) {
-        return questionRepository.findById(id);
+        Optional<Question> question = questionRepository.findById(id);
+        question.ifPresent(this::initializeLazyFields);
+        return question;
     }
 
     public Question createQuestion(Question question) {
@@ -182,7 +184,18 @@ public class QAService {
 
     // Answer methods
     public List<Answer> getQuestionAnswers(Long questionId) {
-        return answerRepository.findByQuestionIdOrderByCreateTime(questionId);
+        List<Answer> answers = answerRepository.findByQuestionIdOrderByCreateTime(questionId);
+        // Initialize lazy-loaded expert field
+        for (Answer answer : answers) {
+            try {
+                if (answer.getExpert() != null) {
+                    answer.getExpert().getName(); // Trigger lazy load
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return answers;
     }
 
     public List<Answer> getExpertAnswers(Long expertId) {
