@@ -129,8 +129,21 @@ public class QAController {
                     item.put("id", q.getId());
                     item.put("title", q.getTitle() != null ? q.getTitle() : "");
                     item.put("content", q.getContent() != null ? q.getContent() : "");
-                    item.put("userId", q.getUser() != null ? q.getUser() : "");
-                    item.put("userName", q.getUser() != null ? q.getUser().getUsername() : "");
+                    // 处理用户字段，避免懒加载问题
+                    if (q.getUser() != null) {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("id", q.getUser().getId());
+                        userMap.put("username", q.getUser().getUsername());
+                        userMap.put("nickname", q.getUser().getNickname());
+                        userMap.put("avatar", q.getUser().getAvatar());
+                        item.put("user", userMap);
+                        item.put("userId", q.getUser().getId()); // 保持兼容性
+                        item.put("userName", q.getUser().getUsername()); // 保持兼容性
+                    } else {
+                        item.put("user", null);
+                        item.put("userId", null);
+                        item.put("userName", "匿名用户");
+                    }
                     item.put("status", q.getStatus() != null ? q.getStatus().name() : "PENDING");
 
                     // 将LocalDateTime转换为字符串，避免序列化问题
@@ -240,8 +253,19 @@ public class QAController {
             questionMap.put("id", question.getId());
             questionMap.put("title", question.getTitle());
             questionMap.put("content", question.getContent());
-            questionMap.put("user", question.getUser());
-            questionMap.put("userName", question.getUser().getUsername());
+            // 处理用户字段
+            if (question.getUser() != null) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", question.getUser().getId());
+                userMap.put("username", question.getUser().getUsername());
+                userMap.put("nickname", question.getUser().getNickname());
+                userMap.put("avatar", question.getUser().getAvatar());
+                questionMap.put("user", userMap);
+                questionMap.put("userName", question.getUser().getUsername());
+            } else {
+                questionMap.put("user", null);
+                questionMap.put("userName", "匿名用户");
+            }
             questionMap.put("status", question.getStatus() != null ? question.getStatus().name() : "PENDING");
             questionMap.put("createTime", question.getCreateTime());
             questionMap.put("updateTime", question.getUpdateTime());
