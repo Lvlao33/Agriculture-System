@@ -131,16 +131,24 @@ public class QAController {
                     item.put("title", q.getTitle() != null ? q.getTitle() : "");
                     item.put("content", q.getContent() != null ? q.getContent() : "");
                     // 处理用户字段，避免懒加载问题
-                    if (q.getUser() != null) {
-                        Map<String, Object> userMap = new HashMap<>();
-                        userMap.put("id", q.getUser().getId());
-                        userMap.put("username", q.getUser().getUsername());
-                        userMap.put("nickname", q.getUser().getNickname());
-                        userMap.put("avatar", q.getUser().getAvatar());
-                        item.put("user", userMap);
-                        item.put("userId", q.getUser().getId()); // 保持兼容性
-                        item.put("userName", q.getUser().getUsername()); // 保持兼容性
-                    } else {
+                    try {
+                        if (q.getUser() != null) {
+                            User user = q.getUser();
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("id", user.getId());
+                            userMap.put("username", user.getUsername());
+                            userMap.put("nickname", user.getNickname());
+                            userMap.put("avatar", user.getAvatar());
+                            item.put("user", userMap);
+                            item.put("userId", user.getId()); // 保持兼容性
+                            item.put("userName", user.getUsername()); // 保持兼容性
+                        } else {
+                            item.put("user", null);
+                            item.put("userId", null);
+                            item.put("userName", "匿名用户");
+                        }
+                    } catch (Exception e) {
+                        // 懒加载失败，使用默认值
                         item.put("user", null);
                         item.put("userId", null);
                         item.put("userName", "匿名用户");
@@ -260,15 +268,22 @@ public class QAController {
             questionMap.put("title", question.getTitle());
             questionMap.put("content", question.getContent());
             // 处理用户字段
-            if (question.getUser() != null) {
-                Map<String, Object> userMap = new HashMap<>();
-                userMap.put("id", question.getUser().getId());
-                userMap.put("username", question.getUser().getUsername());
-                userMap.put("nickname", question.getUser().getNickname());
-                userMap.put("avatar", question.getUser().getAvatar());
-                questionMap.put("user", userMap);
-                questionMap.put("userName", question.getUser().getUsername());
-            } else {
+            try {
+                if (question.getUser() != null) {
+                    User user = question.getUser();
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("nickname", user.getNickname());
+                    userMap.put("avatar", user.getAvatar());
+                    questionMap.put("user", userMap);
+                    questionMap.put("userName", user.getUsername());
+                } else {
+                    questionMap.put("user", null);
+                    questionMap.put("userName", "匿名用户");
+                }
+            } catch (Exception e) {
+                // 懒加载失败，使用默认值
                 questionMap.put("user", null);
                 questionMap.put("userName", "匿名用户");
             }
@@ -394,9 +409,13 @@ public class QAController {
                 if (users.isEmpty()) {
                     throw new RuntimeException("用户不存在，无法提交问题");
                 } else {
-                    question.setUser(users.get(0));
+                    User user = users.get(0);
+                    question.setUser(user);
+                    // 如果提供了userName且与当前用户名不同，则更新
+                    if (userName != null && !userName.isEmpty() && !userName.equals(user.getUsername())) {
+                        user.setUsername(userName);
+                    }
                 }
-                question.getUser().setUsername(userName);
             }
             // User user = new User();
             // question.setUser(user);
@@ -498,8 +517,9 @@ public class QAController {
 
             if (!allQuestions.isEmpty()) {
                 Question first = allQuestions.get(0);
+                String userIdStr = first.getUser() != null ? String.valueOf(first.getUser().getId()) : "null";
                 System.out.println(
-                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUser());
+                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + userIdStr);
             }
 
             Map<String, Object> response = new HashMap<>();
