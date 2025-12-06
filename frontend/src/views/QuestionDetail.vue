@@ -51,11 +51,11 @@
           >
             <div class="answer-header">
               <div class="answer-author">
-                <i class="el-icon-medal"></i>
-                <span class="author-name">{{ answer.expertName || '专家' }}</span>
-                <el-tag v-if="answer.expertName" type="warning" size="mini">专家</el-tag>
+                <i class="el-icon-user"></i>
+                <span class="author-name">{{ answer.userName || answer.expertName || answer.authorName || '匿名用户' }}</span>
+                <el-tag v-if="isExpertAnswer(answer)" type="warning" size="mini">专家</el-tag>
               </div>
-              <span class="answer-time">{{ formatDate(answer.createTime) }}</span>
+              <span class="answer-time">{{ formatDate(answer.createTime || answer.create_time) }}</span>
             </div>
             <div class="answer-content">{{ answer.content }}</div>
           </div>
@@ -65,13 +65,57 @@
             <p>暂无回答，等待专家解答...</p>
           </div>
         </div>
+
+        <!-- 去回答按钮和回答表单 -->
+        <div class="answer-form-section">
+          <el-button 
+            type="primary" 
+            icon="el-icon-edit"
+            @click="showAnswerForm = true"
+            class="answer-btn"
+          >
+            去回答
+          </el-button>
+
+          <!-- 回答表单对话框 -->
+          <el-dialog
+            title="发表回答"
+            :visible.sync="showAnswerForm"
+            width="700px"
+            :before-close="handleCloseDialog"
+          >
+            <el-form 
+              :model="answerForm" 
+              :rules="answerRules" 
+              ref="answerForm"
+              label-width="80px"
+            >
+              <el-form-item label="回答内容" prop="content">
+                <el-input
+                  type="textarea"
+                  v-model="answerForm.content"
+                  :rows="8"
+                  placeholder="请输入您的回答内容，详细描述有助于提问者更好地理解..."
+                  maxlength="2000"
+                  show-word-limit
+                ></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="handleCloseDialog">取消</el-button>
+              <el-button type="primary" @click="handleSubmitAnswer" :loading="submitting">
+                提交回答
+              </el-button>
+            </span>
+          </el-dialog>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import { getQuestionDetail, getAnswersList } from '@/api/qa'
+import { getQuestionDetail, getAnswersList, submitAnswer } from '@/api/qa'
 
 export default {
   name: 'QuestionDetail',
@@ -79,7 +123,18 @@ export default {
     return {
       questionId: null,
       questionDetail: {},
-      answersList: []
+      answersList: [],
+      showAnswerForm: false, // 是否显示回答表单
+      submitting: false, // 是否正在提交
+      answerForm: {
+        content: '' // 回答内容
+      },
+      answerRules: {
+        content: [
+          { required: true, message: '请输入回答内容', trigger: 'blur' },
+          { min: 10, max: 2000, message: '回答内容长度在 10 到 2000 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -111,17 +166,32 @@ export default {
       }
     },
     // 加载回答列表
-    loadAnswers() {
-      // TODO: 调用后端接口
-      // getAnswersList({ questionId: this.questionId }).then(res => {
-      //   if (res.flag) {
-      //     this.answersList = res.data.list || []
-      //   }
-      // })
-
-      // 临时使用模拟数据
-      const mockAnswers = this.getMockAnswers()
-      this.answersList = mockAnswers.filter(a => a.questionId == this.questionId)
+    async loadAnswers() {
+      try {
+        const res = await getAnswersList({ questionId: this.questionId })
+        if (res && res.flag) {
+          // 处理回答数据，确保包含用户身份信息
+          this.answersList = (res.data || res.data?.list || []).map(answer => ({
+            ...answer,
+            // 确保有用户名
+            userName: answer.userName || answer.expertName || answer.authorName || '匿名用户',
+            // 确保有创建时间
+            createTime: answer.createTime || answer.create_time,
+            // 确保有角色信息
+            role: answer.role || answer.userRole,
+            isExpert: this.isExpertAnswer(answer)
+          }))
+        } else {
+          // 如果接口返回失败，使用模拟数据
+          const mockAnswers = this.getMockAnswers()
+          this.answersList = mockAnswers.filter(a => a.questionId == this.questionId)
+        }
+      } catch (error) {
+        console.error('加载回答列表失败:', error)
+        // 如果接口调用失败，使用模拟数据
+        const mockAnswers = this.getMockAnswers()
+        this.answersList = mockAnswers.filter(a => a.questionId == this.questionId)
+      }
     },
     // 模拟问题数据
     getMockQuestions() {
@@ -146,42 +216,55 @@ export default {
         }
       ]
     },
-    // 模拟回答数据
+    // 模拟回答数据（用于测试）
     getMockAnswers() {
       return [
         {
           id: 1,
           questionId: 1,
+          userName: '李教授',
           expertName: '李教授',
+          role: 'EXPERT',
+          isExpert: true,
           content: '冬季大棚蔬菜防冻害的关键措施包括：1. 保持棚内温度，夜间不低于8-10℃；2. 使用双层膜或保温被覆盖；3. 合理通风，避免湿度过大；4. 增施有机肥提高地温；5. 必要时使用加温设备。',
           createTime: '2025-01-15 11:20:00'
         },
         {
           id: 2,
           questionId: 1,
+          userName: '王专家',
           expertName: '王专家',
+          role: 'EXPERT',
+          isExpert: true,
           content: '补充一点，还要注意及时清理棚膜上的积雪，保持透光性。同时可以在棚内放置一些水桶，利用水的比热容大的特性来稳定温度。',
           createTime: '2025-01-15 13:15:00'
         },
         {
           id: 3,
           questionId: 1,
-          expertName: '刘教授',
-          content: '另外，建议选择抗寒性强的品种，并适当增加种植密度，利用群体效应提高抗寒能力。',
+          userName: '张农户',
+          role: 'FARMER',
+          isExpert: false,
+          content: '感谢专家的建议，我会按照这些方法去操作。',
           createTime: '2025-01-15 14:20:00'
         },
         {
           id: 4,
           questionId: 2,
+          userName: '刘专家',
           expertName: '刘专家',
+          role: 'EXPERT',
+          isExpert: true,
           content: '小麦晚播后管理要点：1. 适当增加播种量，保证基本苗数；2. 增施底肥，特别是磷肥；3. 加强冬前管理，促进分蘖；4. 春季早追肥，促进生长；5. 注意病虫害防治。',
           createTime: '2025-01-14 10:30:00'
         },
         {
           id: 5,
           questionId: 2,
-          expertName: '陈专家',
-          content: '晚播小麦要特别注意冬前管理，如果分蘖不足，可以在返青期适当增加追肥量，但要控制好氮肥用量，避免贪青晚熟。',
+          userName: '王农户',
+          role: 'FARMER',
+          isExpert: false,
+          content: '好的，我会注意这些管理要点。',
           createTime: '2025-01-14 16:45:00'
         }
       ]
@@ -200,6 +283,65 @@ export default {
       const hours = String(date.getHours()).padStart(2, '0')
       const minutes = String(date.getMinutes()).padStart(2, '0')
       return `${year}-${month}-${day} ${hours}:${minutes}`
+    },
+    // 判断是否为专家回答
+    isExpertAnswer(answer) {
+      // 如果回答中有 expertName 字段，说明是专家回答
+      if (answer.expertName) return true
+      // 如果回答中有 role 字段且为 EXPERT 或 expert
+      if (answer.role && (answer.role === 'EXPERT' || answer.role === 'expert')) return true
+      // 如果回答中有 userRole 字段且为 expert
+      if (answer.userRole && answer.userRole === 'expert') return true
+      // 如果回答中有 isExpert 字段且为 true
+      if (answer.isExpert === true) return true
+      return false
+    },
+    // 提交回答
+    handleSubmitAnswer() {
+      this.$refs.answerForm.validate(async (valid) => {
+        if (valid) {
+          // 检查是否登录
+          if (!this.$store.state.token) {
+            this.$message.warning('请先登录')
+            this.$router.push('/login')
+            return
+          }
+
+          this.submitting = true
+          try {
+            const res = await submitAnswer({
+              questionId: this.questionId,
+              content: this.answerForm.content
+            })
+            
+            if (res && res.flag) {
+              this.$message.success('回答提交成功')
+              this.handleCloseDialog()
+              // 重新加载回答列表
+              this.loadAnswers()
+              // 更新问题详情（回答数量）
+              this.loadQuestionDetail()
+            } else {
+              this.$message.error(res?.message || '回答提交失败')
+            }
+          } catch (error) {
+            console.error('提交回答失败:', error)
+            this.$message.error('回答提交失败，请稍后重试')
+          } finally {
+            this.submitting = false
+          }
+        } else {
+          this.$message.warning('请完善回答信息')
+        }
+      })
+    },
+    // 关闭对话框
+    handleCloseDialog() {
+      this.showAnswerForm = false
+      this.answerForm.content = ''
+      if (this.$refs.answerForm) {
+        this.$refs.answerForm.clearValidate()
+      }
     }
   }
 }
@@ -389,6 +531,18 @@ export default {
           p {
             font-size: 16px;
           }
+        }
+      }
+
+      .answer-form-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+        text-align: center;
+
+        .answer-btn {
+          padding: 12px 40px;
+          font-size: 16px;
         }
       }
     }
