@@ -23,7 +23,7 @@ public class ExpertService {
             return null; // 如果传入的专家实体为空，返回null
         }
 
-        // 强制初始�? specialties 集合
+        // 强制初始�? specialties 集合
         Hibernate.initialize(expert.getSpecialties());
 
         ExpertDTO dto = new ExpertDTO();
@@ -67,7 +67,8 @@ public class ExpertService {
     }
 
     public Optional<Expert> getExpertByUserId(Long userId) {
-        return expertRepository.findByUser_Id(userId);
+        List<Expert> experts = expertRepository.findByUser_Id(userId);
+        return experts.isEmpty() ? Optional.empty() : Optional.of(experts.get(0));
     }
 
     public List<Expert> searchExpertsBySpecialty(String specialty) {

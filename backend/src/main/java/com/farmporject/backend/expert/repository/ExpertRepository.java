@@ -21,4 +21,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     List<Expert> findByNameContainingIgnoreCase(String name);
 
     List<Expert> findByTitleContainingIgnoreCase(String title);
+
+    @Query("SELECT e FROM Expert e WHERE e.user.id = :userId")
+    List<Expert> findByUser_Id(Long userId);
 }
