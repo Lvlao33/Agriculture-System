@@ -1,6 +1,7 @@
 package com.farmporject.backend.expert.service;
 
 import com.farmporject.backend.expert.model.Knowledge;
+import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.repository.KnowledgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -136,7 +137,7 @@ public class KnowledgeService {
     }
 
     // 根据作者查询
-    public List<Knowledge> getKnowledgeByAuthor(String author) {
+    public List<Knowledge> getKnowledgeByAuthor(Expert author) {
         return knowledgeRepository.findByAuthorAndIsPublishedTrue(author);
     }
 

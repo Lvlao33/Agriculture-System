@@ -15,7 +15,7 @@ import java.util.Optional;
 public class UserService {
     private static final String DEFAULT_ROLE = "FARMER";
 
-    private final UserRepository userRepository;  //
+    private final UserRepository userRepository; //
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -63,7 +63,35 @@ public class UserService {
     }
 
     public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
+        Optional<User> userOpt = userRepository.findById(id);
+        // 初始化懒加载字段，避免 LazyInitializationException
+        userOpt.ifPresent(user -> {
+            try {
+                // 初始化 expert 板块的懒加载集合
+                if (user.getAppointments() != null) {
+                    user.getAppointments().size();
+                }
+                if (user.getQuestions() != null) {
+                    user.getQuestions().size();
+                }
+                // 初始化 finance 板块的懒加载集合
+                if (user.getLoanUserStatuses() != null) {
+                    user.getLoanUserStatuses().size();
+                }
+                if (user.getLoanrRecords() != null) {
+                    user.getLoanrRecords().size();
+                }
+                if (user.getLoanProducts() != null) {
+                    user.getLoanProducts().size();
+                }
+                if (user.getAssignedLoans() != null) {
+                    user.getAssignedLoans().size();
+                }
+            } catch (Exception e) {
+                // 忽略懒加载失败的异常
+            }
+        });
+        return userOpt;
     }
 
     public User updateUserInfo(String username, String nickname, String avatar) {
