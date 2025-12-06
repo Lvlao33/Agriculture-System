@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 问答模块控制器
+ * 问答模块控制�?
  * 根据前端接口规范实现
  */
 @RestController
@@ -69,7 +69,7 @@ public class QAController {
                     if (userId != null) {
                         Long uid = Long.parseLong(userId);
                         list = qaService.getUserQuestions(uid);
-                        System.out.println("查询用户问题，数量: " + (list != null ? list.size() : 0));
+                        System.out.println("查询用户问题，数�?: " + (list != null ? list.size() : 0));
                     } else {
                         list = qaService.getAllQuestions();
                         System.out.println("userId为null，查询全部问题，数量: " + (list != null ? list.size() : 0));
@@ -77,14 +77,14 @@ public class QAController {
                 } else {
                     // 查询全部问题
                     list = qaService.getAllQuestions();
-                    System.out.println("查询全部问题，数量: " + (list != null ? list.size() : 0));
+                    System.out.println("查询全部问题，数�?: " + (list != null ? list.size() : 0));
                 }
 
-                // 关键词搜索
+                // 关键词搜�?
                 if (keyword != null && !keyword.trim().isEmpty()) {
-                    System.out.println("执行关键词搜索: " + keyword);
+                    System.out.println("执行关键词搜�?: " + keyword);
                     list = qaService.searchQuestionsByKeyword(keyword.trim());
-                    System.out.println("搜索后问题数量: " + (list != null ? list.size() : 0));
+                    System.out.println("搜索后问题数�?: " + (list != null ? list.size() : 0));
                 }
             } catch (Exception queryException) {
                 System.err.println("查询数据库时出错: " + queryException.getMessage());
@@ -118,12 +118,12 @@ public class QAController {
 
             // 转换为DTO格式，避免懒加载问题
             List<Map<String, Object>> resultList = new ArrayList<>();
-            System.out.println("开始转换 " + pagedList.size() + " 条问题数据");
+            System.out.println("开始转�? " + pagedList.size() + " 条问题数�?");
 
             for (int i = 0; i < pagedList.size(); i++) {
                 Question q = pagedList.get(i);
                 try {
-                    System.out.println("处理第 " + (i + 1) + " 条问题，ID: " + q.getId() + ", 标题: " + q.getTitle());
+                    System.out.println("处理�? " + (i + 1) + " 条问题，ID: " + q.getId() + ", 标题: " + q.getTitle());
 
                     Map<String, Object> item = new HashMap<>();
                     item.put("id", q.getId());
@@ -146,7 +146,7 @@ public class QAController {
                         item.put("updateTime", null);
                     }
 
-                    // 处理附件和标签，避免懒加载异常
+                    // 处理附件和标签，避免懒加载异�?
                     try {
                         List<String> attachments = q.getAttachmentUrls();
                         item.put("attachmentUrls", attachments != null ? attachments : new ArrayList<>());
@@ -164,23 +164,23 @@ public class QAController {
                         item.put("tags", new ArrayList<>());
                     }
 
-                    // 暂时不查询答案数量，避免懒加载问题
+                    // 暂时不查询答案数量，避免懒加载问�?
                     item.put("answerCount", 0);
 
                     // 处理expert字段，避免懒加载
                     item.put("expert", null);
 
                     resultList.add(item);
-                    System.out.println("成功处理第 " + (i + 1) + " 条问题");
+                    System.out.println("成功处理�? " + (i + 1) + " 条问�?");
                 } catch (Exception e) {
                     System.err.println(
                             "处理问题失败 (问题ID: " + q.getId() + "): " + e.getClass().getName() + ": " + e.getMessage());
                     e.printStackTrace();
-                    // 即使处理失败，也继续处理下一条
+                    // 即使处理失败，也继续处理下一�?
                 }
             }
 
-            System.out.println("成功转换 " + resultList.size() + " 条问题数据");
+            System.out.println("成功转换 " + resultList.size() + " 条问题数�?");
 
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
@@ -189,8 +189,8 @@ public class QAController {
             response.put("pageNum", pageNum);
             response.put("pageSize", pageSize);
 
-            System.out.println("返回数据，总数: " + total + ", 当前页: " + resultList.size());
-            System.out.println("准备返回响应，响应大小: " + response.size() + " 个键");
+            System.out.println("返回数据，总数: " + total + ", 当前�?: " + resultList.size());
+            System.out.println("准备返回响应，响应大�?: " + response.size() + " 个键");
 
             // 验证响应数据
             try {
@@ -216,7 +216,7 @@ public class QAController {
             response.put("message", "获取问题列表失败: " + e.getMessage());
             response.put("error", e.getClass().getSimpleName());
 
-            // 返回空列表而不是500错误，让前端至少能显示
+            // 返回空列表而不�?500错误，让前端至少能显�?
             response.put("data", new ArrayList<>());
             response.put("total", 0);
             response.put("pageNum", pageNum);
@@ -234,7 +234,7 @@ public class QAController {
     public ResponseEntity<Map<String, Object>> getQuestionDetail(@PathVariable Long id) {
         try {
             Question question = qaService.getQuestionById(id)
-                    .orElseThrow(() -> new RuntimeException("问题不存在"));
+                    .orElseThrow(() -> new RuntimeException("问题不存�?"));
 
             Map<String, Object> questionMap = new HashMap<>();
             questionMap.put("id", question.getId());
@@ -340,7 +340,7 @@ public class QAController {
             @RequestHeader(value = "Authorization", required = false) String token) {
 
         try {
-            // 从token中提取用户信息
+            // 从token中提取用户信�?
             String userId = null;
             String userName = null;
             if (token != null && token.startsWith("tk_")) {
@@ -422,7 +422,7 @@ public class QAController {
             if (expertId == null && token != null && token.startsWith("tk_")) {
                 String[] parts = token.split("_");
                 if (parts.length >= 2) {
-                    // 这里需要根据实际情况获取专家ID，暂时使用占位
+                    // 这里需要根据实际情况获取专家ID，暂时使用占�?
                 }
             }
 
@@ -457,7 +457,7 @@ public class QAController {
 
     /**
      * GET /api/qa/test
-     * 测试接口：直接查询数据库，返回原始数据
+     * 测试接口：直接查询数据库，返回原始数�?
      */
     @GetMapping("/api/qa/test")
     public ResponseEntity<Map<String, Object>> testQuery() {
@@ -469,13 +469,13 @@ public class QAController {
             if (!allQuestions.isEmpty()) {
                 Question first = allQuestions.get(0);
                 System.out.println(
-                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUser());
+                        "第一个问�?: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUser());
             }
 
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
             response.put("total", allQuestions.size());
-            response.put("message", "查询成功，共 " + allQuestions.size() + " 条记录");
+            response.put("message", "查询成功，共 " + allQuestions.size() + " 条记�?");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("测试查询失败: " + e.getMessage());

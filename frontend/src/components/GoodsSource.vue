@@ -2,18 +2,18 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- ¶¥²¿²Ù×÷?? -->
+    <!-- é¡¶éƒ¨æ“ä½œ?? -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="ËÑË÷ÉÌÆ·Ãû³Æ¡¢²ú??..."
+          placeholder="æœç´¢å•†å“åç§°ã€äº§??..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">ËÑË÷</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">æœç´¢</el-button>
       </div>
       <el-button
         type="success"
@@ -21,23 +21,23 @@
         class="publish-btn"
         @click="handlePublish"
       >
-        ·¢²¼ÉÌÆ·
+        å‘å¸ƒå•†å“
       </el-button>
     </div>
 
 
-    <!-- ¼Û¸ñÔ¤²â -->
+    <!-- ä»·æ ¼é¢„æµ‹ -->
     <section class="forecast-section" ref="forecastSection">
       <div class="forecast-header">
         <div>
-          <div class="tag">¼Û¸ñÔ¤²â</div>
-          <h2>Î´À´7ÌìÇ÷ÊÆ</h2>
-          <p class="sub">»ùÓÚXGBoost Ê±Ğò»Ø¹é£¬½áºÏÖÍºóÓë¼¾½ÚÌØÕ÷</p>
+          <div class="tag">ä»·æ ¼é¢„æµ‹</div>
+          <h2>æœªæ¥7å¤©è¶‹åŠ¿</h2>
+          <p class="sub">åŸºäºXGBoost æ—¶åºå›å½’ï¼Œç»“åˆæ»åä¸å­£èŠ‚ç‰¹å¾</p>
         </div>
         <div class="forecast-actions">
           <el-select
             v-model="forecastCommodity"
-            placeholder="Ñ¡ÔñÆ·Àà"
+            placeholder="é€‰æ‹©å“ç±»"
             size="small"
             style="width: 150px;"
             @change="fetchForecast"
@@ -50,63 +50,73 @@
             />
           </el-select>
           <el-button size="small" type="primary" plain @click="refreshForecast" :loading="forecastLoading">
-            Ë¢ĞÂÔ¤²â
+            åˆ·æ–°é¢„æµ‹
           </el-button>
         </div>
       </div>
 
       <el-card shadow="hover" class="forecast-card">
         <div class="forecast-meta">
-          <div class="meta-item">
-            <span class="meta-label">Ô¤²â¾ù¼Û</span>
-            <span class="meta-value">{{ forecastSummary.avg }} Ôª/½ï</span>
+          <div class="meta-item highlight">
+            <span class="meta-label">å•†å“åç§°</span>
+            <span class="meta-value commodity-name">{{ forecastCommodity }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">²¨¶¯·¶Î§</span>
+            <span class="meta-label">é¢„æµ‹å‡ä»·</span>
+            <span class="meta-value">{{ forecastSummary.avg }} å…ƒ/æ–¤</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">æ³¢åŠ¨èŒƒå›´</span>
             <span class="meta-value">{{ forecastSummary.range }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Ä£ĞÍ</span>
-            <span class="meta-value">XGBoost »Ø¹é</span>
+            <span class="meta-label">æ¨¡å‹</span>
+            <span class="meta-value">XGBoost å›å½’</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">¸üĞÂÊ±¼ä</span>
+            <span class="meta-label">æ›´æ–°æ—¶é—´</span>
             <span class="meta-value">{{ forecastSummary.updatedAt }}</span>
           </div>
         </div>
 
         <div class="forecast-body">
-          <div class="forecast-chart">
-            <div class="chart-y-label">¼Û¸ñ</div>
-            <div class="chart-bars" v-if="forecastSeries.length">
-              <div
-                v-for="(point, idx) in forecastSeries"
-                :key="idx"
-                class="bar"
-                :style="{ height: point.barHeight + '%'}"
-              >
-                <div class="bar-value">{{ point.pred }} </div>
-                <div class="bar-date">{{ point.date }}</div>
-              </div>
+          <!-- ECharts å›¾è¡¨å®¹å™¨ -->
+          <div class="forecast-chart-container">
+            <div class="chart-title">
+              <span class="commodity-name-inline">{{ forecastCommodity }}</span> æœªæ¥7å¤©ä»·æ ¼é¢„æµ‹è¶‹åŠ¿
             </div>
-            <div v-else class="chart-empty">
-              <el-skeleton animated :rows="2" style="width: 100%;"></el-skeleton>
-            </div>
+            <div 
+              ref="forecastChart" 
+              class="forecast-chart-echarts"
+              v-loading="forecastLoading"
+            ></div>
           </div>
 
           <div class="forecast-table">
+            <div class="table-title">
+              <span class="commodity-name-inline">{{ forecastCommodity }}</span> è¯¦ç»†é¢„æµ‹æ•°æ®
+            </div>
             <el-table
               v-loading="forecastLoading"
               size="small"
               :data="forecastTable"
               border
-              empty-text="ÔİÎŞÔ¤²âÊı¾İ"
+              empty-text="æš‚æ— é¢„æµ‹æ•°æ®"
               height="260"
             >
-              <el-table-column prop="date" label="ÈÕÆÚ" width="90"></el-table-column>
-              <el-table-column prop="pred" label="Ô¤²â¼Û(Ôª/½ï)"></el-table-column>
-              <el-table-column prop="lower" label="ÏÂ½ç"></el-table-column>
-              <el-table-column prop="upper" label="ÉÏ½ç"></el-table-column>
+              <el-table-column prop="date" label="æ—¥æœŸ" width="100"></el-table-column>
+              <el-table-column label="å•†å“" width="80">
+                <template slot-scope="scope">
+                  <span class="table-commodity-name">{{ forecastCommodity }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="pred" label="é¢„æµ‹ä»·(å…ƒ/æ–¤)" width="120">
+                <template slot-scope="scope">
+                  <span class="pred-value">{{ scope.row.pred }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="lower" label="ä¸‹ç•Œ" width="100"></el-table-column>
+              <el-table-column prop="upper" label="ä¸Šç•Œ" width="100"></el-table-column>
             </el-table>
           </div>
         </div>
@@ -118,18 +128,18 @@
       </el-card>
     </section>
 
-    <!-- Ö÷ÒªÄÚÈİÇøÓò -->
+    <!-- ä¸»è¦å†…å®¹åŒºåŸŸ -->
     <div class="main-content">
-      <!-- ×ó²à·ÖÀà?? -->
+      <!-- å·¦ä¾§åˆ†ç±»?? -->
       <div class="category-sidebar">
-        <div class="category-title">ÉÌÆ··ÖÀà</div>
+        <div class="category-title">å•†å“åˆ†ç±»</div>
         <div
           class="category-item"
           :class="{ active: selectedCategory === 'all' }"
           @click="selectCategory('all')"
         >
           <i class="el-icon-menu"></i>
-          <span>È«²¿ÉÌÆ·</span>
+          <span>å…¨éƒ¨å•†å“</span>
         </div>
         <div
           class="category-item"
@@ -137,7 +147,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>Ë®¹û??</span>
+          <span>æ°´æœ??</span>
         </div>
         <div
           class="category-item"
@@ -145,7 +155,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>Êß²Ë??</span>
+          <span>è”¬èœ??</span>
         </div>
         <div
           class="category-item"
@@ -153,7 +163,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>Á¸Ê³??</span>
+          <span>ç²®é£Ÿ??</span>
         </div>
         <div
           class="category-item"
@@ -161,7 +171,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>ĞóÄÁ??</span>
+          <span>ç•œç‰§??</span>
         </div>
         <div
           class="category-item"
@@ -169,15 +179,15 @@
           @click="selectCategory('other')"
         >
           <i class="el-icon-box"></i>
-          <span>ÆäËû</span>
+          <span>å…¶ä»–</span>
         </div>
       </div>
 
-      <!-- ÓÒ²àÉÌÆ·Õ¹Ê¾?? -->
+      <!-- å³ä¾§å•†å“å±•ç¤º?? -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
-          <p>ÔİÎŞÉÌÆ·</p>
+          <p>æš‚æ— å•†å“</p>
         </div>
         <div
           v-for="(item, index) in filteredGoods"
@@ -191,28 +201,28 @@
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
                 class="goods-img"
-                alt="ÉÌÆ·Í¼Æ¬"
+                alt="å•†å“å›¾ç‰‡"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
                 class="goods-img"
-                alt="ÔİÎŞÍ¼Æ¬"
+                alt="æš‚æ— å›¾ç‰‡"
               />
             </div>
             <div class="goods-info">
               <div class="goods-owner">
                 <i class="el-icon-user"></i>
-                <span>{{ item.ownName || 'Î´Öª' }}</span>
+                <span>{{ item.ownName || 'æœªçŸ¥' }}</span>
               </div>
-              <p class="goods-content">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</p>
+              <p class="goods-content">{{ item.content || item.name || 'å•†å“åç§°' }}</p>
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
                   ?{{ item.price }}
                 </span>
-                <span class="goods-price" v-else>¼Û¸ñÃæÒé</span>
+                <span class="goods-price" v-else>ä»·æ ¼é¢è®®</span>
               </div>
             </div>
           </el-card>
@@ -220,7 +230,7 @@
       </div>
     </div>
 
-    <!-- ÉÌÆ·ÏêÇéµ¯´° -->
+    <!-- å•†å“è¯¦æƒ…å¼¹çª— -->
     <el-dialog
       :title="detailDialogTitle"
       :visible.sync="detailDialogVisible"
@@ -240,43 +250,43 @@
               <img
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
-                alt="ÉÌÆ·Í¼Æ¬"
+                alt="å•†å“å›¾ç‰‡"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
-                alt="ÔİÎŞÍ¼Æ¬"
+                alt="æš‚æ— å›¾ç‰‡"
               />
             </div>
             <div class="detail-goods-info">
-              <div class="detail-goods-name">{{ item.content || item.name || 'ÉÌÆ·Ãû³Æ' }}</div>
+              <div class="detail-goods-name">{{ item.content || item.name || 'å•†å“åç§°' }}</div>
               <div class="detail-goods-meta">
                 <span class="detail-goods-origin">
                   <i class="el-icon-location-outline"></i>
-                  {{ item.origin || '²úµØÎ´Öª' }}
+                  {{ item.origin || 'äº§åœ°æœªçŸ¥' }}
                 </span>
                 <span class="detail-goods-seller">
                   <i class="el-icon-user"></i>
-                  {{ item.ownName || 'Î´ÖªÂô¼Ò' }}
+                  {{ item.ownName || 'æœªçŸ¥å–å®¶' }}
                 </span>
               </div>
               <div class="detail-goods-price">
                 <i class="el-icon-coin"></i>
-                ?{{ item.price || 'ÃæÒé' }}
+                ?{{ item.price || 'é¢è®®' }}
               </div>
               <div class="detail-goods-stock" v-if="item.stock !== undefined">
-                ¿â´æ£º{{ item.stock }}
+                åº“å­˜ï¼š{{ item.stock }}
               </div>
             </div>
             <div class="detail-goods-actions">
-              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">Á¢¼´¹ºÂò</el-button>
-              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">¼ÓÈë¹ºÎï??</el-button>
+              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">ç«‹å³è´­ä¹°</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">åŠ å…¥è´­ç‰©??</el-button>
             </div>
           </div>
           <div v-if="similarGoods.length === 0" class="empty-detail-state">
             <i class="el-icon-box"></i>
-            <p>ÔİÎŞÍ¬ÀàÉÌÆ·</p>
+            <p>æš‚æ— åŒç±»å•†å“</p>
           </div>
         </div>
       </div>
@@ -286,6 +296,7 @@
 
 <script>
 import { getPriceForecast } from "@/api/price";
+import * as echarts from 'echarts';
 
 export default {
   name: "GoodsSource",
@@ -294,223 +305,223 @@ export default {
       searchValue: '',
       selectedCategory: 'all',
       detailDialogVisible: false,
-      detailDialogTitle: 'ÉÌÆ·ÏêÇé',
+      detailDialogTitle: 'å•†å“è¯¦æƒ…',
       currentGoodsItem: null,
       similarGoods: [],
-      // Ê¾ÀıÉÌÆ·Êı¾İ£¨µ±API·µ»Ø¿ÕÊı¾İÊ±Ê¹ÓÃ??
+      // ç¤ºä¾‹å•†å“æ•°æ®ï¼ˆå½“APIè¿”å›ç©ºæ•°æ®æ—¶ä½¿ç”¨??
       defaultGoods: [
-        // Ë®¹û??
+        // æ°´æœ??
         {
-          name: 'ĞÂÏÊÆ»¹û',
-          content: 'ĞÂÏÊÆ»¹û ºì¸»?? ´àÌğ¶àÖ­',
+          name: 'æ–°é²œè‹¹æœ',
+          content: 'æ–°é²œè‹¹æœ çº¢å¯Œ?? è„†ç”œå¤šæ±',
           price: 12.00,
           picture: 'pro2.jpg',
-          origin: 'É½¶«ÑÌÌ¨',
-          ownName: 'ÕÅ¹û??',
+          origin: 'å±±ä¸œçƒŸå°',
+          ownName: 'å¼ æœ??',
           category: 'fruit',
           stock: 500,
           orderId: 'fruit1',
-          keyword: 'Æ»¹û'
+          keyword: 'è‹¹æœ'
         },
         {
-          name: 'ÓÅÖÊÆ»¹û',
-          content: 'ÓÅÖÊÆ»¹û ÓĞ»úÖÖÖ² ÎŞÅ©Ò©²Ğ??',
+          name: 'ä¼˜è´¨è‹¹æœ',
+          content: 'ä¼˜è´¨è‹¹æœ æœ‰æœºç§æ¤ æ— å†œè¯æ®‹??',
           price: 15.00,
           picture: 'pro2.jpg',
-          origin: 'ÉÂÎ÷',
-          ownName: 'ÀîÅ©??',
+          origin: 'é™•è¥¿',
+          ownName: 'æå†œ??',
           category: 'fruit',
           stock: 300,
           orderId: 'fruit2',
-          keyword: 'Æ»¹û'
+          keyword: 'è‹¹æœ'
         },
         {
-          name: '¾«Æ·Æ»¹û',
-          content: '¾«Æ·Æ»¹û ¸ö´ó±¥Âú Ìğ¶È??',
+          name: 'ç²¾å“è‹¹æœ',
+          content: 'ç²¾å“è‹¹æœ ä¸ªå¤§é¥±æ»¡ ç”œåº¦??',
           price: 18.00,
           picture: 'pro2.jpg',
-          origin: 'ĞÂ½®',
-          ownName: 'Íõ¹û??',
+          origin: 'æ–°ç–†',
+          ownName: 'ç‹æœ??',
           category: 'fruit',
           stock: 200,
           orderId: 'fruit3',
-          keyword: 'Æ»¹û'
+          keyword: 'è‹¹æœ'
         },
         {
-          name: 'ĞÂÏÊ³È×Ó',
-          content: 'ĞÂÏÊ³È×Ó Ö­¶àÎ¶Ìğ Î¬C·á¸»',
+          name: 'æ–°é²œæ©™å­',
+          content: 'æ–°é²œæ©™å­ æ±å¤šå‘³ç”œ ç»´Cä¸°å¯Œ',
           price: 10.00,
           picture: 'pro2.jpg',
-          origin: '½­Î÷',
-          ownName: '³Â¹û??',
+          origin: 'æ±Ÿè¥¿',
+          ownName: 'é™ˆæœ??',
           category: 'fruit',
           stock: 400,
           orderId: 'fruit4',
-          keyword: '³È×Ó'
+          keyword: 'æ©™å­'
         },
         {
-          name: 'ÓÅÖÊÆÏÌÑ',
-          content: 'ÓÅÖÊÆÏÌÑ ÎŞ×Ñ Ìğ¶È??',
+          name: 'ä¼˜è´¨è‘¡è„',
+          content: 'ä¼˜è´¨è‘¡è„ æ— ç±½ ç”œåº¦??',
           price: 20.00,
           picture: 'pro2.jpg',
-          origin: 'ĞÂ½®',
-          ownName: 'ÕÔ¹û??',
+          origin: 'æ–°ç–†',
+          ownName: 'èµµæœ??',
           category: 'fruit',
           stock: 250,
           orderId: 'fruit5',
-          keyword: 'ÆÏÌÑ'
+          keyword: 'è‘¡è„'
         },
-        // Êß²Ë??
+        // è”¬èœ??
         {
-          name: 'ĞÂÏÊ°×²Ë',
-          content: 'ĞÂÏÊ°×²Ë ÓĞ»úÖÖÖ² ¿Ú¸Ğ´àÄÛ',
+          name: 'æ–°é²œç™½èœ',
+          content: 'æ–°é²œç™½èœ æœ‰æœºç§æ¤ å£æ„Ÿè„†å«©',
           price: 5.00,
           picture: 'pro1.jpg',
-          origin: 'É½¶«',
-          ownName: 'Áõ²Ë??',
+          origin: 'å±±ä¸œ',
+          ownName: 'åˆ˜èœ??',
           category: 'vegetable',
           stock: 800,
           orderId: 'veg1',
-          keyword: '°×²Ë'
+          keyword: 'ç™½èœ'
         },
         {
-          name: 'ÓĞ»ú°×²Ë',
-          content: 'ÓĞ»ú°×²Ë ÎŞÅ©?? ÂÌÉ«½¡¿µ',
+          name: 'æœ‰æœºç™½èœ',
+          content: 'æœ‰æœºç™½èœ æ— å†œ?? ç»¿è‰²å¥åº·',
           price: 8.00,
           picture: 'pro1.jpg',
-          origin: 'ºÓ±±',
-          ownName: 'ÖÜÅ©??',
+          origin: 'æ²³åŒ—',
+          ownName: 'å‘¨å†œ??',
           category: 'vegetable',
           stock: 600,
           orderId: 'veg2',
-          keyword: '°×²Ë'
+          keyword: 'ç™½èœ'
         },
         {
-          name: 'ĞÂÏÊÂÜ²·',
-          content: 'ĞÂÏÊÂÜ²· °×ÂÜ?? Çå´àË¬¿Ú',
+          name: 'æ–°é²œèåœ',
+          content: 'æ–°é²œèåœ ç™½è?? æ¸…è„†çˆ½å£',
           price: 4.00,
           picture: 'pro1.jpg',
-          origin: 'ºÓÄÏ',
-          ownName: 'Îâ²Ë??',
+          origin: 'æ²³å—',
+          ownName: 'å´èœ??',
           category: 'vegetable',
           stock: 700,
           orderId: 'veg3',
-          keyword: 'ÂÜ²·'
+          keyword: 'èåœ'
         },
         {
-          name: 'ĞÂÏÊÍÁ¶¹',
-          content: 'ĞÂÏÊÍÁ¶¹ »ÆĞÄÍÁ¶¹ Æ·ÖÊÓÅÁ¼',
+          name: 'æ–°é²œåœŸè±†',
+          content: 'æ–°é²œåœŸè±† é»„å¿ƒåœŸè±† å“è´¨ä¼˜è‰¯',
           price: 6.00,
           picture: 'pro1.jpg',
-          origin: 'ÄÚÃÉ??',
-          ownName: 'Ö£Å©??',
+          origin: 'å†…è’™??',
+          ownName: 'éƒ‘å†œ??',
           category: 'vegetable',
           stock: 900,
           orderId: 'veg4',
-          keyword: 'ÍÁ¶¹'
+          keyword: 'åœŸè±†'
         },
-        // Á¸Ê³??
+        // ç²®é£Ÿ??
         {
-          name: 'ÓÅÖÊ´óÃ×',
-          content: 'ÓÅÖÊ´óÃ× ¶«±±´óÃ× ÏãÅ´¿É¿Ú',
+          name: 'ä¼˜è´¨å¤§ç±³',
+          content: 'ä¼˜è´¨å¤§ç±³ ä¸œåŒ—å¤§ç±³ é¦™ç³¯å¯å£',
           price: 45.00,
           picture: 'rice.png',
-          origin: 'ºÚÁú??',
-          ownName: 'ËïÁ¸??',
+          origin: 'é»‘é¾™??',
+          ownName: 'å­™ç²®??',
           category: 'grain',
           stock: 1000,
           orderId: 'grain1',
-          keyword: '´óÃ×'
+          keyword: 'å¤§ç±³'
         },
         {
-          name: 'ÓĞ»ú´óÃ×',
-          content: 'ÓĞ»ú´óÃ× ÂÌÉ«ÈÏÖ¤ ÓªÑø·á¸»',
+          name: 'æœ‰æœºå¤§ç±³',
+          content: 'æœ‰æœºå¤§ç±³ ç»¿è‰²è®¤è¯ è¥å…»ä¸°å¯Œ',
           price: 58.00,
           picture: 'rice.png',
-          origin: '¼ªÁÖ',
-          ownName: 'Ç®Å©??',
+          origin: 'å‰æ—',
+          ownName: 'é’±å†œ??',
           category: 'grain',
           stock: 500,
           orderId: 'grain2',
-          keyword: '´óÃ×'
+          keyword: 'å¤§ç±³'
         },
         {
-          name: 'ÓÅÖÊĞ¡Âó',
-          content: 'ÓÅÖÊĞ¡Âó ¸ß½îĞ¡Âó ÊÊºÏ×öÃæ??',
+          name: 'ä¼˜è´¨å°éº¦',
+          content: 'ä¼˜è´¨å°éº¦ é«˜ç­‹å°éº¦ é€‚åˆåšé¢??',
           price: 35.00,
           picture: 'rice.png',
-          origin: 'ºÓÄÏ',
-          ownName: 'ÖÜÁ¸??',
+          origin: 'æ²³å—',
+          ownName: 'å‘¨ç²®??',
           category: 'grain',
           stock: 800,
           orderId: 'grain3',
-          keyword: 'Ğ¡Âó'
+          keyword: 'å°éº¦'
         },
-        // ĞóÄÁ??
+        // ç•œç‰§??
         {
-          name: 'ĞÂÏÊÍÁ¼¦??',
-          content: 'ĞÂÏÊÍÁ¼¦?? É¢Ñø ÓªÑø·á¸»',
+          name: 'æ–°é²œåœŸé¸¡??',
+          content: 'æ–°é²œåœŸé¸¡?? æ•£å…» è¥å…»ä¸°å¯Œ',
           price: 35.00,
           picture: 'pro3.jpg',
-          origin: 'ºÓ±±',
-          ownName: 'ÀîÑø??',
+          origin: 'æ²³åŒ—',
+          ownName: 'æå…»??',
           category: 'livestock',
           stock: 200,
           orderId: 'live1',
-          keyword: '¼¦µ°'
+          keyword: 'é¸¡è›‹'
         },
         {
-          name: 'ÓĞ»úÍÁ¼¦??',
-          content: 'ÓĞ»úÍÁ¼¦?? ÎŞ¼¤?? Æ·ÖÊ±£Ö¤',
+          name: 'æœ‰æœºåœŸé¸¡??',
+          content: 'æœ‰æœºåœŸé¸¡?? æ— æ¿€?? å“è´¨ä¿è¯',
           price: 42.00,
           picture: 'pro3.jpg',
-          origin: 'É½¶«',
-          ownName: 'ÍõÑø??',
+          origin: 'å±±ä¸œ',
+          ownName: 'ç‹å…»??',
           category: 'livestock',
           stock: 150,
           orderId: 'live2',
-          keyword: '¼¦µ°'
+          keyword: 'é¸¡è›‹'
         },
         {
-          name: 'ĞÂÏÊÅ£ÄÌ',
-          content: 'ĞÂÏÊÅ£ÄÌ µ±ÈÕÅä?? ÓªÑø½¡¿µ',
+          name: 'æ–°é²œç‰›å¥¶',
+          content: 'æ–°é²œç‰›å¥¶ å½“æ—¥é…?? è¥å…»å¥åº·',
           price: 25.00,
           picture: 'pro3.jpg',
-          origin: 'ÄÚÃÉ??',
-          ownName: 'ÕÔÄÁ??',
+          origin: 'å†…è’™??',
+          ownName: 'èµµç‰§??',
           category: 'livestock',
           stock: 300,
           orderId: 'live3',
-          keyword: 'Å£ÄÌ'
+          keyword: 'ç‰›å¥¶'
         },
-        // ÆäËû
+        // å…¶ä»–
         {
-          name: 'ÓĞ»ú²èÒ¶',
-          content: 'ÓĞ»ú²èÒ¶ Ô­²úµØÖ±?? Æ·ÖÊÓÅÁ¼',
+          name: 'æœ‰æœºèŒ¶å¶',
+          content: 'æœ‰æœºèŒ¶å¶ åŸäº§åœ°ç›´?? å“è´¨ä¼˜è‰¯',
           price: 128.00,
           picture: 'chayangji.jpg',
-          origin: '¸£½¨',
-          ownName: '³Â²è??',
+          origin: 'ç¦å»º',
+          ownName: 'é™ˆèŒ¶??',
           category: 'other',
           stock: 100,
           orderId: 'other1',
-          keyword: '²èÒ¶'
+          keyword: 'èŒ¶å¶'
         },
         {
-          name: 'ĞÂÏÊÓñÃ×',
-          content: 'ĞÂÏÊÓñÃ× ÌğÓñ?? ¿Ú¸ĞÏãÌğ',
+          name: 'æ–°é²œç‰ç±³',
+          content: 'æ–°é²œç‰ç±³ ç”œç‰?? å£æ„Ÿé¦™ç”œ',
           price: 15.00,
           picture: 'farm.jpeg',
-          origin: 'ºÓÄÏ',
-          ownName: '»ÆÅ©??',
+          origin: 'æ²³å—',
+          ownName: 'é»„å†œ??',
           category: 'other',
           stock: 400,
           orderId: 'other2',
-          keyword: 'ÓñÃ×'
+          keyword: 'ç‰ç±³'
         }
       ],
-      forecastCommodities: ['???', '????', '§³??', '????', '????'],
-      forecastCommodity: '???',
+      forecastCommodities: ['è‹¹æœ', 'é¦™è•‰', 'ç™½èœ', 'åœŸè±†', 'å¤§ç±³'],
+      forecastCommodity: 'è‹¹æœ',
       forecastSeries: [],
       forecastTable: [],
       forecastSummary: {
@@ -519,7 +530,8 @@ export default {
         updatedAt: '--'
       },
       forecastLoading: false,
-      forecastError: ''
+      forecastError: '',
+      chartInstance: null
     };
   },
   props: {
@@ -530,15 +542,15 @@ export default {
   },
   computed: {
     filteredGoods() {
-      // ÓÅÏÈÊ¹ÓÃ´«ÈëµÄÉÌÆ·Êı¾İ£¬Èç¹ûÎª¿ÕÔòÊ¹ÓÃÊ¾ÀıÊı??
+      // ä¼˜å…ˆä½¿ç”¨ä¼ å…¥çš„å•†å“æ•°æ®ï¼Œå¦‚æœä¸ºç©ºåˆ™ä½¿ç”¨ç¤ºä¾‹æ•°??
       let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // ·ÖÀàÉ¸??
+      // åˆ†ç±»ç­›??
       if (this.selectedCategory !== 'all') {
         goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // ËÑË÷É¸??
+      // æœç´¢ç­›??
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
@@ -556,6 +568,15 @@ export default {
   mounted() {
     this.initForecastFromRoute();
     this.fetchForecast();
+    this.$nextTick(() => {
+      this.initChart();
+    });
+  },
+  beforeDestroy() {
+    if (this.chartInstance) {
+      this.chartInstance.dispose();
+      this.chartInstance = null;
+    }
   },
   methods: {
     initForecastFromRoute() {
@@ -579,15 +600,31 @@ export default {
       this.forecastError = '';
       try {
         const res = await getPriceForecast({ commodity: this.forecastCommodity, horizon: 7 });
-        const payload = res.data || res || {};
-        const series = payload.series || payload.data || [];
-        if (!Array.isArray(series) || series.length === 0) {
-          throw new Error('empty');
+        // å¤„ç†å“åº”æ•°æ®ï¼šåç«¯è¿”å›æ ¼å¼ä¸º { flag: true, data: { series, model, mape, updatedAt } }
+        let payload = {};
+        if (res.flag && res.data) {
+          payload = res.data;
+        } else if (res.series) {
+          payload = res;
+        } else if (res.data && res.data.series) {
+          payload = res.data;
+        } else {
+          payload = res;
         }
+        
+        const series = payload.series || [];
+        if (!Array.isArray(series) || series.length === 0) {
+          throw new Error('é¢„æµ‹æ•°æ®ä¸ºç©º');
+        }
+        
         this.applySeries(series);
         this.forecastSummary.updatedAt = payload.updatedAt || new Date().toLocaleString();
+        this.forecastError = ''; // æ¸…é™¤é”™è¯¯ä¿¡æ¯
       } catch (err) {
-        this.forecastError = '?????????????????????????';
+        console.error('è·å–é¢„æµ‹æ•°æ®å¤±è´¥:', err);
+        const errorMsg = err.message || (err.response && err.response.message) || 'è·å–é¢„æµ‹æ•°æ®å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•';
+        this.forecastError = errorMsg;
+        // å¦‚æœè·å–å¤±è´¥ï¼Œä½¿ç”¨ç¤ºä¾‹æ•°æ®
         this.applySeries(this.getSampleForecast());
         this.forecastSummary.updatedAt = new Date().toLocaleString();
       } finally {
@@ -596,6 +633,162 @@ export default {
     },
     refreshForecast() {
       this.fetchForecast();
+    },
+    initChart() {
+      if (!this.$refs.forecastChart) {
+        return;
+      }
+      this.chartInstance = echarts.init(this.$refs.forecastChart);
+      window.addEventListener('resize', this.handleResize);
+    },
+    handleResize() {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    },
+    updateChart() {
+      if (!this.chartInstance || !this.forecastSeries.length) {
+        return;
+      }
+      
+      const dates = this.forecastSeries.map(item => item.date);
+      const preds = this.forecastSeries.map(item => Number(item.pred));
+      const lowers = this.forecastSeries.map(item => item.lower !== '--' ? Number(item.lower) : null);
+      const uppers = this.forecastSeries.map(item => item.upper !== '--' ? Number(item.upper) : null);
+      
+      const option = {
+        title: {
+          text: `${this.forecastCommodity} ä»·æ ¼é¢„æµ‹è¶‹åŠ¿`,
+          left: 'center',
+          textStyle: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#303133'
+          }
+        },
+        tooltip: {
+          trigger: 'axis',
+          formatter: (params) => {
+            let result = `<div style="margin-bottom: 4px;"><strong>${params[0].axisValue}</strong></div>`;
+            params.forEach(param => {
+              result += `<div style="margin: 2px 0;">
+                <span style="display:inline-block;width:10px;height:10px;background:${param.color};border-radius:50%;margin-right:5px;"></span>
+                ${param.seriesName}: <strong>${param.value} å…ƒ/æ–¤</strong>
+              </div>`;
+            });
+            return result;
+          },
+          backgroundColor: 'rgba(50, 50, 50, 0.9)',
+          borderColor: '#409EFF',
+          borderWidth: 1,
+          textStyle: {
+            color: '#fff'
+          }
+        },
+        legend: {
+          data: ['é¢„æµ‹ä»·æ ¼', 'ç½®ä¿¡åŒºé—´'],
+          bottom: 10
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '15%',
+          top: '15%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: dates,
+          axisLabel: {
+            rotate: 45,
+            fontSize: 11
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: 'ä»·æ ¼ (å…ƒ/æ–¤)',
+          nameLocation: 'middle',
+          nameGap: 40,
+          axisLabel: {
+            formatter: '{value}'
+          }
+        },
+        series: [
+          {
+            name: 'é¢„æµ‹ä»·æ ¼',
+            type: 'line',
+            data: preds,
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 8,
+            lineStyle: {
+              width: 3,
+              color: '#409EFF'
+            },
+            itemStyle: {
+              color: '#409EFF'
+            },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
+                  { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
+                ]
+              }
+            },
+            markPoint: {
+              data: [
+                { type: 'max', name: 'æœ€é«˜ä»·' },
+                { type: 'min', name: 'æœ€ä½ä»·' }
+              ]
+            },
+            markLine: {
+              data: [
+                { type: 'average', name: 'å¹³å‡å€¼' }
+              ]
+            }
+          },
+          {
+            name: 'ç½®ä¿¡åŒºé—´',
+            type: 'line',
+            data: uppers,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: {
+              width: 1,
+              type: 'dashed',
+              color: '#67C23A'
+            },
+            areaStyle: {
+              color: 'rgba(103, 194, 58, 0.1)'
+            }
+          },
+          {
+            name: 'ç½®ä¿¡åŒºé—´',
+            type: 'line',
+            data: lowers,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: {
+              width: 1,
+              type: 'dashed',
+              color: '#67C23A'
+            },
+            areaStyle: {
+              color: 'rgba(103, 194, 58, 0.1)'
+            },
+            stack: 'confidence'
+          }
+        ]
+      };
+      
+      this.chartInstance.setOption(option);
     },
     applySeries(series) {
       const normalized = series.map(item => ({
@@ -620,7 +813,12 @@ export default {
       const avg = (preds.reduce((a, b) => a + b, 0) / preds.length).toFixed(2);
       this.forecastTable = this.forecastSeries;
       this.forecastSummary.avg = avg;
-      this.forecastSummary.range = `${min.toFixed(2)} - ${max.toFixed(2)} ?/??`;
+      this.forecastSummary.range = `${min.toFixed(2)} - ${max.toFixed(2)} å…ƒ/æ–¤`;
+      
+      // æ›´æ–°å›¾è¡¨
+      this.$nextTick(() => {
+        this.updateChart();
+      });
     },
     getSampleForecast() {
       const today = new Date();
@@ -646,33 +844,33 @@ export default {
       this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
     showGoodsDetail(item) {
-      // ÏÔÊ¾ÉÌÆ·ÏêÇéµ¯´°£¬ÏÔÊ¾ËùÓĞÍ¬ÀàÉÌ??
+      // æ˜¾ç¤ºå•†å“è¯¦æƒ…å¼¹çª—ï¼Œæ˜¾ç¤ºæ‰€æœ‰åŒç±»å•†??
       this.currentGoodsItem = item;
-      this.detailDialogTitle = `${item.content || item.name || 'ÉÌÆ·'} - Í¬ÀàÉÌÆ·`;
+      this.detailDialogTitle = `${item.content || item.name || 'å•†å“'} - åŒç±»å•†å“`;
       
-      // ¸ù¾İÉÌÆ·¹Ø¼ü´Ê²éÕÒÍ¬ÀàÉÌ??
+      // æ ¹æ®å•†å“å…³é”®è¯æŸ¥æ‰¾åŒç±»å•†??
       const keyword = item.keyword || this.extractKeyword(item.content || item.name);
       this.similarGoods = this.filteredGoods.filter(goods => {
         const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
         return goodsKeyword === keyword && goods.orderId !== item.orderId;
       });
       
-      // ½«µ±Ç°ÉÌÆ·Ò²¼ÓÈëÁĞ±í£¨·ÅÔÚµÚÒ»Î»£©
+      // å°†å½“å‰å•†å“ä¹ŸåŠ å…¥åˆ—è¡¨ï¼ˆæ”¾åœ¨ç¬¬ä¸€ä½ï¼‰
       this.similarGoods.unshift(item);
       
       this.detailDialogVisible = true;
     },
     extractKeyword(text) {
-      // ´ÓÉÌÆ·Ãû³ÆÖĞÌáÈ¡¹Ø¼ü´Ê£¨¼òµ¥ÊµÏÖ£©
+      // ä»å•†å“åç§°ä¸­æå–å…³é”®è¯ï¼ˆç®€å•å®ç°ï¼‰
       if (!text) return '';
-      // ÌáÈ¡³£¼ûÉÌÆ·¹Ø¼ü??
-      const keywords = ['Æ»¹û', '³È×Ó', 'ÆÏÌÑ', '°×²Ë', 'ÂÜ²·', 'ÍÁ¶¹', '´óÃ×', 'Ğ¡Âó', '¼¦µ°', 'Å£ÄÌ', '²èÒ¶', 'ÓñÃ×'];
+      // æå–å¸¸è§å•†å“å…³é”®??
+      const keywords = ['è‹¹æœ', 'æ©™å­', 'è‘¡è„', 'ç™½èœ', 'èåœ', 'åœŸè±†', 'å¤§ç±³', 'å°éº¦', 'é¸¡è›‹', 'ç‰›å¥¶', 'èŒ¶å¶', 'ç‰ç±³'];
       for (let kw of keywords) {
         if (text.includes(kw)) {
           return kw;
         }
       }
-      return text.substring(0, 2); // Ä¬ÈÏÈ¡Ç°Á½¸ö??
+      return text.substring(0, 2); // é»˜è®¤å–å‰ä¸¤ä¸ª??
     },
     handleCloseDialog() {
       this.detailDialogVisible = false;
@@ -680,35 +878,35 @@ export default {
       this.similarGoods = [];
     },
     goToGoodsDetailPage(item) {
-      // Ìø×ªµ½ÉÌÆ·ÏêÇéÒ³??
+      // è·³è½¬åˆ°å•†å“è¯¦æƒ…é¡µ??
       if (item.orderId) {
         this.$store.commit("updateOrderId", item.orderId);
         this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
     },
     handleBuyNow(item) {
-      // Á¢¼´¹ºÂò
+      // ç«‹å³è´­ä¹°
       this.goToGoodsDetailPage(item);
     },
     handleAddToCart(item) {
-      // ¼ÓÈë¹ºÎï??
+      // åŠ å…¥è´­ç‰©??
       this.$emit('addToCart', item);
-      this.$message.success('ÒÑ¼ÓÈë¹ºÎï³µ');
+      this.$message.success('å·²åŠ å…¥è´­ç‰©è½¦');
     },
     getImageUrl(picture) {
-      // Èç¹ûÍ¼Æ¬Â·¾¶°üº¬ /kn/ ?? /order/£¬Ö±½ÓÊ¹??
+      // å¦‚æœå›¾ç‰‡è·¯å¾„åŒ…å« /kn/ ?? /order/ï¼Œç›´æ¥ä½¿??
       if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
         return picture;
       }
-      // Èç¹û?? kn Ä¿Â¼ÏÂµÄÍ¼Æ¬
+      // å¦‚æœ?? kn ç›®å½•ä¸‹çš„å›¾ç‰‡
       if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
         return `/kn/${picture}`;
       }
-      // Ä¬ÈÏÊ¹ÓÃ order Ä¿Â¼
+      // é»˜è®¤ä½¿ç”¨ order ç›®å½•
       return `/order/${picture}`;
     },
     handleImageError(event) {
-      // Í¼Æ¬¼ÓÔØÊ§°ÜÊ±£¬Ê¹ÓÃÄ¬ÈÏÍ¼Æ¬
+      // å›¾ç‰‡åŠ è½½å¤±è´¥æ—¶ï¼Œä½¿ç”¨é»˜è®¤å›¾ç‰‡
       event.target.src = '/order/wutu.gif';
     }
   }
@@ -778,6 +976,32 @@ export default {
         display: flex;
         flex-direction: column;
         gap: 6px;
+        transition: all 0.3s;
+
+        &:hover {
+          background: #ecf5ff;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+        }
+
+        &.highlight {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: #fff;
+
+          .meta-label {
+            color: rgba(255, 255, 255, 0.9);
+          }
+
+          .meta-value {
+            color: #fff;
+          }
+
+          .commodity-name {
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          }
+        }
 
         .meta-label {
           font-size: 12px;
@@ -789,16 +1013,54 @@ export default {
           color: #303133;
           font-weight: 600;
         }
+
+        .commodity-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #409EFF;
+        }
       }
     }
 
     .forecast-body {
       display: grid;
       grid-template-columns: 1.2fr 1fr;
-      gap: 16px;
+      gap: 20px;
 
       @media (max-width: 960px) {
         grid-template-columns: 1fr;
+      }
+    }
+
+    .forecast-chart-container {
+      background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+      border: 1px solid #ebeef5;
+      border-radius: 10px;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+
+      .chart-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 12px;
+        text-align: center;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #ebeef5;
+
+        .commodity-name-inline {
+          color: #409EFF;
+          font-size: 16px;
+          font-weight: 700;
+          margin-right: 4px;
+        }
+      }
+
+      .forecast-chart-echarts {
+        width: 100%;
+        height: 350px;
+        min-height: 350px;
       }
     }
 
@@ -861,18 +1123,59 @@ export default {
     }
 
     .forecast-table {
+      border: 1px solid #ebeef5;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+
+      .table-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #303133;
+        padding: 12px 16px;
+        background: #f7f9fc;
+        border-bottom: 1px solid #ebeef5;
+
+        .commodity-name-inline {
+          color: #409EFF;
+          font-size: 16px;
+          font-weight: 700;
+          margin-right: 4px;
+        }
+      }
+
       .el-table {
         border-radius: 10px;
+      }
+
+      .table-commodity-name {
+        color: #409EFF;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .pred-value {
+        color: #409EFF;
+        font-weight: 700;
+        font-size: 14px;
       }
     }
 
     .forecast-error {
-      margin-top: 10px;
-      color: #e6a23c;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fef0f0;
+      color: #f56c6c;
+      border-radius: 6px;
       font-size: 13px;
+      border-left: 4px solid #f56c6c;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+
+      i {
+        font-size: 16px;
+      }
     }
   }
 
@@ -1076,7 +1379,7 @@ export default {
   }
 }
 
-// ÉÌÆ·ÏêÇéµ¯´°ÑùÊ½
+// å•†å“è¯¦æƒ…å¼¹çª—æ ·å¼
 /deep/ .goods-detail-dialog {
   .el-dialog__body {
     padding: 20px;

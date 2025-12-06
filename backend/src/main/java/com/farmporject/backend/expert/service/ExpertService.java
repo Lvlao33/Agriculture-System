@@ -23,7 +23,7 @@ public class ExpertService {
             return null; // 如果传入的专家实体为空，返回null
         }
 
-        // 强制初始化 specialties 集合
+        // 强制初始�? specialties 集合
         Hibernate.initialize(expert.getSpecialties());
 
         ExpertDTO dto = new ExpertDTO();

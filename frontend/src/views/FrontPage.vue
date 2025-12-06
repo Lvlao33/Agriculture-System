@@ -534,13 +534,25 @@ export default {
     async loadHomeForecast() {
       try {
         const res = await getPriceForecast({ commodity: '苹果', horizon: 7 })
-        const payload = res.data || res || {}
-        const series = payload.series || payload.data || []
+        // 处理响应数据：后端返回格式为 { flag: true, data: { series, model, mape, updatedAt } }
+        let payload = {};
+        if (res.flag && res.data) {
+          payload = res.data;
+        } else if (res.series) {
+          payload = res;
+        } else if (res.data && res.data.series) {
+          payload = res.data;
+        } else {
+          payload = res;
+        }
+        
+        const series = payload.series || []
         if (!Array.isArray(series) || series.length === 0) {
-          throw new Error('empty')
+          throw new Error('预测数据为空')
         }
         this.applyHomeSeries(series)
       } catch (e) {
+        console.error('获取首页预测数据失败:', e)
         this.applyHomeSeries(this.getHomeSample())
       }
     },
