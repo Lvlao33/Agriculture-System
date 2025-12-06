@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 简单文件上传接口，兼容前端 el-upload:
+ * File upload interface for frontend el-upload component:
  * POST /file/upload/order
  * formData: { file: MultipartFile }
- * 返回: { flag: true, data: "filename.ext" }
+ * Response: { flag: true, data: "filename.ext" }
  */
 @RestController
 @RequestMapping("/file/upload")
@@ -31,7 +31,7 @@ public class FileUploadController {
         Map<String, Object> resp = new HashMap<>();
         if (file.isEmpty()) {
             resp.put("flag", false);
-            resp.put("message", "文件为空");
+            resp.put("message", "File is empty");
             return ResponseEntity.badRequest().body(resp);
         }
         try {
@@ -53,9 +53,8 @@ public class FileUploadController {
             return ResponseEntity.ok(resp);
         } catch (IOException e) {
             resp.put("flag", false);
-            resp.put("message", "上传失败: " + e.getMessage());
+            resp.put("message", "Upload failed: " + e.getMessage());
             return ResponseEntity.badRequest().body(resp);
         }
     }
 }
-
