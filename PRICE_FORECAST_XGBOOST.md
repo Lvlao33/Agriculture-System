@@ -94,3 +94,4 @@ for name, sub in df.groupby("commodity"):
 
 这样即可与前端的首页/货源预测卡片对接。
 
+
