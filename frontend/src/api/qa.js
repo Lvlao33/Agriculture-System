@@ -21,7 +21,7 @@ export function getQuestionsList(params) {
 export function getQuestionDetail(params) {
   return request({
     method: 'get',
-    url: `/qa/question/${params.id}`,
+    url: `/api/qa/question/${params.id}`,
     headers: {
       'Authorization': localStorage.getItem('token')
     }
@@ -32,7 +32,7 @@ export function getQuestionDetail(params) {
 export function getAnswersList(params) {
   return request({
     method: 'get',
-    url: `/qa/answers`,
+    url: `/api/qa/answers`,
     params: {
       questionId: params.questionId
     },
@@ -71,7 +71,7 @@ export function submitAnswer(data) {
 export function getExpertList() {
   return request({
     method: 'get',
-    url: '/qa/experts',
+    url: '/api/qa/experts',
     headers: {
       'Authorization': localStorage.getItem('token')
     }

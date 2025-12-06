@@ -51,9 +51,9 @@
           >
             <div class="answer-header">
               <div class="answer-author">
-                <i class="el-icon-user"></i>
-                <span class="author-name">{{ answer.userName || answer.expertName || answer.authorName || '匿名用户' }}</span>
-                <el-tag v-if="isExpertAnswer(answer)" type="warning" size="mini">专家</el-tag>
+                <i class="el-icon-medal"></i>
+                <span class="author-name">{{ answer.expertName || '专家' }}</span>
+                <el-tag v-if="answer.expertName" type="warning" size="mini">{{ answer.expertTitle }}</el-tag>
               </div>
               <span class="answer-time">{{ formatDate(answer.createTime || answer.create_time) }}</span>
             </div>
@@ -146,129 +146,51 @@ export default {
   methods: {
     // 加载问题详情
     loadQuestionDetail() {
-      // TODO: 调用后端接口
-      // getQuestionDetail({ id: this.questionId }).then(res => {
-      //   if (res.flag) {
-      //     this.questionDetail = res.data
-      //   }
-      // })
-
-      // 临时使用模拟数据
-      const mockQuestions = this.getMockQuestions()
-      this.questionDetail = mockQuestions.find(q => q.id == this.questionId) || {
-        id: this.questionId,
-        title: '示例问题：如何提高农作物产量？',
-        content: '我在种植过程中遇到了一些问题，想请教专家如何提高农作物的产量。具体来说，我想了解施肥、灌溉、病虫害防治等方面的最佳实践。',
-        questioner: '张农户',
-        createTime: '2025-01-15 10:30:00',
-        lastUpdateTime: '2025-01-15 14:20:00',
-        answerCount: 2
-      }
+      getQuestionDetail({ id: this.questionId }).then(res => {
+        if (res.flag) {
+          const data = res.data
+          this.questionDetail = {
+            id: data.id,
+            title: data.title,
+            content: data.content,
+            questioner: data.userName || data.user?.username || '匿名用户',
+            createTime: data.createTime,
+            lastUpdateTime: data.updateTime,
+            answerCount: 0 // Will be updated when answers load
+          }
+        } else {
+          this.$message.error(res.message || '获取问题详情失败')
+        }
+      }).catch(err => {
+        console.error('加载问题详情失败:', err)
+        this.$message.error('获取问题详情失败，请稍后重试')
+      })
     },
     // 加载回答列表
-    async loadAnswers() {
-      try {
-        const res = await getAnswersList({ questionId: this.questionId })
-        if (res && res.flag) {
-          // 处理回答数据，确保包含用户身份信息
-          this.answersList = (res.data || res.data?.list || []).map(answer => ({
-            ...answer,
-            // 确保有用户名
-            userName: answer.userName || answer.expertName || answer.authorName || '匿名用户',
-            // 确保有创建时间
-            createTime: answer.createTime || answer.create_time,
-            // 确保有角色信息
-            role: answer.role || answer.userRole,
-            isExpert: this.isExpertAnswer(answer)
+    loadAnswers() {
+      getAnswersList({ questionId: this.questionId }).then(res => {
+        if (res.flag) {
+          this.answersList = (res.data || []).map(answer => ({
+            id: answer.id,
+            questionId: this.questionId,
+            expertName: answer.expertName || answer.expert?.name || '专家',
+            expertTitle: answer.expertTitle || answer.expert?.title || '专家',
+            content: answer.content,
+            createTime: answer.createTime
           }))
+          // Update answer count in question detail
+          if (this.questionDetail) {
+            this.questionDetail.answerCount = this.answersList.length
+          }
         } else {
-          // 如果接口返回失败，使用模拟数据
-          const mockAnswers = this.getMockAnswers()
-          this.answersList = mockAnswers.filter(a => a.questionId == this.questionId)
+          this.$message.error(res.message || '获取回答列表失败')
         }
-      } catch (error) {
-        console.error('加载回答列表失败:', error)
-        // 如果接口调用失败，使用模拟数据
-        const mockAnswers = this.getMockAnswers()
-        this.answersList = mockAnswers.filter(a => a.questionId == this.questionId)
-      }
+      }).catch(err => {
+        console.error('加载回答列表失败:', err)
+        this.$message.error('获取回答列表失败，请稍后重试')
+      })
     },
-    // 模拟问题数据
-    getMockQuestions() {
-      return [
-        {
-          id: 1,
-          title: '冬季大棚蔬菜如何预防冻害？需要采取哪些具体措施？',
-          content: '最近天气转冷，我担心大棚里的蔬菜会受冻。请问专家，冬季大棚蔬菜如何预防冻害？需要采取哪些具体措施？包括温度控制、覆盖物选择、通风管理等方面。',
-          questioner: '张农户',
-          createTime: '2025-01-15 10:30:00',
-          lastUpdateTime: '2025-01-15 14:20:00',
-          answerCount: 3
-        },
-        {
-          id: 2,
-          title: '小麦晚播后如何管理才能保证产量？有什么注意事项？',
-          content: '由于天气原因，我的小麦播种时间比往年晚了半个月。请问专家，小麦晚播后如何管理才能保证产量？有什么需要特别注意的事项吗？',
-          questioner: '王农户',
-          createTime: '2025-01-14 09:15:00',
-          lastUpdateTime: '2025-01-14 16:45:00',
-          answerCount: 2
-        }
-      ]
-    },
-    // 模拟回答数据（用于测试）
-    getMockAnswers() {
-      return [
-        {
-          id: 1,
-          questionId: 1,
-          userName: '李教授',
-          expertName: '李教授',
-          role: 'EXPERT',
-          isExpert: true,
-          content: '冬季大棚蔬菜防冻害的关键措施包括：1. 保持棚内温度，夜间不低于8-10℃；2. 使用双层膜或保温被覆盖；3. 合理通风，避免湿度过大；4. 增施有机肥提高地温；5. 必要时使用加温设备。',
-          createTime: '2025-01-15 11:20:00'
-        },
-        {
-          id: 2,
-          questionId: 1,
-          userName: '王专家',
-          expertName: '王专家',
-          role: 'EXPERT',
-          isExpert: true,
-          content: '补充一点，还要注意及时清理棚膜上的积雪，保持透光性。同时可以在棚内放置一些水桶，利用水的比热容大的特性来稳定温度。',
-          createTime: '2025-01-15 13:15:00'
-        },
-        {
-          id: 3,
-          questionId: 1,
-          userName: '张农户',
-          role: 'FARMER',
-          isExpert: false,
-          content: '感谢专家的建议，我会按照这些方法去操作。',
-          createTime: '2025-01-15 14:20:00'
-        },
-        {
-          id: 4,
-          questionId: 2,
-          userName: '刘专家',
-          expertName: '刘专家',
-          role: 'EXPERT',
-          isExpert: true,
-          content: '小麦晚播后管理要点：1. 适当增加播种量，保证基本苗数；2. 增施底肥，特别是磷肥；3. 加强冬前管理，促进分蘖；4. 春季早追肥，促进生长；5. 注意病虫害防治。',
-          createTime: '2025-01-14 10:30:00'
-        },
-        {
-          id: 5,
-          questionId: 2,
-          userName: '王农户',
-          role: 'FARMER',
-          isExpert: false,
-          content: '好的，我会注意这些管理要点。',
-          createTime: '2025-01-14 16:45:00'
-        }
-      ]
-    },
+
     // 返回上一页
     goBack() {
       this.$router.go(-1)

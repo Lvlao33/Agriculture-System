@@ -4,6 +4,10 @@ import com.farmporject.backend.expert.model.Appointment;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.repository.AppointmentRepository;
 import com.farmporject.backend.expert.repository.ExpertRepository;
+import com.farmporject.backend.user.model.User;
+import com.farmporject.backend.user.repository.UserRepository;
+import com.farmporject.backend.expert.dto.AppointmentDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -18,19 +23,36 @@ public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
     private final ExpertRepository expertRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository, ExpertRepository expertRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, ExpertRepository expertRepository,
+            UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
         this.expertRepository = expertRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }
 
-    public List<Appointment> getUserAppointments(String userId) {
-        return appointmentRepository.findByUserIdOrderByCreateTimeDesc(userId);
+    @Transactional
+    public List<AppointmentDTO> getUserAppointments(Long userId) {
+        List<Appointment> appointments = appointmentRepository.findByUserIdOrderByCreateTimeDesc(userId);
+
+        // 转换为DTO
+        List<AppointmentDTO> appointmentDTOs = appointments.stream()
+                .map(appointment -> new AppointmentDTO(
+                        appointment.getUserName(), appointment.getUserContact(), appointment.getAppointmentTime(),
+                        appointment.getDescription(),
+                        appointment.getExpert().getId(), appointment.getUser().getId(),
+                        appointment.getStatus().toString(),
+                        appointment.getCreateTime(), appointment.getUpdateTime(), appointment.getExpert().getName(),
+                        appointment.getId()))
+                .collect(Collectors.toList());
+
+        return appointmentDTOs;
     }
 
     public List<Appointment> getExpertAppointments(Long expertId) {
@@ -41,7 +63,7 @@ public class AppointmentService {
         return appointmentRepository.findByStatusOrderByCreateTimeDesc(status);
     }
 
-    public List<Appointment> getUserAppointmentsByStatus(String userId, Appointment.AppointmentStatus status) {
+    public List<Appointment> getUserAppointmentsByStatus(Long userId, Appointment.AppointmentStatus status) {
         return appointmentRepository.findByUserIdAndStatusOrderByCreateTimeDesc(userId, status);
     }
 
@@ -61,24 +83,32 @@ public class AppointmentService {
         return appointmentRepository.findById(id);
     }
 
-    public Appointment createAppointment(Appointment appointment) {
-        // 验证专家是否存在且可预约
-        Expert expert = expertRepository.findById(appointment.getExpert().getId())
-                .orElseThrow(() -> new RuntimeException("Expert not found with id: " + appointment.getExpert().getId()));
+    public Appointment createAppointmentByDTO(AppointmentDTO appointmentDTO) {
+        // 验证用户是否存在
+        User user = userRepository.findById(appointmentDTO.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + appointmentDTO.getUserId()));
 
+        // 验证专家是否存在且可预约
+        Expert expert = expertRepository.findById(appointmentDTO.getExpertId())
+                .orElseThrow(() -> new RuntimeException("Expert not found with id: " + appointmentDTO.getExpertId()));
         if (!expert.getIsAvailable()) {
             throw new RuntimeException("Expert is not available for appointment");
         }
 
         // 验证预约时间是否在未来
-        if (appointment.getAppointmentTime().isBefore(LocalDateTime.now())) {
+        if (appointmentDTO.getAppointmentTime().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Appointment time must be in the future");
         }
 
-        // 设置默认状态
-        if (appointment.getStatus() == null) {
-            appointment.setStatus(Appointment.AppointmentStatus.PENDING);
-        }
+        // 根据DTO创建Appointment实体
+        Appointment appointment = new Appointment();
+        appointment.setUser(user);
+        appointment.setUserName(appointmentDTO.getUserName());
+        appointment.setExpert(expert);
+        appointment.setAppointmentTime(appointmentDTO.getAppointmentTime());
+        appointment.setDescription(appointmentDTO.getDescription());
+        appointment.setUserContact(appointmentDTO.getUserContact());
+        appointment.setStatus(Appointment.AppointmentStatus.PENDING);
 
         return appointmentRepository.save(appointment);
     }

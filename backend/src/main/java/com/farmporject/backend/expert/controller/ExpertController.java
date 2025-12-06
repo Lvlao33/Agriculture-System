@@ -3,22 +3,30 @@ package com.farmporject.backend.expert.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.farmporject.backend.expert.service.ExpertService;
+
 import java.util.*;
 
+/**
+ * 专家相关接口
+ */
 @RestController
 @RequestMapping("/api/expert")
 public class ExpertController {
 
-    @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getProfile() {
-        Map<String, Object> m = new HashMap<>();
-        m.put("name", "示例专家");
-        m.put("title", "农业技术专家");
-        m.put("bio", "拥有多年农业种植经验与病虫害防治经验。");
-        m.put("rating", 4.8);
-        return ResponseEntity.ok(m);
+    private final ExpertService expertService;
+
+    public ExpertController(ExpertService expertService) {
+        this.expertService = expertService;
     }
 
+    // 获得专家介绍详情
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile() {
+        return ResponseEntity.ok(expertService.getAllExperts());
+    }
+
+    // 更新专家介绍详情
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, Object> payload) {
         // TODO: persist changes; currently echo back
@@ -28,6 +36,7 @@ public class ExpertController {
         return ResponseEntity.ok(resp);
     }
 
+    // 获得预约列表
     @GetMapping("/appointments")
     public ResponseEntity<List<Map<String, Object>>> getAppointments() {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -36,6 +45,7 @@ public class ExpertController {
         return ResponseEntity.ok(list);
     }
 
+    // 接受预约
     @PostMapping("/appointments/{id}/accept")
     public ResponseEntity<Map<String, Object>> acceptAppointment(@PathVariable Long id) {
         Map<String, Object> r = new HashMap<>();
@@ -45,6 +55,7 @@ public class ExpertController {
         return ResponseEntity.ok(r);
     }
 
+    // 拒绝预约
     @PostMapping("/appointments/{id}/reject")
     public ResponseEntity<Map<String, Object>> rejectAppointment(@PathVariable Long id) {
         Map<String, Object> r = new HashMap<>();
@@ -54,6 +65,7 @@ public class ExpertController {
         return ResponseEntity.ok(r);
     }
 
+    // 获得知识库列表
     @GetMapping("/knowledges")
     public ResponseEntity<List<Map<String, Object>>> getKnowledges() {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -62,6 +74,7 @@ public class ExpertController {
         return ResponseEntity.ok(list);
     }
 
+    // 发布知识
     @PostMapping("/knowledges")
     public ResponseEntity<Map<String, Object>> publishKnowledge(@RequestBody Map<String, Object> payload) {
         Map<String, Object> r = new HashMap<>();
@@ -93,7 +106,7 @@ public class ExpertController {
     public ResponseEntity<Map<String, Object>> getAnalytics() {
         Map<String, Object> m = new HashMap<>();
         m.put("visits", Arrays.asList(10, 15, 12, 20, 18));
-        m.put("dates", Arrays.asList("2025-11-22","2025-11-23","2025-11-24","2025-11-25","2025-11-26"));
+        m.put("dates", Arrays.asList("2025-11-22", "2025-11-23", "2025-11-24", "2025-11-25", "2025-11-26"));
         return ResponseEntity.ok(m);
     }
 
