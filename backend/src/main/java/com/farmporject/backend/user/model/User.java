@@ -61,9 +61,11 @@ public class User {
 
     /* expert 板块 */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Appointment> appointments; // 与 Appointment 类的关系
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Question> questions; // 与 Question 类的关系
 
     public User() {

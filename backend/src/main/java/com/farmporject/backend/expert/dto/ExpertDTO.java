@@ -3,42 +3,27 @@ package com.farmporject.backend.expert.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 专家对外暴露的 DTO，对应 Expert 实体以及关联的 User 基本信息
+ */
 public class ExpertDTO {
+
     private Long id;
     private Long userId;
+    private String username;
     private String name;
     private String title;
     private String avatar;
     private String description;
+    private List<String> specialties;
     private Integer experienceYears;
     private String contactInfo;
-    private Boolean isAvailable = true;
+    private Boolean isAvailable;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private List<String> specialties;
 
-    // 默认构造方法
     public ExpertDTO() {
     }
-
-    // 全参构造函数
-    public ExpertDTO(Long id, Long userId, String name, String title, String avatar,
-            String description, List<String> specialties, Integer experienceYears, String contactInfo,
-            Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
-        this.title = title;
-        this.avatar = avatar;
-        this.description = description;
-        this.specialties = specialties;
-        this.experienceYears = experienceYears;
-        this.contactInfo = contactInfo;
-        this.isAvailable = isAvailable;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-    }
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -54,6 +39,14 @@ public class ExpertDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {
@@ -135,5 +128,6 @@ public class ExpertDTO {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
-
 }
+
+

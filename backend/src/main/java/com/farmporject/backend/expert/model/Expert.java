@@ -9,17 +9,17 @@ import com.farmporject.backend.user.model.User;
 
 /**
  * 专家实体类
- * 为user的延伸
+ * 通过组合关系关联User，拥有独立的ID
  */
 @Entity
 @Table(name = "experts")
-public class Expert extends User {
+public class Expert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -53,10 +53,10 @@ public class Expert extends User {
     }
 
     // 全参构造函数
-    public Expert(Long id, String name, String title, String avatar, String description,
+    public Expert(User user, String name, String title, String avatar, String description,
             List<String> specialties, Integer experienceYears, String contactInfo,
-            Boolean isAvailable, LocalDateTime createTime, LocalDateTime updateTime) {
-        this.id = id;
+            Boolean isAvailable) {
+        this.user = user;
         this.name = name;
         this.title = title;
         this.avatar = avatar;
@@ -65,8 +65,6 @@ public class Expert extends User {
         this.experienceYears = experienceYears;
         this.contactInfo = contactInfo;
         this.isAvailable = isAvailable;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
     }
 
     // Getters and Setters
@@ -76,6 +74,14 @@ public class Expert extends User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getName() {
@@ -158,14 +164,6 @@ public class Expert extends User {
         this.updateTime = updateTime;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     @PrePersist
     protected void onCreate() {
         createTime = LocalDateTime.now();
@@ -196,6 +194,7 @@ public class Expert extends User {
     public String toString() {
         return "Expert{" +
                 "id=" + id +
+                ", userId=" + (user != null ? user.getId() : null) +
                 ", name='" + name + '\'' +
                 ", title='" + title + '\'' +
                 ", isAvailable=" + isAvailable +

@@ -15,7 +15,7 @@
               class="form-control"
               id="username"
               name="username"
-              placeholder="请输入账�?"
+              placeholder="请输入账�?"
               v-model="acount"
           />
         </div>
@@ -35,7 +35,7 @@
         <div class="form-group" style="display:flex">
           <input  type="text"    class="form-control" v-model="verificationCode" placeholder="请输入验证码"  style="width: 200px"/>
           <div @click="refreshCode">
-            <!--验证码组�?-->
+            <!--验证码组�?-->
             <s-identify :identifyCode="identifyCode"></s-identify>
           </div>
         </div>
@@ -87,12 +87,12 @@ export default {
     loginBtn() {
 
       if(!this.verificationCode){
-        alert("验证码不能为�?");
+        alert("验证码不能为�?");
         return;
       }
 
       if(this.verificationCode != this.identifyCode){
-        alert("验证码不一�?");
+        alert("验证码不一�?");
         return;
       }
 
@@ -102,7 +102,7 @@ export default {
       })
           .then((res) => {
             if (this.acount == "") {
-              alert("用户名不能为�?");
+              alert("用户名不能为�?");
               return;
             } else if (this.password == "") {
               alert("密码不能为空");
@@ -137,7 +137,7 @@ export default {
     resolveUserRole(res, user) {
       const fallback = 'farmer';
       const data = res && res.data ? res.data : {};
-      const directRole = data.roleKey || data.role || data.roleCode || data.userRole || data.identity;
+      const directRole = data.role || data.userRole || data.identity;
       const roles = data.roles || data.roleList;
       let role = directRole;
       if (!role && Array.isArray(roles) && roles.length > 0) {
@@ -147,19 +147,27 @@ export default {
         role = user.role || user.identity || user.type;
       }
       if (typeof role === 'string') {
+        // 将后端返回的大写角色（FARMER, EXPERT, BANK）转换为小写
         const normalized = role.toLowerCase();
         if (['farmer', 'expert', 'bank'].includes(normalized)) {
           return normalized;
         }
-        if (['staff', 'finance', 'banker'].includes(normalized)) {
-          return 'bank';
+        // 如果后端返回的是大写，也支持
+        if (['FARMER', 'EXPERT', 'BANK'].includes(role)) {
+          return normalized;
         }
       }
       return fallback;
     },
     getDefaultHome(role) {
-      // ��¼�����н�ɫͳһ����ԭ������ҳ
-      return "/home/front";
+      // ��¼�����н�ɫͳһ����ԭ������ҳ
+      // 根据角色跳转到不同的工作页面
+      const roleMap = {
+        'farmer': '/home/trade',
+        'expert': '/home/expertWork',
+        'bank': '/home/bankWork'
+      };
+      return roleMap[role] || '/home/front';
     },
   },
   created() {},

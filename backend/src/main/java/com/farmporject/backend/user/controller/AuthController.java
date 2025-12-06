@@ -6,10 +6,9 @@ import com.farmporject.backend.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
-/** User authentication endpoints */
+/** 用户-鉴权 */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -25,17 +24,21 @@ public class AuthController {
         String password = body.getOrDefault("password", "");
         return userService.validateLogin(username, password)
                 .<ResponseEntity<ApiResponse<Map<String, Object>>>>map(user -> {
-                    // Simplified demo token concatenates userId and username. Use JWT in production.
+                    // 简化：token 用用户ID-用户名拼接（演示用）。生产应使用JWT。
                     String token = "tk_" + user.getId() + "_" + user.getUsername();
-                    Map<String, Object> userPayload = buildUserPayload(user);
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("token", token);
-                    response.put("role", userPayload.get("roleKey"));
-                    response.put("roleName", userPayload.get("roleName"));
-                    response.put("user", userPayload);
-                    return ResponseEntity.ok(ApiResponse.ok(response));
+                    return ResponseEntity.ok(ApiResponse.ok(Map.of(
+                            "token", token,
+                            "user", Map.of(
+                                    "id", user.getId(),
+                                    "username", user.getUsername(),
+                                    "nickname", user.getNickname(),
+                                    "avatar", user.getAvatar(),
+                                    "role", user.getRole() != null ? user.getRole() : "FARMER"
+                            ),
+                            "role", user.getRole() != null ? user.getRole() : "FARMER"
+                    )));
                 })
-                .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("Invalid username or password")));
+                .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户名或密码错误")));
     }
 
     @PostMapping("/register")
@@ -44,42 +47,8 @@ public class AuthController {
         String password = body.getOrDefault("password", "");
         String nickname = body.getOrDefault("nickname", "");
         String avatar = body.getOrDefault("avatar", "");
-        String role = body.getOrDefault("role", "");
+        String role = body.getOrDefault("role", "FARMER"); // 默认角色为 FARMER
         User user = userService.register(username, password, nickname, avatar, role);
         return ResponseEntity.status(201).body(ApiResponse.ok(user));
-    }
-
-    private Map<String, Object> buildUserPayload(User user) {
-        Map<String, Object> payload = new HashMap<>();
-        String normalizedRole = normalizeRole(user.getRole());
-        payload.put("id", user.getId());
-        payload.put("username", user.getUsername());
-        payload.put("nickname", user.getNickname());
-        payload.put("avatar", user.getAvatar());
-        payload.put("role", user.getRole());
-        payload.put("roleKey", normalizedRole);
-        payload.put("roleName", roleDisplayName(normalizedRole));
-        return payload;
-    }
-
-    private String normalizeRole(String rawRole) {
-        if (rawRole == null || rawRole.isBlank()) {
-            return "farmer";
-        }
-        String upper = rawRole.trim().toUpperCase();
-        return switch (upper) {
-            case "FARMER" -> "farmer";
-            case "EXPERT" -> "expert";
-            case "BANK", "STAFF", "FINANCE", "BANKER" -> "bank";
-            default -> "farmer";
-        };
-    }
-
-    private String roleDisplayName(String normalizedRole) {
-        return switch (normalizedRole) {
-            case "expert" -> "Expert";
-            case "bank" -> "Bank";
-            default -> "Farmer";
-        };
     }
 }

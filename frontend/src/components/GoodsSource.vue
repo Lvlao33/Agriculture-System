@@ -2,18 +2,18 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- 顶部操作栏 -->
+    <!-- 椤堕儴鎿嶄綔鏍? -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="搜索商品名称、产地..."
+          placeholder="鎼滅储鍟嗗搧鍚嶇О銆佷骇鍦?..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="handleSearch">鎼滅储</el-button>
       </div>
       <el-button
         type="success"
@@ -21,22 +21,114 @@
         class="publish-btn"
         @click="handlePublish"
       >
-        发布商品
+        鍙戝竷鍟嗗搧
       </el-button>
     </div>
 
-    <!-- 主要内容区域 -->
+    <!-- 价格预测 -->
+    <section class="forecast-section" ref="forecastSection">
+      <div class="forecast-header">
+        <div>
+          <div class="tag">价格预测</div>
+          <h2>未来7天趋势</h2>
+          <p class="sub">基于XGBoost 时序回归，结合滞后与季节特征</p>
+        </div>
+        <div class="forecast-actions">
+          <el-select
+            v-model="forecastCommodity"
+            placeholder="选择品类"
+            size="small"
+            style="width: 150px;"
+            @change="fetchForecast"
+          >
+            <el-option
+              v-for="item in forecastCommodities"
+              :key="item"
+              :value="item"
+              :label="item"
+            />
+          </el-select>
+          <el-button size="small" type="primary" plain @click="refreshForecast" :loading="forecastLoading">
+            刷新预测
+          </el-button>
+        </div>
+      </div>
+
+      <el-card shadow="hover" class="forecast-card">
+        <div class="forecast-meta">
+          <div class="meta-item">
+            <span class="meta-label">预测均价</span>
+            <span class="meta-value">{{ forecastSummary.avg }} 元/斤</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">波动范围</span>
+            <span class="meta-value">{{ forecastSummary.range }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">模型</span>
+            <span class="meta-value">XGBoost 回归</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">更新时间</span>
+            <span class="meta-value">{{ forecastSummary.updatedAt }}</span>
+          </div>
+        </div>
+
+        <div class="forecast-body">
+          <div class="forecast-chart">
+            <div class="chart-y-label">价格</div>
+            <div class="chart-bars" v-if="forecastSeries.length">
+              <div
+                v-for="(point, idx) in forecastSeries"
+                :key="idx"
+                class="bar"
+                :style="{ height: point.barHeight + '%'}"
+              >
+                <div class="bar-value">{{ point.pred }} </div>
+                <div class="bar-date">{{ point.date }}</div>
+              </div>
+            </div>
+            <div v-else class="chart-empty">
+              <el-skeleton animated :rows="2" style="width: 100%;"></el-skeleton>
+            </div>
+          </div>
+
+          <div class="forecast-table">
+            <el-table
+              v-loading="forecastLoading"
+              size="small"
+              :data="forecastTable"
+              border
+              empty-text="暂无预测数据"
+              height="260"
+            >
+              <el-table-column prop="date" label="日期" width="90"></el-table-column>
+              <el-table-column prop="pred" label="预测价(元/斤)"></el-table-column>
+              <el-table-column prop="lower" label="下界"></el-table-column>
+              <el-table-column prop="upper" label="上界"></el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <div v-if="forecastError" class="forecast-error">
+          <i class="el-icon-warning-outline"></i>
+          {{ forecastError }}
+        </div>
+      </el-card>
+    </section>
+
+    <!-- 涓昏鍐呭鍖哄煙 -->
     <div class="main-content">
-      <!-- 左侧分类栏 -->
+      <!-- 宸︿晶鍒嗙被鏍? -->
       <div class="category-sidebar">
-        <div class="category-title">商品分类</div>
+        <div class="category-title">鍟嗗搧鍒嗙被</div>
         <div
           class="category-item"
           :class="{ active: selectedCategory === 'all' }"
           @click="selectCategory('all')"
         >
           <i class="el-icon-menu"></i>
-          <span>全部商品</span>
+          <span>鍏ㄩ儴鍟嗗搧</span>
         </div>
         <div
           class="category-item"
@@ -44,7 +136,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>水果类</span>
+          <span>姘存灉绫?</span>
         </div>
         <div
           class="category-item"
@@ -52,7 +144,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>蔬菜类</span>
+          <span>钄彍绫?</span>
         </div>
         <div
           class="category-item"
@@ -60,7 +152,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>粮食类</span>
+          <span>绮绫?</span>
         </div>
         <div
           class="category-item"
@@ -68,7 +160,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>畜牧类</span>
+          <span>鐣滅墽绫?</span>
         </div>
         <div
           class="category-item"
@@ -76,15 +168,15 @@
           @click="selectCategory('other')"
         >
           <i class="el-icon-box"></i>
-          <span>其他</span>
+          <span>鍏朵粬</span>
         </div>
       </div>
 
-      <!-- 右侧商品展示区 -->
+      <!-- 鍙充晶鍟嗗搧灞曠ず鍖? -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
-          <p>暂无商品</p>
+          <p>鏆傛棤鍟嗗搧</p>
         </div>
         <div
           v-for="(item, index) in filteredGoods"
@@ -98,28 +190,28 @@
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
                 class="goods-img"
-                alt="商品图片"
+                alt="鍟嗗搧鍥剧墖"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
                 class="goods-img"
-                alt="暂无图片"
+                alt="鏆傛棤鍥剧墖"
               />
             </div>
             <div class="goods-info">
               <div class="goods-owner">
                 <i class="el-icon-user"></i>
-                <span>{{ item.ownName || '未知' }}</span>
+                <span>{{ item.ownName || '鏈煡' }}</span>
               </div>
-              <p class="goods-content">{{ item.content || item.name || '商品名称' }}</p>
+              <p class="goods-content">{{ item.content || item.name || '鍟嗗搧鍚嶇О' }}</p>
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
-                  ?{{ item.price }}
+                  楼{{ item.price }}
                 </span>
-                <span class="goods-price" v-else>价格面议</span>
+                <span class="goods-price" v-else>浠锋牸闈㈣</span>
               </div>
             </div>
           </el-card>
@@ -127,7 +219,7 @@
       </div>
     </div>
 
-    <!-- 商品详情弹窗 -->
+    <!-- 鍟嗗搧璇︽儏寮圭獥 -->
     <el-dialog
       :title="detailDialogTitle"
       :visible.sync="detailDialogVisible"
@@ -147,43 +239,43 @@
               <img
                 v-if="item.picture && item.picture !== ''"
                 :src="getImageUrl(item.picture)"
-                alt="商品图片"
+                alt="鍟嗗搧鍥剧墖"
                 @error="handleImageError"
               />
               <img
                 v-else
                 :src="`/order/wutu.gif`"
-                alt="暂无图片"
+                alt="鏆傛棤鍥剧墖"
               />
             </div>
             <div class="detail-goods-info">
-              <div class="detail-goods-name">{{ item.content || item.name || '商品名称' }}</div>
+              <div class="detail-goods-name">{{ item.content || item.name || '鍟嗗搧鍚嶇О' }}</div>
               <div class="detail-goods-meta">
                 <span class="detail-goods-origin">
                   <i class="el-icon-location-outline"></i>
-                  {{ item.origin || '产地未知' }}
+                  {{ item.origin || '浜у湴鏈煡' }}
                 </span>
                 <span class="detail-goods-seller">
                   <i class="el-icon-user"></i>
-                  {{ item.ownName || '未知卖家' }}
+                  {{ item.ownName || '鏈煡鍗栧' }}
                 </span>
               </div>
               <div class="detail-goods-price">
                 <i class="el-icon-coin"></i>
-                ?{{ item.price || '面议' }}
+                楼{{ item.price || '闈㈣' }}
               </div>
               <div class="detail-goods-stock" v-if="item.stock !== undefined">
-                库存：{{ item.stock }}
+                搴撳瓨锛歿{ item.stock }}
               </div>
             </div>
             <div class="detail-goods-actions">
-              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">立即购买</el-button>
-              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物车</el-button>
+              <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">绔嬪嵆璐拱</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">鍔犲叆璐墿杞?</el-button>
             </div>
           </div>
           <div v-if="similarGoods.length === 0" class="empty-detail-state">
             <i class="el-icon-box"></i>
-            <p>暂无同类商品</p>
+            <p>鏆傛棤鍚岀被鍟嗗搧</p>
           </div>
         </div>
       </div>
@@ -192,6 +284,8 @@
 </template>
 
 <script>
+import { getPriceForecast } from "@/api/price";
+
 export default {
   name: "GoodsSource",
   data() {
@@ -199,221 +293,232 @@ export default {
       searchValue: '',
       selectedCategory: 'all',
       detailDialogVisible: false,
-      detailDialogTitle: '商品详情',
+      detailDialogTitle: '鍟嗗搧璇︽儏',
       currentGoodsItem: null,
       similarGoods: [],
-      // 示例商品数据（当API返回空数据时使用）
+      // 绀轰緥鍟嗗搧鏁版嵁锛堝綋API杩斿洖绌烘暟鎹椂浣跨敤锛?
       defaultGoods: [
-        // 水果类
+        // 姘存灉绫?
         {
-          name: '新鲜苹果',
-          content: '新鲜苹果 红富士 脆甜多汁',
+          name: '鏂伴矞鑻规灉',
+          content: '鏂伴矞鑻规灉 绾㈠瘜澹? 鑴嗙敎澶氭眮',
           price: 12.00,
           picture: 'pro2.jpg',
-          origin: '山东烟台',
-          ownName: '张果农',
+          origin: '灞变笢鐑熷彴',
+          ownName: '寮犳灉鍐?',
           category: 'fruit',
           stock: 500,
           orderId: 'fruit1',
-          keyword: '苹果'
+          keyword: '鑻规灉'
         },
         {
-          name: '优质苹果',
-          content: '优质苹果 有机种植 无农药残留',
+          name: '浼樿川鑻规灉',
+          content: '浼樿川鑻规灉 鏈夋満绉嶆 鏃犲啘鑽畫鐣?',
           price: 15.00,
           picture: 'pro2.jpg',
-          origin: '陕西',
-          ownName: '李农场',
+          origin: '闄曡タ',
+          ownName: '鏉庡啘鍦?',
           category: 'fruit',
           stock: 300,
           orderId: 'fruit2',
-          keyword: '苹果'
+          keyword: '鑻规灉'
         },
         {
-          name: '精品苹果',
-          content: '精品苹果 个大饱满 甜度高',
+          name: '绮惧搧鑻规灉',
+          content: '绮惧搧鑻规灉 涓ぇ楗辨弧 鐢滃害楂?',
           price: 18.00,
           picture: 'pro2.jpg',
-          origin: '新疆',
-          ownName: '王果园',
+          origin: '鏂扮枂',
+          ownName: '鐜嬫灉鍥?',
           category: 'fruit',
           stock: 200,
           orderId: 'fruit3',
-          keyword: '苹果'
+          keyword: '鑻规灉'
         },
         {
-          name: '新鲜橙子',
-          content: '新鲜橙子 汁多味甜 维C丰富',
+          name: '鏂伴矞姗欏瓙',
+          content: '鏂伴矞姗欏瓙 姹佸鍛崇敎 缁碈涓板瘜',
           price: 10.00,
           picture: 'pro2.jpg',
-          origin: '江西',
-          ownName: '陈果农',
+          origin: '姹熻タ',
+          ownName: '闄堟灉鍐?',
           category: 'fruit',
           stock: 400,
           orderId: 'fruit4',
-          keyword: '橙子'
+          keyword: '姗欏瓙'
         },
         {
-          name: '优质葡萄',
-          content: '优质葡萄 无籽 甜度高',
+          name: '浼樿川钁¤悇',
+          content: '浼樿川钁¤悇 鏃犵苯 鐢滃害楂?',
           price: 20.00,
           picture: 'pro2.jpg',
-          origin: '新疆',
-          ownName: '赵果园',
+          origin: '鏂扮枂',
+          ownName: '璧垫灉鍥?',
           category: 'fruit',
           stock: 250,
           orderId: 'fruit5',
-          keyword: '葡萄'
+          keyword: '钁¤悇'
         },
-        // 蔬菜类
+        // 钄彍绫?
         {
-          name: '新鲜白菜',
-          content: '新鲜白菜 有机种植 口感脆嫩',
+          name: '鏂伴矞鐧借彍',
+          content: '鏂伴矞鐧借彍 鏈夋満绉嶆 鍙ｆ劅鑴嗗',
           price: 5.00,
           picture: 'pro1.jpg',
-          origin: '山东',
-          ownName: '刘菜农',
+          origin: '灞变笢',
+          ownName: '鍒樿彍鍐?',
           category: 'vegetable',
           stock: 800,
           orderId: 'veg1',
-          keyword: '白菜'
+          keyword: '鐧借彍'
         },
         {
-          name: '有机白菜',
-          content: '有机白菜 无农药 绿色健康',
+          name: '鏈夋満鐧借彍',
+          content: '鏈夋満鐧借彍 鏃犲啘鑽? 缁胯壊鍋ュ悍',
           price: 8.00,
           picture: 'pro1.jpg',
-          origin: '河北',
-          ownName: '周农场',
+          origin: '娌冲寳',
+          ownName: '鍛ㄥ啘鍦?',
           category: 'vegetable',
           stock: 600,
           orderId: 'veg2',
-          keyword: '白菜'
+          keyword: '鐧借彍'
         },
         {
-          name: '新鲜萝卜',
-          content: '新鲜萝卜 白萝卜 清脆爽口',
+          name: '鏂伴矞钀濆崪',
+          content: '鏂伴矞钀濆崪 鐧借悵鍗? 娓呰剢鐖藉彛',
           price: 4.00,
           picture: 'pro1.jpg',
-          origin: '河南',
-          ownName: '吴菜农',
+          origin: '娌冲崡',
+          ownName: '鍚磋彍鍐?',
           category: 'vegetable',
           stock: 700,
           orderId: 'veg3',
-          keyword: '萝卜'
+          keyword: '钀濆崪'
         },
         {
-          name: '新鲜土豆',
-          content: '新鲜土豆 黄心土豆 品质优良',
+          name: '鏂伴矞鍦熻眴',
+          content: '鏂伴矞鍦熻眴 榛勫績鍦熻眴 鍝佽川浼樿壇',
           price: 6.00,
           picture: 'pro1.jpg',
-          origin: '内蒙古',
-          ownName: '郑农场',
+          origin: '鍐呰挋鍙?',
+          ownName: '閮戝啘鍦?',
           category: 'vegetable',
           stock: 900,
           orderId: 'veg4',
-          keyword: '土豆'
+          keyword: '鍦熻眴'
         },
-        // 粮食类
+        // 绮绫?
         {
-          name: '优质大米',
-          content: '优质大米 东北大米 香糯可口',
+          name: '浼樿川澶х背',
+          content: '浼樿川澶х背 涓滃寳澶х背 棣欑朝鍙彛',
           price: 45.00,
           picture: 'rice.png',
-          origin: '黑龙江',
-          ownName: '孙粮农',
+          origin: '榛戦緳姹?',
+          ownName: '瀛欑伯鍐?',
           category: 'grain',
           stock: 1000,
           orderId: 'grain1',
-          keyword: '大米'
+          keyword: '澶х背'
         },
         {
-          name: '有机大米',
-          content: '有机大米 绿色认证 营养丰富',
+          name: '鏈夋満澶х背',
+          content: '鏈夋満澶х背 缁胯壊璁よ瘉 钀ュ吇涓板瘜',
           price: 58.00,
           picture: 'rice.png',
-          origin: '吉林',
-          ownName: '钱农场',
+          origin: '鍚夋灄',
+          ownName: '閽卞啘鍦?',
           category: 'grain',
           stock: 500,
           orderId: 'grain2',
-          keyword: '大米'
+          keyword: '澶х背'
         },
         {
-          name: '优质小麦',
-          content: '优质小麦 高筋小麦 适合做面食',
+          name: '浼樿川灏忛害',
+          content: '浼樿川灏忛害 楂樼瓔灏忛害 閫傚悎鍋氶潰椋?',
           price: 35.00,
           picture: 'rice.png',
-          origin: '河南',
-          ownName: '周粮农',
+          origin: '娌冲崡',
+          ownName: '鍛ㄧ伯鍐?',
           category: 'grain',
           stock: 800,
           orderId: 'grain3',
-          keyword: '小麦'
+          keyword: '灏忛害'
         },
-        // 畜牧类
+        // 鐣滅墽绫?
         {
-          name: '新鲜土鸡蛋',
-          content: '新鲜土鸡蛋 散养 营养丰富',
+          name: '鏂伴矞鍦熼浮铔?',
+          content: '鏂伴矞鍦熼浮铔? 鏁ｅ吇 钀ュ吇涓板瘜',
           price: 35.00,
           picture: 'pro3.jpg',
-          origin: '河北',
-          ownName: '李养殖',
+          origin: '娌冲寳',
+          ownName: '鏉庡吇娈?',
           category: 'livestock',
           stock: 200,
           orderId: 'live1',
-          keyword: '鸡蛋'
+          keyword: '楦¤泲'
         },
         {
-          name: '有机土鸡蛋',
-          content: '有机土鸡蛋 无激素 品质保证',
+          name: '鏈夋満鍦熼浮铔?',
+          content: '鏈夋満鍦熼浮铔? 鏃犳縺绱? 鍝佽川淇濊瘉',
           price: 42.00,
           picture: 'pro3.jpg',
-          origin: '山东',
-          ownName: '王养殖',
+          origin: '灞变笢',
+          ownName: '鐜嬪吇娈?',
           category: 'livestock',
           stock: 150,
           orderId: 'live2',
-          keyword: '鸡蛋'
+          keyword: '楦¤泲'
         },
         {
-          name: '新鲜牛奶',
-          content: '新鲜牛奶 当日配送 营养健康',
+          name: '鏂伴矞鐗涘ザ',
+          content: '鏂伴矞鐗涘ザ 褰撴棩閰嶉�? 钀ュ吇鍋ュ悍',
           price: 25.00,
           picture: 'pro3.jpg',
-          origin: '内蒙古',
-          ownName: '赵牧场',
+          origin: '鍐呰挋鍙?',
+          ownName: '璧电墽鍦?',
           category: 'livestock',
           stock: 300,
           orderId: 'live3',
-          keyword: '牛奶'
+          keyword: '鐗涘ザ'
         },
-        // 其他
+        // 鍏朵粬
         {
-          name: '有机茶叶',
-          content: '有机茶叶 原产地直供 品质优良',
+          name: '鏈夋満鑼跺彾',
+          content: '鏈夋満鑼跺彾 鍘熶骇鍦扮洿渚? 鍝佽川浼樿壇',
           price: 128.00,
           picture: 'chayangji.jpg',
-          origin: '福建',
-          ownName: '陈茶农',
+          origin: '绂忓缓',
+          ownName: '闄堣尪鍐?',
           category: 'other',
           stock: 100,
           orderId: 'other1',
-          keyword: '茶叶'
+          keyword: '鑼跺彾'
         },
         {
-          name: '新鲜玉米',
-          content: '新鲜玉米 甜玉米 口感香甜',
+          name: '鏂伴矞鐜夌背',
+          content: '鏂伴矞鐜夌背 鐢滅帀绫? 鍙ｆ劅棣欑敎',
           price: 15.00,
           picture: 'farm.jpeg',
-          origin: '河南',
-          ownName: '黄农场',
+          origin: '娌冲崡',
+          ownName: '榛勫啘鍦?',
           category: 'other',
           stock: 400,
           orderId: 'other2',
-          keyword: '玉米'
+          keyword: '鐜夌背'
         }
-      ]
+      ],
+      forecastCommodities: ['苹果', '玉米', '小麦', '生猪', '大米'],
+      forecastCommodity: '苹果',
+      forecastSeries: [],
+      forecastTable: [],
+      forecastSummary: {
+        avg: '--',
+        range: '--',
+        updatedAt: '--'
+      },
+      forecastLoading: false,
+      forecastError: ''
     };
   },
   props: {
@@ -424,15 +529,15 @@ export default {
   },
   computed: {
     filteredGoods() {
-      // 优先使用传入的商品数据，如果为空则使用示例数据
+      // 浼樺厛浣跨敤浼犲叆鐨勫晢鍝佹暟鎹紝濡傛灉涓虹┖鍒欎娇鐢ㄧず渚嬫暟鎹?
       let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // 分类筛选
+      // 鍒嗙被绛涢�?
       if (this.selectedCategory !== 'all') {
         goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // 搜索筛选
+      // 鎼滅储绛涢�?
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
@@ -447,7 +552,89 @@ export default {
       return goods;
     }
   },
+  mounted() {
+    this.initForecastFromRoute();
+    this.fetchForecast();
+  },
   methods: {
+    initForecastFromRoute() {
+      const query = this.$route && this.$route.query ? this.$route.query : {};
+      if (query.commodity) {
+        this.forecastCommodity = query.commodity;
+      }
+      if (query.section === 'forecast') {
+        this.$nextTick(() => {
+          this.scrollToForecast();
+        });
+      }
+    },
+    scrollToForecast() {
+      if (this.$refs.forecastSection) {
+        this.$refs.forecastSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    },
+    async fetchForecast() {
+      this.forecastLoading = true;
+      this.forecastError = '';
+      try {
+        const res = await getPriceForecast({ commodity: this.forecastCommodity, horizon: 7 });
+        const payload = res.data || res || {};
+        const series = payload.series || payload.data || [];
+        if (!Array.isArray(series) || series.length === 0) {
+          throw new Error('empty');
+        }
+        this.applySeries(series);
+        this.forecastSummary.updatedAt = payload.updatedAt || new Date().toLocaleString();
+      } catch (err) {
+        this.forecastError = '预测数据获取失败，已显示示例数据';
+        this.applySeries(this.getSampleForecast());
+        this.forecastSummary.updatedAt = new Date().toLocaleString();
+      } finally {
+        this.forecastLoading = false;
+      }
+    },
+    refreshForecast() {
+      this.fetchForecast();
+    },
+    applySeries(series) {
+      const normalized = series.map(item => ({
+        date: item.date || item.ds || item.time || '',
+        pred: Number(item.pred || item.yhat || item.value || item.forecast || item.price || 0).toFixed(2),
+        lower: (item.lower || item.yhat_lower || item.lower_bound || item.lwr || item.pred_min || null),
+        upper: (item.upper || item.yhat_upper || item.upper_bound || item.upr || item.pred_max || null),
+      }));
+      const preds = normalized.map(i => Number(i.pred));
+      const max = Math.max(...preds);
+      const min = Math.min(...preds);
+      const heightSpan = Math.max(max - min, 0.01);
+      this.forecastSeries = normalized.map(item => {
+        const h = ((Number(item.pred) - min) / heightSpan) * 70 + 20;
+        return {
+          ...item,
+          barHeight: Math.min(Math.max(h, 10), 100),
+          lower: item.lower !== null ? Number(item.lower).toFixed(2) : '--',
+          upper: item.upper !== null ? Number(item.upper).toFixed(2) : '--',
+        };
+      });
+      const avg = (preds.reduce((a, b) => a + b, 0) / preds.length).toFixed(2);
+      this.forecastTable = this.forecastSeries;
+      this.forecastSummary.avg = avg;
+      this.forecastSummary.range = `${min.toFixed(2)} - ${max.toFixed(2)} 元/斤`;
+    },
+    getSampleForecast() {
+      const today = new Date();
+      return Array.from({ length: 7 }).map((_, idx) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() + idx + 1);
+        const price = 3.2 + Math.sin(idx / 2) * 0.2 + idx * 0.05;
+        return {
+          date: `${d.getMonth() + 1}-${String(d.getDate()).padStart(2, '0')}`,
+          pred: price.toFixed(2),
+          lower: (price - 0.15).toFixed(2),
+          upper: (price + 0.18).toFixed(2)
+        };
+      });
+    },
     selectCategory(category) {
       this.selectedCategory = category;
     },
@@ -458,33 +645,33 @@ export default {
       this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
     showGoodsDetail(item) {
-      // 显示商品详情弹窗，显示所有同类商品
+      // 鏄剧ず鍟嗗搧璇︽儏寮圭獥锛屾樉绀烘墍鏈夊悓绫诲晢鍝?
       this.currentGoodsItem = item;
-      this.detailDialogTitle = `${item.content || item.name || '商品'} - 同类商品`;
+      this.detailDialogTitle = `${item.content || item.name || '鍟嗗搧'} - 鍚岀被鍟嗗搧`;
       
-      // 根据商品关键词查找同类商品
+      // 鏍规嵁鍟嗗搧鍏抽敭璇嶆煡鎵惧悓绫诲晢鍝?
       const keyword = item.keyword || this.extractKeyword(item.content || item.name);
       this.similarGoods = this.filteredGoods.filter(goods => {
         const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
         return goodsKeyword === keyword && goods.orderId !== item.orderId;
       });
       
-      // 将当前商品也加入列表（放在第一位）
+      // 灏嗗綋鍓嶅晢鍝佷篃鍔犲叆鍒楄〃锛堟斁鍦ㄧ涓�浣嶏級
       this.similarGoods.unshift(item);
       
       this.detailDialogVisible = true;
     },
     extractKeyword(text) {
-      // 从商品名称中提取关键词（简单实现）
+      // 浠庡晢鍝佸悕绉颁腑鎻愬彇鍏抽敭璇嶏紙绠�鍗曞疄鐜帮級
       if (!text) return '';
-      // 提取常见商品关键词
-      const keywords = ['苹果', '橙子', '葡萄', '白菜', '萝卜', '土豆', '大米', '小麦', '鸡蛋', '牛奶', '茶叶', '玉米'];
+      // 鎻愬彇甯歌鍟嗗搧鍏抽敭璇?
+      const keywords = ['鑻规灉', '姗欏瓙', '钁¤悇', '鐧借彍', '钀濆崪', '鍦熻眴', '澶х背', '灏忛害', '楦¤泲', '鐗涘ザ', '鑼跺彾', '鐜夌背'];
       for (let kw of keywords) {
         if (text.includes(kw)) {
           return kw;
         }
       }
-      return text.substring(0, 2); // 默认取前两个字
+      return text.substring(0, 2); // 榛樿鍙栧墠涓や釜瀛?
     },
     handleCloseDialog() {
       this.detailDialogVisible = false;
@@ -492,35 +679,35 @@ export default {
       this.similarGoods = [];
     },
     goToGoodsDetailPage(item) {
-      // 跳转到商品详情页面
+      // 璺宠浆鍒板晢鍝佽鎯呴〉闈?
       if (item.orderId) {
         this.$store.commit("updateOrderId", item.orderId);
         this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
     },
     handleBuyNow(item) {
-      // 立即购买
+      // 绔嬪嵆璐拱
       this.goToGoodsDetailPage(item);
     },
     handleAddToCart(item) {
-      // 加入购物车
+      // 鍔犲叆璐墿杞?
       this.$emit('addToCart', item);
-      this.$message.success('已加入购物车');
+      this.$message.success('宸插姞鍏ヨ喘鐗╄溅');
     },
     getImageUrl(picture) {
-      // 如果图片路径包含 /kn/ 或 /order/，直接使用
+      // 濡傛灉鍥剧墖璺緞鍖呭惈 /kn/ 鎴? /order/锛岀洿鎺ヤ娇鐢?
       if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
         return picture;
       }
-      // 如果是 kn 目录下的图片
+      // 濡傛灉鏄? kn 鐩綍涓嬬殑鍥剧墖
       if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
         return `/kn/${picture}`;
       }
-      // 默认使用 order 目录
+      // 榛樿浣跨敤 order 鐩綍
       return `/order/${picture}`;
     },
     handleImageError(event) {
-      // 图片加载失败时，使用默认图片
+      // 鍥剧墖鍔犺浇澶辫触鏃讹紝浣跨敤榛樿鍥剧墖
       event.target.src = '/order/wutu.gif';
     }
   }
@@ -534,6 +721,159 @@ export default {
   margin: 0 auto;
   padding: 20px;
   min-height: 600px;
+
+  .forecast-section {
+    margin-bottom: 20px;
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #ecf5ff;
+      color: #409eff;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin: 4px 0;
+      font-size: 22px;
+      color: #2c3e50;
+    }
+
+    .sub {
+      margin: 0;
+      color: #909399;
+      font-size: 13px;
+    }
+
+    .forecast-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .forecast-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .forecast-card {
+      border-radius: 10px;
+    }
+
+    .forecast-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+
+      .meta-item {
+        background: #f7f9fc;
+        border-radius: 8px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .meta-label {
+          font-size: 12px;
+          color: #909399;
+        }
+
+        .meta-value {
+          font-size: 16px;
+          color: #303133;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .forecast-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+
+      @media (max-width: 960px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .forecast-chart {
+      background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+      border: 1px solid #ebeef5;
+      border-radius: 10px;
+      padding: 14px;
+      position: relative;
+
+      .chart-y-label {
+        position: absolute;
+        left: 6px;
+        top: 10px;
+        font-size: 12px;
+        color: #909399;
+      }
+
+      .chart-bars {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 10px;
+        align-items: end;
+        padding-top: 10px;
+      }
+
+      .bar {
+        background: #ecf5ff;
+        border-radius: 6px 6px 2px 2px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        transition: all 0.2s;
+
+        &:hover {
+          background: #d9ecff;
+          transform: translateY(-4px);
+        }
+
+        .bar-value {
+          position: absolute;
+          top: -22px;
+          font-size: 12px;
+          color: #303133;
+        }
+
+        .bar-date {
+          position: absolute;
+          bottom: -20px;
+          font-size: 12px;
+          color: #909399;
+          white-space: nowrap;
+        }
+      }
+
+      .chart-empty {
+        padding: 20px;
+      }
+    }
+
+    .forecast-table {
+      .el-table {
+        border-radius: 10px;
+      }
+    }
+
+    .forecast-error {
+      margin-top: 10px;
+      color: #e6a23c;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  }
 
   .top-bar {
     display: flex;
@@ -735,7 +1075,7 @@ export default {
   }
 }
 
-// 商品详情弹窗样式
+// 鍟嗗搧璇︽儏寮圭獥鏍峰紡
 /deep/ .goods-detail-dialog {
   .el-dialog__body {
     padding: 20px;

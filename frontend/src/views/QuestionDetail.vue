@@ -55,7 +55,7 @@
                 <span class="author-name">{{ answer.expertName || '专家' }}</span>
                 <el-tag v-if="answer.expertName" type="warning" size="mini">{{ answer.expertTitle }}</el-tag>
               </div>
-              <span class="answer-time">{{ formatDate(answer.createTime) }}</span>
+              <span class="answer-time">{{ formatDate(answer.createTime || answer.create_time) }}</span>
             </div>
             <div class="answer-content">{{ answer.content }}</div>
           </div>
@@ -65,13 +65,57 @@
             <p>暂无回答，等待专家解答...</p>
           </div>
         </div>
+
+        <!-- 去回答按钮和回答表单 -->
+        <div class="answer-form-section">
+          <el-button 
+            type="primary" 
+            icon="el-icon-edit"
+            @click="showAnswerForm = true"
+            class="answer-btn"
+          >
+            去回答
+          </el-button>
+
+          <!-- 回答表单对话框 -->
+          <el-dialog
+            title="发表回答"
+            :visible.sync="showAnswerForm"
+            width="700px"
+            :before-close="handleCloseDialog"
+          >
+            <el-form 
+              :model="answerForm" 
+              :rules="answerRules" 
+              ref="answerForm"
+              label-width="80px"
+            >
+              <el-form-item label="回答内容" prop="content">
+                <el-input
+                  type="textarea"
+                  v-model="answerForm.content"
+                  :rows="8"
+                  placeholder="请输入您的回答内容，详细描述有助于提问者更好地理解..."
+                  maxlength="2000"
+                  show-word-limit
+                ></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="handleCloseDialog">取消</el-button>
+              <el-button type="primary" @click="handleSubmitAnswer" :loading="submitting">
+                提交回答
+              </el-button>
+            </span>
+          </el-dialog>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { getQuestionDetail, getAnswersList } from '@/api/qa'
+import { getQuestionDetail, getAnswersList, submitAnswer } from '@/api/qa'
 
 export default {
   name: 'QuestionDetail',
@@ -79,7 +123,18 @@ export default {
     return {
       questionId: null,
       questionDetail: {},
-      answersList: []
+      answersList: [],
+      showAnswerForm: false, // 是否显示回答表单
+      submitting: false, // 是否正在提交
+      answerForm: {
+        content: '' // 回答内容
+      },
+      answerRules: {
+        content: [
+          { required: true, message: '请输入回答内容', trigger: 'blur' },
+          { min: 10, max: 2000, message: '回答内容长度在 10 到 2000 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -150,6 +205,65 @@ export default {
       const hours = String(date.getHours()).padStart(2, '0')
       const minutes = String(date.getMinutes()).padStart(2, '0')
       return `${year}-${month}-${day} ${hours}:${minutes}`
+    },
+    // 判断是否为专家回答
+    isExpertAnswer(answer) {
+      // 如果回答中有 expertName 字段，说明是专家回答
+      if (answer.expertName) return true
+      // 如果回答中有 role 字段且为 EXPERT 或 expert
+      if (answer.role && (answer.role === 'EXPERT' || answer.role === 'expert')) return true
+      // 如果回答中有 userRole 字段且为 expert
+      if (answer.userRole && answer.userRole === 'expert') return true
+      // 如果回答中有 isExpert 字段且为 true
+      if (answer.isExpert === true) return true
+      return false
+    },
+    // 提交回答
+    handleSubmitAnswer() {
+      this.$refs.answerForm.validate(async (valid) => {
+        if (valid) {
+          // 检查是否登录
+          if (!this.$store.state.token) {
+            this.$message.warning('请先登录')
+            this.$router.push('/login')
+            return
+          }
+
+          this.submitting = true
+          try {
+            const res = await submitAnswer({
+              questionId: this.questionId,
+              content: this.answerForm.content
+            })
+            
+            if (res && res.flag) {
+              this.$message.success('回答提交成功')
+              this.handleCloseDialog()
+              // 重新加载回答列表
+              this.loadAnswers()
+              // 更新问题详情（回答数量）
+              this.loadQuestionDetail()
+            } else {
+              this.$message.error(res?.message || '回答提交失败')
+            }
+          } catch (error) {
+            console.error('提交回答失败:', error)
+            this.$message.error('回答提交失败，请稍后重试')
+          } finally {
+            this.submitting = false
+          }
+        } else {
+          this.$message.warning('请完善回答信息')
+        }
+      })
+    },
+    // 关闭对话框
+    handleCloseDialog() {
+      this.showAnswerForm = false
+      this.answerForm.content = ''
+      if (this.$refs.answerForm) {
+        this.$refs.answerForm.clearValidate()
+      }
     }
   }
 }
@@ -339,6 +453,18 @@ export default {
           p {
             font-size: 16px;
           }
+        }
+      }
+
+      .answer-form-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+        text-align: center;
+
+        .answer-btn {
+          padding: 12px 40px;
+          font-size: 16px;
         }
       }
     }

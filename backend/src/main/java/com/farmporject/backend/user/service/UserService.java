@@ -15,27 +15,42 @@ import java.util.Optional;
 public class UserService {
     private static final String DEFAULT_ROLE = "FARMER";
 
-    private final UserRepository userRepository;  //
+    private final UserRepository userRepository; //
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public User register(String username, String rawPassword, String nickname, String avatar) {
-        return register(username, rawPassword, nickname, avatar, null);
+        return register(username, rawPassword, nickname, avatar, DEFAULT_ROLE);
     }
 
     public User register(String username, String rawPassword, String nickname, String avatar, String role) {
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("用户名已存在");
         }
+        // 验证角色是否有效
+        String validRole = validateRole(role);
         User user = new User();
         user.setUsername(username);
         user.setPasswordHash(hashPassword(rawPassword));
         user.setNickname(nickname);
         user.setAvatar(avatar);
-        user.setRole(resolveRole(role));
+        user.setRole(validRole);
         return userRepository.save(user);
+    }
+
+    private String validateRole(String role) {
+        if (role == null || role.isEmpty()) {
+            return DEFAULT_ROLE;
+        }
+        // 支持大小写，统一转换为大写
+        String upperRole = role.toUpperCase();
+        if (upperRole.equals("FARMER") || upperRole.equals("EXPERT") || upperRole.equals("BANK")) {
+            return upperRole;
+        }
+        // 如果角色不合法，返回默认角色
+        return DEFAULT_ROLE;
     }
 
     public Optional<User> validateLogin(String username, String rawPassword) {
@@ -48,12 +63,40 @@ public class UserService {
     }
 
     public Optional<User> findUserById(Long id) {
-        return userRepository.findById(id);
+        Optional<User> userOpt = userRepository.findById(id);
+        // 初始化懒加载字段，避免 LazyInitializationException
+        userOpt.ifPresent(user -> {
+            try {
+                // 初始化 expert 板块的懒加载集合
+                if (user.getAppointments() != null) {
+                    user.getAppointments().size();
+                }
+                if (user.getQuestions() != null) {
+                    user.getQuestions().size();
+                }
+                // 初始化 finance 板块的懒加载集合
+                if (user.getLoanUserStatuses() != null) {
+                    user.getLoanUserStatuses().size();
+                }
+                if (user.getLoanrRecords() != null) {
+                    user.getLoanrRecords().size();
+                }
+                if (user.getLoanProducts() != null) {
+                    user.getLoanProducts().size();
+                }
+                if (user.getAssignedLoans() != null) {
+                    user.getAssignedLoans().size();
+                }
+            } catch (Exception e) {
+                // 忽略懒加载失败的异常
+            }
+        });
+        return userOpt;
     }
 
     public User updateUserInfo(String username, String nickname, String avatar) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         if (nickname != null && !nickname.isEmpty()) {
             user.setNickname(nickname);
         }
@@ -65,9 +108,9 @@ public class UserService {
 
     public void updatePassword(String username, String oldPassword, String newPassword) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         if (!user.getPasswordHash().equals(hashPassword(oldPassword))) {
-            throw new IllegalArgumentException("Original password mismatch");
+            throw new IllegalArgumentException("原密码错误");
         }
         user.setPasswordHash(hashPassword(newPassword));
         userRepository.save(user);
@@ -75,20 +118,20 @@ public class UserService {
 
     public void forgetPassword(String username, String newPassword) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         user.setPasswordHash(hashPassword(newPassword));
         userRepository.save(user);
     }
 
     public void deleteByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         userRepository.delete(user);
     }
 
     public User updateUser(String username, User updatedUser) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         if (updatedUser.getNickname() != null) {
             user.setNickname(updatedUser.getNickname());
         }
@@ -99,33 +142,11 @@ public class UserService {
     }
 
     public Page<User> findAllUsers(int pageNum, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNum - 1, pageSize);
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize); // 前端从1开始，后端从0开始
         return userRepository.findAll(pageable);
     }
 
-    public void ensureUserRole(String username, String targetRole) {
-        userRepository.findByUsername(username).ifPresent(user -> {
-            String resolvedRole = resolveRole(targetRole);
-            if (!resolvedRole.equalsIgnoreCase(user.getRole())) {
-                user.setRole(resolvedRole);
-                userRepository.save(user);
-            }
-        });
-    }
-
-    public String hashPassword(String rawPassword) {
+    private String hashPassword(String rawPassword) {
         return DigestUtils.md5DigestAsHex(rawPassword.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private String resolveRole(String role) {
-        if (role == null || role.isBlank()) {
-            return DEFAULT_ROLE;
-        }
-        String upper = role.trim().toUpperCase();
-        return switch (upper) {
-            case "FARMER", "EXPERT", "BANK" -> upper;
-            case "STAFF", "FINANCE", "BANKER" -> "BANK";
-            default -> DEFAULT_ROLE;
-        };
     }
 }
