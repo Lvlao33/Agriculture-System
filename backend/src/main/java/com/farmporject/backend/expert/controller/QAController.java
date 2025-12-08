@@ -1,5 +1,6 @@
 package com.farmporject.backend.expert.controller;
 
+import com.farmporject.backend.expert.dto.AnswerDTO;
 import com.farmporject.backend.expert.model.Answer;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;
@@ -7,6 +8,7 @@ import com.farmporject.backend.expert.service.QAService;
 import com.farmporject.backend.user.model.User;
 import com.farmporject.backend.user.service.UserService;
 import com.farmporject.backend.expert.service.ExpertService;
+import com.farmporject.backend.expert.service.AnswerService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,11 +35,14 @@ public class QAController {
     private final UserService userService;
     private final ExpertService expertService;
     private final QAService qaService;
+    private final AnswerService answerService;
 
-    public QAController(UserService userService, QAService qaService, ExpertService expertService) {
-        this.qaService = qaService;
-        this.expertService = expertService;
+    public QAController(UserService userService, QAService qaService, ExpertService expertService,
+            AnswerService answerService) {
         this.userService = userService;
+        this.expertService = expertService;
+        this.qaService = qaService;
+        this.answerService = answerService;
     }
 
     /**
@@ -471,29 +476,19 @@ public class QAController {
             if (expertId == null && token != null && token.startsWith("tk_")) {
                 String[] parts = token.split("_");
                 if (parts.length >= 2) {
+                    expertId = Long.parseLong(parts[1]);
                     // 这里需要根据实际情况获取专家ID，暂时使用占位
                 }
             }
 
-            Answer answer = new Answer();
-            Question question = new Question();
-            question.setId(questionId);
-            answer.setQuestion(question);
-
-            if (expertId != null) {
-                Expert expert = new Expert();
-                expert.setId(expertId);
-                answer.setExpert(expert);
-            }
-
-            answer.setContent(content);
-
-            Answer saved = qaService.createAnswer(answer);
+            // 回答 写入数据库
+            AnswerDTO answerDTO = new AnswerDTO(questionId, expertId, content);
+            AnswerDTO savedDTO = answerService.createAnswer(answerDTO);
 
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
             response.put("message", "回答提交成功");
-            response.put("data", saved);
+            response.put("data", savedDTO);
 
             return ResponseEntity.status(201).body(response);
         } catch (Exception e) {

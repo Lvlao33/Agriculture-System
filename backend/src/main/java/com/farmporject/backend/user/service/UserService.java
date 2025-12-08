@@ -2,6 +2,8 @@ package com.farmporject.backend.user.service;
 
 import com.farmporject.backend.user.model.User;
 import com.farmporject.backend.user.repository.UserRepository;
+import com.farmporject.backend.expert.model.Expert;
+import com.farmporject.backend.expert.repository.ExpertRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +17,12 @@ import java.util.Optional;
 public class UserService {
     private static final String DEFAULT_ROLE = "FARMER";
 
-    private final UserRepository userRepository; //
+    private final UserRepository userRepository;
+    private final ExpertRepository expertRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ExpertRepository expertRepository) {
         this.userRepository = userRepository;
+        this.expertRepository = expertRepository;
     }
 
     public User register(String username, String rawPassword, String nickname, String avatar) {
@@ -37,7 +41,26 @@ public class UserService {
         user.setNickname(nickname);
         user.setAvatar(avatar);
         user.setRole(validRole);
-        return userRepository.save(user);
+
+        user = userRepository.save(user);
+
+        // 如果role是专家 新增专家角色
+        if (validRole.equals("EXPERT")) {
+            Expert expert = new Expert();
+            expert.setUser(user);
+            expert.setName(user.getNickname());
+            expert.setTitle("专家");
+            expert.setAvatar(user.getAvatar());
+            expert.setDescription("专家描述");
+            expert.setSpecialties(null);
+            expert.setExperienceYears(null);
+            expert.setContactInfo(null);
+            expert.setIsAvailable(true);
+            expert.setCreateTime(user.getCreatedAt());
+            expertRepository.save(expert);
+        }
+
+        return user;
     }
 
     private String validateRole(String role) {

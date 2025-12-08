@@ -143,7 +143,6 @@ export default {
   methods: {
     // 加载专家列表
     loadExpertList() {
-      //TODO: 调用后端接口
       getExpertList().then(res => {
         if (res.flag) {
           this.expertList = res.data || []

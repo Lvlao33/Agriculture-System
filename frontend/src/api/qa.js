@@ -59,7 +59,7 @@ export function submitQuestion(formData) {
 export function submitAnswer(data) {
   return request({
     method: 'post',
-    url: '/qa/answer',
+    url: '/api/qa/answer',
     data: data,
     headers: {
       'Authorization': localStorage.getItem('token')
