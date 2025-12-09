@@ -14,7 +14,7 @@ public class Appointment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expert_id", nullable = false)
+    @JoinColumn(name = "expert_id", nullable = true)
     private Expert expert;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +25,10 @@ public class Appointment {
     private String userContact;
 
     @Column(nullable = false)
-    private LocalDateTime appointmentTime;
+    private LocalDateTime appointmentStartTime;
+
+    @Column(nullable = false)
+    private LocalDateTime appointmentEndTime;
 
     @Column(length = 500)
     private String description;
@@ -46,14 +49,17 @@ public class Appointment {
 
     // 全参构造函数
     public Appointment(Long id, Expert expert, User user, String userName,
-            String userContact, LocalDateTime appointmentTime, String description,
+            String userContact, LocalDateTime appointmentStartTime, LocalDateTime appointmentEndTime,
+            String description,
             AppointmentStatus status, LocalDateTime createTime, LocalDateTime updateTime) {
         this.id = id;
         this.expert = expert;
         this.user = user;
+
         this.userName = userName;
         this.userContact = userContact;
-        this.appointmentTime = appointmentTime;
+        this.appointmentStartTime = appointmentStartTime;
+        this.appointmentEndTime = appointmentEndTime;
         this.description = description;
         this.status = status;
         this.createTime = createTime;
@@ -101,12 +107,20 @@ public class Appointment {
         this.userContact = userContact;
     }
 
-    public LocalDateTime getAppointmentTime() {
-        return appointmentTime;
+    public LocalDateTime getAppointmentStartTime() {
+        return appointmentStartTime;
     }
 
-    public void setAppointmentTime(LocalDateTime appointmentTime) {
-        this.appointmentTime = appointmentTime;
+    public void setAppointmentStartTime(LocalDateTime appointmentStartTime) {
+        this.appointmentStartTime = appointmentStartTime;
+    }
+
+    public LocalDateTime getAppointmentEndTime() {
+        return appointmentEndTime;
+    }
+
+    public void setAppointmentEndTime(LocalDateTime appointmentEndTime) {
+        this.appointmentEndTime = appointmentEndTime;
     }
 
     public String getDescription() {
@@ -175,7 +189,8 @@ public class Appointment {
                 ", user=" + user +
                 ", userName='" + userName + '\'' +
                 ", userContact='" + userContact + '\'' +
-                ", appointmentTime=" + appointmentTime +
+                ", appointmentStartTime=" + appointmentStartTime +
+                ", appointmentEndTime=" + appointmentEndTime +
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", createTime=" + createTime +

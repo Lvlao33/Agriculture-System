@@ -2,6 +2,8 @@ package com.farmporject.backend.expert.dto;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class AppointmentDTO {
 
     private Long id;
@@ -10,7 +12,12 @@ public class AppointmentDTO {
     private Long userId;
     private String userName;
     private String userContact;
-    private LocalDateTime appointmentTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime startTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime endTime;
+
     private String description;
     private String status; // 使用 String 来表示状态，以便后期扩展
     private LocalDateTime createTime;
@@ -19,12 +26,14 @@ public class AppointmentDTO {
     public AppointmentDTO() {
     }
 
-    public AppointmentDTO(String userName, String userContact, LocalDateTime appointmentTime, String description,
+    public AppointmentDTO(String userName, String userContact, LocalDateTime startTime, LocalDateTime endTime,
+            String description,
             Long expertId, Long userId, String status, LocalDateTime createTime, LocalDateTime updateTime,
             String expertName, Long id) {
         this.userName = userName;
         this.userContact = userContact;
-        this.appointmentTime = appointmentTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.description = description;
         this.expertId = expertId;
         this.userId = userId;
@@ -60,12 +69,20 @@ public class AppointmentDTO {
         this.userContact = userContact;
     }
 
-    public LocalDateTime getAppointmentTime() {
-        return appointmentTime;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setAppointmentTime(LocalDateTime appointmentTime) {
-        this.appointmentTime = appointmentTime;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public String getDescription() {

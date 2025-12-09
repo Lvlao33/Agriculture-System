@@ -4,7 +4,7 @@ import { request } from '../utils/request'
 export function addAppointment(params) {
     return request({
         method: 'post',
-        url: 'api/appointment/add',
+        url: '/api/appointments/add',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -16,7 +16,7 @@ export function addAppointment(params) {
 export function getAppointmentListByUserId(userId) {
     return request({
         method: 'get',
-        url: `api/appointment/${userId}/all`,
+        url: `/api/appointments/${userId}/all`,
         data: {
             userId,
         },
@@ -30,7 +30,7 @@ export function getAppointmentListByUserId(userId) {
 export function getAppointmentList(params) {
     return request({
         method: 'get',
-        url: '/appointment/list',
+        url: '/appointments/list',
         params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -42,7 +42,7 @@ export function getAppointmentList(params) {
 export function getAppointmentDetail(id) {
     return request({
         method: 'get',
-        url: `/appointment/detail/${id}`,
+        url: `/appointments/detail/${id}`,
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -53,7 +53,7 @@ export function getAppointmentDetail(id) {
 export function deleteAppointment(id) {
     return request({
         method: 'delete',
-        url: `/appointment/delete/${id}`,
+        url: `/appointments/delete/${id}`,
         headers: {
             'Authorization': window.localStorage.token,
         },

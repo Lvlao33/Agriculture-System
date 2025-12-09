@@ -14,15 +14,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByExpertIdOrderByCreateTimeDesc(Long expertId);
 
-    List<Appointment> findByExpertIdAndStatusOrderByAppointmentTime(Long expertId,
-            Appointment.AppointmentStatus status);
+    // List<Appointment> findByExpertIdAndStatusOrderByAppointmentTime(Long
+    // expertId,
+    // Appointment.AppointmentStatus status);
 
     List<Appointment> findByStatusOrderByCreateTimeDesc(Appointment.AppointmentStatus status);
 
-    List<Appointment> findByAppointmentTimeBetween(LocalDateTime start, LocalDateTime end);
+    // List<Appointment> findByAppointmentTimeBetween(LocalDateTime start,
+    // LocalDateTime end);
 
-    @Query("SELECT a FROM Appointment a WHERE a.expert.id = :expertId AND a.appointmentTime BETWEEN :start AND :end")
-    List<Appointment> findByExpertIdAndAppointmentTimeBetween(Long expertId, LocalDateTime start, LocalDateTime end);
+    // @Query("SELECT a FROM Appointment a WHERE a.expert.id = :expertId AND
+    // a.appointmentTime BETWEEN :start AND :end")
+    // List<Appointment> findByExpertIdAndAppointmentTimeBetween(Long expertId,
+    // LocalDateTime start, LocalDateTime end);
 
     List<Appointment> findByUserIdAndStatusOrderByCreateTimeDesc(Long userId, Appointment.AppointmentStatus status);
 
