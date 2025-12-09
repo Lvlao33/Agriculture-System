@@ -124,3 +124,12 @@ export function getKnowledgeList(params) {
     headers: authHeader()
   })
 }
+
+export function selectExperts(params) {
+  return request({
+    method: 'get',
+    url: '/api/expert/infoList',
+    data: params,
+    headers: authHeader()
+  })
+}

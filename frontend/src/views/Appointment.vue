@@ -136,8 +136,8 @@
 </template>
 
 <script>
-import { addReserve } from '../api/order'
-import { selectExperts } from '../api/expert'
+import { addReserve } from '@/api/order'
+import { selectExperts } from '@/api/expert'
 
 export default {
   name: 'Appointment',
