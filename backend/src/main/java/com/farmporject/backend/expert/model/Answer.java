@@ -22,27 +22,75 @@ public class Answer {
     @Column(name = "content", length = 5000, nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private Integer viewCount = 0;
+
+    @Column(nullable = false)
+    private Integer likeCount = 0;
+
     @Column(name = "create_time")
     private LocalDateTime createTime;
 
     // 默认构造函数
-    public Answer() {}
+    public Answer() {
+    }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Question getQuestion() { return question; }
-    public void setQuestion(Question question) { this.question = question; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Expert getExpert() { return expert; }
-    public void setExpert(Expert expert) { this.expert = expert; }
+    public Question getQuestion() {
+        return question;
+    }
 
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public void setQuestion(Question question) {
+        this.question = question;
+    }
 
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
+    public Expert getExpert() {
+        return expert;
+    }
+
+    public void setExpert(Expert expert) {
+        this.expert = expert;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -51,8 +99,10 @@ public class Answer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Answer)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Answer))
+            return false;
         Answer answer = (Answer) o;
         return Objects.equals(id, answer.id);
     }
@@ -66,8 +116,12 @@ public class Answer {
     public String toString() {
         return "Answer{" +
                 "id=" + id +
-                ", questionId=" + (question != null ? question.getId() : "null") +
-                ", expertId=" + (expert != null ? expert.getId() : "null") +
+                ", question=" + question +
+                ", expert=" + expert +
+                ", content='" + content + '\'' +
+                ", viewCount=" + viewCount +
+                ", likeCount=" + likeCount +
+                ", createTime=" + createTime +
                 '}';
     }
 }

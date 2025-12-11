@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import com.farmporject.backend.user.model.User;
+
 @Entity
 @Table(name = "appointments")
 public class Appointment {
@@ -12,17 +14,21 @@ public class Appointment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expert_id", nullable = false)
+    @JoinColumn(name = "expert_id", nullable = true)
     private Expert expert;
 
-    @Column(nullable = false)
-    private String userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     private String userName;
     private String userContact;
 
     @Column(nullable = false)
-    private LocalDateTime appointmentTime;
+    private LocalDateTime appointmentStartTime;
+
+    @Column(nullable = false)
+    private LocalDateTime appointmentEndTime;
 
     @Column(length = 500)
     private String description;
@@ -38,18 +44,22 @@ public class Appointment {
     }
 
     // 默认构造函数
-    public Appointment() {}
+    public Appointment() {
+    }
 
     // 全参构造函数
-    public Appointment(Long id, Expert expert, String userId, String userName,
-                       String userContact, LocalDateTime appointmentTime, String description,
-                       AppointmentStatus status, LocalDateTime createTime, LocalDateTime updateTime) {
+    public Appointment(Long id, Expert expert, User user, String userName,
+            String userContact, LocalDateTime appointmentStartTime, LocalDateTime appointmentEndTime,
+            String description,
+            AppointmentStatus status, LocalDateTime createTime, LocalDateTime updateTime) {
         this.id = id;
         this.expert = expert;
-        this.userId = userId;
+        this.user = user;
+
         this.userName = userName;
         this.userContact = userContact;
-        this.appointmentTime = appointmentTime;
+        this.appointmentStartTime = appointmentStartTime;
+        this.appointmentEndTime = appointmentEndTime;
         this.description = description;
         this.status = status;
         this.createTime = createTime;
@@ -57,35 +67,93 @@ public class Appointment {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Expert getExpert() { return expert; }
-    public void setExpert(Expert expert) { this.expert = expert; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public Expert getExpert() {
+        return expert;
+    }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public void setExpert(Expert expert) {
+        this.expert = expert;
+    }
 
-    public String getUserContact() { return userContact; }
-    public void setUserContact(String userContact) { this.userContact = userContact; }
+    public User getUser() {
+        return user;
+    }
 
-    public LocalDateTime getAppointmentTime() { return appointmentTime; }
-    public void setAppointmentTime(LocalDateTime appointmentTime) { this.appointmentTime = appointmentTime; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getUserName() {
+        return userName;
+    }
 
-    public AppointmentStatus getStatus() { return status; }
-    public void setStatus(AppointmentStatus status) { this.status = status; }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
+    public String getUserContact() {
+        return userContact;
+    }
 
-    public LocalDateTime getUpdateTime() { return updateTime; }
-    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
+    public void setUserContact(String userContact) {
+        this.userContact = userContact;
+    }
+
+    public LocalDateTime getAppointmentStartTime() {
+        return appointmentStartTime;
+    }
+
+    public void setAppointmentStartTime(LocalDateTime appointmentStartTime) {
+        this.appointmentStartTime = appointmentStartTime;
+    }
+
+    public LocalDateTime getAppointmentEndTime() {
+        return appointmentEndTime;
+    }
+
+    public void setAppointmentEndTime(LocalDateTime appointmentEndTime) {
+        this.appointmentEndTime = appointmentEndTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -100,8 +168,10 @@ public class Appointment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Appointment)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Appointment))
+            return false;
         Appointment that = (Appointment) o;
         return Objects.equals(id, that.id);
     }
@@ -115,9 +185,16 @@ public class Appointment {
     public String toString() {
         return "Appointment{" +
                 "id=" + id +
-                ", expert=" + (expert != null ? expert.getName() : "null") +
-                ", userId='" + userId + '\'' +
+                ", expert=" + expert +
+                ", user=" + user +
+                ", userName='" + userName + '\'' +
+                ", userContact='" + userContact + '\'' +
+                ", appointmentStartTime=" + appointmentStartTime +
+                ", appointmentEndTime=" + appointmentEndTime +
+                ", description='" + description + '\'' +
                 ", status=" + status +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
                 '}';
     }
 }

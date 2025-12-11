@@ -88,6 +88,7 @@ public class Loan implements Serializable {
     /** 所关联的产品ID */
     @ManyToOne
     @JoinColumn(name = "loan_product_id")
+    @JsonIgnore
     private LoanProduct loanProduct; // 贷款产品与 Loan 的一对一关系
 
     /** 所关联的资料文件ID */
@@ -98,6 +99,7 @@ public class Loan implements Serializable {
     /** 所关联的处理人员 */
     @ManyToOne
     @JoinColumn(name = "staff_id")
+    @JsonIgnore
     private User staff; // 工作人员与 Loan 的一对多关系
 
     /** 关联的贷款记录ID */

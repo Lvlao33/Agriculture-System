@@ -3,6 +3,8 @@ package com.farmporject.backend.trade.service;
 import com.farmporject.backend.trade.model.Product;
 import com.farmporject.backend.trade.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -29,6 +31,14 @@ public class ProductService {
 
     public List<Product> getProductsBySeller(Long sellerId) {
         return productRepository.findBySellerId(sellerId);
+    }
+
+    public Page<Product> pageAvailableProducts(int page, int size) {
+        return productRepository.pageAvailableProducts(PageRequest.of(page, size));
+    }
+
+    public Page<Product> searchAvailableProducts(String keyword, int page, int size) {
+        return productRepository.searchAvailableProducts(keyword, PageRequest.of(page, size));
     }
 
     public List<Product> searchProducts(String keyword) {

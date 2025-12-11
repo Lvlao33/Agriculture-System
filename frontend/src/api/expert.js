@@ -1,5 +1,7 @@
 // encoding: utf-8
-// Expert API helpers. Replaceï¿½ï¿½Ëµï¿½Ö·Ê±ï¿½ï¿½ï¿½ï¿½ UTF-8 ï¿½ï¿½ï¿½
+// Expert API helpers. Replaceºó¶ËµØÖ·Ê±±£³Ö UTF-8 Êä³ö
+
+// ×¨¼Ò²à½Ó¿Ú
 import { request } from '../utils/request'
 
 const authHeader = () => ({ 'Authorization': window.localStorage.token || '' })
@@ -44,13 +46,13 @@ export function getExpertNotifications() {
   })
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½É¸ï¿½ï¿½İºï¿½ï¿½ï¿½ï¿½É¶È¿ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Ó¿Ú£ï¿½
+// ¸öÈË×ÊÁÏ£¨¿É¸ù¾İºó¶ËÍê³É¶È¿ªÆôÕæÊµ½Ó¿Ú£©
 export function getProfile() {
   return request({
     method: 'get',
     url: '/api/expert/profile',
     headers: authHeader()
-  }).catch(() => ({ data: { name: 'Ê¾ï¿½ï¿½×¨ï¿½ï¿½', title: 'Å©Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' } }))
+  }).catch(() => ({ data: { name: 'Ê¾Àı×¨¼Ò', title: 'Å©Òµ¼¼Êõ¹ËÎÊ' } }))
 }
 
 export function updateProfile(payload) {
@@ -97,20 +99,6 @@ export function publishKnowledge(payload) {
   })
 }
 
-// å…¬å¼€ä¸“å®¶åˆ—è¡¨ï¼ˆç”¨äºâ€œä¸“å®¶ä¿¡æ¯â€é¡µé¢ã€ä¸“å®¶ç»Ÿè®¡ç­‰ï¼‰
-export function selectExperts(params) {
-  return request({
-    method: 'get',
-    url: '/api/experts',
-    params: {
-      pageNum: params.pageNum,
-      pageSize: params.pageSize,
-      keyword: params.keys
-    },
-    headers: authHeader()
-  })
-}
-
 export function getExpertInfo(params) {
   return request({
     method: 'get',
@@ -133,6 +121,15 @@ export function getKnowledgeList(params) {
   return request({
     method: 'get',
     url: '/knowledge/' + (params.pageNum || 1),
+    headers: authHeader()
+  })
+}
+
+export function selectExperts(params) {
+  return request({
+    method: 'get',
+    url: '/api/expert/infoList',
+    data: params,
     headers: authHeader()
   })
 }
