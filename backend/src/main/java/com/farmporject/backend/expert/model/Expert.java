@@ -33,7 +33,7 @@ public class Expert {
     @Column(length = 1000)
     private String description;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "expert_specialties", joinColumns = @JoinColumn(name = "expert_id"))
     @Column(name = "specialty")
     private List<String> specialties;

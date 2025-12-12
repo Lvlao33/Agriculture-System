@@ -34,14 +34,16 @@ public class AppointmentController {
 
     /**
      * 创建预约
-     * 示例：POST /api/appointments/add
+     * 示例:POST /api/appointments/add
      */
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<Appointment>> create(@RequestBody AppointmentDTO appointmentDto) {
+    public ResponseEntity<ApiResponse<AppointmentDTO>> create(@RequestBody AppointmentDTO appointmentDto) {
         try {
             Appointment appointment = appointmentService.createAppointmentByDTO(appointmentDto);
             if (appointment != null) {
-                return ResponseEntity.status(201).body(ApiResponse.success(appointment));
+                // 转换为DTO避免懒加载异常
+                AppointmentDTO responseDto = appointmentService.convertToDTO(appointment);
+                return ResponseEntity.status(201).body(ApiResponse.success(responseDto));
             } else {
                 return ResponseEntity.status(400).body(ApiResponse.fail("预约创建失败"));
             }

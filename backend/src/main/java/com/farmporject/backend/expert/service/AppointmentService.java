@@ -139,6 +139,46 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    /**
+     * 将 Appointment 实体转换为 AppointmentDTO
+     * 避免懒加载异常
+     */
+    public AppointmentDTO convertToDTO(Appointment appointment) {
+        AppointmentDTO dto = new AppointmentDTO();
+        dto.setId(appointment.getId());
+        dto.setUserName(appointment.getUserName());
+        dto.setUserContact(appointment.getUserContact());
+        dto.setStartTime(appointment.getAppointmentStartTime());
+        dto.setEndTime(appointment.getAppointmentEndTime());
+        dto.setDescription(appointment.getDescription());
+        dto.setStatus(appointment.getStatus() != null ? appointment.getStatus().toString() : "PENDING");
+        dto.setCreateTime(appointment.getCreateTime());
+        dto.setUpdateTime(appointment.getUpdateTime());
+
+        // 安全地访问懒加载字段
+        try {
+            if (appointment.getUser() != null) {
+                dto.setUserId(appointment.getUser().getId());
+            }
+        } catch (Exception e) {
+            // 懒加载失败,使用默认值
+            dto.setUserId(null);
+        }
+
+        try {
+            if (appointment.getExpert() != null) {
+                dto.setExpertId(appointment.getExpert().getId());
+                dto.setExpertName(appointment.getExpert().getName());
+            }
+        } catch (Exception e) {
+            // 懒加载失败,使用默认值
+            dto.setExpertId(null);
+            dto.setExpertName(null);
+        }
+
+        return dto;
+    }
+
     public Appointment updateAppointmentStatus(Long id, Appointment.AppointmentStatus status) {
         return appointmentRepository.findById(id)
                 .map(appointment -> {

@@ -55,10 +55,12 @@ public class QAService {
         return list;
     }
 
+    // 最近的十条问题
     public List<Question> getRecentQuestions() {
         return questionRepository.findTop10ByOrderByCreateTimeDesc();
     }
 
+    // 根据用户id查询用户的所有问题，按更新时间降序排列
     public List<Question> getUserQuestions(Long userId) {
         // 查询用户问题，然后在内存中排序
         List<Question> list = questionRepository.findByUserId(userId);
@@ -83,6 +85,7 @@ public class QAService {
         return list;
     }
 
+    // 根据专家id查询专家的所有问题，按创建时间降序排列
     public List<Question> getExpertQuestions(Long expertId) {
         return questionRepository.findByExpertIdOrderByCreateTimeDesc(expertId);
     }
