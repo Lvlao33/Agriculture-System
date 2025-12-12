@@ -96,7 +96,7 @@ public class AppointmentService {
         // 可能只传入了username而没有传入userID
         User user = null;
         if (appointmentDTO.getUserId() == null && appointmentDTO.getUserName() != null) {
-            List<User> users = userRepository.findByUsername(appointmentDTO.getUserName()).stream()
+            List<User> users = userRepository.findByNickname(appointmentDTO.getUserName()).stream()
                     .collect(Collectors.toList());
             if (users.size() == 0) {
                 throw new RuntimeException("User not found with username: " + appointmentDTO.getUserName());
