@@ -2,14 +2,14 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- 顶部操作�? -->
+    <!-- 顶部操作区 -->
     <div class="top-bar">
       <div class="search-section">
         <el-input
           v-model="searchValue"
           maxlength="100"
           clearable
-          placeholder="搜索商品名称、产�?..."
+          placeholder="搜索商品名称、产地..."
           style="width: 300px;"
           @keyup.enter.native="handleSearch"
         />
@@ -25,18 +25,18 @@
       </el-button>
     </div>
 
-    <!-- �۸�Ԥ�� -->
+    <!-- 价格预测 -->
     <section class="forecast-section" ref="forecastSection">
       <div class="forecast-header">
         <div>
-          <div class="tag">�۸�Ԥ��</div>
-          <h2>δ��7������</h2>
-          <p class="sub">����XGBoost ʱ��ع飬����ͺ��뼾������</p>
+          <div class="tag">价格预测</div>
+          <h2>未来7天价格走势</h2>
+          <p class="sub">基于XGBoost 时间序列回归，提供均值和置信区间</p>
         </div>
         <div class="forecast-actions">
           <el-select
             v-model="forecastCommodity"
-            placeholder="ѡ��Ʒ��"
+            placeholder="选择品类"
             size="small"
             style="width: 150px;"
             @change="fetchForecast"
@@ -49,7 +49,7 @@
             />
           </el-select>
           <el-button size="small" type="primary" plain @click="refreshForecast" :loading="forecastLoading">
-            ˢ��Ԥ��
+            刷新预测
           </el-button>
         </div>
       </div>
@@ -57,26 +57,26 @@
       <el-card shadow="hover" class="forecast-card">
         <div class="forecast-meta">
           <div class="meta-item">
-            <span class="meta-label">Ԥ�����</span>
-            <span class="meta-value">{{ forecastSummary.avg }} Ԫ/��</span>
+            <span class="meta-label">预测均价</span>
+            <span class="meta-value">{{ forecastSummary.avg }} 元/斤</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">������Χ</span>
+            <span class="meta-label">置信区间</span>
             <span class="meta-value">{{ forecastSummary.range }}</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">ģ��</span>
-            <span class="meta-value">XGBoost �ع�</span>
+            <span class="meta-label">模型</span>
+            <span class="meta-value">XGBoost 回归</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">����ʱ��</span>
+            <span class="meta-label">更新时间</span>
             <span class="meta-value">{{ forecastSummary.updatedAt }}</span>
           </div>
         </div>
 
         <div class="forecast-body">
           <div class="forecast-chart">
-            <div class="chart-y-label">�۸�</div>
+            <div class="chart-y-label">价格</div>
             <div class="chart-bars" v-if="forecastSeries.length">
               <div
                 v-for="(point, idx) in forecastSeries"
@@ -99,13 +99,13 @@
               size="small"
               :data="forecastTable"
               border
-              empty-text="����Ԥ������"
+              empty-text="暂无预测数据"
               height="260"
             >
-              <el-table-column prop="date" label="����" width="90"></el-table-column>
-              <el-table-column prop="pred" label="Ԥ���(Ԫ/��)"></el-table-column>
-              <el-table-column prop="lower" label="�½�"></el-table-column>
-              <el-table-column prop="upper" label="�Ͻ�"></el-table-column>
+              <el-table-column prop="date" label="日期" width="90"></el-table-column>
+              <el-table-column prop="pred" label="预测价(元/斤)"></el-table-column>
+              <el-table-column prop="lower" label="下限"></el-table-column>
+              <el-table-column prop="upper" label="上限"></el-table-column>
             </el-table>
           </div>
         </div>
@@ -119,7 +119,7 @@
 
     <!-- 主要内容区域 -->
     <div class="main-content">
-      <!-- 左侧分类�? -->
+      <!-- 左侧分类 -->
       <div class="category-sidebar">
         <div class="category-title">商品分类</div>
         <div
@@ -136,7 +136,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>水果�?</span>
+          <span>水果类</span>
         </div>
         <div
           class="category-item"
@@ -144,7 +144,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>蔬菜�?</span>
+          <span>蔬菜类</span>
         </div>
         <div
           class="category-item"
@@ -152,7 +152,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>粮食�?</span>
+          <span>粮食类</span>
         </div>
         <div
           class="category-item"
@@ -160,7 +160,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>畜牧�?</span>
+          <span>畜牧类</span>
         </div>
         <div
           class="category-item"
@@ -172,7 +172,7 @@
         </div>
       </div>
 
-      <!-- 右侧商品展示�? -->
+      <!-- 右侧商品展示区 -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
@@ -270,7 +270,7 @@
             </div>
             <div class="detail-goods-actions">
               <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">立即购买</el-button>
-              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物�?</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物车</el-button>
             </div>
           </div>
           <div v-if="similarGoods.length === 0" class="empty-detail-state">
@@ -296,16 +296,16 @@ export default {
       detailDialogTitle: '商品详情',
       currentGoodsItem: null,
       similarGoods: [],
-      // 示例商品数据（当API返回空数据时使用�?
+      // 示例商品数据（当API返回空数据时使用）
       defaultGoods: [
-        // 水果�?
+        // 水果类
         {
           name: '新鲜苹果',
-          content: '新鲜苹果 红富�? 脆甜多汁',
+          content: '新鲜苹果 红富士 脆甜多汁',
           price: 12.00,
           picture: 'pro2.jpg',
           origin: '山东烟台',
-          ownName: '张果�?',
+          ownName: '张果农',
           category: 'fruit',
           stock: 500,
           orderId: 'fruit1',
@@ -313,11 +313,11 @@ export default {
         },
         {
           name: '优质苹果',
-          content: '优质苹果 有机种植 无农药残�?',
+          content: '优质苹果 有机种植 无农药残留',
           price: 15.00,
           picture: 'pro2.jpg',
           origin: '陕西',
-          ownName: '李农�?',
+          ownName: '李农户',
           category: 'fruit',
           stock: 300,
           orderId: 'fruit2',
@@ -325,11 +325,11 @@ export default {
         },
         {
           name: '精品苹果',
-          content: '精品苹果 个大饱满 甜度�?',
+          content: '精品苹果 个大饱满 甜度高',
           price: 18.00,
           picture: 'pro2.jpg',
           origin: '新疆',
-          ownName: '王果�?',
+          ownName: '王果农',
           category: 'fruit',
           stock: 200,
           orderId: 'fruit3',
@@ -341,7 +341,7 @@ export default {
           price: 10.00,
           picture: 'pro2.jpg',
           origin: '江西',
-          ownName: '陈果�?',
+          ownName: '陈果农',
           category: 'fruit',
           stock: 400,
           orderId: 'fruit4',
@@ -349,24 +349,24 @@ export default {
         },
         {
           name: '优质葡萄',
-          content: '优质葡萄 无籽 甜度�?',
+          content: '优质葡萄 无籽 甜度高',
           price: 20.00,
           picture: 'pro2.jpg',
           origin: '新疆',
-          ownName: '赵果�?',
+          ownName: '赵果农',
           category: 'fruit',
           stock: 250,
           orderId: 'fruit5',
           keyword: '葡萄'
         },
-        // 蔬菜�?
+        // 蔬菜类
         {
           name: '新鲜白菜',
           content: '新鲜白菜 有机种植 口感脆嫩',
           price: 5.00,
           picture: 'pro1.jpg',
           origin: '山东',
-          ownName: '刘菜�?',
+          ownName: '刘菜农',
           category: 'vegetable',
           stock: 800,
           orderId: 'veg1',
@@ -374,11 +374,11 @@ export default {
         },
         {
           name: '有机白菜',
-          content: '有机白菜 无农�? 绿色健康',
+          content: '有机白菜 无农残 绿色健康',
           price: 8.00,
           picture: 'pro1.jpg',
           origin: '河北',
-          ownName: '周农�?',
+          ownName: '周农户',
           category: 'vegetable',
           stock: 600,
           orderId: 'veg2',
@@ -386,11 +386,11 @@ export default {
         },
         {
           name: '新鲜萝卜',
-          content: '新鲜萝卜 白萝�? 清脆爽口',
+          content: '新鲜萝卜 白萝卜 清脆爽口',
           price: 4.00,
           picture: 'pro1.jpg',
           origin: '河南',
-          ownName: '吴菜�?',
+          ownName: '吴菜农',
           category: 'vegetable',
           stock: 700,
           orderId: 'veg3',
@@ -401,21 +401,21 @@ export default {
           content: '新鲜土豆 黄心土豆 品质优良',
           price: 6.00,
           picture: 'pro1.jpg',
-          origin: '内蒙�?',
-          ownName: '郑农�?',
+          origin: '内蒙古',
+          ownName: '郑农户',
           category: 'vegetable',
           stock: 900,
           orderId: 'veg4',
           keyword: '土豆'
         },
-        // 粮食�?
+        // 粮食类
         {
           name: '优质大米',
           content: '优质大米 东北大米 香糯可口',
           price: 45.00,
           picture: 'rice.png',
-          origin: '黑龙�?',
-          ownName: '孙粮�?',
+          origin: '黑龙江',
+          ownName: '孙粮户',
           category: 'grain',
           stock: 1000,
           orderId: 'grain1',
@@ -427,7 +427,7 @@ export default {
           price: 58.00,
           picture: 'rice.png',
           origin: '吉林',
-          ownName: '钱农�?',
+          ownName: '钱农户',
           category: 'grain',
           stock: 500,
           orderId: 'grain2',
@@ -435,36 +435,36 @@ export default {
         },
         {
           name: '优质小麦',
-          content: '优质小麦 高筋小麦 适合做面�?',
+          content: '优质小麦 高筋小麦 适合做面粉',
           price: 35.00,
           picture: 'rice.png',
           origin: '河南',
-          ownName: '周粮�?',
+          ownName: '周粮户',
           category: 'grain',
           stock: 800,
           orderId: 'grain3',
           keyword: '小麦'
         },
-        // 畜牧�?
+        // 畜牧类
         {
-          name: '新鲜土鸡�?',
-          content: '新鲜土鸡�? 散养 营养丰富',
+          name: '新鲜土鸡蛋',
+          content: '新鲜土鸡蛋 散养 营养丰富',
           price: 35.00,
           picture: 'pro3.jpg',
           origin: '河北',
-          ownName: '李养�?',
+          ownName: '李养殖户',
           category: 'livestock',
           stock: 200,
           orderId: 'live1',
           keyword: '鸡蛋'
         },
         {
-          name: '有机土鸡�?',
-          content: '有机土鸡�? 无激�? 品质保证',
+          name: '有机土鸡蛋',
+          content: '有机土鸡蛋 无激素 品质保证',
           price: 42.00,
           picture: 'pro3.jpg',
           origin: '山东',
-          ownName: '王养�?',
+          ownName: '王养殖户',
           category: 'livestock',
           stock: 150,
           orderId: 'live2',
@@ -472,11 +472,11 @@ export default {
         },
         {
           name: '新鲜牛奶',
-          content: '新鲜牛奶 当日配�? 营养健康',
+          content: '新鲜牛奶 当日配送 营养健康',
           price: 25.00,
           picture: 'pro3.jpg',
-          origin: '内蒙�?',
-          ownName: '赵牧�?',
+          origin: '内蒙古',
+          ownName: '赵牧场',
           category: 'livestock',
           stock: 300,
           orderId: 'live3',
@@ -485,11 +485,11 @@ export default {
         // 其他
         {
           name: '有机茶叶',
-          content: '有机茶叶 原产地直�? 品质优良',
+          content: '有机茶叶 原产地直供 品质优良',
           price: 128.00,
           picture: 'chayangji.jpg',
           origin: '福建',
-          ownName: '陈茶�?',
+          ownName: '陈茶农',
           category: 'other',
           stock: 100,
           orderId: 'other1',
@@ -497,19 +497,19 @@ export default {
         },
         {
           name: '新鲜玉米',
-          content: '新鲜玉米 甜玉�? 口感香甜',
+          content: '新鲜玉米 甜玉米 口感香甜',
           price: 15.00,
           picture: 'farm.jpeg',
           origin: '河南',
-          ownName: '黄农�?',
+          ownName: '黄农户',
           category: 'other',
           stock: 400,
           orderId: 'other2',
           keyword: '玉米'
         }
       ],
-      forecastCommodities: ['ƻ��', '����', 'С��', '����', '����'],
-      forecastCommodity: 'ƻ��',
+      forecastCommodities: ['苹果', '土豆', '小麦', '玉米', '大米'],
+      forecastCommodity: '苹果',
       forecastSeries: [],
       forecastTable: [],
       forecastSummary: {
@@ -529,15 +529,15 @@ export default {
   },
   computed: {
     filteredGoods() {
-      // 优先使用传入的商品数据，如果为空则使用示例数�?
+      // 优先使用传入的商品数据，如果为空则使用示例数据
       let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
-      // 分类筛�?
+      // 分类筛选
       if (this.selectedCategory !== 'all') {
         goods = goods.filter(item => item.category === this.selectedCategory);
       }
       
-      // 搜索筛�?
+      // 搜索筛选
       if (this.searchValue) {
         const keyword = this.searchValue.toLowerCase();
         goods = goods.filter(item => {
@@ -586,7 +586,7 @@ export default {
         this.applySeries(series);
         this.forecastSummary.updatedAt = payload.updatedAt || new Date().toLocaleString();
       } catch (err) {
-        this.forecastError = 'Ԥ�����ݻ�ȡʧ�ܣ�����ʾʾ������';
+        this.forecastError = '预测数据获取失败，已显示示例数据';
         this.applySeries(this.getSampleForecast());
         this.forecastSummary.updatedAt = new Date().toLocaleString();
       } finally {
@@ -619,7 +619,7 @@ export default {
       const avg = (preds.reduce((a, b) => a + b, 0) / preds.length).toFixed(2);
       this.forecastTable = this.forecastSeries;
       this.forecastSummary.avg = avg;
-      this.forecastSummary.range = `${min.toFixed(2)} - ${max.toFixed(2)} Ԫ/��`;
+      this.forecastSummary.range = `${min.toFixed(2)} - ${max.toFixed(2)} 元/斤`;
     },
     getSampleForecast() {
       const today = new Date();
@@ -645,11 +645,11 @@ export default {
       this.$router.push('/home/addmessage/publishgoods').catch((err) => err);
     },
     showGoodsDetail(item) {
-      // 显示商品详情弹窗，显示所有同类商�?
+      // 显示商品详情弹窗，展示所有同类商品
       this.currentGoodsItem = item;
       this.detailDialogTitle = `${item.content || item.name || '商品'} - 同类商品`;
       
-      // 根据商品关键词查找同类商�?
+      // 根据商品关键词查找同类商品
       const keyword = item.keyword || this.extractKeyword(item.content || item.name);
       this.similarGoods = this.filteredGoods.filter(goods => {
         const goodsKeyword = goods.keyword || this.extractKeyword(goods.content || goods.name);
@@ -664,14 +664,14 @@ export default {
     extractKeyword(text) {
       // 从商品名称中提取关键词（简单实现）
       if (!text) return '';
-      // 提取常见商品关键�?
+      // 提取常见商品关键词
       const keywords = ['苹果', '橙子', '葡萄', '白菜', '萝卜', '土豆', '大米', '小麦', '鸡蛋', '牛奶', '茶叶', '玉米'];
       for (let kw of keywords) {
         if (text.includes(kw)) {
           return kw;
         }
       }
-      return text.substring(0, 2); // 默认取前两个�?
+      return text.substring(0, 2); // 默认取前两个字
     },
     handleCloseDialog() {
       this.detailDialogVisible = false;
@@ -679,7 +679,7 @@ export default {
       this.similarGoods = [];
     },
     goToGoodsDetailPage(item) {
-      // 跳转到商品详情页�?
+      // 跳转到商品详情页
       if (item.orderId) {
         this.$store.commit("updateOrderId", item.orderId);
         this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
@@ -690,16 +690,16 @@ export default {
       this.goToGoodsDetailPage(item);
     },
     handleAddToCart(item) {
-      // 加入购物�?
+      // 加入购物车
       this.$emit('addToCart', item);
       this.$message.success('已加入购物车');
     },
     getImageUrl(picture) {
-      // 如果图片路径包含 /kn/ �? /order/，直接使�?
+      // 如果图片路径包含 /kn/ 或 /order/，直接使用
       if (picture.startsWith('/kn/') || picture.startsWith('/order/')) {
         return picture;
       }
-      // 如果�? kn 目录下的图片
+      // 如果是 kn 目录下的图片
       if (['pro1.jpg', 'pro2.jpg', 'pro3.jpg', 'rice.png', 'chayangji.jpg', 'farm.jpeg'].includes(picture)) {
         return `/kn/${picture}`;
       }
