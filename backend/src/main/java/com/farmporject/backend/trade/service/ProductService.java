@@ -26,7 +26,8 @@ public class ProductService {
     }
 
     public List<Product> getAvailableProducts() {
-        return productRepository.findAvailableProducts();
+        // 返回所有上架商品（不再强制库存>0，防止库存为空导致前端无数据）
+        return productRepository.findByIsAvailableTrue();
     }
 
     public List<Product> getProductsBySeller(Long sellerId) {

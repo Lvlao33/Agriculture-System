@@ -23,12 +23,21 @@ public class DemandController {
     private DemandService demandService;
 
     @GetMapping
-    public ResponseEntity<?> list() {
+    public ResponseEntity<?> list(@RequestParam(required = false) Long userId,
+                                  @RequestParam(required = false) String keyword) {
         Map<String, Object> response = new HashMap<>();
         try {
-            List<Demand> demands = demandService.getAllDemands();
+            List<Demand> demands;
+            if (userId != null) {
+                demands = demandService.getUserDemands(userId);
+            } else if (keyword != null && !keyword.trim().isEmpty()) {
+                demands = demandService.searchDemands(keyword.trim());
+            } else {
+                demands = demandService.getAllDemands();
+            }
             response.put("flag", true);
             response.put("data", demands);
+            response.put("total", demands.size());
             return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             response.put("flag", false);
@@ -85,6 +94,22 @@ public class DemandController {
         } catch (Exception e) {
             response.put("flag", false);
             response.put("message", "获取需求详情失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /** 删除采购需求 */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            demandService.deleteDemand(id);
+            response.put("flag", true);
+            response.put("message", "需求删除成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("flag", false);
+            response.put("message", "删除需求失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
