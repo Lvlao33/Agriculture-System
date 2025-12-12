@@ -36,6 +36,14 @@ public class AnswerService {
         Expert expert = expertRepository.findByUser_Id(expert_id).get();
         Question question = qaService.getQuestionById(answerDto.getQuestionId()).get();
 
+        // 修改question的status
+        if (question.getStatus() == Question.QuestionStatus.PENDING) {
+            qaService.updateQuestionStatus(answerDto.getQuestionId(), Question.QuestionStatus.ANSWERED);
+        } else if (question.getStatus() == Question.QuestionStatus.CLOSED) {
+            // 问题已关闭，不能回答
+            return null;
+        }
+
         Answer answer = new Answer();
         answer.setQuestion(question);
         answer.setExpert(expert);
@@ -51,5 +59,18 @@ public class AnswerService {
             return answerDto;
         }
         return null;
+    }
+
+    /**
+     * 点赞该条回答
+     * 
+     * @param answerId
+     * @return
+     */
+    public boolean likeAnswer(Long answerId) {
+        Answer answer = answerRepository.findById(answerId).get();
+        answer.setLikeCount(answer.getLikeCount() + 1);
+        answerRepository.save(answer);
+        return true;
     }
 }
