@@ -47,7 +47,7 @@ public class QAController {
 
     /**
      * GET /api/qa/questions
-     * 获取问答列表
+     * 获取问答列表，包含分页显示
      * 参数: pageNum, pageSize, mine, keyword
      */
     @GetMapping("/questions")
@@ -477,11 +477,11 @@ public class QAController {
                 String[] parts = token.split("_");
                 if (parts.length >= 2) {
                     expertId = Long.parseLong(parts[1]);
-                    // 这里需要根据实际情况获取专家ID，暂时使用占位
                 }
             }
 
             // 回答 写入数据库
+            // 写入同时查看问题状态是否为已回答，若不是则改为已回答
             AnswerDTO answerDTO = new AnswerDTO(questionId, expertId, content);
             AnswerDTO savedDTO = answerService.createAnswer(answerDTO);
 
@@ -500,57 +500,26 @@ public class QAController {
     }
 
     /**
-     * GET /api/qa/test
-     * 测试接口：直接查询数据库，返回原始数据
-     */
-    @GetMapping("/test")
-    public ResponseEntity<Map<String, Object>> testQuery() {
-        try {
-            System.out.println("=== 测试查询 ===");
-            List<Question> allQuestions = qaService.getAllQuestions();
-            System.out.println("数据库中的问题总数: " + allQuestions.size());
-
-            if (!allQuestions.isEmpty()) {
-                Question first = allQuestions.get(0);
-                String userIdStr = first.getUser() != null ? String.valueOf(first.getUser().getId()) : "null";
-                System.out.println(
-                        "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + userIdStr);
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", true);
-            response.put("total", allQuestions.size());
-            response.put("message", "查询成功，共 " + allQuestions.size() + " 条记录");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            System.err.println("测试查询失败: " + e.getMessage());
-            e.printStackTrace();
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", false);
-            response.put("message", "查询失败: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
-    }
-
-    /**
      * GET /qa/experts
      * 获取专家列表
+     * 显示在提问时希望得到哪位专家解答的下拉选择框中
      */
     @GetMapping("/experts")
     public ResponseEntity<Map<String, Object>> getExpertList() {
         try {
-            List<Expert> experts = qaService.getAllExperts();
+            // 使用 ExpertService 获取专家列表,它返回 DTO,避免懒加载问题
+            List<com.farmporject.backend.expert.dto.ExpertDTO> experts = expertService.getAllExperts();
 
             List<Map<String, Object>> resultList = new ArrayList<>();
-            for (Expert expert : experts) {
+            for (com.farmporject.backend.expert.dto.ExpertDTO expert : experts) {
                 Map<String, Object> item = new HashMap<>();
                 item.put("id", expert.getId());
                 item.put("name", expert.getName());
                 item.put("title", expert.getTitle());
-                // item.put("avatar", expert.getAvatar());
-                // item.put("description", expert.getDescription());
-                // item.put("specialties", expert.getSpecialties());
-                // item.put("isAvailable", expert.getIsAvailable());
+                item.put("avatar", expert.getAvatar());
+                item.put("description", expert.getDescription());
+                item.put("specialties", expert.getSpecialties());
+                item.put("isAvailable", expert.getIsAvailable());
                 resultList.add(item);
             }
 
@@ -566,6 +535,41 @@ public class QAController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    /**
+     * GET /api/qa/test
+     * 测试接口：直接查询数据库，返回原始数据
+     */
+    // @GetMapping("/test")
+    // public ResponseEntity<Map<String, Object>> testQuery() {
+    // try {
+    // System.out.println("=== 测试查询 ===");
+    // List<Question> allQuestions = qaService.getAllQuestions();
+    // System.out.println("数据库中的问题总数: " + allQuestions.size());
+
+    // if (!allQuestions.isEmpty()) {
+    // Question first = allQuestions.get(0);
+    // String userIdStr = first.getUser() != null ?
+    // String.valueOf(first.getUser().getId()) : "null";
+    // System.out.println(
+    // "第一个问题: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" +
+    // userIdStr);
+    // }
+
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("flag", true);
+    // response.put("total", allQuestions.size());
+    // response.put("message", "查询成功，共 " + allQuestions.size() + " 条记录");
+    // return ResponseEntity.ok(response);
+    // } catch (Exception e) {
+    // System.err.println("测试查询失败: " + e.getMessage());
+    // e.printStackTrace();
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("flag", false);
+    // response.put("message", "查询失败: " + e.getMessage());
+    // return ResponseEntity.status(500).body(response);
+    // }
+    // }
 
     /**
      * DELETE /api/qa/questions/{id}

@@ -21,12 +21,12 @@ public class Knowledge {
     @Column(length = 1000)
     private String summary;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "knowledge_categories", joinColumns = @JoinColumn(name = "knowledge_id"))
     @Column(name = "category")
     private List<String> categories;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "knowledge_tags", joinColumns = @JoinColumn(name = "knowledge_id"))
     @Column(name = "tag")
     private List<String> tags;
