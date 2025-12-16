@@ -12,6 +12,9 @@ public class LoanDTO {
     private BigDecimal interestRate;
     private String remark; // 可为空
 
+    private String applicantName;
+    private String applicantPhone;
+
     private List<Long> userIds; // 普通用户 ID 数组
     private Long loanProductId; // 贷款产品 ID
     private Long staffId; // 工作人员 ID //一开始创建可为空
@@ -115,5 +118,21 @@ public class LoanDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public String getApplicantPhone() {
+        return applicantPhone;
+    }
+
+    public void setApplicantPhone(String applicantPhone) {
+        this.applicantPhone = applicantPhone;
     }
 }

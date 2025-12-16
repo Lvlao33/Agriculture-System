@@ -21,6 +21,19 @@
           <el-form :model="matchForm" :rules="rules" ref="matchForm" label-width="120px">
             <el-row :gutter="24">
               <el-col :span="12">
+                <el-form-item label="您的姓名" prop="applicantName">
+                  <el-input v-model="matchForm.applicantName" placeholder="请输入真实姓名"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系电话" prop="applicantPhone">
+                  <el-input v-model="matchForm.applicantPhone" placeholder="请输入联系电话"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="12">
                 <el-form-item label="贷款金额" prop="amount">
                   <el-input-number
                     v-model="matchForm.amount"
@@ -123,7 +136,7 @@
               <i class="el-icon-success"></i>
               <span>匹配结果</span>
               <el-tag type="success" size="small" style="margin-left: 10px;">
-                共找到 {{ matchResults.length }} 个匹配产品
+                共找到 {{ matchResults.length }} 位推荐合作伙伴
               </el-tag>
             </div>
             <el-button type="text" @click="showResults = false" class="close-btn">
@@ -134,7 +147,7 @@
           <div class="results-content">
             <div class="no-results" v-if="matchResults.length === 0">
               <i class="el-icon-warning-outline"></i>
-              <p>暂无匹配的金融产品</p>
+              <p>暂无匹配的推荐结果</p>
               <p class="no-results-tip">请调整您的需求条件后重新匹配</p>
             </div>
             
@@ -186,13 +199,13 @@
                       </span>
                       <span class="value highlight">{{ result.interestRate }}</span>
                     </div>
-                    <div class="detail-item">
-                      <span class="label">
-                        <i class="el-icon-alarm-clock"></i>
-                        最快放款
-                      </span>
-                      <span class="value">{{ result.loanTime }}</span>
-                    </div>
+                      <div class="detail-item">
+                       <span class="label">
+                         <i class="el-icon-phone-outline"></i>
+                         联系意向
+                       </span>
+                       <span class="value">{{ result.loanTime }}</span>
+                     </div>
                   </div>
                   <div class="match-progress">
                     <span class="progress-label">匹配度</span>
@@ -235,6 +248,8 @@
 </template>
 
 <script>
+import { selectIntention, updateIntention, insertIntention, selectRecommned } from '../api/finance'
+
 export default {
   name: 'SmartMatchPage',
   data() {
@@ -244,7 +259,13 @@ export default {
         period: '',
         purpose: '',
         income: null,
-        requirements: ''
+        amount: null,
+        period: '',
+        purpose: '',
+        income: null,
+        requirements: '',
+        applicantName: '',
+        applicantPhone: ''
       },
       rules: {
         amount: [
@@ -258,6 +279,17 @@ export default {
         ],
         income: [
           { required: true, message: '请输入年收入', trigger: 'blur' }
+        ],
+        income: [
+          { required: true, message: '请输入年收入', trigger: 'blur' }
+        ],
+        applicantName: [
+          { required: true, message: '请输入您的姓名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        applicantPhone: [
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ]
       },
       matching: false,
@@ -266,54 +298,75 @@ export default {
     };
   },
   methods: {
-    startMatch() {
-      this.$refs.matchForm.validate((valid) => {
+    async startMatch() {
+      this.$refs.matchForm.validate(async (valid) => {
         if (valid) {
           this.matching = true;
-          // 模拟匹配过程
-          setTimeout(() => {
-            this.performMatch();
+          try {
+            // 1. 构建意向数据对象
+            const intentionDTO = {
+              amount: this.matchForm.amount,
+              repaymentPeriod: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12),
+              application: this.matchForm.purpose || 'other',
+              annualIncome: this.matchForm.income,
+              otherNeeds: this.matchForm.requirements,
+              realName: this.matchForm.applicantName,
+              phone: this.matchForm.applicantPhone
+            };
+
+            // 2. 查询是否存在意向，决定是插入还是更新
+            const res = await selectIntention();
+            if (res && res.success && res.data) {
+              // 更新
+              intentionDTO.id = res.data.id;
+              await updateIntention(intentionDTO);
+            } else {
+              // 插入
+              await insertIntention(intentionDTO);
+            }
+
+            // 3. 获取推荐（智能匹配）
+            const recommendRes = await selectRecommned();
+            if (recommendRes && recommendRes.success) {
+               this.processMatchResults(recommendRes.data);
+               this.showResults = true;
+            } else {
+               this.matchResults = [];
+               this.$message.warning('未找到匹配的推荐结果');
+            }
+          } catch (error) {
+            console.error('Matching failed:', error);
+            this.$message.error('匹配失败，请稍后重试');
+          } finally {
             this.matching = false;
-            this.showResults = true;
-          }, 2000);
+          }
         }
       });
     },
     
-    performMatch() {
-      // 模拟匹配结果
-      this.matchResults = [
-        {
-          id: 1,
-          productName: '农业专项贷款',
-          bankName: '中国农业银行',
-          matchRate: 95,
-          interestRate: '3.85%',
-          loanTime: '1-3个工作日',
-          amount: 100000,
-          term: 12
-        },
-        {
-          id: 2,
-          productName: '惠农e贷',
-          bankName: '中国建设银行',
-          matchRate: 88,
-          interestRate: '4.2%',
-          loanTime: '2-5个工作日',
-          amount: 50000,
-          term: 6
-        },
-        {
-          id: 3,
-          productName: '乡村振兴贷',
-          bankName: '中国工商银行',
-          matchRate: 82,
-          interestRate: '4.5%',
-          loanTime: '3-7个工作日',
-          amount: 200000,
-          term: 24
-        }
-      ];
+    processMatchResults(results) {
+      // 将返回的匹配结果列表映射为视图模型
+      if (!results || !Array.isArray(results)) {
+        this.matchResults = [];
+        return;
+      }
+      
+      this.matchResults = results.map((result) => {
+        const intention = result.intention || {};
+        const score = result.score || 60;
+        
+        return {
+          id: intention.userId, // 或者是 intention.id?
+          productName: intention.realName || intention.userName || `推荐用户 ${intention.userId}`, // 显示真实姓名或用户名
+          bankName: '优质合作伙伴', // 因为Intention没有角色字段，暂时固定显示，或者如果DTO里有role字段更好
+          matchRate: score,
+          // 下面的字段由于User实体没有，我们做展示处理或隐藏
+          interestRate: '面议', 
+          loanTime: '实时',
+          amount: this.matchForm.amount, // 使用用户申请的金额作为参考
+          term: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12)
+        };
+      });
     },
     formatAmount(amount) {
       if (!amount) return '-';
@@ -323,7 +376,18 @@ export default {
       // 跳转到申请页面
       localStorage.setItem('loanProduct', JSON.stringify(result));
       const productId = result.id || result.name;
-      this.$router.push(`/home/loanApply/${productId}`);
+      
+      // 传递用户信息
+      this.$router.push({
+        path: `/home/loanApply/${productId}`,
+        query: {
+          applicantName: this.matchForm.applicantName,
+          applicantPhone: this.matchForm.applicantPhone,
+          amount: this.matchForm.amount,
+          term: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12),
+          purpose: this.matchForm.purpose
+        }
+      });
     },
     goToDetail(result) {
       // 跳转到产品详情页

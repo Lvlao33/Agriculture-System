@@ -46,6 +46,14 @@ public class Loan implements Serializable {
     @Column(name = "loan_purpose", length = 255)
     private String loanPurpose;
 
+    /** 申请人真实姓名 */
+    @Column(name = "applicant_name", length = 64)
+    private String applicantName;
+
+    /** 申请人联系电话 */
+    @Column(name = "applicant_phone", length = 20)
+    private String applicantPhone;
+
     /** 贷款期限（月） */
     @Column(name = "loan_term_months")
     private Integer loanTermMonths;
@@ -223,6 +231,22 @@ public class Loan implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public String getApplicantPhone() {
+        return applicantPhone;
+    }
+
+    public void setApplicantPhone(String applicantPhone) {
+        this.applicantPhone = applicantPhone;
     }
 
     // 表与表的关系
