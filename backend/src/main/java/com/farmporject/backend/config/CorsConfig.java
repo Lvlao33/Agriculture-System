@@ -14,8 +14,8 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                // 明确列出允许的前端地址；如果还有其他开发地址按需添加
-                .allowedOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+                // 使用模式以兼容更多前端域名（含端口），避免 Invalid CORS request
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)

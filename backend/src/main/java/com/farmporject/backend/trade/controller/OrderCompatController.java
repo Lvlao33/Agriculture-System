@@ -3,75 +3,45 @@ package com.farmporject.backend.trade.controller;
 import com.farmporject.backend.trade.model.Product;
 import com.farmporject.backend.trade.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * 交易模块-商品管理
- * 路由前缀：/api/trade/products
- * - GET /api/trade/products 商品列表
- * - POST /api/trade/products 新建商品
- * - GET /api/trade/products/{id} 商品详情
+ * 兼容旧前端使用的 /order 接口
+ * - POST /order - 创建商品（type=goods）
+ * - GET /order/goods/{page} - 分页获取商品列表
+ * - GET /order/searchGoodsByKeys/{keys}/{page} - 关键词搜索商品
  */
 @RestController
-@RequestMapping("/api/trade/products")
-public class ProductController {
+@RequestMapping("/order")
+public class OrderCompatController {
 
     @Autowired
     private ProductService productService;
 
-    @GetMapping
-    public ResponseEntity<?> list(
-            @RequestParam(required = false) Long sellerId,
-            @RequestParam(required = false) String keyword) {
-
-        Map<String, Object> response = new HashMap<>();
-        try {
-            List<Product> products;
-
-            if (sellerId != null) {
-                products = productService.getProductsBySeller(sellerId);
-            } else if (keyword != null && !keyword.trim().isEmpty()) {
-                products = productService.searchProducts(keyword.trim());
-            } else {
-                products = productService.getAvailableProducts();
-            }
-
-            response.put("flag", true);
-            Map<String, Object> data = new HashMap<>();
-            data.put("list", products);
-            data.put("total", products.size());
-
-            response.put("data", data);
-            return ResponseEntity.ok().body(response);
-
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取商品列表失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 兼容前端字段与 token 解析的商品创建
-     * 支持字段映射：
-     * - title -> name
-     * - content -> description
-     * - picture -> imageUrl
-     */
     @PostMapping
-    public ResponseEntity<?> create(
+    public ResponseEntity<?> createOrder(
             @RequestBody Map<String, Object> requestBody,
             @RequestHeader(value = "Authorization", required = false) String token) {
+
         Map<String, Object> response = new HashMap<>();
         try {
-            // 解析 sellerId（token 形如 tk_{userId}_{username}）
+            String type = (String) requestBody.get("type");
+
+            // 仅处理 goods 类型，其余可按需扩展
+            if (!"goods".equals(type)) {
+                response.put("flag", false);
+                response.put("message", "暂不支持的类型: " + type);
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 解析 sellerId
             Long sellerId = null;
             if (token != null && token.startsWith("tk_")) {
                 String[] parts = token.split("_");
@@ -103,7 +73,6 @@ public class ProductController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 价格解析
             Object priceObj = requestBody.get("price");
             BigDecimal price = null;
             if (priceObj instanceof Number) {
@@ -130,47 +99,81 @@ public class ProductController {
             product.setImageUrl(imageUrl);
             product.setCategory(category);
             product.setSellerId(sellerId);
-
-            // 默认值
-            if (product.getStock() == null) {
-                product.setStock(0);
-            }
-            if (product.getIsAvailable() == null) {
-                product.setIsAvailable(true);
-            }
+            product.setStock(0);
+            product.setIsAvailable(true);
 
             Product createdProduct = productService.createProduct(product);
 
             response.put("flag", true);
-            response.put("message", "商品创建成功");
+            response.put("message", "发布成功");
             response.put("data", createdProduct);
             return ResponseEntity.status(201).body(response);
 
         } catch (Exception e) {
             response.put("flag", false);
-            response.put("message", "创建商品失败: " + e.getMessage());
+            response.put("message", "发布失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@PathVariable Long id) {
-        Map<String, Object> response = new HashMap<>();
+    /**
+     * GET /order/goods/{page} - 分页获取商品列表
+     */
+    @GetMapping("/goods/{page}")
+    public ResponseEntity<?> listLegacyGoods(@PathVariable("page") int page) {
+        return listWithKeyword(null, page);
+    }
+
+    /**
+     * GET /order/searchGoodsByKeys/{keys}/{page} - 关键词搜索商品
+     */
+    @GetMapping("/searchGoodsByKeys/{keys}/{page}")
+    public ResponseEntity<?> searchLegacyGoods(@PathVariable("keys") String keys,
+                                               @PathVariable("page") int page) {
+        return listWithKeyword(keys, page);
+    }
+
+    /**
+     * 内部方法：根据关键词分页查询商品
+     */
+    private ResponseEntity<?> listWithKeyword(String keyword, int page) {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            Optional<Product> product = productService.getProductById(id);
-            if (product.isPresent()) {
-                response.put("flag", true);
-                response.put("data", product.get());
-                return ResponseEntity.ok().body(response);
+            int pageIndex = Math.max(page - 1, 0);
+            int pageSize = 30;
+            Page<Product> productPage;
+            if (keyword == null || keyword.trim().isEmpty()) {
+                productPage = productService.pageAvailableProducts(pageIndex, pageSize);
             } else {
-                response.put("flag", false);
-                response.put("message", "商品不存在");
-                return ResponseEntity.notFound().build();
+                productPage = productService.searchAvailableProducts(keyword.trim(), pageIndex, pageSize);
             }
+
+            var list = productPage.getContent().stream().map(p -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("orderId", p.getId());
+                m.put("title", p.getName());
+                m.put("content", p.getDescription());
+                m.put("picture", p.getImageUrl());
+                m.put("price", p.getPrice());
+                m.put("category", p.getCategory());
+                m.put("ownName", "平台商家");
+                return m;
+            }).collect(Collectors.toList());
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("list", list);
+            data.put("total", productPage.getTotalElements());
+
+            resp.put("flag", true);
+            resp.put("data", data);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取商品详情失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "获取商品失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 }
+
+
+

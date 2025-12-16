@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { selectOrderById, selectOrderByUsernameAndType } from "../api/order";
+import { selectGoodsPage, selectNeedsPage, deleteProduct, deleteDemand } from "../api/trade";
 import ChangeMessage from "./ChangeMessage.vue";
 import DeleteMessage from "./DeleteMessage.vue";
 import Pagination from "./Pagination.vue";
@@ -113,24 +113,59 @@ export default {
     },
     deleteInfo(item) {
       this.$store.commit("updateChangedOrderId", item);
+      // 直接调用删除，删除后刷新
+      if (this.ctype === "needs") {
+        deleteDemand(item).then(() => {
+          this.$message.success("删除成功");
+          this.getData();
+        }).catch(() => {
+          this.$message.error("删除失败");
+        });
+      } else {
+        deleteProduct(item).then(() => {
+          this.$message.success("删除成功");
+          this.getData();
+        }).catch(() => {
+          this.$message.error("删除失败");
+        });
+      }
     },
     handleSearch() {
       this.getData();
     },
     getData() {
-      selectOrderByUsernameAndType({
-        ctype: this.ctype,
-        pageNum: this.pageNum,
-        keys: this.searchValue,
-      })
-        .then((res) => {
-          console.log("444--", res);
-          this.userGoods = res.data.list;
-          this.total = res.data.total;
+      const userId = this.$store.state.loginUserId;
+      if (this.ctype === "needs") {
+        selectNeedsPage({
+          pageNum: this.pageNum,
+          keys: this.searchValue,
+          userId,
         })
-        .catch((err) => {
-          console.log(err);
-        });
+          .then((res) => {
+            this.userGoods = res.data.list || [];
+            this.total = res.data.total || this.userGoods.length;
+          })
+          .catch((err) => {
+            console.log(err);
+            this.userGoods = [];
+            this.total = 0;
+          });
+      } else {
+        selectGoodsPage({
+          pageNum: this.pageNum,
+          keys: this.searchValue,
+          sellerId: userId,
+        })
+          .then((res) => {
+            this.userGoods = res.data.list || [];
+            this.total = res.data.total || this.userGoods.length;
+          })
+          .catch((err) => {
+            console.log(err);
+            this.userGoods = [];
+            this.total = 0;
+          });
+      }
     },
   },
   created() {

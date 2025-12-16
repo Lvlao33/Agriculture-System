@@ -19,10 +19,23 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<?> list(
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            @RequestHeader(value = "Authorization", required = false) String token) {
 
         Map<String, Object> response = new HashMap<>();
         try {
+            // 如果未提供userId，尝试从token中提取
+            if (userId == null && token != null && token.startsWith("tk_")) {
+                String[] parts = token.split("_");
+                if (parts.length >= 2) {
+                    try {
+                        userId = Long.parseLong(parts[1]);
+                    } catch (NumberFormatException ignored) {
+                        // token格式错误，忽略
+                    }
+                }
+            }
+
             List<Order> orders;
 
             if (userId != null && status != null) {
@@ -97,6 +110,25 @@ public class OrderController {
         } catch (Exception e) {
             response.put("flag", false);
             response.put("message", "获取订单详情失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 确认收货：将订单状态更新为待评价（pending_review）
+     */
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<?> confirmReceipt(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Order updated = orderService.updateOrderStatus(id, "pending_review");
+            response.put("flag", true);
+            response.put("message", "确认收货成功，订单已进入待评价");
+            response.put("data", updated);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("flag", false);
+            response.put("message", "确认收货失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }

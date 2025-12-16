@@ -13,27 +13,39 @@
 </template>
 
 <script>
-import { deleteOrderById } from "../api/order";
+import { deleteProduct, deleteDemand } from "../api/trade";
 export default {
   inject: ["reload"],
+  props: {
+    ctype: {
+      type: String,
+      default: "goods", // goods 或 needs
+    },
+  },
   data() {
     return {
       dialogVisible: false,
     };
-    this.dialogFormVisible = false;
   },
   methods: {
-    deleteMessageClick() {
-      deleteOrderById({
-        order_id: this.$store.state.changedOrderId,
-      })
-        .then((res) => {
-          this.reload();
-          alert("删除成功");
-        })
-        .catch((err) => {
-          alert("删除失败");
-        });
+    async deleteMessageClick() {
+      try {
+        if (!this.$store.state.changedOrderId) {
+          this.$message.error("缺少ID，无法删除");
+          return;
+        }
+        if (this.ctype === "needs") {
+          await deleteDemand(this.$store.state.changedOrderId);
+        } else {
+          await deleteProduct(this.$store.state.changedOrderId);
+        }
+        this.dialogVisible = false;
+        this.$message.success("删除成功");
+        if (this.reload) this.reload();
+      } catch (err) {
+        console.error(err);
+        this.$message.error("删除失败");
+      }
     },
   },
 };
