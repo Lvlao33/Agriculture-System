@@ -86,6 +86,18 @@ export function selectRecommned() {
     })
 }
 
+// 联合贷款推荐产品
+export function selectComboRecommend(partnerId) {
+    return request({
+        method: 'get',
+        url: '/api/finance/matching/recommend-combo',
+        params: { partnerId },
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
 // // 查找同个银行的贷款证人
 // export function selectFinaceUser(bank_id) {
 //     return request({

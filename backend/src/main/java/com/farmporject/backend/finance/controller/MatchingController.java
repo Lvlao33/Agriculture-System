@@ -2,6 +2,7 @@ package com.farmporject.backend.finance.controller;
 
 import com.farmporject.backend.finance.dto.LoanIntentionDTO;
 import com.farmporject.backend.finance.dto.LoanMatchResultDTO;
+import com.farmporject.backend.finance.dto.ComboRecommendationDTO;
 import com.farmporject.backend.finance.service.LoanIntentionService;
 import jakarta.servlet.http.HttpServletRequest;
 import com.farmporject.backend.common.api.ApiResponse;
@@ -116,6 +117,32 @@ public class MatchingController {
             List<LoanMatchResultDTO> recommendations = loanIntentionService.getRecommendedUsers(userId);
 
             return ApiResponse.success(recommendations);
+        } catch (Exception e) {
+            return ApiResponse.fail("获取推荐失败: " + e.getMessage());
+        }
+    }
+
+    @Autowired
+    private com.farmporject.backend.finance.service.LoanProductService loanProductService;
+
+    /**
+     * 获取联合贷款推荐产品
+     * GET /api/finance/matching/recommend-combo
+     */
+    @GetMapping("/recommend-combo")
+    public ApiResponse<?> getComboRecommendations(@RequestParam Long partnerId, HttpServletRequest request) {
+        try {
+            // 从token中获取用户ID
+            String token = request.getHeader("Authorization");
+            Long userId = getUserIdFromToken(token);
+
+            if (userId == null) {
+                return ApiResponse.fail("未授权访问");
+            }
+
+            ComboRecommendationDTO recommendation = loanProductService.recommendCombo(userId, partnerId);
+
+            return ApiResponse.success(recommendation);
         } catch (Exception e) {
             return ApiResponse.fail("获取推荐失败: " + e.getMessage());
         }

@@ -187,7 +187,7 @@ export default {
         ],
         loanPurpose: [
           { required: true, message: '请输入贷款用途', trigger: 'blur' },
-          { min: 5, max: 255, message: '贷款用途长度在 5 到 255 个字符', trigger: 'blur' }
+          { min: 4, max: 255, message: '贷款用途长度在 5 到 255 个字符', trigger: 'blur' }
         ],
         loanTermMonths: [
           { required: true, message: '请选择贷款期限', trigger: 'change' }
@@ -303,22 +303,26 @@ export default {
         
         // 从其他页面（如智能匹配）传递过来的参数自动填充
         const query = this.$route.query;
-        if (query) {
-          if (query.applicantName) this.loanForm.applicantName = query.applicantName;
-          if (query.applicantPhone) this.loanForm.applicantPhone = query.applicantPhone;
-          if (query.amount) this.loanForm.loanAmount = Number(query.amount) || this.loanForm.loanAmount;
-          if (query.term) this.loanForm.loanTermMonths = Number(query.term) || this.loanForm.loanTermMonths;
-          if (query.purpose) {
-             // 简单的用途映射，根据需要调整
-             const purposeMap = {
-               'agriculture': '农业生产',
-               'equipment': '设备采购',
-               'working_capital': '流动资金',
-               'other': '其他'
-             };
-             this.loanForm.loanPurpose = purposeMap[query.purpose] || query.purpose;
+          if (query) {
+            if (query.applicantName) this.loanForm.applicantName = query.applicantName;
+            if (query.applicantPhone) this.loanForm.applicantPhone = query.applicantPhone;
+            if (query.amount) this.loanForm.loanAmount = Number(query.amount) || this.loanForm.loanAmount;
+            if (query.term) this.loanForm.loanTermMonths = Number(query.term) || this.loanForm.loanTermMonths;
+            if (query.purpose) {
+               // 简单的用途映射，根据需要调整
+               const purposeMap = {
+                 'agriculture': '农业生产',
+                 'equipment': '设备采购',
+                 'working_capital': '流动资金',
+                 'other': '其他'
+               };
+               this.loanForm.loanPurpose = purposeMap[query.purpose] || query.purpose;
+            }
+            // 处理联合贷款人
+            if (query.partnerId) {
+              this.addPartnerFromQuery(query.partnerId);
+            }
           }
-        }
       } else {
         this.$message.warning('未找到产品信息');
         this.$router.push('/home/smartMatch');
@@ -546,6 +550,26 @@ export default {
       } catch (error) {
         console.error('Search user error:', error);
         this.$message.error('查询用户失败');
+      } finally {
+        this.searching = false;
+      }
+    },
+    async addPartnerFromQuery(partnerId) {
+      if (!partnerId) return;
+      
+      // 避免重复添加
+      const exists = this.coBorrowers.some(u => String(u.id) === String(partnerId));
+      if (exists) return;
+      
+      this.searching = true;
+      try {
+        const response = await searchUserById(partnerId);
+        if (response && response.success) {
+          this.coBorrowers.push(response.data);
+          this.$message.success(`已自动添加联合贷款人: ${response.data.nickname || '用户' + partnerId}`);
+        }
+      } catch (error) {
+        console.error('Auto add partner error:', error);
       } finally {
         this.searching = false;
       }

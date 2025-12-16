@@ -35,7 +35,7 @@ public class LoanProduct {
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
-    enum ProductStatus {
+    public enum ProductStatus {
         SALE,
         DELETED
     }
@@ -60,6 +60,9 @@ public class LoanProduct {
 
     @Column(name = "tags", nullable = false)
     private String tags;
+
+    @Column(name = "min_annual_income")
+    private BigDecimal minAnnualIncome;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -165,6 +168,14 @@ public class LoanProduct {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public BigDecimal getMinAnnualIncome() {
+        return minAnnualIncome;
+    }
+
+    public void setMinAnnualIncome(BigDecimal minAnnualIncome) {
+        this.minAnnualIncome = minAnnualIncome;
     }
 
     public LocalDateTime getCreatedAt() {
