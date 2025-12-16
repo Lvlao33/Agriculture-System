@@ -177,38 +177,49 @@
                 </div>
                 
                 <div class="result-details">
+                  <!-- 匹配标签/原因 -->
+                  <div class="match-tags" v-if="result.matchReason" style="margin-bottom: 12px;">
+                    <el-alert
+                      :title="result.matchReason"
+                      type="success"
+                      :closable="false"
+                      show-icon
+                      style="padding: 8px 16px;">
+                    </el-alert>
+                  </div>
+
                   <div class="detail-row">
                     <div class="detail-item">
                       <span class="label">
                         <i class="el-icon-coin"></i>
-                        申请额度
+                        意向额度
                       </span>
                       <span class="value">{{ formatAmount(result.amount) }}</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">
                         <i class="el-icon-time"></i>
-                        贷款期限
+                        期望期限
                       </span>
                       <span class="value">{{ result.term }}个月</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">
-                        <i class="el-icon-trophy"></i>
-                        参考利率
+                        <i class="el-icon-collection-tag"></i>
+                        资金用途
                       </span>
-                      <span class="value highlight">{{ result.interestRate }}</span>
+                      <span class="value highlight">{{ formatPurpose(result.purpose) }}</span>
                     </div>
                       <div class="detail-item">
                        <span class="label">
-                         <i class="el-icon-phone-outline"></i>
-                         联系意向
+                         <i class="el-icon-money"></i>
+                         年收入
                        </span>
-                       <span class="value">{{ result.loanTime }}</span>
+                       <span class="value">{{ formatAmount(result.income) }}</span>
                      </div>
                   </div>
                   <div class="match-progress">
-                    <span class="progress-label">匹配度</span>
+                    <span class="progress-label">综合匹配度</span>
                     <el-progress 
                       :percentage="result.matchRate" 
                       :color="getProgressColor(result.matchRate)"
@@ -356,21 +367,33 @@ export default {
         const score = result.score || 60;
         
         return {
-          id: intention.userId, // 或者是 intention.id?
-          productName: intention.realName || intention.userName || `推荐用户 ${intention.userId}`, // 显示真实姓名或用户名
-          bankName: '优质合作伙伴', // 因为Intention没有角色字段，暂时固定显示，或者如果DTO里有role字段更好
+          id: intention.userId, 
+          productName: intention.realName || intention.userName || `推荐用户 ${intention.userId}`,
+          bankName: '优质合作伙伴', 
           matchRate: score,
-          // 下面的字段由于User实体没有，我们做展示处理或隐藏
-          interestRate: '面议', 
-          loanTime: '实时',
-          amount: this.matchForm.amount, // 使用用户申请的金额作为参考
-          term: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12)
+          matchReason: result.matchReason, // 匹配原因
+          
+          // 使用匹配对象的真实数据
+          amount: intention.amount, 
+          term: intention.repaymentPeriod,
+          purpose: intention.application,
+          income: intention.annualIncome,
+          phone: intention.phone
         };
       });
     },
     formatAmount(amount) {
       if (!amount) return '-';
       return amount.toLocaleString('zh-CN') + ' 元';
+    },
+    formatPurpose(purpose) {
+      const map = {
+        'agriculture': '农业生产',
+        'equipment': '设备采购',
+        'working_capital': '流动资金',
+        'other': '其他'
+      };
+      return map[purpose] || purpose || '其他';
     },
     goToApply(result) {
       // 跳转到申请页面
