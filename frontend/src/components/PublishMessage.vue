@@ -7,6 +7,7 @@
           :action="upurl"
           :headers="upheaders"
           :limit="3"
+          :auto-upload="true"
           list-type="picture-card"
           :on-change="handleChange"
           :on-preview="handlePreview"
@@ -17,7 +18,7 @@
           :class="{ disUoloadSty: noneBtnImg }"
           ref="upload"
         >
-          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">添加图片</span>
+          <i class="el-icon-plus"></i>
         </el-upload>
       </el-form-item>
 
@@ -165,24 +166,92 @@ export default {
     },
   },
   methods: {
-    handleError(err) {
-      this.$message.error("图片上传失败，请重试");
-      console.log(err);
+    handleError(err, file, fileList) {
+      console.error('图片上传失败:', err);
+      let errorMessage = "图片上传失败，请重试";
+      
+      if (err.response) {
+        // 服务器返回了错误响应
+        if (err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.status === 413) {
+          errorMessage = "图片文件过大，请选择小于10MB的图片";
+        } else if (err.response.status === 404) {
+          errorMessage = "上传接口不存在，请检查后端服务是否启动";
+        } else if (err.response.status === 500) {
+          errorMessage = "服务器内部错误，请稍后重试";
+        }
+      } else if (err.message) {
+        // 网络错误或其他错误
+        if (err.message.includes('Network Error') || err.message.includes('timeout')) {
+          errorMessage = "网络连接失败，请检查后端服务地址是否正确";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      this.$message.error(errorMessage);
+      
+      // 从文件列表中移除失败的文件
+      const index = this.fileList.findIndex(f => f.uid === file.uid);
+      if (index > -1) {
+        this.fileList.splice(index, 1);
+      }
     },
     handleSuccess(response, file, fileList) {
-      if (response.flag === true) {
+      console.log('上传成功响应:', response, '文件:', file, '文件列表:', fileList);
+      if (response && response.flag === true) {
         this.fileList = fileList;
-        this.form.picture = response.data;
+        // 确保 response.data 是字符串
+        const filename = typeof response.data === 'string' ? response.data : String(response.data || '');
+        
+        // 如果这是第一张图片，或者 form.picture 为空，则设置为主图
+        if (filename && (!this.form.picture || fileList.length === 1)) {
+          this.form.picture = filename;
+        }
+        
+        // 确保 form.picture 始终有值（使用第一张成功上传的图片）
+        if (!this.form.picture && fileList.length > 0) {
+          // 从文件列表中查找第一张有响应数据的图片
+          for (let i = 0; i < fileList.length; i++) {
+            const f = fileList[i];
+            if (f.response && f.response.flag === true && f.response.data) {
+              this.form.picture = typeof f.response.data === 'string' 
+                ? f.response.data 
+                : String(f.response.data);
+              break;
+            }
+          }
+        }
+        
+        console.log('设置后的 form.picture:', this.form.picture);
+        
         if (fileList.length >= 3) {
           this.uploadDisabled = true;
         }
         this.$message.success("图片上传成功");
       } else {
-        this.$message.error(response.message || "上传失败");
+        this.$message.error(response?.message || "上传失败");
+        // 上传失败时移除该文件
+        const index = this.fileList.findIndex(f => f.uid === file.uid);
+        if (index > -1) {
+          this.fileList.splice(index, 1);
+        }
       }
     },
     handleChange(file, fileList) {
       this.noneBtnImg = fileList.length >= this.limitCountImg;
+      // 更新 fileList
+      this.fileList = fileList;
+      // 确保 form.picture 有值（使用第一张图片）
+      if (fileList.length > 0 && !this.form.picture) {
+        const firstFile = fileList[0];
+        if (firstFile.response && firstFile.response.data) {
+          this.form.picture = typeof firstFile.response.data === 'string' 
+            ? firstFile.response.data 
+            : String(firstFile.response.data);
+        }
+      }
     },
     handleRemove(file, fileList) {
       this.noneBtnImg = fileList.length >= this.limitCountImg;
@@ -190,6 +259,16 @@ export default {
       this.uploadDisabled = false;
       if (fileList.length === 0) {
         this.form.picture = "";
+      } else {
+        // 如果还有文件，使用第一张图片的路径
+        const firstFile = fileList[0];
+        if (firstFile.response && firstFile.response.data) {
+          this.form.picture = typeof firstFile.response.data === 'string' 
+            ? firstFile.response.data 
+            : String(firstFile.response.data);
+        } else if (firstFile.name) {
+          this.form.picture = firstFile.name;
+        }
       }
     },
     handlePreview(file) {
@@ -215,10 +294,28 @@ export default {
       return labels.join(" / ");
     },
     publishClick() {
-      if (this.ctype !== "needs" && this.form.picture === "") {
+      // 发布前再次确保 form.picture 有值
+      if (this.fileList.length > 0 && !this.form.picture) {
+        // 从文件列表中查找第一张有响应数据的图片
+        for (let i = 0; i < this.fileList.length; i++) {
+          const f = this.fileList[i];
+          if (f.response && f.response.flag === true && f.response.data) {
+            this.form.picture = typeof f.response.data === 'string' 
+              ? f.response.data 
+              : String(f.response.data);
+            break;
+          }
+        }
+      }
+      
+      // 检查是否有上传的图片（检查 fileList 或 form.picture）
+      if (this.ctype !== "needs" && (this.fileList.length === 0 || !this.form.picture || this.form.picture === "")) {
         this.$message.warning("请至少上传一张商品图片");
         return;
       }
+      
+      console.log('发布商品，图片路径:', this.form.picture);
+      
       const categoryLabel = this.getCategoryLabel(this.form.categoryPath);
       addOrder({
         title: this.form.title,

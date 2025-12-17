@@ -1,13 +1,15 @@
 <!-- encoding: utf-8 -->
 <template>
   <el-card>
-    <h4>数据分析</h4>
-    <div style="min-height:160px">图表占位（接口: GET /api/expert/analytics）</div>
+    <h4>鏁版嵁缁熻</h4>
+    <div style="min-height:160px">鍥捐〃鍗犱綅锛屾帴鍙ｏ細GET /api/expert/analytics</div>
   </el-card>
 </template>
 
 <script>
-export default { name: 'ExpertAnalytics' }
+export default { 
+  name: 'ExpertAnalytics' 
+}
 </script>
 
 <style scoped>

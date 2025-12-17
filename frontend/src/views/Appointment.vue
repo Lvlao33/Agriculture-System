@@ -136,8 +136,8 @@
 </template>
 
 <script>
-import { addReserve } from '../api/order'
-import { selectExperts } from '../api/expert'
+import { addAppointment } from '@/api/appointment'
+import { selectExperts } from '@/api/expert'
 
 export default {
   name: 'Appointment',
@@ -283,7 +283,7 @@ export default {
             // 格式化提交数据
             const submitData = {
               userName: this.appointmentForm.userName,
-              contact: this.appointmentForm.contact,
+              userContact: this.appointmentForm.contact,
               startTime: this.appointmentForm.appointmentTime[0],
               endTime: this.appointmentForm.appointmentTime[1],
               description: this.appointmentForm.description,
@@ -291,14 +291,14 @@ export default {
               expertName: this.getExpertName(this.appointmentForm.expertId)
             }
 
-            const res = await addReserve(submitData)
+            const res = await addAppointment(submitData)
             
-            if (res && res.flag) {
+            if (res && res.success) {
               this.$message.success('预约提交成功！专家会在24小时内确认')
-              // 延迟跳转，让用户看到成功提示
+              // 延迟跳转，让用户看到成功提示，跳转到个人中心-专家管理-我的预约
               setTimeout(() => {
-                this.$router.push('/home/guide').catch((err) => err)
-              }, 1500)
+                this.$router.push('/home/user/expertAppoint').catch((err) => err)
+              }, 1200)
             } else {
               this.$message.error(res?.message || '预约提交失败，请重试')
             }

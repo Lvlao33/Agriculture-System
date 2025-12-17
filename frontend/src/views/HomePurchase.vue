@@ -200,7 +200,7 @@
 </template>
 
 <script>
-import { selectNeedsPage } from "../api/order";
+import { selectNeedsPage } from "../api/trade";
 
 export default {
   name: "HomePurchase",

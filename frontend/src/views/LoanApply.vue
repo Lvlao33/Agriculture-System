@@ -11,6 +11,19 @@
         <div class="form-section">
           <h3 class="section-title">基本信息</h3>
           
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="申请人姓名" prop="applicantName">
+                <el-input v-model="loanForm.applicantName" placeholder="请输入真实姓名"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="联系电话" prop="applicantPhone">
+                <el-input v-model="loanForm.applicantPhone" placeholder="请输入联系电话"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          
           <el-form-item label="申请金额" prop="loanAmount">
             <el-input-number
               v-model="loanForm.loanAmount"
@@ -160,7 +173,9 @@ export default {
         loanPurpose: '',
         loanTermMonths: null,
         interestRate: null,
-        productId: null
+        productId: null,
+        applicantName: '',
+        applicantPhone: ''
       },
       coBorrowerId: '',
       coBorrowers: [],
@@ -172,10 +187,18 @@ export default {
         ],
         loanPurpose: [
           { required: true, message: '请输入贷款用途', trigger: 'blur' },
-          { min: 5, max: 255, message: '贷款用途长度在 5 到 255 个字符', trigger: 'blur' }
+          { min: 4, max: 255, message: '贷款用途长度在 5 到 255 个字符', trigger: 'blur' }
         ],
         loanTermMonths: [
           { required: true, message: '请选择贷款期限', trigger: 'change' }
+        ],
+        applicantName: [
+          { required: true, message: '请输入申请人姓名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        applicantPhone: [
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ]
       },
       availableTerms: [6, 12, 18, 24, 30, 36],
@@ -277,6 +300,29 @@ export default {
         if (this.product.term) {
           this.loanForm.loanTermMonths = this.product.term;
         }
+        
+        // 从其他页面（如智能匹配）传递过来的参数自动填充
+        const query = this.$route.query;
+          if (query) {
+            if (query.applicantName) this.loanForm.applicantName = query.applicantName;
+            if (query.applicantPhone) this.loanForm.applicantPhone = query.applicantPhone;
+            if (query.amount) this.loanForm.loanAmount = Number(query.amount) || this.loanForm.loanAmount;
+            if (query.term) this.loanForm.loanTermMonths = Number(query.term) || this.loanForm.loanTermMonths;
+            if (query.purpose) {
+               // 简单的用途映射，根据需要调整
+               const purposeMap = {
+                 'agriculture': '农业生产',
+                 'equipment': '设备采购',
+                 'working_capital': '流动资金',
+                 'other': '其他'
+               };
+               this.loanForm.loanPurpose = purposeMap[query.purpose] || query.purpose;
+            }
+            // 处理联合贷款人
+            if (query.partnerId) {
+              this.addPartnerFromQuery(query.partnerId);
+            }
+          }
       } else {
         this.$message.warning('未找到产品信息');
         this.$router.push('/home/smartMatch');
@@ -433,6 +479,9 @@ export default {
             }
           }
 
+          formData.append('applicantName', this.loanForm.applicantName);
+          formData.append('applicantPhone', this.loanForm.applicantPhone);
+
           const response = await applyLoanWithFiles(formData);
 
           if (response && response.success !== false) {
@@ -501,6 +550,26 @@ export default {
       } catch (error) {
         console.error('Search user error:', error);
         this.$message.error('查询用户失败');
+      } finally {
+        this.searching = false;
+      }
+    },
+    async addPartnerFromQuery(partnerId) {
+      if (!partnerId) return;
+      
+      // 避免重复添加
+      const exists = this.coBorrowers.some(u => String(u.id) === String(partnerId));
+      if (exists) return;
+      
+      this.searching = true;
+      try {
+        const response = await searchUserById(partnerId);
+        if (response && response.success) {
+          this.coBorrowers.push(response.data);
+          this.$message.success(`已自动添加联合贷款人: ${response.data.nickname || '用户' + partnerId}`);
+        }
+      } catch (error) {
+        console.error('Auto add partner error:', error);
       } finally {
         this.searching = false;
       }

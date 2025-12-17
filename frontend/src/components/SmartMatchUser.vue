@@ -21,8 +21,8 @@
           <div class="address-item">联系方式：{{ item.phone }}</div>
           <div class="address-item">金额：{{ item.amount }} (单位：元)</div>
           <div class="address-item">用途：{{ item.application }}</div>
-          <div class="address-item">农作物名称：{{ item.item }}</div>
-          <div class="address-item">种植面积：{{ item.area }} (单位：亩)</div>
+          <div class="address-item">年收入：{{ item.annualIncome }} (单位：元)</div>
+          <div class="address-item">其他需求：{{ item.otherNeeds || '无' }}</div>
           <div class="address-item">
             意向借款期：{{ item.repaymentPeriod }} (单位：月)
           </div>
@@ -78,11 +78,11 @@
         <el-form-item label="用途：" prop="application">
           <el-input v-model="intentionData.application"></el-input>
         </el-form-item>
-        <el-form-item label="农作物名称：" prop="item">
-          <el-input v-model="intentionData.item"></el-input>
+        <el-form-item label="年收入(单位：元)：" prop="annualIncome">
+          <el-input v-model="intentionData.annualIncome"></el-input>
         </el-form-item>
-        <el-form-item label="种植面积(单位：亩)：" prop="area">
-          <el-input v-model="intentionData.area"></el-input>
+        <el-form-item label="其他需求：" prop="otherNeeds">
+          <el-input type="textarea" v-model="intentionData.otherNeeds"></el-input>
         </el-form-item>
 
         <el-form-item label="意向借款期：" prop="repaymentPeriod">
@@ -97,9 +97,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="住址：" prop="address">
-          <el-input v-model="intentionData.address"></el-input>
-        </el-form-item>
+
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -118,13 +116,13 @@
         class="goods"
         v-for="(item, index) in allRecommendData"
         :key="index"
-        @click="detailsClick(item.userName)"
+        @click="detailsClick(item.intention.userName)"
         :style="'margin-right:10px;'"
       >
         <img
           class="goods-img"
-          v-if="item.avatar != ''"
-          src="$store.state.imgShowRoad + '/file/' + item.avatar"
+          v-if="item.intention.avatar && item.intention.avatar != ''"
+          :src="$store.state.imgShowRoad + '/file/' + item.intention.avatar"
           alt=""
         />
         <img
@@ -135,28 +133,31 @@
         />
 
         <div class="info">
-          <span class="initiator1" @click="detailsClick(item.userName)"
-            >姓名：{{ item.realName }}</span
+          <span class="initiator1" @click="detailsClick(item.intention.userName)"
+            >姓名：{{ item.intention.realName }}</span
           ><br />
-          <span class="initiator2" @click="detailsClick(item.userName)"
-            >联系方式：{{ item.phone }}</span
+          <span class="initiator2" @click="detailsClick(item.intention.userName)"
+            >联系方式：{{ item.intention.phone }}</span
           ><br />
-          <span class="initiator3" @click="detailsClick(item.userName)"
-            >地址：{{ item.address }}</span
+          <span class="initiator3" @click="detailsClick(item.intention.userName)"
+            >年收入：{{ item.intention.annualIncome }} 元</span
           ><br />
-          <span class="initiator4" @click="detailsClick(item.userName)"
-            >农作物：{{ item.item }}</span
+          <span class="initiator4" @click="detailsClick(item.intention.userName)"
+            >用途：{{ item.intention.application }}</span
           ><br />
-          <span class="initiator4" @click="detailsClick(item.userName)" v-if="item.amount!=-1">金额：{{ item.amount }}元</span>
-          <span class="initiator4" @click="detailsClick(item.userName)" v-else>金额：- 元</span><br />
-          <!-- <span v-if="item.amount!=-1">金额：{{ item.amount }}元</span>
-          <span v-else>金额：-元</span><br /> -->
-          <span class="initiator4" @click="detailsClick(item.userName)" v-if="item.area!=-1"
-            >种植面积：{{ item.area }} 亩</span
-          >  
-          <span class="initiator4" @click="detailsClick(item.userName)" v-else
-            >种植面积：- 亩</span
-          > 
+          <span class="initiator4" @click="detailsClick(item.intention.userName)"
+            >金额：{{ item.intention.amount }}元</span
+          ><br />
+          <span class="initiator4" @click="detailsClick(item.intention.userName)"
+            >其他需求：{{ item.intention.otherNeeds || '无' }}</span
+          ><br />
+          <span 
+            class="initiator5" 
+            @click="detailsClick(item.intention.userName)"
+            v-if="item.score"
+            style="color: #67c23a; font-weight: bold;"
+            >匹配度：{{ item.score }}%</span
+          >
         </div>
       </div>
     </div>
@@ -199,10 +200,9 @@ export default {
         realName: "",
         amount: "",
         application: "",
-        item: "",
+        annualIncome: "",
         repaymentPeriod: "",
-        address: "",
-        area: "",
+        otherNeeds: "",
         phone: "",
       },
       allIntentionData: [],
@@ -230,21 +230,35 @@ export default {
     getAllRecommned() {
       selectRecommned()
         .then((res) => {
-          console.log("ressss", res);
-          this.allRecommendData = res.data;
+          console.log("推荐用户响应", res);
+          if (res.success && res.data) {
+            this.allRecommendData = res.data;
+          } else {
+            this.allRecommendData = [];
+          }
         })
         .catch((err) => {
-          console.log(err);
+          console.log("获取推荐用户失败", err);
+          this.allRecommendData = [];
         });
     },
     getAllIntention() {
       selectIntention()
         .then((res) => {
-          console.log("ressss", res);
-          this.allIntentionData = res.data;
+          console.log("融资意向响应", res);
+          if (res.success && res.data && res.data !== "") {
+            // 后端返回单个对象，转换为数组以适配前端
+            this.allIntentionData = [res.data];
+            // 同时设置value字段用于编辑
+            this.value = res.data.repaymentPeriod;
+          } else {
+            this.allIntentionData = [];
+            this.value = "";
+          }
         })
         .catch((err) => {
-          console.log(err);
+          console.log("获取融资意向失败", err);
+          this.allIntentionData = [];
         });
     },
     handleAdd() {
@@ -271,17 +285,11 @@ export default {
       } else if (this.intentionData.phone == "") {
         alert("联系方式不能为空");
         return;
-      } else if (this.intentionData.item == "") {
-        alert("农作物名称不能为空");
-        return;
-      } else if (this.intentionData.area == "") {
-        alert("种植面积不能为空");
-        return;
       } else if (this.value == "") {
         alert("意向借款期不能为空");
         return;
-      } else if (this.intentionData.address == "") {
-        alert("住址不能为空");
+      } else if (this.intentionData.annualIncome == "") {
+        alert("年收入不能为空");
         return;
       }
       if (this.title === "编辑意向") {
@@ -289,42 +297,48 @@ export default {
           realName: this.intentionData.realName,
           amount: this.intentionData.amount,
           application: this.intentionData.application,
-          item: this.intentionData.item,
+          annualIncome: this.intentionData.annualIncome,
           repaymentPeriod: this.value,
-          address: this.intentionData.address,
-          area: this.intentionData.area,
+          otherNeeds: this.intentionData.otherNeeds,
           phone: this.intentionData.phone,
         }).then((res) => {
-          if (res.flag == true) {
-            this.getAllIntention();
-            this.$message.success(res.message);
+          if (res.success == true) {
+            this.$message.success(res.message || "更新成功");
             this.showAdd = false;
+            this.getAllIntention();
             this.getAllRecommned();
           } else {
+            this.$message.error(res.message || "更新失败");
             this.showAdd = false;
-            this.$message.error(res.data);
           }
+        }).catch((err) => {
+          console.log("更新意向失败", err);
+          this.$message.error("更新失败");
+          this.showAdd = false;
         });
       } else {
         insertIntention({
           realName: this.intentionData.realName,
           amount: this.intentionData.amount,
           application: this.intentionData.application,
-          item: this.intentionData.item,
+          annualIncome: this.intentionData.annualIncome,
           repaymentPeriod: this.value,
-          address: this.intentionData.address,
-          area: this.intentionData.area,
+          otherNeeds: this.intentionData.otherNeeds,
           phone: this.intentionData.phone,
         }).then((res) => {
-          if (res.flag == true) {
+          if (res.success == true) {
+            this.$message.success(res.message || "添加成功");
+            this.showAdd = false;
             this.getAllIntention();
-            this.$message.success(res.message);
             this.getAllRecommned();
-            this.showAdd = false;
           } else {
+            this.$message.error(res.message || "添加失败");
             this.showAdd = false;
-            this.$message.error(res.data);
           }
+        }).catch((err) => {
+          console.log("添加意向失败", err);
+          this.$message.error("添加失败");
+          this.showAdd = false;
         });
       }
     },
@@ -332,6 +346,8 @@ export default {
       this.showAdd = true;
       this.title = "编辑意向";
       this.intentionData = Object.assign({}, { ...item });
+      // 设置借款期限的值
+      this.value = item.repaymentPeriod || "";
     },
     handleDel(item) {
       this.$confirm("确认删除该信息?", "提示", {
@@ -342,7 +358,7 @@ export default {
         .then(() => {
           deleteIntention({})
             .then((res) => {
-              if (res.flag == true) {
+              if (res.success == true) {
                 this.reload();
                 // this.getAllIntention();
                 // this.getAllRecommned();

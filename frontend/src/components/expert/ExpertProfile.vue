@@ -6,9 +6,9 @@
         <el-avatar :size="80" :icon="user.avatar ? '' : 'el-icon-user'" />
       </div>
       <div class="meta">
-        <h3>{{ user.name || 'ר���ǳ�' }}</h3>
-        <p class="tag">{{ user.title || 'ũҵר��' }}</p>
-        <el-button size="mini" @click="edit">�༭����</el-button>
+        <h3>{{ user.name || '未设置姓名' }}</h3>
+        <p class="tag">{{ user.title || '农业专员' }}</p>
+        <el-button size="mini" @click="edit">编辑资料</el-button>
       </div>
     </div>
   </el-card>
@@ -18,23 +18,36 @@
 export default {
   name: 'ExpertProfile',
   data() {
-    return { user: {} }
+    return { 
+      user: {} 
+    }
   },
   methods: {
     edit() {
-      this.$message.info('�༭���Ϲ��ܴ�ʵ�֣��ӿ�: PUT /api/expert/profile��')
+      this.$message.info('编辑资料功能待实现，接口：PUT /api/expert/profile')
     }
   },
   mounted() {
-    // placeholder: load profile from API when available
+    // 占位符：待接口就绪后，从API加载个人资料
     // this.$api.expert.getProfile().then(res => this.user = res.data)
   }
 }
 </script>
 
 <style scoped>
-.profile{display:flex;align-items:center;gap:12px}
-.avatar{width:80px}
-.meta h3{margin:0}
-.tag{color:#666;font-size:12px}
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 80px;
+}
+.meta h3 {
+  margin: 0;
+}
+.tag {
+  color: #666;
+  font-size: 12px;
+}
 </style>

@@ -21,17 +21,19 @@ public class Knowledge {
     @Column(length = 1000)
     private String summary;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "knowledge_categories", joinColumns = @JoinColumn(name = "knowledge_id"))
     @Column(name = "category")
     private List<String> categories;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "knowledge_tags", joinColumns = @JoinColumn(name = "knowledge_id"))
     @Column(name = "tag")
     private List<String> tags;
 
-    private String author;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
+    private Expert author;
 
     private String source;
 
@@ -51,13 +53,14 @@ public class Knowledge {
     private LocalDateTime updateTime;
 
     // 默认构造函数
-    public Knowledge() {}
+    public Knowledge() {
+    }
 
     // 全参构造函数
     public Knowledge(Long knowledgeId, String title, String content, String summary,
-                     List<String> categories, List<String> tags, String author, String source,
-                     Integer viewCount, Integer likeCount, Boolean isPublished,
-                     LocalDateTime createTime, LocalDateTime updateTime) {
+            List<String> categories, List<String> tags, Expert author, String source,
+            Integer viewCount, Integer likeCount, Boolean isPublished,
+            LocalDateTime createTime, LocalDateTime updateTime) {
         this.knowledgeId = knowledgeId;
         this.title = title;
         this.content = content;
@@ -74,44 +77,109 @@ public class Knowledge {
     }
 
     // Getters and Setters
-    public Long getKnowledgeId() { return knowledgeId; }
-    public void setKnowledgeId(Long knowledgeId) { this.knowledgeId = knowledgeId; }
+    public Long getKnowledgeId() {
+        return knowledgeId;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public void setKnowledgeId(Long knowledgeId) {
+        this.knowledgeId = knowledgeId;
+    }
 
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getSummary() { return summary; }
-    public void setSummary(String summary) { this.summary = summary; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public List<String> getCategories() { return categories; }
-    public void setCategories(List<String> categories) { this.categories = categories; }
+    public String getContent() {
+        return content;
+    }
 
-    public List<String> getTags() { return tags; }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public String getSummary() {
+        return summary;
+    }
 
-    public String getSource() { return source; }
-    public void setSource(String source) { this.source = source; }
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
 
-    public Integer getViewCount() { return viewCount; }
-    public void setViewCount(Integer viewCount) { this.viewCount = viewCount; }
+    public List<String> getCategories() {
+        return categories;
+    }
 
-    public Integer getLikeCount() { return likeCount; }
-    public void setLikeCount(Integer likeCount) { this.likeCount = likeCount; }
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
+    }
 
-    public Boolean getIsPublished() { return isPublished; }
-    public void setIsPublished(Boolean isPublished) { this.isPublished = isPublished; }
+    public List<String> getTags() {
+        return tags;
+    }
 
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
 
-    public LocalDateTime getUpdateTime() { return updateTime; }
-    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
+    public Expert getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Expert author) {
+        this.author = author;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public Boolean getIsPublished() {
+        return isPublished;
+    }
+
+    public void setIsPublished(Boolean isPublished) {
+        this.isPublished = isPublished;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -126,8 +194,10 @@ public class Knowledge {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Knowledge)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Knowledge))
+            return false;
         Knowledge knowledge = (Knowledge) o;
         return Objects.equals(knowledgeId, knowledge.knowledgeId);
     }

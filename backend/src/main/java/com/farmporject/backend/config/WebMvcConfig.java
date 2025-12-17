@@ -15,6 +15,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/order/**")
                 .addResourceLocations("file:" + ORDER_DIR);
+
+        // 兼容前端使用的 /file/{filename} 访问图片的方式
+        registry.addResourceHandler("/file/**")
+                .addResourceLocations("file:" + ORDER_DIR);
     }
 }
 

@@ -1,5 +1,6 @@
 package com.farmporject.backend.expert.controller;
 
+import com.farmporject.backend.expert.dto.AnswerDTO;
 import com.farmporject.backend.expert.model.Answer;
 import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.model.Question;
@@ -7,6 +8,7 @@ import com.farmporject.backend.expert.service.QAService;
 import com.farmporject.backend.user.model.User;
 import com.farmporject.backend.user.service.UserService;
 import com.farmporject.backend.expert.service.ExpertService;
+import com.farmporject.backend.expert.service.AnswerService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,24 +29,28 @@ import java.util.Map;
  * 根据前端接口规范实现
  */
 @RestController
+@RequestMapping("/api/qa")
 public class QAController {
 
     private final UserService userService;
     private final ExpertService expertService;
     private final QAService qaService;
+    private final AnswerService answerService;
 
-    public QAController(UserService userService, QAService qaService, ExpertService expertService) {
-        this.qaService = qaService;
-        this.expertService = expertService;
+    public QAController(UserService userService, QAService qaService, ExpertService expertService,
+            AnswerService answerService) {
         this.userService = userService;
+        this.expertService = expertService;
+        this.qaService = qaService;
+        this.answerService = answerService;
     }
 
     /**
      * GET /api/qa/questions
-     * 获取问答列表
+     * 获取问答列表，包含分页显�?
      * 参数: pageNum, pageSize, mine, keyword
      */
-    @GetMapping("/api/qa/questions")
+    @GetMapping("/questions")
     public ResponseEntity<Map<String, Object>> getQuestionsList(
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
@@ -129,8 +135,29 @@ public class QAController {
                     item.put("id", q.getId());
                     item.put("title", q.getTitle() != null ? q.getTitle() : "");
                     item.put("content", q.getContent() != null ? q.getContent() : "");
-                    item.put("userId", q.getUser() != null ? q.getUser() : "");
-                    item.put("userName", q.getUser() != null ? q.getUser().getUsername() : "");
+                    // 处理用户字段，避免懒加载问题
+                    try {
+                        if (q.getUser() != null) {
+                            User user = q.getUser();
+                            Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("id", user.getId());
+                            userMap.put("username", user.getUsername());
+                            userMap.put("nickname", user.getNickname());
+                            userMap.put("avatar", user.getAvatar());
+                            item.put("user", userMap);
+                            item.put("userId", user.getId()); // 保持兼容�?
+                            item.put("userName", user.getUsername()); // 保持兼容�?
+                        } else {
+                            item.put("user", null);
+                            item.put("userId", null);
+                            item.put("userName", "匿名用户");
+                        }
+                    } catch (Exception e) {
+                        // 懒加载失败，使用默认�?
+                        item.put("user", null);
+                        item.put("userId", null);
+                        item.put("userName", "匿名用户");
+                    }
                     item.put("status", q.getStatus() != null ? q.getStatus().name() : "PENDING");
 
                     // 将LocalDateTime转换为字符串，避免序列化问题
@@ -163,9 +190,14 @@ public class QAController {
                                 "获取标签失败 (问题ID: " + q.getId() + "): " + e.getClass().getName() + ": " + e.getMessage());
                         item.put("tags", new ArrayList<>());
                     }
-
-                    // 暂时不查询答案数量，避免懒加载问�?
-                    item.put("answerCount", 0);
+            
+                    // 查询答案数量
+                    try {
+                        int answerCount = qaService.getQuestionAnswersCount(q.getId());
+                        item.put("answerCount", answerCount);
+                    } catch (Exception e) {
+                        item.put("answerCount", 0);
+                    }
 
                     // 处理expert字段，避免懒加载
                     item.put("expert", null);
@@ -230,7 +262,7 @@ public class QAController {
      * GET /qa/question/{id}
      * 获取问题详情
      */
-    @GetMapping("/qa/question/{id}")
+    @GetMapping("/question/{id}")
     public ResponseEntity<Map<String, Object>> getQuestionDetail(@PathVariable Long id) {
         try {
             Question question = qaService.getQuestionById(id)
@@ -240,8 +272,26 @@ public class QAController {
             questionMap.put("id", question.getId());
             questionMap.put("title", question.getTitle());
             questionMap.put("content", question.getContent());
-            questionMap.put("user", question.getUser());
-            questionMap.put("userName", question.getUser().getUsername());
+            // 处理用户字段
+            try {
+                if (question.getUser() != null) {
+                    User user = question.getUser();
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("nickname", user.getNickname());
+                    userMap.put("avatar", user.getAvatar());
+                    questionMap.put("user", userMap);
+                    questionMap.put("userName", user.getUsername());
+                } else {
+                    questionMap.put("user", null);
+                    questionMap.put("userName", "匿名用户");
+                }
+            } catch (Exception e) {
+                // 懒加载失败，使用默认�?
+                questionMap.put("user", null);
+                questionMap.put("userName", "匿名用户");
+            }
             questionMap.put("status", question.getStatus() != null ? question.getStatus().name() : "PENDING");
             questionMap.put("createTime", question.getCreateTime());
             questionMap.put("updateTime", question.getUpdateTime());
@@ -282,7 +332,7 @@ public class QAController {
      * 获取回答列表
      * 参数: questionId
      */
-    @GetMapping("/qa/answers")
+    @GetMapping("/answers")
     public ResponseEntity<Map<String, Object>> getAnswersList(
             @RequestParam(value = "questionId", required = true) Long questionId) {
         try {
@@ -331,7 +381,7 @@ public class QAController {
      * POST /api/qa/questions
      * 提交问题（支持附件）
      */
-    @PostMapping(value = "/api/qa/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/questions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> submitQuestion(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
@@ -364,9 +414,13 @@ public class QAController {
                 if (users.isEmpty()) {
                     throw new RuntimeException("用户不存在，无法提交问题");
                 } else {
-                    question.setUser(users.get(0));
+                    User user = users.get(0);
+                    question.setUser(user);
+                    // 如果提供了userName且与当前用户名不同，则更�?
+                    if (userName != null && !userName.isEmpty() && !userName.equals(user.getUsername())) {
+                        user.setUsername(userName);
+                    }
                 }
-                question.getUser().setUsername(userName);
             }
             // User user = new User();
             // question.setUser(user);
@@ -408,7 +462,7 @@ public class QAController {
      * POST /qa/answer
      * 提交回答
      */
-    @PostMapping("/qa/answer")
+    @PostMapping("/answer")
     public ResponseEntity<Map<String, Object>> submitAnswer(
             @RequestBody Map<String, Object> request,
             @RequestHeader(value = "Authorization", required = false) String token) {
@@ -422,29 +476,19 @@ public class QAController {
             if (expertId == null && token != null && token.startsWith("tk_")) {
                 String[] parts = token.split("_");
                 if (parts.length >= 2) {
-                    // 这里需要根据实际情况获取专家ID，暂时使用占�?
+                    expertId = Long.parseLong(parts[1]);
                 }
             }
 
-            Answer answer = new Answer();
-            Question question = new Question();
-            question.setId(questionId);
-            answer.setQuestion(question);
-
-            if (expertId != null) {
-                Expert expert = new Expert();
-                expert.setId(expertId);
-                answer.setExpert(expert);
-            }
-
-            answer.setContent(content);
-
-            Answer saved = qaService.createAnswer(answer);
+            // 回答 写入数据�?
+            // 写入同时查看问题状态是否为已回答，若不是则改为已回�?
+            AnswerDTO answerDTO = new AnswerDTO(questionId, expertId, content);
+            AnswerDTO savedDTO = answerService.createAnswer(answerDTO);
 
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
             response.put("message", "回答提交成功");
-            response.put("data", saved);
+            response.put("data", savedDTO);
 
             return ResponseEntity.status(201).body(response);
         } catch (Exception e) {
@@ -456,48 +500,18 @@ public class QAController {
     }
 
     /**
-     * GET /api/qa/test
-     * 测试接口：直接查询数据库，返回原始数�?
-     */
-    @GetMapping("/api/qa/test")
-    public ResponseEntity<Map<String, Object>> testQuery() {
-        try {
-            System.out.println("=== 测试查询 ===");
-            List<Question> allQuestions = qaService.getAllQuestions();
-            System.out.println("数据库中的问题总数: " + allQuestions.size());
-
-            if (!allQuestions.isEmpty()) {
-                Question first = allQuestions.get(0);
-                System.out.println(
-                        "第一个问�?: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" + first.getUser());
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", true);
-            response.put("total", allQuestions.size());
-            response.put("message", "查询成功，共 " + allQuestions.size() + " 条记�?");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            System.err.println("测试查询失败: " + e.getMessage());
-            e.printStackTrace();
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", false);
-            response.put("message", "查询失败: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
-    }
-
-    /**
      * GET /qa/experts
      * 获取专家列表
+     * 显示在提问时希望得到哪位专家解答的下拉选择框中
      */
-    @GetMapping("/qa/experts")
+    @GetMapping("/experts")
     public ResponseEntity<Map<String, Object>> getExpertList() {
         try {
-            List<Expert> experts = qaService.getAllExperts();
+            // 使用 ExpertService 获取专家列表,它返�? DTO,避免懒加载问�?
+            List<com.farmporject.backend.expert.dto.ExpertDTO> experts = expertService.getAllExperts();
 
             List<Map<String, Object>> resultList = new ArrayList<>();
-            for (Expert expert : experts) {
+            for (com.farmporject.backend.expert.dto.ExpertDTO expert : experts) {
                 Map<String, Object> item = new HashMap<>();
                 item.put("id", expert.getId());
                 item.put("name", expert.getName());
@@ -523,10 +537,45 @@ public class QAController {
     }
 
     /**
+     * GET /api/qa/test
+     * 测试接口：直接查询数据库，返回原始数�?
+     */
+    // @GetMapping("/test")
+    // public ResponseEntity<Map<String, Object>> testQuery() {
+    // try {
+    // System.out.println("=== 测试查询 ===");
+    // List<Question> allQuestions = qaService.getAllQuestions();
+    // System.out.println("数据库中的问题总数: " + allQuestions.size());
+
+    // if (!allQuestions.isEmpty()) {
+    // Question first = allQuestions.get(0);
+    // String userIdStr = first.getUser() != null ?
+    // String.valueOf(first.getUser().getId()) : "null";
+    // System.out.println(
+    // "第一个问�?: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" +
+    // userIdStr);
+    // }
+
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("flag", true);
+    // response.put("total", allQuestions.size());
+    // response.put("message", "查询成功，共 " + allQuestions.size() + " 条记�?");
+    // return ResponseEntity.ok(response);
+    // } catch (Exception e) {
+    // System.err.println("测试查询失败: " + e.getMessage());
+    // e.printStackTrace();
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("flag", false);
+    // response.put("message", "查询失败: " + e.getMessage());
+    // return ResponseEntity.status(500).body(response);
+    // }
+    // }
+
+    /**
      * DELETE /api/qa/questions/{id}
      * 删除问题
      */
-    @DeleteMapping("/api/qa/questions/{id}")
+    @DeleteMapping("/questions/{id}")
     public ResponseEntity<Map<String, Object>> deleteQuestion(@PathVariable Long id) {
         try {
             System.out.println("=== 删除问题 ===");

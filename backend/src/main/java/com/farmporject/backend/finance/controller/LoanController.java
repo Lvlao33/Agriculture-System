@@ -10,6 +10,8 @@ import com.farmporject.backend.finance.dto.LoanDTO;
 import com.farmporject.backend.finance.model.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -63,7 +65,10 @@ public class LoanController {
             }
 
             // 3. 成功
-            return ResponseEntity.ok().body("Loan application and file upload success");
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Loan application and file upload success");
+            response.put("loanId", appliedLoan.getId());
+            return ResponseEntity.ok().body(response);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Exception: " + e.getMessage());
         }

@@ -46,6 +46,14 @@ public class Loan implements Serializable {
     @Column(name = "loan_purpose", length = 255)
     private String loanPurpose;
 
+    /** 申请人真实姓名 */
+    @Column(name = "applicant_name", length = 64)
+    private String applicantName;
+
+    /** 申请人联系电话 */
+    @Column(name = "applicant_phone", length = 20)
+    private String applicantPhone;
+
     /** 贷款期限（月） */
     @Column(name = "loan_term_months")
     private Integer loanTermMonths;
@@ -88,6 +96,7 @@ public class Loan implements Serializable {
     /** 所关联的产品ID */
     @ManyToOne
     @JoinColumn(name = "loan_product_id")
+    @JsonIgnore
     private LoanProduct loanProduct; // 贷款产品与 Loan 的一对一关系
 
     /** 所关联的资料文件ID */
@@ -98,6 +107,7 @@ public class Loan implements Serializable {
     /** 所关联的处理人员 */
     @ManyToOne
     @JoinColumn(name = "staff_id")
+    @JsonIgnore
     private User staff; // 工作人员与 Loan 的一对多关系
 
     /** 关联的贷款记录ID */
@@ -221,6 +231,22 @@ public class Loan implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getApplicantName() {
+        return applicantName;
+    }
+
+    public void setApplicantName(String applicantName) {
+        this.applicantName = applicantName;
+    }
+
+    public String getApplicantPhone() {
+        return applicantPhone;
+    }
+
+    public void setApplicantPhone(String applicantPhone) {
+        this.applicantPhone = applicantPhone;
     }
 
     // 表与表的关系

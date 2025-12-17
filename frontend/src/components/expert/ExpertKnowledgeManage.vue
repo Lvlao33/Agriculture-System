@@ -2,16 +2,16 @@
 <template>
   <el-card>
     <div class="head">
-      <h4>ÖªÊ¶¿â¹ÜÀí</h4>
-      <el-button size="mini" type="primary" @click="create">·¢²¼ÖªÊ¶</el-button>
+      <h4>çŸ¥è¯†ç®¡ç†</h4>
+      <el-button size="mini" type="primary" @click="create">æ–°å¢çŸ¥è¯†</el-button>
     </div>
     <el-table :data="knowledges" style="width:100%">
-      <el-table-column prop="title" label="±êÌâ"/>
-      <el-table-column prop="category" label="·ÖÀà" width="120"/>
-      <el-table-column label="²Ù×÷" width="160">
+      <el-table-column prop="title" label="æ ‡é¢˜"/>
+      <el-table-column prop="category" label="åˆ†ç±»" width="120"/>
+      <el-table-column label="æ“ä½œ" width="160">
         <template slot-scope="scope">
-          <el-button size="mini" @click="edit(scope.row)">±à¼­</el-button>
-          <el-button size="mini" type="danger" @click="del(scope.row)">É¾³ı</el-button>
+          <el-button size="mini" @click="edit(scope.row)">ç¼–è¾‘</el-button>
+          <el-button size="mini" type="danger" @click="del(scope.row)">åˆ é™¤</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -21,15 +21,28 @@
 <script>
 export default {
   name: 'ExpertKnowledgeManage',
-  data(){ return { knowledges: [] } },
+  data() { 
+    return { knowledges: [] } 
+  },
   methods: {
-    create(){ this.$message.info('´´½¨ÖªÊ¶£¨½Ó¿Ú: POST /api/expert/knowledges£©') },
-    edit(r){ this.$message.info('±à¼­ÖªÊ¶£¨½Ó¿Ú: PUT /api/expert/knowledges/{id}£©') },
-    del(r){ this.$message.confirm('È·ÈÏÉ¾³ı£¿').then(()=>this.$message.success('ÒÑÉ¾³ı')) }
+    create() { 
+      this.$message.info('æ–°å¢çŸ¥è¯†æ¥å£ï¼šPOST /api/expert/knowledges') 
+    },
+    edit(r) { 
+      this.$message.info('ç¼–è¾‘çŸ¥è¯†æ¥å£ï¼šPUT /api/expert/knowledges/{id}') 
+    },
+    del(r) { 
+      this.$message.confirm('ç¡®è®¤åˆ é™¤ï¼Ÿ').then(() => this.$message.success('å·²åˆ é™¤')) 
+    }
   }
 }
 </script>
 
 <style scoped>
-.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 </style>
