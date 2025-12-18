@@ -8,9 +8,10 @@ import java.util.Objects;
 @Entity
 @Table(name = "knowledge")
 public class Knowledge {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long knowledgeId;
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(name = "id")
+private Long knowledgeId; 
 
     @Column(nullable = false)
     private String title;
@@ -37,6 +38,14 @@ public class Knowledge {
 
     private String source;
 
+    // 封面图片（可选）
+    @Column(length = 500)
+    private String picPath;
+
+    // 相关外部链接（可选）
+    @Column(length = 500)
+    private String url;
+
     @Column(nullable = false)
     private Integer viewCount = 0;
 
@@ -52,13 +61,14 @@ public class Knowledge {
     @Column(nullable = false)
     private LocalDateTime updateTime;
 
-    // 默认构造函数
+    // 榛樿鏋勯€犲嚱鏁?
     public Knowledge() {
     }
 
-    // 全参构造函数
+    // 鍏ㄥ弬鏋勯€犲嚱鏁?
     public Knowledge(Long knowledgeId, String title, String content, String summary,
             List<String> categories, List<String> tags, Expert author, String source,
+            String picPath, String url,
             Integer viewCount, Integer likeCount, Boolean isPublished,
             LocalDateTime createTime, LocalDateTime updateTime) {
         this.knowledgeId = knowledgeId;
@@ -69,6 +79,8 @@ public class Knowledge {
         this.tags = tags;
         this.author = author;
         this.source = source;
+        this.picPath = picPath;
+        this.url = url;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.isPublished = isPublished;
@@ -139,6 +151,22 @@ public class Knowledge {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getPicPath() {
+        return picPath;
+    }
+
+    public void setPicPath(String picPath) {
+        this.picPath = picPath;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public Integer getViewCount() {

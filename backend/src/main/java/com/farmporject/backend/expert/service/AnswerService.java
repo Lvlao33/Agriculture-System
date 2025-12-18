@@ -1,6 +1,7 @@
 package com.farmporject.backend.expert.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,11 @@ public class AnswerService {
         if (expert_id == null) {
             expert_id = 1L;
         }
-        Expert expert = expertRepository.findByUser_Id(expert_id).get();
+        List<Expert> experts = expertRepository.findByUser_Id(expert_id);
+        if (experts.isEmpty()) {
+            throw new RuntimeException("Expert not found with user id: " + expert_id);
+        }
+        Expert expert = experts.get(0);
         Question question = qaService.getQuestionById(answerDto.getQuestionId()).get();
 
         // 修改question的status

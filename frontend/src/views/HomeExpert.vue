@@ -2,9 +2,10 @@
   <div class="expert-dashboard">
     <div class="hero-card">
       <div class="hero-text">
-        <h1>欢迎回来，王教授�?</h1>
-        <p>今日共有 {{ overview.pendingQuestions }} 条待回复咨询、{{ overview.todayAppointments }} 场预约。请优先完成紧急问题的解答�?</p>
-        <el-button type="primary" round @click="handleQuickAction('question')">开始答�?</el-button>
+        <h1>欢迎回来，王教授！</h1>
+        <p>今日共有 {{ overview.pendingQuestions }} 条待回复咨询、{{ overview.todayAppointments }} 场预约。请优先完成紧急问题的解答。</p>
+        <el-button type="primary" round @click="handleQuickAction('question')">开始答复</el-button>
+        <el-button round style="margin-left: 12px;" @click="goPublishKnowledge">发布知识</el-button>
       </div>
       <div class="hero-illustration">
         <img src="/kn/expert-hero.svg" alt="expert hero" @error="handleImageFallback">
@@ -29,7 +30,7 @@
           <div class="list-item" v-for="question in questionList" :key="question.id">
             <div>
               <div class="item-title">【{{ question.priority }}】{{ question.title }}</div>
-              <div class="item-meta">来自 {{ question.source }} · 提交�? {{ question.time }}</div>
+              <div class="item-meta">来自 {{ question.source }} · 提交�? {{ question.time }}</div>
             </div>
             <span class="status-tag" :class="question.statusClass">{{ question.statusText }}</span>
           </div>
@@ -44,7 +45,7 @@
           <div class="list-item" v-for="item in appointmentList" :key="item.id">
             <div>
               <div class="item-title">{{ item.time }} · {{ item.type }}</div>
-              <div class="item-meta">对象：{{ item.client }} �? 主题：{{ item.topic }}</div>
+              <div class="item-meta">对象：{{ item.client }} �? 主题：{{ item.topic }}</div>
             </div>
             <span class="status-tag" :class="item.statusClass">{{ item.statusText }}</span>
           </div>
@@ -151,29 +152,29 @@ export default {
         questions: [
           {
             id: "q1",
-            priority: "紧�?",
-            title: "柑橘叶片发黄如何处理�?",
+            priority: "紧�?",
+            title: "柑橘叶片发黄如何处理�?",
             source: "赣南果农",
             time: "09:12",
-            statusText: "待回�?",
+            statusText: "待回�?",
             statusClass: "pending"
           },
           {
             id: "q2",
             priority: "高优",
-            title: "大棚番茄卷叶是否缺钙�?",
-            source: "寿光合作�?",
+            title: "大棚番茄卷叶是否缺钙�?",
+            source: "寿光合作�?",
             time: "08:40",
-            statusText: "待复�?",
+            statusText: "待复�?",
             statusClass: "review"
           },
           {
             id: "q3",
             priority: "常规",
             title: "水稻穗期病害防控方案",
-            source: "洞庭湖农�?",
+            source: "洞庭湖农�?",
             time: "昨天 21:05",
-            statusText: "已回�?",
+            statusText: "已回�?",
             statusClass: "done"
           }
         ],
@@ -184,59 +185,59 @@ export default {
             type: "视频咨询",
             client: "昌吉番茄基地",
             topic: "肥水管理",
-            statusText: "即将开�?",
+            statusText: "即将开�?",
             statusClass: "review"
           },
           {
             id: "a2",
             time: "14:00",
             type: "现场指导",
-            client: "平谷大桃合作�?",
-            topic: "病虫害监�?",
+            client: "平谷大桃合作�?",
+            topic: "病虫害监�?",
             statusText: "需出行",
             statusClass: "pending"
           },
           {
             id: "a3",
             time: "19:30",
-            type: "群直播答�?",
+            type: "群直播答�?",
             client: "平台入驻农户",
             topic: "秋冬保温",
-            statusText: "已确�?",
+            statusText: "已确�?",
             statusClass: "done"
           }
         ],
         knowledge: [
           {
             id: "k1",
-            title: "小麦纹枯病绿色防控指�?",
-            status: "已发�?",
+            title: "小麦纹枯病绿色防控指�?",
+            status: "已发�?",
             reads: 3200,
             statusHint: "通过审核",
             statusClass: "done"
           },
           {
             id: "k2",
-            title: "设施蔬菜温湿调控技�?",
-            status: "待审�?",
+            title: "设施蔬菜温湿调控技�?",
+            status: "待审�?",
             reads: 0,
-            statusHint: "审核�?",
+            statusHint: "审核�?",
             statusClass: "review"
           },
           {
             id: "k3",
-            title: "农机检修保养月�?",
+            title: "农机检修保养月�?",
             status: "草稿",
             reads: 0,
-            statusHint: "完善�?",
+            statusHint: "完善�?",
             statusClass: "pending"
           }
         ],
         notifications: [
           {
             id: "n1",
-            content: "平台推送：11 月农情监测报告上�?",
-            time: "1 小时�?"
+            content: "平台推送：11 月农情监测报告上�?",
+            time: "1 小时�?"
           },
           {
             id: "n2",
@@ -256,14 +257,14 @@ export default {
     statList() {
       return [
         {
-          label: "待回复问�?",
+          label: "待回复问�?",
           value: this.overview.pendingQuestions,
           trend: `紧急：${this.overview.urgentCount || 0}`
         },
         {
           label: "今日预约",
           value: this.overview.todayAppointments,
-          trend: this.overview.appointmentSummary || "�?"
+          trend: this.overview.appointmentSummary || "�?"
         },
         {
           label: "本周知识发布",
@@ -273,7 +274,7 @@ export default {
         {
           label: "专家评分",
           value: this.overview.expertScore,
-          trend: `�? ${this.overview.reviewCount || 0} 条评价`
+          trend: `�? ${this.overview.reviewCount || 0} 条评价`
         }
       ];
     }
@@ -375,7 +376,7 @@ export default {
         todayAppointments: this.defaultData.appointments.length,
         appointmentSummary: "视频 2 · 线下 1",
         publishedKnowledge: 7,
-        knowledgeTrend: "阅读�? +18%",
+        knowledgeTrend: "阅读�? +18%",
         expertScore: 4.9,
         reviewCount: 126
       };
@@ -397,6 +398,10 @@ export default {
         default:
           break;
       }
+    },
+    // 快捷进入发布知识页面
+    goPublishKnowledge() {
+      this.$router.push("/home/addmessage/publishknowledges").catch((err) => err);
     },
     handleImageFallback(event) {
       event.target.src = "/order/wutu.gif";

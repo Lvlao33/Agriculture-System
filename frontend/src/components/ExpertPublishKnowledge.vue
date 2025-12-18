@@ -1,7 +1,7 @@
 <template>
   <div class="publish-message">
     <el-form label-width="100px" :model="form" style="margin-top:50px;">
-      <el-form-item label="添加图片">
+      <el-form-item label="封面图片">
         <el-upload
           class="orders-img_el_upload"
           :action="upurl"
@@ -20,14 +20,17 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="标题">
-        <el-input v-model="form.title" placeholder="添加标题"></el-input>
+        <el-input v-model="form.title" placeholder="请输入知识标题"></el-input>
       </el-form-item>
       <el-form-item label="内容">
-        <el-input type="textarea" v-model="form.content" placeholder="添加内容"></el-input>
+        <el-input type="textarea" v-model="form.content" placeholder="请输入知识正文内容"></el-input>
+      </el-form-item>
+      <el-form-item label="相关链接">
+        <el-input v-model="form.url" placeholder="可选：填写相关政策或技术文件链接"></el-input>
       </el-form-item>
     </el-form>
     <div style="display:flex;justify-content:center;">
-      <el-button type="success" :disabled="isDisabled" @click="publishClick">发布信息</el-button>
+      <el-button type="success" :disabled="isDisabled" @click="publishClick">发布知识</el-button>
     </div>
   </div>
 </template>
@@ -55,7 +58,8 @@ export default {
       form:{
         title:'',
         content:'',
-        picPath:''
+        picPath:'',
+        url:''
       }
     };
   },
@@ -72,10 +76,7 @@ export default {
   },
   methods: {
     handleError(err, file, fileList) {
-      this.$message({
-        message: "上传失败！",
-        type: "success",
-      });
+      this.$message.error("图片上传失败，请稍后重试");
       console.log(err);
     },
     handleSuccess(response, file, fileList) {
@@ -85,7 +86,7 @@ export default {
         if (fileList.length >= 3) {
           this.uploadDisabled = true;
         }
-        alert(file.response.message);
+        this.$message.success(file.response.message || '图片上传成功');
       } else {
         alert(file.response.data);
       }
@@ -110,17 +111,20 @@ export default {
         title: this.form.title,
         content: this.form.content,
         picPath: this.form.picPath,
+        url: this.form.url
       })
         .then((res) => {
           if (res.flag == true) {
-            alert(res.message);
-            this.$router.push("/home/user/published" + this.ctype);
+            this.$message.success(res.message || '知识已发布');
+            // 发布成功后跳转到专家指导的农业知识页面
+            this.$router.push("/home/knowledge");
           } else {
-            alert(res.message);
+            this.$message.error(res.message || '发布失败');
           }
         })
         .catch((err) => {
-          console.log("添加失败");
+          console.log("添加知识失败", err);
+          this.$message.error('发布失败，请稍后重试');
         });
     },
   },
@@ -129,7 +133,7 @@ export default {
 
 <style lang="less" scoped>
 .disUoloadSty .el-upload--picture-card {
-  display: none; /* 上传按钮隐藏 */
+  display: none; /* 涓婁紶鎸夐挳闅愯棌 */
 }
 .publish-message {
   width: 1100px;

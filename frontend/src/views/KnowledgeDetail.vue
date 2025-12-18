@@ -1,13 +1,13 @@
-<!-- Å©ÒµÖªÊ¶ÏêÇé -->
+<!-- å†œä¸šçŸ¥è¯†è¯¦æƒ… -->
 <template>
   <div class="knowledge-detail-container">
-    <!-- ·µ»Ø°´Å¥ -->
+    <!-- è¿”å›æŒ‰é’® -->
     <div class="back-button" @click="goBack">
       <i class="el-icon-arrow-left"></i>
-      <span>·µ»Ø</span>
+      <span>è¿”å›</span>
     </div>
 
-    <!-- ±êÌâºÍÔªĞÅÏ¢ -->
+    <!-- æ ‡é¢˜å’Œå…ƒä¿¡æ¯ -->
     <div class="detail-header">
       <div class="type-badge" :class="getTypeClass()">
         <i :class="getTypeIcon()"></i>
@@ -17,16 +17,16 @@
       <div class="detail-meta">
         <span class="meta-item">
           <i class="el-icon-user"></i>
-          <span>×÷Õß£º{{updateInfo.ownName || 'Î´Öª'}}</span>
+          <span>ä½œè€…ï¼š{{updateInfo.ownName || 'æœªçŸ¥'}}</span>
         </span>
         <span class="meta-item">
           <i class="el-icon-time"></i>
-          <span>·¢²¼Ê±¼ä£º{{updateInfo.updateTime | formatTimer}}</span>
+          <span>å‘å¸ƒæ—¶é—´ï¼š{{updateInfo.updateTime | formatTimer}}</span>
         </span>
       </div>
     </div>
 
-    <!-- Ã½ÌåÄÚÈİ -->
+    <!-- åª’ä½“å†…å®¹ -->
     <div class="detail-media" v-if="updateInfo.picPath">
       <video 
         v-if="updateInfo.type==='mp4'||updateInfo.type==='MP4'" 
@@ -39,20 +39,20 @@
         v-else 
         class="detail-image"
         :src="$store.state.imgShowRoad + '/file/' + updateInfo.picPath" 
-        alt="ÖªÊ¶Í¼Æ¬"
+        alt="çŸ¥è¯†å›¾ç‰‡"
       />
     </div>
 
-    <!-- ÎÄ×ÖÄÚÈİ -->
+    <!-- æ–‡å­—å†…å®¹ -->
     <div class="detail-content">
       <div class="content-text" v-html="formatContent(updateInfo.content)"></div>
     </div>
 
-    <!-- ÆÀÂÛÇøÓò -->
+    <!-- è¯„è®ºåŒºåŸŸ -->
     <div class="comment-section">
       <h3 class="comment-title">
         <i class="el-icon-chat-line-square"></i>
-        ÆÀÂÛ ({{commentArray.length||0}})
+        è¯„è®º ({{commentArray.length||0}})
       </h3>
       
       <div class="comment-input-area">
@@ -60,14 +60,14 @@
           type="textarea" 
           v-model="content" 
           :rows="4"
-          placeholder="Ğ´ÏÂÄúµÄÆÀÂÛ..."
+          placeholder="å†™ä¸‹æ‚¨çš„è¯„è®º..."
           maxlength="500"
           show-word-limit
         ></el-input>
         <div class="comment-actions">
           <el-button type="success" @click="handleComment" :disabled="!content.trim()">
             <i class="el-icon-check"></i>
-            ·¢±íÆÀÂÛ
+            å‘è¡¨è¯„è®º
           </el-button>
         </div>
       </div>
@@ -84,7 +84,7 @@
           <div class="comment-body">
             <div class="comment-content">{{item.content}}</div>
             <div class="comment-meta">
-              <span class="comment-author">{{item.ownName || 'ÄäÃûÓÃ»§'}}</span>
+              <span class="comment-author">{{item.ownName || 'åŒ¿åç”¨æˆ·'}}</span>
               <span class="comment-time">{{item.createTime|formatTimer2}}</span>
             </div>
           </div>
@@ -92,7 +92,7 @@
         
         <div v-if="commentArray.length === 0" class="no-comments">
           <i class="el-icon-chat-line-round"></i>
-          <p>ÔİÎŞÆÀÂÛ£¬¿ìÀ´·¢±íµÚÒ»ÌõÆÀÂÛ°É£¡</p>
+          <p>æš‚æ— è¯„è®ºï¼Œå¿«æ¥å‘è¡¨ç¬¬ä¸€æ¡è¯„è®ºå§ï¼</p>
         </div>
       </div>
     </div>
@@ -188,19 +188,19 @@ export default {
       return 'el-icon-document';
     },
     getTypeName() {
-      if (this.knowledgeType === 'video') return 'ÊÓÆµÖªÊ¶';
-      if (this.knowledgeType === 'image') return 'Í¼Æ¬ÖªÊ¶';
-      return 'ÎÄ×ÖÖªÊ¶';
+      if (this.knowledgeType === 'video') return 'è§†é¢‘çŸ¥è¯†';
+      if (this.knowledgeType === 'image') return 'å›¾ç‰‡çŸ¥è¯†';
+      return 'æ–‡å­—çŸ¥è¯†';
     },
     formatContent(content) {
       if (!content) return '';
-      // ½«»»ĞĞ·û×ª»»Îª <br>
+      // å°†æ¢è¡Œç¬¦è½¬æ¢ä¸º <br>
       return content.replace(/\n/g, '<br>');
     },
     goBack() {
       this.$router.go(-1);
     },
-    // ²éÑ¯ÆÀÂÛ
+    // æŸ¥è¯¢è¯„è®º
     getCommentData(){
       selectComment({
         knowledgeId: this.$route.params.id
@@ -212,7 +212,7 @@ export default {
     },
     handleComment(){
       if(this.content===''){
-        this.$message.error('ÆÀÂÛÄÚÈİ²»ÄÜÎª¿Õ£¡')
+        this.$message.error('è¯„è®ºå†…å®¹ä¸èƒ½ä¸ºç©ºï¼')
         return
       }
       if(localStorage.getItem('token')){
@@ -221,13 +221,13 @@ export default {
           content: this.content
         }).then(res=>{
           this.content=''
-          this.$message.success('ÆÀÂÛ³É¹¦£¡')
+          this.$message.success('è¯„è®ºæˆåŠŸï¼')
           this.getCommentData()
         }).catch(err=>{
           console.log(err)
         })
       }else{
-        this.$message.error('ÇëÏÈµÇÂ¼')
+        this.$message.error('è¯·å…ˆç™»å½•')
       }
     }
   },
