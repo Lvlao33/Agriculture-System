@@ -13,15 +13,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * ¼æÈÝÇ°¶Ë¾É°æ¡°¶©µ¥/»õÔ´¡±½Ó¿Ú£º
- * - POST /order                ·¢²¼ÉÌÆ·£¨type=goods£©
- * - GET  /order/goods/{page}   ·ÖÒ³»ñÈ¡ÉÌÆ·ÁÐ±í
- * - GET  /order/searchGoodsByKeys/{keys}/{page}  ¹Ø¼ü´ÊËÑË÷
+ * ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ë¾É°æ¡°ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ó¿Ú£ï¿½
+ * - POST /order                ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½type=goodsï¿½ï¿½
+ * - GET  /order/goods/{page}   ï¿½ï¿½Ò³ï¿½ï¿½È¡ï¿½ï¿½Æ·ï¿½Ð±ï¿½
+ * - GET  /order/searchGoodsByKeys/{keys}/{page}  ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *
- * Êý¾ÝÂäµØµ½ÐÂµÄ products ±í£¬×Ö¶Î×ö×îÐ¡¼æÈÝÓ³Éä¡£
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½Âµï¿½ products ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ä¡£
  */
 @RestController
-@RequestMapping
+// Legacy endpoints for old frontend; mounted under /legacy to avoid route clash
+@RequestMapping("/legacy")
 public class LegacyGoodsController {
 
     private final ProductService productService;
@@ -38,7 +39,7 @@ public class LegacyGoodsController {
             String type = body.getOrDefault("type", "goods").toString();
             if (!"goods".equalsIgnoreCase(type)) {
                 resp.put("flag", false);
-                resp.put("message", "µ±Ç°½öÖ§³Ö·¢²¼»õÔ´ÉÌÆ·");
+                resp.put("message", "Only goods type is supported");
                 return ResponseEntity.badRequest().body(resp);
             }
 
@@ -56,12 +57,12 @@ public class LegacyGoodsController {
 
             if (title == null || title.trim().isEmpty()) {
                 resp.put("flag", false);
-                resp.put("message", "ÉÌÆ·±êÌâ²»ÄÜÎª¿Õ");
+                resp.put("message", "Title cannot be empty");
                 return ResponseEntity.badRequest().body(resp);
             }
             if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
                 resp.put("flag", false);
-                resp.put("message", "ÉÌÆ·¼Û¸ñ±ØÐë´óÓÚ0");
+                resp.put("message", "Price must be greater than 0");
                 return ResponseEntity.badRequest().body(resp);
             }
 
@@ -71,20 +72,20 @@ public class LegacyGoodsController {
             product.setImageUrl(picture);
             product.setCategory(category);
             product.setPrice(price);
-            // ¼æÈÝ£ºÇ°¶ËÎ´´« sellerId£¬ÕâÀïÓÃ 0 Õ¼Î»
+            // legacy: frontend did not send sellerId; use 0 as placeholder
             product.setSellerId(0L);
-            product.setUnit("¼þ");
+            product.setUnit("unit");
             product.setStock(9999);
             product.setIsAvailable(true);
 
             Product created = productService.createProduct(product);
             resp.put("flag", true);
-            resp.put("message", "·¢²¼³É¹¦");
+            resp.put("message", "Created successfully");
             resp.put("data", created);
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
             resp.put("flag", false);
-            resp.put("message", "·¢²¼Ê§°Ü: " + e.getMessage());
+            resp.put("message", "Create failed: " + e.getMessage());
             return ResponseEntity.badRequest().body(resp);
         }
     }
@@ -120,7 +121,7 @@ public class LegacyGoodsController {
                 m.put("picture", p.getImageUrl());
                 m.put("price", p.getPrice());
                 m.put("category", p.getCategory());
-                m.put("ownName", "Æ½Ì¨Âô¼Ò");
+                m.put("ownName", "Platform");
                 return m;
             }).collect(Collectors.toList());
 
@@ -133,7 +134,7 @@ public class LegacyGoodsController {
             return ResponseEntity.ok(resp);
         } catch (Exception e) {
             resp.put("flag", false);
-            resp.put("message", "»ñÈ¡ÉÌÆ·Ê§°Ü: " + e.getMessage());
+            resp.put("message", "Query failed: " + e.getMessage());
             return ResponseEntity.badRequest().body(resp);
         }
     }

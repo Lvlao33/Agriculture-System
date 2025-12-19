@@ -33,7 +33,8 @@ public class AnswerService {
         if (expert_id == null) {
             expert_id = 1L;
         }
-        Expert expert = expertRepository.findByUser_Id(expert_id).get();
+        // 这里的 ID 是专家表的主键，直接按专家 ID 查询即可
+        Expert expert = expertRepository.findById(expert_id).orElseThrow();
         Question question = qaService.getQuestionById(answerDto.getQuestionId()).get();
 
         // 修改question的status
