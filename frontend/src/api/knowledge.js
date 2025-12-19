@@ -1,10 +1,10 @@
 import { request } from '../utils/request'
 
-// 添加知识
+// 娣诲姞鐭ヨ瘑锛堜笓瀹跺彂甯冿級
 export function addKnowledge(params) {
     return request({
         method: 'post',
-        url: 'knowledge',
+        url: '/api/knowledge',
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -12,22 +12,22 @@ export function addKnowledge(params) {
     })
 }
 
-// 分页查询所有知识
+// 鍒嗛〉鏌ヨ鎵�鏈夌煡璇嗭紙鍐滀笟鐭ヨ瘑椤靛垪琛級
 export function selectKnowledgesPage(params) {
     return request({
         method: 'get',
-        url: 'knowledge/' + params.pageNum,
+        url: '/api/knowledge/' + params.pageNum,
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据id修改知识
+// 鏍规嵁id淇敼鐭ヨ瘑
 export function updateKnowledgeById(params) {
     return request({
         method: 'put',
-        url: 'knowledge/' + params.knowledgeId,
+        url: '/api/knowledge/' + params.knowledgeId,
         data: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -35,11 +35,11 @@ export function updateKnowledgeById(params) {
     })
 }
 
-// 根据id删除知识
+// 鏍规嵁id鍒犻櫎鐭ヨ瘑
 export function deleteKnowledgeById(params) {
     return request({
         method: 'delete',
-        url: 'knowledge/' + params.knowledgeId,
+        url: '/api/knowledge/' + params.knowledgeId,
         params: params,
         headers: {
             'Authorization': window.localStorage.token,
@@ -47,44 +47,44 @@ export function deleteKnowledgeById(params) {
     })
 }
 
-// 根据id查询知识信息
+// 鏍规嵁id鏌ヨ鐭ヨ瘑淇℃伅
 export function selectKnowledgeById(params) {
     return request({
         method: 'get',
-        url: 'knowledge/selectById/' + params.knowledgeId,
+        url: '/api/knowledge/selectById/' + params.knowledgeId,
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据登录用户查询知识 
+// 鏍规嵁鐧诲綍鐢ㄦ埛鏌ヨ鐭ヨ瘑 
 export function selectKnowledgeByUsername(params) {
     return request({
         method: 'get',
-        url: 'knowledge/selectByUsername/',
+        url: '/api/knowledge/selectByUsername/',
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据知识id查询评论
+// 鏍规嵁鐭ヨ瘑id鏌ヨ璇勮
 export function selectComment(params) {
     return request({
         method: 'get',
-        url: `/knowledge/selectByKnowledge/${params.knowledgeId}`,
+        url: `/api/knowledge/selectByKnowledge/${params.knowledgeId}`,
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 添加评论
+// 娣诲姞璇勮
 export function addComment(params) {
     return request({
         method: 'post',
-        url: `/knowledge/addByKnowledge/${params.knowledgeId}/${params.content}`,
+        url: `/api/knowledge/addByKnowledge/${params.knowledgeId}/${params.content}`,
         headers: {
             'Authorization': window.localStorage.token,
         },

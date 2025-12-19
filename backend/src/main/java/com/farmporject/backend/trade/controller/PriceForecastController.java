@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * ¼Û¸ñÔ¤²â¿ØÖÆÆ÷
- * ´úÀíFastAPIÔ¤²â·şÎñ£¨ÔËĞĞÔÚ8000¶Ë¿Ú£©
+ * ä»·æ ¼é¢„æµ‹æ§åˆ¶å™¨
+ * ä»£ç†FastAPIé¢„æµ‹æœåŠ¡ï¼ˆè¿è¡Œåœ¨8000ç«¯å£ï¼‰
  */
 @RestController
 @RequestMapping("/price")
@@ -26,8 +26,8 @@ public class PriceForecastController {
     }
 
     /**
-     * »ñÈ¡¼Û¸ñÔ¤²â
-     * GET /price/forecast?commodity=Æ»¹û&horizon=7
+     * è·å–ä»·æ ¼é¢„æµ‹
+     * GET /price/forecast?commodity=è‹¹æœ&horizon=7
      */
     @GetMapping("/forecast")
     public ResponseEntity<?> getPriceForecast(
@@ -37,10 +37,10 @@ public class PriceForecastController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // ¹¹½¨ÇëÇóURL
+            // æ„å»ºè¯·æ±‚URL
             String url = FORECAST_SERVICE_URL + "?commodity=" + commodity + "&horizon=" + horizon;
             
-            // µ÷ÓÃFastAPI·şÎñ
+            // è°ƒç”¨FastAPIæœåŠ¡
             @SuppressWarnings("unchecked")
             Map<String, Object> forecastData = restTemplate.getForObject(url, Map.class);
             
@@ -50,35 +50,35 @@ public class PriceForecastController {
                 return ResponseEntity.ok(response);
             } else {
                 response.put("flag", false);
-                response.put("message", "Ô¤²â·şÎñ·µ»Ø¿ÕÊı¾İ");
+                response.put("message", "é¢„æµ‹æœåŠ¡è¿”å›ç©ºæ•°æ®");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
             
         } catch (HttpClientErrorException.NotFound e) {
             response.put("flag", false);
-            response.put("message", "¸ÃÆ·ÀàÔİÎŞÔ¤²âÄ£ĞÍ£¬ÇëÏÈÑµÁ·Ä£ĞÍ");
+            response.put("message", "è¯¥å“ç±»æš‚æ— é¢„æµ‹æ¨¡å‹ï¼Œè¯·å…ˆè®­ç»ƒæ¨¡å‹");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             
         } catch (HttpClientErrorException.BadRequest e) {
             response.put("flag", false);
-            response.put("message", "ÇëÇó²ÎÊı´íÎó: " + e.getMessage());
+            response.put("message", "è¯·æ±‚å‚æ•°é”™è¯¯: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             
         } catch (ResourceAccessException e) {
             response.put("flag", false);
-            response.put("message", "ÎŞ·¨Á¬½Óµ½Ô¤²â·şÎñ£¬ÇëÈ·±£FastAPI·şÎñÒÑÆô¶¯£¨¶Ë¿Ú8000£©");
+            response.put("message", "æ— æ³•è¿æ¥åˆ°é¢„æµ‹æœåŠ¡ï¼Œè¯·ç¡®ä¿FastAPIæœåŠ¡å·²å¯åŠ¨ï¼ˆç«¯å£8000ï¼‰");
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
             
         } catch (Exception e) {
             response.put("flag", false);
-            response.put("message", "Ô¤²â·şÎñÒì³£: " + e.getMessage());
+            response.put("message", "é¢„æµ‹æœåŠ¡å¼‚å¸¸: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
     /**
-     * ½¡¿µ¼ì²é
+     * å¥åº·æ£€æŸ¥
      * GET /price/health
      */
     @GetMapping("/health")
@@ -90,11 +90,11 @@ public class PriceForecastController {
             Map<String, Object> health = restTemplate.getForObject(url, Map.class);
             response.put("flag", true);
             response.put("forecastService", health);
-            response.put("message", "Ô¤²â·şÎñÔËĞĞÕı³£");
+            response.put("message", "é¢„æµ‹æœåŠ¡è¿è¡Œæ­£å¸¸");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("flag", false);
-            response.put("message", "Ô¤²â·şÎñ²»¿ÉÓÃ: " + e.getMessage());
+            response.put("message", "é¢„æµ‹æœåŠ¡ä¸å¯ç”¨: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
         }
     }

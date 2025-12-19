@@ -37,13 +37,13 @@ public class FileUploadController {
             file.getOriginalFilename(), file.getSize());
         
         if (file == null || file.isEmpty()) {
-            logger.warn("上传的文件为�?");
+            logger.warn("上传的文件为�?");
             resp.put("flag", false);
             resp.put("message", "文件不能为空");
             return ResponseEntity.badRequest().body(resp);
         }
         
-        // 检查文件大小（10MB限制�?
+        // 检查文件大小（10MB限制�?
         long maxSize = 10 * 1024 * 1024; // 10MB
         if (file.getSize() > maxSize) {
             logger.warn("文件大小超过限制: {} bytes", file.getSize());
@@ -54,7 +54,7 @@ public class FileUploadController {
         
         try {
             String original = file.getOriginalFilename();
-            logger.info("原始文件�?: {}", original);
+            logger.info("原始文件�?: {}", original);
             
             String ext = "";
             if (original != null && original.contains(".")) {

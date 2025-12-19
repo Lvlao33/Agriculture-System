@@ -2,7 +2,7 @@
   <div class="delete-message">
     <div @click="dialogVisible = true" class="delete">删除</div>
     <el-dialog title="提示" v-model:visible="dialogVisible" width="30%">
-      <span>确认删除该商品？</span>
+      <span>确认删除这条知识吗？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="success" @click="deleteMessageClick">确 定</el-button>
@@ -14,7 +14,12 @@
 <script>
 import { deleteKnowledgeById } from "../api/knowledge";
 export default {
-  inject: ["reload"],
+  props: {
+    knowledgeId: {
+      type: [String, Number],
+      required: true,
+    },
+  },
   data() {
     return {
       dialogVisible: false,
@@ -22,16 +27,16 @@ export default {
   },
   methods: {
     deleteMessageClick() {
-      this.dialogFormVisible = false;
+      this.dialogVisible = false;
       deleteKnowledgeById({
-        knowledgeId: this.$store.state.changedKnowledgeId,
+        knowledgeId: this.knowledgeId,
       })
         .then((res) => {
-          this.reload();
-          alert("删除成功");
+          this.$message.success(res.message || "删除成功");
+          this.$emit("deleted");
         })
         .catch((err) => {
-          alert("删除失败");
+          this.$message.error("删除失败");
         });
     },
   },

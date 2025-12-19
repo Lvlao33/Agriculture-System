@@ -1,7 +1,8 @@
 <template>
   <div class="published-message">
-    <div style="padding:10px 20px 0">
+    <div class="toolbar">
       <el-button type="success" @click="publishKnowledgeClick">发布知识</el-button>
+      <el-button type="warning" plain @click="batchManageClick">批量管理</el-button>
     </div>
     <div class="publish-content">
       <div class="message" v-for="(item, index) in userKnowledges" :key="index" :style="(index+1)%2===0?'margin-right:0':'margin-right:20px'">
@@ -12,10 +13,12 @@
           <span class="initiator">发起人：{{ item.ownName }}</span>
           <p class="content">{{ item.content }}</p>
           <div class="btns-style">
-            <div @click.once="changeKnowledgeInfo(item.knowledgeId)"><change-knowledge :cupdateKnowledgeInfo="updateInfo"></change-knowledge></div>
-            <div @click.stop="deleteKnowledgeInfo(item.knowledgeId)"><delete-knowledge></delete-knowledge></div>
+            <div @click.once="changeKnowledgeInfo(item.knowledgeId)">
+              <change-knowledge :cupdateKnowledgeInfo="updateInfo"></change-knowledge>
+            </div>
+            <delete-knowledge :knowledge-id="item.knowledgeId" @deleted="loadUserKnowledges" />
           </div>
-        </div>      
+        </div>
       </div>
     </div>
   </div>
@@ -28,6 +31,7 @@ import {
 } from "../api/knowledge";
 import ChangeKnowledge from "./ChangeKnowledge.vue";
 import DeleteKnowledge from "./DeleteKnowledge.vue";
+import { deleteKnowledgeById } from "../api/knowledge";
 
 export default {
   data() {
@@ -43,6 +47,18 @@ export default {
         .push("/home/addmessage/publishknowledges")
         .catch((err) => err);
     },
+    batchManageClick() {
+      this.$message.info("可在此页逐条删除，批量删除暂未开放");
+    },
+    loadUserKnowledges() {
+      selectKnowledgeByUsername({})
+        .then((res) => {
+          this.userKnowledges = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     changeKnowledgeInfo(item) {
       this.$store.commit("updateChangedKnowledgeId", item);
       selectKnowledgeById({
@@ -55,19 +71,10 @@ export default {
           console.log(err);
         });
     },
-    deleteKnowledgeInfo(item) {
-      this.$store.commit("updateChangedKnowledgeId", item);
-    },
   },
   created() {
     this.$store.commit("updateUserActiveIndex", "4-3");
-    selectKnowledgeByUsername({})
-      .then((res) => {
-        this.userKnowledges = res.data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    this.loadUserKnowledges();
   },
 };
 </script>
@@ -116,30 +123,30 @@ export default {
       .title{
         height: 30px;
         line-height: 30px;
-        /*超出的部分隐藏*/
+        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
         overflow: hidden;
-        /*文字用省略号替代超出的部分*/
+        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
+        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
+        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
         -webkit-line-clamp: 1;
-        /*设置或检索伸缩盒对象的子元素排列方式*/
+        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏冪礌鎺掑垪鏂瑰紡*/
         -webkit-box-orient: vertical;
         word-break: break-all;
       }
       .content {
         height: 75px;
         line-height: 25px;
-        /*超出的部分隐藏*/
+        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
         overflow: hidden;
-        /*文字用省略号替代超出的部分*/
+        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
         text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
+        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
         display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
+        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
         -webkit-line-clamp: 3;
-        /*设置或检索伸缩盒对象的子元素排列方式*/
+        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏冪礌鎺掑垪鏂瑰紡*/
         -webkit-box-orient: vertical;
         word-break: break-all;
       }
