@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 问答模块控制�?
+ * 问答模块控制�??
  * 根据前端接口规范实现
  */
 @RestController
@@ -47,7 +47,7 @@ public class QAController {
 
     /**
      * GET /api/qa/questions
-     * 获取问答列表，包含分页显�?
+     * 获取问答列表，包含分页显�??
      * 参数: pageNum, pageSize, mine, keyword
      */
     @GetMapping("/questions")
@@ -75,7 +75,7 @@ public class QAController {
                     if (userId != null) {
                         Long uid = Long.parseLong(userId);
                         list = qaService.getUserQuestions(uid);
-                        System.out.println("查询用户问题，数�?: " + (list != null ? list.size() : 0));
+                        System.out.println("查询用户问题，数�??: " + (list != null ? list.size() : 0));
                     } else {
                         list = qaService.getAllQuestions();
                         System.out.println("userId为null，查询全部问题，数量: " + (list != null ? list.size() : 0));
@@ -83,14 +83,14 @@ public class QAController {
                 } else {
                     // 查询全部问题
                     list = qaService.getAllQuestions();
-                    System.out.println("查询全部问题，数�?: " + (list != null ? list.size() : 0));
+                    System.out.println("查询全部问题，数�??: " + (list != null ? list.size() : 0));
                 }
 
-                // 关键词搜�?
+                // 关键词搜�??
                 if (keyword != null && !keyword.trim().isEmpty()) {
-                    System.out.println("执行关键词搜�?: " + keyword);
+                    System.out.println("执行关键词搜�??: " + keyword);
                     list = qaService.searchQuestionsByKeyword(keyword.trim());
-                    System.out.println("搜索后问题数�?: " + (list != null ? list.size() : 0));
+                    System.out.println("搜索后问题数�??: " + (list != null ? list.size() : 0));
                 }
             } catch (Exception queryException) {
                 System.err.println("查询数据库时出错: " + queryException.getMessage());
@@ -124,12 +124,12 @@ public class QAController {
 
             // 转换为DTO格式，避免懒加载问题
             List<Map<String, Object>> resultList = new ArrayList<>();
-            System.out.println("开始转�? " + pagedList.size() + " 条问题数�?");
+            System.out.println("开始转�?? " + pagedList.size() + " 条问题数�??");
 
             for (int i = 0; i < pagedList.size(); i++) {
                 Question q = pagedList.get(i);
                 try {
-                    System.out.println("处理�? " + (i + 1) + " 条问题，ID: " + q.getId() + ", 标题: " + q.getTitle());
+                    System.out.println("处理�?? " + (i + 1) + " 条问题，ID: " + q.getId() + ", 标题: " + q.getTitle());
 
                     Map<String, Object> item = new HashMap<>();
                     item.put("id", q.getId());
@@ -145,15 +145,15 @@ public class QAController {
                             userMap.put("nickname", user.getNickname());
                             userMap.put("avatar", user.getAvatar());
                             item.put("user", userMap);
-                            item.put("userId", user.getId()); // 保持兼容�?
-                            item.put("userName", user.getUsername()); // 保持兼容�?
+                            item.put("userId", user.getId()); // 保持兼容�??
+                            item.put("userName", user.getUsername()); // 保持兼容�??
                         } else {
                             item.put("user", null);
                             item.put("userId", null);
                             item.put("userName", "匿名用户");
                         }
                     } catch (Exception e) {
-                        // 懒加载失败，使用默认�?
+                        // 懒加载失败，使用默认�??
                         item.put("user", null);
                         item.put("userId", null);
                         item.put("userName", "匿名用户");
@@ -173,7 +173,7 @@ public class QAController {
                         item.put("updateTime", null);
                     }
 
-                    // 处理附件和标签，避免懒加载异�?
+                    // 处理附件和标签，避免懒加载异�??
                     try {
                         List<String> attachments = q.getAttachmentUrls();
                         item.put("attachmentUrls", attachments != null ? attachments : new ArrayList<>());
@@ -203,16 +203,16 @@ public class QAController {
                     item.put("expert", null);
 
                     resultList.add(item);
-                    System.out.println("成功处理�? " + (i + 1) + " 条问�?");
+                    System.out.println("成功处理�?? " + (i + 1) + " 条问�??");
                 } catch (Exception e) {
                     System.err.println(
                             "处理问题失败 (问题ID: " + q.getId() + "): " + e.getClass().getName() + ": " + e.getMessage());
                     e.printStackTrace();
-                    // 即使处理失败，也继续处理下一�?
+                    // 即使处理失败，也继续处理下一�??
                 }
             }
 
-            System.out.println("成功转换 " + resultList.size() + " 条问题数�?");
+            System.out.println("成功转换 " + resultList.size() + " 条问题数�??");
 
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
@@ -221,8 +221,8 @@ public class QAController {
             response.put("pageNum", pageNum);
             response.put("pageSize", pageSize);
 
-            System.out.println("返回数据，总数: " + total + ", 当前�?: " + resultList.size());
-            System.out.println("准备返回响应，响应大�?: " + response.size() + " 个键");
+            System.out.println("返回数据，总数: " + total + ", 当前�??: " + resultList.size());
+            System.out.println("准备返回响应，响应大�??: " + response.size() + " 个键");
 
             // 验证响应数据
             try {
@@ -248,7 +248,7 @@ public class QAController {
             response.put("message", "获取问题列表失败: " + e.getMessage());
             response.put("error", e.getClass().getSimpleName());
 
-            // 返回空列表而不�?500错误，让前端至少能显�?
+            // 返回空列表而不�??500错误，让前端至少能显�??
             response.put("data", new ArrayList<>());
             response.put("total", 0);
             response.put("pageNum", pageNum);
@@ -266,7 +266,7 @@ public class QAController {
     public ResponseEntity<Map<String, Object>> getQuestionDetail(@PathVariable Long id) {
         try {
             Question question = qaService.getQuestionById(id)
-                    .orElseThrow(() -> new RuntimeException("问题不存�?"));
+                    .orElseThrow(() -> new RuntimeException("问题不存�??"));
 
             Map<String, Object> questionMap = new HashMap<>();
             questionMap.put("id", question.getId());
@@ -288,7 +288,7 @@ public class QAController {
                     questionMap.put("userName", "匿名用户");
                 }
             } catch (Exception e) {
-                // 懒加载失败，使用默认�?
+                // 懒加载失败，使用默认�??
                 questionMap.put("user", null);
                 questionMap.put("userName", "匿名用户");
             }
@@ -390,7 +390,7 @@ public class QAController {
             @RequestHeader(value = "Authorization", required = false) String token) {
 
         try {
-            // 从token中提取用户信�?
+            // 从token中提取用户信�??
             String userId = null;
             String userName = null;
             if (token != null && token.startsWith("tk_")) {
@@ -416,7 +416,7 @@ public class QAController {
                 } else {
                     User user = users.get(0);
                     question.setUser(user);
-                    // 如果提供了userName且与当前用户名不同，则更�?
+                    // 如果提供了userName且与当前用户名不同，则更�??
                     if (userName != null && !userName.isEmpty() && !userName.equals(user.getUsername())) {
                         user.setUsername(userName);
                     }
@@ -480,8 +480,8 @@ public class QAController {
                 }
             }
 
-            // 回答 写入数据�?
-            // 写入同时查看问题状态是否为已回答，若不是则改为已回�?
+            // 回答 写入数据�??
+            // 写入同时查看问题状态是否为已回答，若不是则改为已回�??
             AnswerDTO answerDTO = new AnswerDTO(questionId, expertId, content);
             AnswerDTO savedDTO = answerService.createAnswer(answerDTO);
 
@@ -507,7 +507,7 @@ public class QAController {
     @GetMapping("/experts")
     public ResponseEntity<Map<String, Object>> getExpertList() {
         try {
-            // 使用 ExpertService 获取专家列表,它返�? DTO,避免懒加载问�?
+            // 使用 ExpertService 获取专家列表,它返�?? DTO,避免懒加载问�??
             List<com.farmporject.backend.expert.dto.ExpertDTO> experts = expertService.getAllExperts();
 
             List<Map<String, Object>> resultList = new ArrayList<>();
@@ -538,7 +538,7 @@ public class QAController {
 
     /**
      * GET /api/qa/test
-     * 测试接口：直接查询数据库，返回原始数�?
+     * 测试接口：直接查询数据库，返回原始数�??
      */
     // @GetMapping("/test")
     // public ResponseEntity<Map<String, Object>> testQuery() {
@@ -552,14 +552,14 @@ public class QAController {
     // String userIdStr = first.getUser() != null ?
     // String.valueOf(first.getUser().getId()) : "null";
     // System.out.println(
-    // "第一个问�?: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" +
+    // "第一个问�??: id=" + first.getId() + ", title=" + first.getTitle() + ", userId=" +
     // userIdStr);
     // }
 
     // Map<String, Object> response = new HashMap<>();
     // response.put("flag", true);
     // response.put("total", allQuestions.size());
-    // response.put("message", "查询成功，共 " + allQuestions.size() + " 条记�?");
+    // response.put("message", "查询成功，共 " + allQuestions.size() + " 条记�??");
     // return ResponseEntity.ok(response);
     // } catch (Exception e) {
     // System.err.println("测试查询失败: " + e.getMessage());
