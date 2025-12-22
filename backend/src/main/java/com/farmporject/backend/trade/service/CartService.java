@@ -75,6 +75,17 @@ public class CartService {
     }
 
     public CartProduct addToCart(Long userId, Long productId, Integer quantity) {
+        // 检查商品是否存在
+        Product product = productRepository.findById(productId).orElse(null);
+        if (product == null) {
+            throw new RuntimeException("商品不存在，ID: " + productId);
+        }
+        
+        // 检查商品是否可用
+        if (product.getIsAvailable() == null || !product.getIsAvailable()) {
+            throw new RuntimeException("商品已下架");
+        }
+        
         CartProduct existingItem = cartProductRepository.findByUserIdAndProductId(userId, productId);
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + quantity);

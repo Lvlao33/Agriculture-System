@@ -58,18 +58,33 @@ public class CartCompatController {
                                        @RequestHeader(value = "Authorization", required = false) String token,
                                        @RequestParam(value = "quantity", required = false, defaultValue = "1") Integer quantity) {
         Map<String, Object> res = new HashMap<>();
-        Long userId = parseUserId(token);
-        if (userId == null) {
+        try {
+            Long userId = parseUserId(token);
+            if (userId == null) {
+                res.put("flag", false);
+                res.put("message", "请先登录");
+                return ResponseEntity.status(401).body(res);
+            }
+            if (quantity == null || quantity <= 0) quantity = 1;
+            
+            // 验证productId是否有效
+            if (productId == null || productId <= 0) {
+                res.put("flag", false);
+                res.put("message", "商品ID无效");
+                return ResponseEntity.badRequest().body(res);
+            }
+            
+            CartProduct item = cartService.addToCart(userId, productId, quantity);
+            res.put("flag", true);
+            res.put("message", "加入购物车成功");
+            res.put("data", item);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
             res.put("flag", false);
-            res.put("message", "请先登录");
-            return ResponseEntity.status(401).body(res);
+            res.put("message", "加入购物车失败: " + e.getMessage());
+            e.printStackTrace(); // 打印堆栈信息便于调试
+            return ResponseEntity.badRequest().body(res);
         }
-        if (quantity == null || quantity <= 0) quantity = 1;
-        CartProduct item = cartService.addToCart(userId, productId, quantity);
-        res.put("flag", true);
-        res.put("message", "加入购物车成功");
-        res.put("data", item);
-        return ResponseEntity.ok(res);
     }
 
     /** 删除购物车商品：/cart/delete/{productId} */

@@ -152,7 +152,7 @@
 </template>
 
 <script>
-import { addOrder } from "../api/order";
+import { createDemand } from "../api/trade";
 
 export default {
   name: "PublishNeed",
@@ -193,6 +193,14 @@ export default {
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
+          // 检查用户是否登录
+          const userId = this.$store.state.loginUserId;
+          if (!userId) {
+            this.$message.warning("请先登录");
+            this.$router.push("/login").catch((err) => err);
+            return;
+          }
+
           this.submitting = true;
           
           // 构建完整的描述信息
@@ -211,33 +219,41 @@ export default {
           }
           fullContent += `\n联系方式：${this.form.contact}`;
 
-          addOrder({
+          // 构建联系信息（包含多个联系方式）
+          let contactInfo = this.form.contact;
+          if (this.form.contactName) {
+            contactInfo = `联系人：${this.form.contactName}，${contactInfo}`;
+          }
+          if (this.form.qq) {
+            contactInfo += `，QQ：${this.form.qq}`;
+          }
+
+          // 调用新的 createDemand API
+          createDemand({
             title: this.form.title,
-            content: fullContent,
-            price: this.form.price || "面议",
-            type: "needs",
-            picture: "",
+            description: fullContent,
             category: this.form.category,
-            contact: this.form.contact,
-            contactName: this.form.contactName,
-            qq: this.form.qq,
-            location: this.form.location
+            quantity: this.form.quantity > 0 ? this.form.quantity : null,
+            unit: this.form.unit,
+            contactInfo: contactInfo,
+            userId: userId,
+            status: "ACTIVE"
           })
             .then((res) => {
               this.submitting = false;
-              if (res.flag == true) {
+              if (res.flag === true) {
                 this.$message.success(res.message || "发布成功");
                 setTimeout(() => {
                   this.$router.push("/home/purchase").catch((err) => err);
                 }, 1500);
               } else {
-                this.$message.error(res.data || "发布失败");
+                this.$message.error(res.message || "发布失败");
               }
             })
             .catch((err) => {
               this.submitting = false;
               this.$message.error("发布失败，请重试");
-              console.log("添加失败", err);
+              console.error("发布需求失败", err);
             });
         } else {
           this.$message.warning("请完善表单信息");

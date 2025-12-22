@@ -39,9 +39,9 @@
               placeholder="搜索产品、品类..."
               clearable
               style="width: 260px;"
-              @keyup.enter.native="applyFilters"
+              @keyup.enter.native="loadDemands"
             >
-              <el-button slot="append" icon="el-icon-search" @click="applyFilters"></el-button>
+              <el-button slot="append" icon="el-icon-search" @click="loadDemands"></el-button>
             </el-input>
             <el-select v-model="filters.category" placeholder="产品品类" clearable style="width: 150px;" @change="applyFilters">
               <el-option label="全品类" value="all" />
@@ -340,22 +340,89 @@ export default {
     loadDemands() {
       selectNeedsPage({
         pageNum: 1,
-        keys: ""
+        keys: this.searchValue || ""
       })
         .then((res) => {
-          if (res.flag === true && res.data.list && res.data.list.length > 0) {
-            this.demands = res.data.list;
+          if (res.flag === true && res.data && res.data.list && res.data.list.length > 0) {
+            // 将数据库数据转换为页面需要的格式
+            this.demands = res.data.list.map(item => ({
+              id: item.id,
+              title: item.title,
+              content: item.description || item.content || "",
+              category: item.category || "other",
+              urgency: this.inferUrgency(item.createTime, item.expireTime),
+              quantity: this.inferQuantityType(item.quantity),
+              quality: "normal", // 默认值
+              desiredPrice: this.extractPriceFromDescription(item.description || item.content),
+              location: this.extractLocationFromDescription(item.description || item.content),
+              deadline: item.expireTime || this.getDefaultDeadline(item.createTime),
+              publisher: "用户" + (item.userId || ""),
+              contact: this.extractContactFromDescription(item.description || item.content),
+              position: "采购专员",
+              status: this.mapStatus(item.status)
+            }));
           } else {
+            // 如果没有数据，使用默认数据
             this.demands = this.defaultDemands;
           }
           this.applyFilters();
           this.updateStats();
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("加载需求列表失败", err);
+          // 如果加载失败，使用默认数据
           this.demands = this.defaultDemands;
           this.applyFilters();
           this.updateStats();
         });
+    },
+    inferUrgency(createTime, expireTime) {
+      if (!expireTime) return "long_term";
+      const now = new Date();
+      const expire = new Date(expireTime);
+      const diffHours = (expire - now) / (1000 * 60 * 60);
+      if (diffHours < 24) return "urgent";
+      if (diffHours < 72) return "normal";
+      return "long_term";
+    },
+    inferQuantityType(quantity) {
+      if (!quantity) return "retail";
+      if (quantity >= 1000) return "bulk";
+      if (quantity >= 100) return "wholesale";
+      return "retail";
+    },
+    extractPriceFromDescription(description) {
+      if (!description) return "面议";
+      const priceMatch = description.match(/(\d+[\.\d]*)\s*元/);
+      if (priceMatch) return priceMatch[0];
+      if (description.includes("面议")) return "面议";
+      return "面议";
+    },
+    extractLocationFromDescription(description) {
+      if (!description) return "未填写";
+      const locationMatch = description.match(/所在地区[：:]\s*([^\n]+)/);
+      if (locationMatch) return locationMatch[1].trim();
+      return "未填写";
+    },
+    extractContactFromDescription(description) {
+      if (!description) return "";
+      const contactMatch = description.match(/联系方式[：:]\s*([^\n]+)/);
+      if (contactMatch) return contactMatch[1].trim();
+      return "";
+    },
+    getDefaultDeadline(createTime) {
+      if (!createTime) return null;
+      const date = new Date(createTime);
+      date.setDate(date.getDate() + 30); // 默认30天后
+      return date.toISOString().split('T')[0];
+    },
+    mapStatus(status) {
+      const statusMap = {
+        "ACTIVE": "open",
+        "COMPLETED": "completed",
+        "CLOSED": "closed"
+      };
+      return statusMap[status] || "open";
     },
     applyFilters() {
       let list = [...this.demands];

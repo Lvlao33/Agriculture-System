@@ -28,15 +28,26 @@ export function request(config) {
         return res.data
     }, err => {
         console.error('请求失败:', err);
-        // 如果有响应，返回响应数据；否则抛出错误
+        // 如果有响应，返回错误响应数据并保留状态码信息
         if (err.response) {
             console.error('响应状态:', err.response.status);
             console.error('响应数据:', err.response.data);
+            const errorData = err.response.data || {};
+            // 如果是对象，添加状态码信息
+            if (typeof errorData === 'object' && errorData !== null && !Array.isArray(errorData)) {
+                errorData.status = err.response.status;
+                errorData.statusText = err.response.statusText;
+            }
             // 返回错误响应数据，让调用方可以处理
-            return Promise.reject(err.response.data || err);
+            return Promise.reject(errorData);
         }
-        // 网络错误或其他错误
-        return Promise.reject(err);
+        // 网络错误或其他错误，保留原始错误信息
+        const networkError = {
+            message: err.message || '网络连接失败，请检查网络设置',
+            code: err.code,
+            isNetworkError: true
+        };
+        return Promise.reject(networkError);
     })
     // 3.������������������
     return instance(config)

@@ -160,19 +160,22 @@ export default {
         const res = await cartShow({})
         if (res && res.flag) {
           // 将后端返回的数据转换为前端需要的格式
+          // 后端返回的数据已经包含商品详情，直接使用
           this.cartItems = (res.data || []).map(item => ({
-            id: item.shoppingId || item.id,
-            cartId: item.shoppingId || item.id,
+            id: item.cartId || item.id,
+            cartId: item.cartId || item.id,
+            productId: item.productId,
             title: item.title || item.name,
             name: item.title || item.name,
             content: item.content || item.description,
             description: item.content || item.description,
-            picture: item.picture || item.image,
-            image: item.picture || item.image,
-            price: item.price,
+            picture: item.picture || item.image || item.imageUrl,
+            image: item.picture || item.image || item.imageUrl,
+            price: item.price || 0,
             quantity: item.count || item.quantity || 1,
             count: item.count || item.quantity || 1,
-            spec: item.spec || ''
+            spec: item.spec || '',
+            category: item.category || ''
           }))
         } else {
           this.cartItems = []
@@ -183,8 +186,11 @@ export default {
       } catch (error) {
         console.error('加载购物车失败:', error)
         this.cartItems = []
-        // 如果未登录，不显示错误提示
-        if (error.response && error.response.status !== 401) {
+        // 如果未登录，提示登录
+        if (error.response && error.response.status === 401) {
+          this.$message.warning('请先登录')
+          this.$router.push('/login').catch(err => err)
+        } else if (error.response && error.response.status !== 401) {
           this.$message.error('加载购物车失败，请稍后重试')
         }
       } finally {
@@ -195,8 +201,10 @@ export default {
     // 更新商品数量
     async handleQuantityChange(item) {
       try {
+        // 使用 productId 更新数量
         await updateGoodsCount({
-          id: item.cartId || item.id,
+          id: item.productId,
+          productId: item.productId,
           count: item.quantity
         })
         // 同步更新 count 字段
@@ -207,7 +215,7 @@ export default {
       } catch (error) {
         console.error('更新数量失败:', error)
         this.$message.error('更新数量失败')
-        // 恢复原值
+        // 恢复原值，重新加载购物车
         this.loadCartItems()
       }
     },
@@ -220,8 +228,10 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
+          // 使用 productId 删除
           await cartDeleteOrder({
-            order_id: item.cartId || item.id
+            order_id: item.productId,
+            productId: item.productId
           })
           this.$message.success('删除成功')
           // 从选中列表中移除
@@ -248,11 +258,11 @@ export default {
         type: 'warning'
       }).then(async () => {
         try {
-          // TODO: 等待后端提供批量删除接口
-          // 目前使用循环调用单个删除接口
+          // 使用循环调用单个删除接口
           const deletePromises = this.selectedItems.map(item => 
             cartDeleteOrder({
-              order_id: item.cartId || item.id
+              order_id: item.productId,
+              productId: item.productId
             })
           )
           await Promise.all(deletePromises)
@@ -339,7 +349,7 @@ export default {
 
     // 获取行 key
     getRowKey(row) {
-      return row.id || row.cartId || Math.random()
+      return row.productId || row.id || row.cartId || Math.random()
     },
 
     // 去购物

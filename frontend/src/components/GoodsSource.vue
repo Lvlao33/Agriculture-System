@@ -295,6 +295,7 @@
 
 <script>
 import { getPriceForecast } from "@/api/price";
+import { addOrderToCart } from "@/api/cart";
 import * as echarts from 'echarts';
 
 export default {
@@ -883,10 +884,116 @@ export default {
       // 立即购买
       this.goToGoodsDetailPage(item);
     },
-    handleAddToCart(item) {
+    async handleAddToCart(item) {
       // 加入购物�?
-      this.$emit('addToCart', item);
-      this.$message.success('已加入购物车');
+      // 检查是否登录
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.$message.warning('请先登录');
+        this.$router.push('/login').catch(err => err);
+        return;
+      }
+
+      // 获取商品ID，优先使用 id，其次使用 orderId
+      const productId = item.id || item.orderId;
+      if (!productId) {
+        this.$message.error('商品信息不完整，无法添加到购物车');
+        return;
+      }
+
+      try {
+        // 确保productId是数字类型
+        const numProductId = Number(productId);
+        if (isNaN(numProductId) || numProductId <= 0) {
+          this.$message.error('商品ID格式错误');
+          console.error('商品ID格式错误:', productId);
+          return;
+        }
+
+        console.log('添加商品到购物车:', { productId: numProductId, item });
+        
+        const res = await addOrderToCart({
+          order_id: numProductId,
+          productId: numProductId,
+          quantity: 1
+        });
+        
+        console.log('加入购物车响应:', res);
+        
+        if (res && res.flag === true) {
+          this.$message.success(res.message || '已加入购物车');
+          // 触发事件，让父组件知道已添加
+          this.$emit('addToCart', item);
+        } else {
+          const errorMsg = res?.message || res?.data || '加入购物车失败';
+          this.$message.error(errorMsg);
+          console.error('加入购物车失败，响应:', res);
+        }
+      } catch (error) {
+        console.error('加入购物车异常:', error);
+        console.error('错误详情:', {
+          message: error.message,
+          response: error.response,
+          data: error.data,
+          status: error.status,
+          flag: error.flag,
+          isNetworkError: error.isNetworkError,
+          errorObject: error
+        });
+        
+        // request.js 的拦截器会返回 err.response.data，所以 error 可能是后端返回的数据对象
+        // 检查是否是后端返回的数据格式（包含 flag 和 message）
+        if (error && typeof error === 'object' && 'flag' in error) {
+          // 后端返回的错误数据格式
+          if (error.flag === false) {
+            const errorMsg = error.message || '加入购物车失败';
+            const status = error.status;
+            
+            // 根据状态码处理不同错误
+            if (status === 401 || errorMsg.includes('登录') || errorMsg.includes('请先登录')) {
+              this.$message.warning('请先登录');
+              this.$router.push('/login').catch(err => err);
+            } else if (status === 404 || errorMsg.includes('不存在')) {
+              this.$message.error('商品不存在');
+            } else {
+              this.$message.error(errorMsg);
+            }
+            return;
+          }
+        }
+        
+        // 处理网络错误
+        if (error.isNetworkError) {
+          this.$message.error(error.message || '加入购物车失败，请检查网络连接');
+          return;
+        }
+        
+        // 处理 HTTP 错误响应（原始 axios 错误格式，兼容性处理）
+        if (error.response) {
+          const status = error.response.status || error.status;
+          const errorData = error.response.data || error.data || {};
+          
+          if (status === 401) {
+            this.$message.warning('请先登录');
+            this.$router.push('/login').catch(err => err);
+          } else if (status === 404) {
+            this.$message.error('商品不存在');
+          } else if (status === 400) {
+            const msg = errorData.message || (typeof errorData === 'string' ? errorData : '请求参数错误');
+            this.$message.error(msg);
+          } else {
+            const msg = errorData.message || (typeof errorData === 'string' ? errorData : `加入购物车失败 (${status})`);
+            this.$message.error(msg);
+          }
+        } else if (error.message) {
+          // 其他错误（有错误消息）
+          this.$message.error(error.message);
+        } else {
+          // 未知错误
+          const errorMsg = error.message || (typeof error === 'string' ? error : '加入购物车失败，请检查网络连接');
+          this.$message.error(errorMsg);
+        }
+      }
     },
     getImageUrl(picture) {
       // 如果图片路径包含 /kn/ �? /order/，直接使�?
