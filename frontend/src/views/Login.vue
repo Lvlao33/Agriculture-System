@@ -58,6 +58,7 @@
 
 <script>
 import { userLogin } from "../api/user";
+import { setToken } from "../utils/tokenManager";
 import SIdentify from '@/components/SIdentify';
 export default {
   name: "Login",
@@ -111,7 +112,16 @@ export default {
               if (res && res.success) {
                 const token = res.data && res.data.token ? res.data.token : '';
                 const user = res.data && res.data.user ? res.data.user : null;
+                // 先解析角色，再写入 token 和本地信息，避免未初始化变量引用
+                const role = this.resolveUserRole(res, user);
+                // 保存 token 到 vuex
                 this.$store.commit("setToken", token);
+                // 同步保存到 tokenManager，确保拦截器能读取到（兼容旧/新实现）
+                try {
+                  setToken(token, user, role);
+                } catch (e) {
+                  console.warn('tokenManager.setToken failed', e);
+                }
                 if (user) {
                   const nickname = user.nickname || user.username || '';
                   const avatar = user.avatar || '';
@@ -121,7 +131,6 @@ export default {
                     this.$store.commit("updateLoginUserId", user.id);
                   }
                 }
-                const role = this.resolveUserRole(res, user);
                 this.$store.commit("setUserRole", role);
                 const target = this.getDefaultHome(role);
                 this.$router.push(target).catch((err) => err);
@@ -131,7 +140,13 @@ export default {
             }
           })
           .catch((err) => {
-            console.log(err);
+            // 后端返回错误时，request.js 会把响应体当作 reject 的值返回（{ success: false, message: '...' }）
+            try {
+              const msg = err && (err.message || err.data || err.msg) ? (err.message || err.data || err.msg) : JSON.stringify(err);
+              alert(msg || '登录失败');
+            } catch (e) {
+              alert('登录失败');
+            }
           });
     },
     resolveUserRole(res, user) {
@@ -220,3 +235,5 @@ export default {
   }
 }
 </style>
+
+

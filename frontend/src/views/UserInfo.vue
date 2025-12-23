@@ -270,8 +270,19 @@ export default {
     fetchUserInfo() {
       loginSelectByUsername({})
         .then((res) => {
-          this.userinfo = { ...this.userinfo, ...res.data };
-          // 同步到编辑表单
+          const data = res && res.data ? res.data : {};
+          // 兼容后端字段命名：后端常用 `nickname`（小写），前端使用 `nickName`（驼峰）
+          const normalized = {
+            nickName: data.nickName || data.nickname || "",
+            phone: data.phone || data.phoneNumber || "",
+            email: data.email || "",
+            avatar: data.avatar || this.userinfo.avatar || "",
+            username: data.username || data.userName || this.userinfo.username,
+            id: data.id || data.userId || this.userinfo.id,
+          };
+
+          this.userinfo = { ...this.userinfo, ...normalized };
+          // 同步到编辑表单（使用驼峰字段）
           this.profileForm = {
             nickName: this.userinfo.nickName || "",
             phone: this.userinfo.phone || "",
@@ -287,16 +298,16 @@ export default {
         if (!valid) return;
         this.profileSaving = true;
         const avatar = this.$refs.avatar?.cUserAvatar || this.userinfo.avatar;
+        // 需要传入 username，以便后端识别当前用户（Authorization header 不可用时）
         loginUpdateByUsername({
+          username: this.userinfo.username || this.userinfo.userName || undefined,
           nickName: this.profileForm.nickName,
           avatar: avatar,
         })
           .then((res) => {
             if (res.flag) {
-              // 更新本地数据
+              // 更新本地数据（不要覆盖 token）
               this.userinfo = { ...this.userinfo, ...this.profileForm, avatar };
-              this.$store.commit("removeStorage");
-              this.$store.commit("setToken", res.data);
               this.$store.commit("updateLoginUserNickname", this.profileForm.nickName);
               this.$store.commit("updateLoginUserAvatar", avatar);
               this.$message.success(res.message || "资料保存成功");
@@ -411,8 +422,9 @@ export default {
           newPassword: this.passwordForm.newPassword,
         })
           .then((res) => {
-            if (res.flag) {
-            this.$message.success(res.message || "密码修改成功，请重新登录");
+            const ok = res && (res.success === true || res.flag === true);
+            if (ok) {
+              this.$message.success(res.message || "密码修改成功，请重新登录");
               this.passwordForm = {
                 oldPassword: "",
                 newPassword: "",
@@ -421,13 +433,14 @@ export default {
               this.$store.commit("updateLoginUserNickname", "");
               this.$store.commit("removeStorage");
               this.$router.push("/login");
-            this.passwordDialogVisible = false;
+              this.passwordDialogVisible = false;
             } else {
-              this.$message.error(res.data || "密码修改失败");
+              this.$message.error(res && (res.message || res.data) ? (res.message || res.data) : "密码修改失败");
             }
           })
-          .catch(() => {
-            this.$message.error("密码修改失败，请稍后再试");
+          .catch((err) => {
+            const msg = err && (err.message || err.msg || err.data || JSON.stringify(err));
+            this.$message.error(msg || "密码修改失败，请稍后再试");
           })
           .finally(() => {
             this.passwordLoading = false;

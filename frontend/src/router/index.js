@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '../store'
+import { isTokenValid, getRole, clear } from '../utils/tokenManager'
 
 import Login from '../views/Login'
 import Register from '../views/Register'
@@ -380,3 +381,5 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
+
+

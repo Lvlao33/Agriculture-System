@@ -70,9 +70,9 @@ public class QAService {
         return questionRepository.findTop10ByOrderByCreateTimeDesc();
     }
 
-    public List<Question> getUserQuestions(String userId) {
+    public List<Question> getUserQuestions(Long userId) {
         // 查询用户问题，然后在内存中排序
-        List<Question> list = questionRepository.findByUserId(userId);
+        List<Question> list = questionRepository.findByUserId(String.valueOf(userId));
         
         // 初始化懒加载的集合，避免 LazyInitializationException
         for (Question q : list) {

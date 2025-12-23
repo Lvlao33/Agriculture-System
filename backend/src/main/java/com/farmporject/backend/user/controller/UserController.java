@@ -6,6 +6,7 @@ import com.farmporject.backend.user.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.farmporject.backend.security.UserContext;
 
 import java.util.Map;
 
@@ -46,9 +47,19 @@ public class UserController {
                         .<ResponseEntity<ApiResponse<User>>>map(user -> ResponseEntity.ok(ApiResponse.ok(user)))
                         .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户不存在")));
             }
-            // 如果没有username参数，尝试从token中解析（简化实现）
+
+            // 如果UserContext已被JwtAuthenticationFilter填充，则直接使用它（支持Bearer JWT）
+            if (UserContext.isAuthenticated()) {
+                String usernameFromContext = UserContext.getCurrentUsername();
+                if (usernameFromContext != null && !usernameFromContext.isEmpty()) {
+                    return userService.findByUsername(usernameFromContext)
+                            .<ResponseEntity<ApiResponse<User>>>map(user -> ResponseEntity.ok(ApiResponse.ok(user)))
+                            .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户不存在")));
+                }
+            }
+
+            // 兼容旧的简易token格式 tk_id_username
             if (token != null && token.startsWith("tk_")) {
-                // token格式: "tk_id_username"，提取username
                 String[] parts = token.split("_");
                 if (parts.length >= 3) {
                     String usernameFromToken = parts[2];
@@ -57,6 +68,7 @@ public class UserController {
                             .orElseGet(() -> ResponseEntity.badRequest().body(ApiResponse.fail("用户不存在")));
                 }
             }
+
             return ResponseEntity.badRequest().body(ApiResponse.fail("请提供用户名参数或有效的token"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ApiResponse.fail(e.getMessage()));
@@ -130,6 +142,13 @@ public class UserController {
             String username = body.getOrDefault("username", "");
             String oldPassword = body.getOrDefault("oldPassword", "");
             String newPassword = body.getOrDefault("newPassword", "");
+            // 如果前端未传 username，且 JwtAuthenticationFilter 已填充 UserContext，则使用上下文中的用户名
+            if ((username == null || username.isEmpty()) && UserContext.isAuthenticated()) {
+                String ctxUser = UserContext.getCurrentUsername();
+                if (ctxUser != null && !ctxUser.isEmpty()) {
+                    username = ctxUser;
+                }
+            }
             if (username.isEmpty() || oldPassword.isEmpty() || newPassword.isEmpty()) {
                 return ResponseEntity.badRequest().body(ApiResponse.fail("用户名、原密码和新密码不能为空"));
             }

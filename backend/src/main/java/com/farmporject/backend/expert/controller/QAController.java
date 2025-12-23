@@ -64,11 +64,11 @@ public class QAController {
                 // 如果 mine=true，查询当前用户的问题
                 if (Boolean.TRUE.equals(mine) && token != null && token.startsWith("tk_")) {
                     String[] parts = token.split("_");
-                    String userId = parts.length >= 2 ? parts[1] : null;
-                    System.out.println("提取的userId: " + userId);
-                    if (userId != null) {
-                        Long uid = Long.parseLong(userId);
-                        list = qaService.getUserQuestions(uid);
+                    String userIdStr = parts.length >= 2 ? parts[1] : null;
+                    System.out.println("提取的userId: " + userIdStr);
+                    if (userIdStr != null) {
+                        Long userId = Long.parseLong(userIdStr);
+                        list = qaService.getUserQuestions(userId);
                         System.out.println("查询用户问题，数量: " + (list != null ? list.size() : 0));
                     } else {
                         list = qaService.getAllQuestions();

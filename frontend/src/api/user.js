@@ -6,9 +6,6 @@ export function forgetPassword(params) {
         method: 'post',
         url: '/api/user/forgetPassword',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
@@ -18,9 +15,6 @@ export function userLogin(params) {
         method: 'post',
         url: '/api/auth/login',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
@@ -30,19 +24,17 @@ export function userRegister(params) {
         method: 'post',
         url: '/api/auth/register',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
 // 根据用户名查询登录信息
-export function loginSelectByUsername(params) {
+export function loginSelectByUsername(params = {}) {
+    // 优先走后端的 loginSelectByUsername 接口，后端会使用 Authorization header 中的 JWT
     return request({
         method: 'get',
-        url: '/api/user/' + (params.username || params.user_name || ''),
-        headers: {
-            'Authorization': window.localStorage.token,
+        url: '/api/user/loginSelectByUsername',
+        params: {
+            username: params.username || params.user_name || undefined,
         },
     })
 }
@@ -53,9 +45,6 @@ export function loginUpdateByUsername(params) {
         method: 'post',
         url: '/api/user/loginUpdateByUsername',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
@@ -64,9 +53,6 @@ export function selectUserByUsername(params) {
     return request({
         method: 'get',
         url: '/api/user/' + params.user_name,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
@@ -75,9 +61,6 @@ export function deleteUserByUsername(params) {
     return request({
         method: 'delete',
         url: '/api/user/' + params.user_name,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }
 
@@ -87,20 +70,16 @@ export function updateUserByUsername(params) {
         method: 'put',
         url: '/api/user/' + params.user_name,
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
+
 }
 // 查询所有用户信息
 export function selectAllUserPage(params) {
     return request({
         method: 'get',
         url: '/api/user/search/' + params.pageNum,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
+
 }
 // 修改用户密码
 export function updateUserPassword(params) {
@@ -108,10 +87,8 @@ export function updateUserPassword(params) {
         method: 'post',
         url: '/api/user/loginUpdatePassword',
         data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
+
 }
 
 // 根据userID查询用户
@@ -119,8 +96,5 @@ export function searchUserById(id) {
     return request({
         method: 'get',
         url: '/api/user/multi-Inviter/' + id,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
     })
 }

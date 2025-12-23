@@ -40,10 +40,7 @@ module.exports = {
         target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true
       },
-      '/user': {
-        target: 'http://localhost:8080', // 后端服务地址
-        changeOrigin: true
-      },
+      // '/user' 代理已移除，统一使用 '/api' 前缀进行后端代理，避免与静态资源路径冲突
       '/question': {
         target: 'http://localhost:8080', // 后端服务地址
         changeOrigin: true

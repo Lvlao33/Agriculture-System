@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { getRole, clear as clearToken } from '../utils/tokenManager'
 
 Vue.use(Vuex)
 
@@ -123,7 +124,7 @@ export default new Vuex.Store({
       state.token = value;
       localStorage.setItem('token', value)
     },
-    // 删除token
+    // 删除token并清除所有用户信息
     removeStorage(state) {
       state.token = ''
       state.loginUserNickname = ''
@@ -135,9 +136,30 @@ export default new Vuex.Store({
       localStorage.removeItem('loginUserAvatar')
       localStorage.removeItem('loginUserId')
       localStorage.removeItem('userRole')
+      clearToken() // 清除tokenManager中的所有数据
+    },
+    // 从tokenManager同步角色
+    syncRoleFromToken(state) {
+      const role = getRole() || 'farmer'
+      state.userRole = role
+      localStorage.setItem('userRole', role)
+      console.log('✓ 从JWT Token同步角色:', role)
     }
   },
   actions: {
+    // 应用启动时从localStorage恢复用户状态
+    restoreUserState({ commit }) {
+      const savedRole = localStorage.getItem('userRole')
+      if (savedRole) {
+        commit('setUserRole', savedRole)
+        console.log('✓ 从localStorage恢复用户角色:', savedRole)
+      }
+    },
+    // 清除所有用户数据
+    clearAllUserData({ commit }) {
+      commit('removeStorage')
+      console.log('✓ 已清除所有用户数据')
+    }
   },
   modules: {
   }

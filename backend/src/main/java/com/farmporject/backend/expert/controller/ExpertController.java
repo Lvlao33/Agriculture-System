@@ -21,7 +21,8 @@ public class ExpertController {
 
     @PutMapping("/profile")
     public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, Object> payload) {
-        // TODO: persist changes; currently echo back
+        // 暂不实现完整功能，当前只返回成功响应
+        // 后续可根据token获取当前用户ID，然后调用expertService.updateExpert()更新数据库
         Map<String, Object> resp = new HashMap<>();
         resp.put("success", true);
         resp.put("payload", payload);

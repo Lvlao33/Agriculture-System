@@ -55,26 +55,33 @@ export default {
         updateUserPassword({
           oldPassword: this.ruleForm.oldPassword,
           newPassword: this.ruleForm.newPassword,
-        }).then((res) => {
-          if (res.flag == true) {
-            alert(res.message);
-            //修改密码后退出登录
-            this.$store.commit("updateLoginUserNickname", "");
-            this.$store.commit("removeStorage");
-            this.$router.push("/home").catch((err) => err);
-            if (sessionStorage.getItem("/order/needs/pageCode")) {
-              sessionStorage.removeItem("/order/needs/pageCode");
+        })
+          .then((res) => {
+            const ok = res && (res.success === true || res.flag === true);
+            if (ok) {
+              // 成功提示使用绿色样式
+              this.$message.success(res.message || "密码修改成功，请重新登录");
+              // 修改密码后退出登录
+              this.$store.commit("updateLoginUserNickname", "");
+              this.$store.commit("removeStorage");
+              this.$router.push("/login").catch((err) => err);
+              if (sessionStorage.getItem("/order/needs/pageCode")) {
+                sessionStorage.removeItem("/order/needs/pageCode");
+              }
+              if (sessionStorage.getItem("/order/goods/pageCode")) {
+                sessionStorage.removeItem("/order/goods/pageCode");
+              }
+              if (sessionStorage.getItem("/user/search/pageCode")) {
+                sessionStorage.removeItem("/user/search/pageCode");
+              }
+            } else {
+              this.$message.error(res && (res.message || res.data) ? (res.message || res.data) : "密码修改失败");
             }
-            if (sessionStorage.getItem("/order/goods/pageCode")) {
-              sessionStorage.removeItem("/order/goods/pageCode");
-            }
-            if (sessionStorage.getItem("/user/search/pageCode")) {
-              sessionStorage.removeItem("/user/search/pageCode");
-            }
-          } else {
-            alert(res.data);
-          }
-        });
+          })
+          .catch((err) => {
+            const msg = err && (err.message || err.msg || err.data || JSON.stringify(err));
+            this.$message.error(msg || "密码修改失败，请稍后再试");
+          });
       } else {
         alert("新密码与确认密码不一致");
       }
