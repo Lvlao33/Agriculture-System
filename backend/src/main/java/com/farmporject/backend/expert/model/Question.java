@@ -3,11 +3,10 @@ package com.farmporject.backend.expert.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.farmporject.backend.user.model.User;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
-import com.farmporject.backend.user.model.User;
 
 @Entity
 @Table(name = "questions")
@@ -31,11 +30,6 @@ public class Question {
     @JoinColumn(name = "expert_id")
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Expert expert;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "passwordHash"})
-    private User user;
 
     /** 附件（图片 / 视频）的访问路径列表 */
     @ElementCollection(fetch = FetchType.EAGER)
