@@ -11,9 +11,14 @@ module.exports = {
   publicPath: '/',
   assetsDir: 'static',
 
+
   // 开发服务器配置
   devServer: {
     port: 5173, // 前端运行端口号，可改为你想要的
+    // 设置响应头，确保UTF-8编码
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8'
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8080', // 后端服务地址

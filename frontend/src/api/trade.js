@@ -245,6 +245,39 @@ export function deleteOrder(orderId) {
 }
 
 /**
+ * 从购物车结算创建订单
+ * @param {Object} params - 结算参数
+ * @param {Array<Number>} params.productIds - 商品ID列表
+ * @param {String} params.shippingAddress - 收货地址
+ * @param {String} params.receiverName - 收货人姓名
+ * @param {String} params.receiverPhone - 收货人电话
+ */
+export function checkout(params) {
+  return request({
+    method: 'post',
+    url: '/api/trade/orders/checkout',
+    data: params,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
+ * 订单付款，将待付款订单移入待收货
+ * @param {Number} orderId - 订单ID
+ */
+export function payOrder(orderId) {
+  return request({
+    method: 'put',
+    url: `/api/trade/orders/${orderId}/pay`,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
  * 确认收货，将订单状态置为待评价
  * @param {Number} orderId - 订单ID
  */
@@ -252,6 +285,20 @@ export function confirmOrderReceive(orderId) {
   return request({
     method: 'put',
     url: `/api/trade/orders/${orderId}/confirm`,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
+ * 完成评价，将订单移入退款/售后
+ * @param {Number} orderId - 订单ID
+ */
+export function completeReview(orderId) {
+  return request({
+    method: 'put',
+    url: `/api/trade/orders/${orderId}/complete-review`,
     headers: {
       'Authorization': localStorage.getItem('token') || '',
     },

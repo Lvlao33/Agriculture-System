@@ -70,7 +70,7 @@ import ExpertDashboard from '../views/ExpertDashboard'
 Vue.use(VueRouter)
 
 
-// ĞŞ¸´ElementUIµ¼º½À¸Óëvue-routerµÄ3.0°æ±¾³åÍ»ÎÊÌâ?
+// ä¿®å¤ElementUIå’Œvue-routerçš„3.0ç‰ˆæœ¬å†²çªé—®é¢˜
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -367,11 +367,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const role = store.state.userRole || 'farmer'
-  // Í³Ò»Ê×Ò³£ºÈÎºÎ½ÇÉ«¶¼¿ÉÒÔ·ÃÎÊ /home ºÍ /home/front£¬²»×ö½ÇÉ«ÖØ¶¨Ïò
+  // ç»Ÿä¸€é¦–é¡µï¼šä»»ä½•è§’è‰²éƒ½å¯ä»¥è®¿é—® /home æˆ– /home/frontï¼Œä¸è¿›è¡Œè§’è‰²é‡å®šå‘
   if (to.path === '/home') {
     return next('/home/front')
   }
-  // ¶Ô´øÓĞ½ÇÉ«ÏŞÖÆµÄÒ³Ãæ×öÀ¹½Ø£º²»·ûºÏ½ÇÉ«Ê±£¬Í³Ò»ÍË»Øµ½Ê×Ò³
+  // å¯¹äºæœ‰è§’è‰²é™åˆ¶çš„é¡µé¢è¿›è¡Œåˆ¤æ–­ï¼Œä¸ç¬¦åˆè§’è‰²æ—¶ç»Ÿä¸€è·³å›åˆ°é¦–é¡µ
   if (to.meta && to.meta.roles) {
     if (!to.meta.roles.includes(role)) {
       return next('/home/front')

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui'
+import locale from 'element-ui/lib/locale/lang/zh-CN' // 引入中文语言包
 import 'element-ui/lib/theme-chalk/index.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import App from './App.vue'
@@ -12,7 +13,7 @@ import preventMultiClick from './utils/preventMultiClick'
 Vue.use(preventMultiClick)
 Vue.config.productionTip = false
 Vue.prototype.axios = axios
-Vue.use(ElementUI)
+Vue.use(ElementUI, { locale }) // 使用中文语言包
 
 new Vue({
   router,

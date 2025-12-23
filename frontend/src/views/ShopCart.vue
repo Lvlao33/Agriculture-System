@@ -125,9 +125,7 @@
 <script>
 // 导入购物车相关的 API 接口
 import { cartShow, cartDeleteOrder, updateGoodsCount } from '@/api/cart'
-// TODO: 等待后端接入以下接口：
-// - 批量删除购物车商品接口
-// - 结算接口
+import { checkout } from '@/api/trade'
 
 export default {
   name: 'ShopCart',
@@ -276,33 +274,72 @@ export default {
       }).catch(() => {})
     },
 
-    // TODO: 结算
+    // 结算：为每种商品创建独立的待付款订单
     async handleCheckout() {
       if (this.selectedItems.length === 0) {
         this.$message.warning('请选择要结算的商品')
         return
       }
       
+      // 检查是否登录
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.$message.warning('请先登录')
+        this.$router.push('/login').catch(err => err)
+        return
+      }
+
       try {
-        // 等待后端接口接入
-        // const res = await checkout({
-        //   items: this.selectedItems.map(item => ({
-        //     id: item.id,
-        //     quantity: item.quantity
-        //   }))
-        // })
-        // if (res && res.flag) {
-        //   this.$router.push('/home/payment')
-        // } else {
-        //   this.$message.error(res?.message || '结算失败')
-        // }
+        // 获取收货地址（可以从用户信息或地址管理获取，这里先使用默认值）
+        // TODO: 可以弹出一个对话框让用户选择或输入收货地址
+        const productIds = this.selectedItems.map(item => item.productId)
         
-        // 临时：跳转到订单页面
-        this.$message.info('结算功能等待后端接入')
-        // this.$router.push('/home/payment')
+        const res = await checkout({
+          productIds: productIds,
+          shippingAddress: '请填写收货地址', // 可以从地址管理获取
+          receiverName: '请填写收货人姓名',
+          receiverPhone: '请填写收货人电话'
+        })
+        
+        if (res && res.flag) {
+          // 后端会为每种商品创建一个独立的订单，返回订单列表
+          const orders = res.data || []
+          const orderCount = Array.isArray(orders) ? orders.length : 1
+          this.$message.success(`成功创建 ${orderCount} 个待付款订单，请前往订单管理付款`)
+          
+          // 从购物车中删除已结算的商品
+          const deletePromises = this.selectedItems.map(item => 
+            cartDeleteOrder({
+              order_id: item.productId,
+              productId: item.productId
+            })
+          )
+          await Promise.all(deletePromises)
+          this.selectedItems = []
+          // 重新加载购物车
+          this.loadCartItems()
+          // 跳转到订单管理页面
+          this.$router.push('/home/orderInfo').catch(err => err)
+        } else {
+          this.$message.error(res?.message || '结算失败')
+        }
       } catch (error) {
         console.error('结算失败:', error)
-        this.$message.error('结算失败')
+        if (error && typeof error === 'object') {
+          if (error.flag === false) {
+            const errorMsg = error.message || '结算失败'
+            if (errorMsg.includes('登录') || error.status === 401) {
+              this.$message.warning('请先登录')
+              this.$router.push('/login').catch(err => err)
+            } else {
+              this.$message.error(errorMsg)
+            }
+          } else {
+            this.$message.error(error.message || '结算失败，请检查网络连接')
+          }
+        } else {
+          this.$message.error('结算失败')
+        }
       }
     },
 

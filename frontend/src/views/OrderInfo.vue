@@ -156,7 +156,7 @@
                 立即付款
               </el-button>
               <el-button 
-                v-if="order.status === 'pending_receipt' || order.type === 1" 
+                v-if="order.status === 'pending_receipt'" 
                 size="small" 
                 type="danger"
                 @click="confirmReceive(order)"
@@ -164,7 +164,7 @@
                 确认收货
               </el-button>
               <el-button 
-                v-if="(order.status === 'completed' || order.type === 1) && (order.status !== 'pending_review')" 
+                v-if="order.status === 'pending_review'" 
                 size="small" 
                 type="warning"
                 @click="evaluate(order)"
@@ -201,6 +201,7 @@
                 申请开票
               </el-button>
               <el-button 
+                v-if="order.status === 'pending_payment' || order.status === 'refund_after_sale'"
                 size="small"
                 type="text"
                 @click="deleteOrder(order)"
@@ -227,7 +228,7 @@
 </template>
 
 <script>
-import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive } from "../api/trade";
+import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive, payOrder, completeReview, getOrders } from "../api/trade";
 import { addOrderToCart } from "../api/cart";
 
 export default {
@@ -267,6 +268,7 @@ export default {
         );
       } else if (this.currentTab === "refund_after_sale") {
         filtered = filtered.filter(order => 
+          order.status === "refund_after_sale" ||
           order.refundStatus || order.afterSaleStatus || 
           order.refund_status || order.after_sale_status ||
           order.status === "refunding" || order.status === "refunded" ||
@@ -341,13 +343,48 @@ export default {
       // 使用 require 引用本地资源，避免走代理
       e.target.src = require("../assets/img/wutu.gif");
     },
-    payOrder(order) {
-      this.$message.info("跳转到支付页面");
-      // 跳转到支付页面
-      this.$router.push({
-        path: "/payment",
-        query: { orderId: order.orderId || order.order_id }
-      });
+    async payOrder(order) {
+      const orderId = order.id || order.orderId || order.order_id;
+      if (!orderId) {
+        this.$message.error("订单ID缺失，无法付款");
+        return;
+      }
+      
+      this.$confirm("确认付款？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(async () => {
+        try {
+          const res = await payOrder(orderId);
+          if (res && res.flag) {
+            // 更新订单状态
+            order.status = "pending_receipt";
+            this.$message.success(res.message || "付款成功，订单已进入待收货状态");
+            this.$forceUpdate();
+            this.loadOrders();
+          } else {
+            this.$message.error((res && res.message) || "付款失败");
+          }
+        } catch (error) {
+          console.error("付款失败:", error);
+          if (error && typeof error === 'object') {
+            if (error.flag === false) {
+              const errorMsg = error.message || '付款失败';
+              if (errorMsg.includes('登录') || error.status === 401) {
+                this.$message.warning('请先登录');
+                this.$router.push('/login').catch(() => {});
+              } else {
+                this.$message.error(errorMsg);
+              }
+            } else {
+              this.$message.error(error.message || '付款失败，请检查网络连接');
+            }
+          } else {
+            this.$message.error("付款失败");
+          }
+        }
+      }).catch(() => {});
     },
     confirmReceive(order) {
       this.$confirm("确认收货？", "提示", {
@@ -378,11 +415,53 @@ export default {
           });
       });
     },
-    evaluate(order) {
-      this.$router.push({
-        path: "/home/details",
-        query: { orderId: order.orderId || order.order_id }
-      });
+    async evaluate(order) {
+      const orderId = order.id || order.orderId || order.order_id;
+      if (!orderId) {
+        this.$message.error("订单ID缺失，无法评价");
+        return;
+      }
+      
+      // 这里可以打开评价对话框或跳转到评价页面
+      // 暂时使用确认对话框模拟评价完成
+      this.$confirm("确认完成评价？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(async () => {
+        try {
+          const res = await completeReview(orderId);
+          if (res && res.flag) {
+            // 更新订单状态
+            order.status = "refund_after_sale";
+            this.$message.success(res.message || "评价完成，订单已进入退款/售后");
+            // 切换到退款/售后标签页
+            this.currentTab = "refund_after_sale";
+            // 重新加载订单列表
+            await this.loadOrders();
+            this.$forceUpdate();
+          } else {
+            this.$message.error((res && res.message) || "完成评价失败");
+          }
+        } catch (error) {
+          console.error("完成评价失败:", error);
+          if (error && typeof error === 'object') {
+            if (error.flag === false) {
+              const errorMsg = error.message || '完成评价失败';
+              if (errorMsg.includes('登录') || error.status === 401) {
+                this.$message.warning('请先登录');
+                this.$router.push('/login').catch(() => {});
+              } else {
+                this.$message.error(errorMsg);
+              }
+            } else {
+              this.$message.error(error.message || '完成评价失败，请检查网络连接');
+            }
+          } else {
+            this.$message.error("完成评价失败");
+          }
+        }
+      }).catch(() => {});
     },
     buyAgain(order) {
       addOrderToCart({
@@ -459,24 +538,58 @@ export default {
       this.$message.info("申请开票功能开发中");
     },
     deleteOrder(order) {
-      this.$confirm("确认删除该订单？", "提示", {
+      const orderId = order.id || order.orderId || order.order_id;
+      if (!orderId) {
+        this.$message.error("订单ID缺失，无法删除");
+        return;
+      }
+
+      // 检查订单状态，给出提示
+      const status = order.status;
+      if (status !== "pending_payment" && status !== "refund_after_sale") {
+        this.$message.warning("只能删除待付款或退款/售后状态的订单");
+        return;
+      }
+
+      this.$confirm("确认删除该订单？删除后无法恢复。", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
         deleteOrderById({
-          order_id: order.orderId || order.order_id
+          order_id: orderId
         }).then((res) => {
-          if (res.flag) {
-            this.$message.success("删除成功");
+          if (res && res.flag) {
+            this.$message.success(res.message || "删除成功");
+            // 从列表中移除已删除的订单
+            this.orders = this.orders.filter(o => 
+              (o.id || o.orderId || o.order_id) !== orderId
+            );
+            this.$forceUpdate();
+            // 重新加载订单列表
             this.loadOrders();
           } else {
-            this.$message.error(res.message || "删除失败");
+            this.$message.error((res && res.message) || "删除失败");
           }
         }).catch((err) => {
-          this.$message.error("删除失败");
+          console.error("删除订单失败:", err);
+          if (err && typeof err === 'object') {
+            if (err.flag === false) {
+              const errorMsg = err.message || '删除失败';
+              if (errorMsg.includes('登录') || err.status === 401) {
+                this.$message.warning('请先登录');
+                this.$router.push('/login').catch(() => {});
+              } else {
+                this.$message.error(errorMsg);
+              }
+            } else {
+              this.$message.error(err.message || '删除失败，请检查网络连接');
+            }
+          } else {
+            this.$message.error("删除失败");
+          }
         });
-      });
+      }).catch(() => {});
     },
     getMockOrders() {
       // 模拟订单数据 - 仅包含农产品相关订单
@@ -560,43 +673,64 @@ export default {
       ];
       return mockOrders;
     },
-    loadOrders() {
-      // 先直接使用模拟数据，确保能显示
-      this.orders = this.getMockOrders();
-      
-      // 根据当前标签加载订单
-      if (this.currentTab === "all") {
-        selectAllPage({
-          pageNum: 1,
-          keys: ""
-        }).then((res) => {
-          console.log("API返回数据:", res);
-          if (res && res.flag && res.data) {
-            const apiOrders = res.data.list || res.data || [];
-            // 如果API返回有效数据，使用API数据
-            if (Array.isArray(apiOrders) && apiOrders.length > 0) {
-              this.orders = apiOrders;
-            }
+    async loadOrders() {
+      try {
+        // 根据当前标签加载订单
+        let status = null;
+        if (this.currentTab === "pending_payment") {
+          status = "pending_payment";
+        } else if (this.currentTab === "pending_receipt") {
+          status = "pending_receipt";
+        } else if (this.currentTab === "pending_review") {
+          status = "pending_review";
+        } else if (this.currentTab === "refund_after_sale") {
+          status = "refund_after_sale";
+        }
+        
+        const res = await getOrders({ status: status });
+        if (res && res.flag && res.data) {
+          const apiOrders = res.data.list || res.data || [];
+          if (Array.isArray(apiOrders) && apiOrders.length > 0) {
+            // 转换订单数据格式，兼容前端显示
+            this.orders = apiOrders.map(order => ({
+              id: order.id,
+              orderId: order.id,
+              order_id: order.id,
+              orderNumber: order.orderNumber,
+              title: order.orderItems && order.orderItems.length > 0 
+                ? order.orderItems[0].productName 
+                : '商品名称',
+              productName: order.orderItems && order.orderItems.length > 0 
+                ? order.orderItems[0].productName 
+                : '商品名称',
+              price: order.totalAmount,
+              totalPrice: order.totalAmount,
+              quantity: order.orderItems ? order.orderItems.reduce((sum, item) => sum + item.quantity, 0) : 1,
+              count: order.orderItems ? order.orderItems.reduce((sum, item) => sum + item.quantity, 0) : 1,
+              status: order.status,
+              type: order.status === "pending_payment" ? 0 : 1,
+              createTime: order.createTime,
+              create_time: order.createTime,
+              shippingAddress: order.shippingAddress,
+              receiverName: order.receiverName,
+              receiverPhone: order.receiverPhone,
+              orderItems: order.orderItems || []
+            }));
+            
+            // 更新待评价数量
+            const pendingReviewOrders = this.orders.filter(o => o.status === "pending_review");
+            this.pendingReviewCount = pendingReviewOrders.length;
+          } else {
+            this.orders = [];
           }
-        }).catch((err) => {
-          console.error("加载订单失败:", err);
-          // 出错时保持使用模拟数据
-        });
-      } else {
-        // 加载我买的订单
-        selectBuyByUserName({}).then((res) => {
-          console.log("API返回数据:", res);
-          if (res && res.flag && res.data) {
-            const apiOrders = Array.isArray(res.data) ? res.data : [];
-            // 如果API返回有效数据，使用API数据
-            if (apiOrders.length > 0) {
-              this.orders = apiOrders;
-            }
-          }
-        }).catch((err) => {
-          console.error("加载订单失败:", err);
-          // 出错时保持使用模拟数据
-        });
+        } else {
+          // 如果API没有返回数据，使用模拟数据
+          this.orders = this.getMockOrders();
+        }
+      } catch (error) {
+        console.error("加载订单失败:", error);
+        // 出错时使用模拟数据
+        this.orders = this.getMockOrders();
       }
     }
   },
