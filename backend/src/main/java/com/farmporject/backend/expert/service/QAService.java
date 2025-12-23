@@ -23,7 +23,8 @@ public class QAService {
     private final ExpertRepository expertRepository;
 
     @Autowired
-    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository, ExpertRepository expertRepository) {
+    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository,
+            ExpertRepository expertRepository) {
         this.questionRepository = questionRepository;
         this.answerRepository = answerRepository;
         this.expertRepository = expertRepository;
@@ -33,79 +34,58 @@ public class QAService {
     public List<Question> getAllQuestions() {
         // 查询所有问题，然后在内存中排序
         List<Question> list = questionRepository.findAll();
-        
+
         // 初始化懒加载的集合，避免 LazyInitializationException
         for (Question q : list) {
-            try {
-                if (q.getAttachmentUrls() != null) {
-                    q.getAttachmentUrls().size(); // 触发懒加载
-                }
-            } catch (Exception e) {
-                // 如果懒加载失败，设置为空列表
-                q.setAttachmentUrls(new java.util.ArrayList<>());
-            }
-            try {
-                if (q.getTags() != null) {
-                    q.getTags().size(); // 触发懒加载
-                }
-            } catch (Exception e) {
-                // 如果懒加载失败，设置为空列表
-                q.setTags(new java.util.ArrayList<>());
-            }
+            initializeLazyFields(q);
         }
-        
+
         // 按更新时间降序排列（如果updateTime为null，使用createTime）
         list.sort((a, b) -> {
             LocalDateTime timeA = a.getUpdateTime() != null ? a.getUpdateTime() : a.getCreateTime();
             LocalDateTime timeB = b.getUpdateTime() != null ? b.getUpdateTime() : b.getCreateTime();
-            if (timeA == null && timeB == null) return 0;
-            if (timeA == null) return 1;
-            if (timeB == null) return -1;
+            if (timeA == null && timeB == null)
+                return 0;
+            if (timeA == null)
+                return 1;
+            if (timeB == null)
+                return -1;
             return timeB.compareTo(timeA);
         });
         return list;
     }
 
+    // 最近的十条问题
     public List<Question> getRecentQuestions() {
         return questionRepository.findTop10ByOrderByCreateTimeDesc();
     }
 
+    // 根据用户id查询用户的所有问题，按更新时间降序排列
     public List<Question> getUserQuestions(Long userId) {
         // 查询用户问题，然后在内存中排序
-        List<Question> list = questionRepository.findByUserId(String.valueOf(userId));
-        
+        List<Question> list = questionRepository.findByUserId(userId);
+
         // 初始化懒加载的集合，避免 LazyInitializationException
         for (Question q : list) {
-            try {
-                if (q.getAttachmentUrls() != null) {
-                    q.getAttachmentUrls().size(); // 触发懒加载
-                }
-            } catch (Exception e) {
-                // 如果懒加载失败，设置为空列表
-                q.setAttachmentUrls(new java.util.ArrayList<>());
-            }
-            try {
-                if (q.getTags() != null) {
-                    q.getTags().size(); // 触发懒加载
-                }
-            } catch (Exception e) {
-                // 如果懒加载失败，设置为空列表
-                q.setTags(new java.util.ArrayList<>());
-            }
+            initializeLazyFields(q);
         }
-        
+
         // 按更新时间降序排列（如果updateTime为null，使用createTime）
         list.sort((a, b) -> {
             LocalDateTime timeA = a.getUpdateTime() != null ? a.getUpdateTime() : a.getCreateTime();
             LocalDateTime timeB = b.getUpdateTime() != null ? b.getUpdateTime() : b.getCreateTime();
-            if (timeA == null && timeB == null) return 0;
-            if (timeA == null) return 1;
-            if (timeB == null) return -1;
+            if (timeA == null && timeB == null)
+                return 0;
+            if (timeA == null)
+                return 1;
+            if (timeB == null)
+                return -1;
             return timeB.compareTo(timeA);
         });
         return list;
     }
 
+    // 根据专家id查询专家的所有问题，按创建时间降序排列
     public List<Question> getExpertQuestions(Long expertId) {
         return questionRepository.findByExpertIdOrderByCreateTimeDesc(expertId);
     }
@@ -114,12 +94,16 @@ public class QAService {
         return questionRepository.findByStatusOrderByCreateTimeDesc(status);
     }
 
-    public List<Question> getUserQuestionsByStatus(String userId, Question.QuestionStatus status) {
+    public List<Question> getUserQuestionsByStatus(Long userId, Question.QuestionStatus status) {
         return questionRepository.findByUserIdAndStatusOrderByCreateTimeDesc(userId, status);
     }
 
     public List<Question> searchQuestionsByKeyword(String keyword) {
-        return questionRepository.findByKeyword(keyword);
+        List<Question> list = questionRepository.findByKeyword(keyword);
+        for (Question q : list) {
+            initializeLazyFields(q);
+        }
+        return list;
     }
 
     public List<Question> searchQuestionsByTag(String tag) {
@@ -127,7 +111,9 @@ public class QAService {
     }
 
     public Optional<Question> getQuestionById(Long id) {
-        return questionRepository.findById(id);
+        Optional<Question> question = questionRepository.findById(id);
+        question.ifPresent(this::initializeLazyFields);
+        return question;
     }
 
     public Question createQuestion(Question question) {
@@ -182,12 +168,12 @@ public class QAService {
             // 先加载问题，清空关联的集合（附件和标签）
             Question question = questionRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Question not found with id: " + id));
-            
+
             // 清空附件和标签，避免外键约束错误
             question.setAttachmentUrls(new java.util.ArrayList<>());
             question.setTags(new java.util.ArrayList<>());
             questionRepository.save(question); // 保存以删除关联记录
-            
+
             // 先删除相关的回答
             List<Answer> answers = answerRepository.findByQuestionId(id);
             answerRepository.deleteAll(answers);
@@ -201,7 +187,18 @@ public class QAService {
 
     // Answer methods
     public List<Answer> getQuestionAnswers(Long questionId) {
-        return answerRepository.findByQuestionIdOrderByCreateTime(questionId);
+        List<Answer> answers = answerRepository.findByQuestionIdOrderByCreateTime(questionId);
+        // Initialize lazy-loaded expert field
+        for (Answer answer : answers) {
+            try {
+                if (answer.getExpert() != null) {
+                    answer.getExpert().getName(); // Trigger lazy load
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return answers;
     }
 
     public List<Answer> getExpertAnswers(Long expertId) {
@@ -275,6 +272,99 @@ public class QAService {
      * 获取所有专家列表
      */
     public List<Expert> getAllExperts() {
-        return expertRepository.findAll();
+        List<Expert> experts = expertRepository.findAll();
+        // Initialize lazy collections
+        for (Expert expert : experts) {
+            try {
+                if (expert.getSpecialties() != null) {
+                    expert.getSpecialties().size(); // Trigger lazy load
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        return experts;
+    }
+
+    // Question view and like methods
+    public void viewQuestion(Long id) {
+        if (!questionRepository.existsById(id)) {
+            throw new RuntimeException("Question not found with id: " + id);
+        }
+        questionRepository.incrementViewCount(id);
+    }
+
+    public void likeQuestion(Long id) {
+        if (!questionRepository.existsById(id)) {
+            throw new RuntimeException("Question not found with id: " + id);
+        }
+        questionRepository.incrementLikeCount(id);
+    }
+
+    public void unlikeQuestion(Long id) {
+        if (!questionRepository.existsById(id)) {
+            throw new RuntimeException("Question not found with id: " + id);
+        }
+        questionRepository.decrementLikeCount(id);
+    }
+
+    // Answer view and like methods
+    public void viewAnswer(Long id) {
+        if (!answerRepository.existsById(id)) {
+            throw new RuntimeException("Answer not found with id: " + id);
+        }
+        answerRepository.incrementViewCount(id);
+    }
+
+    public void likeAnswer(Long id) {
+        if (!answerRepository.existsById(id)) {
+            throw new RuntimeException("Answer not found with id: " + id);
+        }
+        answerRepository.incrementLikeCount(id);
+    }
+
+    public void unlikeAnswer(Long id) {
+        if (!answerRepository.existsById(id)) {
+            throw new RuntimeException("Answer not found with id: " + id);
+        }
+        answerRepository.decrementLikeCount(id);
+    }
+
+    /**
+     * 初始化懒加载字段
+     */
+    private void initializeLazyFields(Question q) {
+        try {
+            if (q.getAttachmentUrls() != null) {
+                q.getAttachmentUrls().size(); // 触发懒加载
+            }
+        } catch (Exception e) {
+            // 如果懒加载失败，设置为空列表
+            q.setAttachmentUrls(new java.util.ArrayList<>());
+        }
+        try {
+            if (q.getTags() != null) {
+                q.getTags().size(); // 触发懒加载
+            }
+        } catch (Exception e) {
+            // 如果懒加载失败，设置为空列表
+            q.setTags(new java.util.ArrayList<>());
+        }
+
+        // Initialize User and Expert to avoid LazyInitializationException
+        try {
+            if (q.getUser() != null) {
+                q.getUser().getUsername(); // Trigger lazy load
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            if (q.getExpert() != null) {
+                q.getExpert().getName(); // Trigger lazy load
+            }
+        } catch (Exception e) {
+            // ignore
+        }
     }
 }

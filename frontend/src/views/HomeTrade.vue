@@ -25,6 +25,13 @@
         <div class="action-title">求购需求</div>
         <div class="action-desc">发布和查看求购信息</div>
       </div>
+      <div class="action-card" @click="handleQuickAction('cart')">
+        <div class="action-icon cart-icon">
+          <i class="el-icon-shopping-cart-2"></i>
+        </div>
+        <div class="action-title">购物车</div>
+        <div class="action-desc">查看和管理购物车商品</div>
+      </div>
       <div class="action-card" @click="handleQuickAction('order')">
         <div class="action-icon order-icon">
           <i class="el-icon-s-order"></i>
@@ -135,7 +142,7 @@
 </template>
 
 <script>
-import { selectGoodsPage, selectNeedsPage } from "../api/order";
+import { selectGoodsPage, selectNeedsPage } from "../api/trade";
 
 export default {
   name: "HomeTrade",
@@ -253,6 +260,9 @@ export default {
           break;
         case 'purchase':
           this.$router.push("/home/purchase").catch((err) => err);
+          break;
+        case 'cart':
+          this.$router.push("/home/shopcart").catch((err) => err);
           break;
         case 'order':
           this.$router.push("/home/orderInfo").catch((err) => err);
@@ -400,6 +410,10 @@ export default {
 
         &.purchase-icon {
           background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+        }
+
+        &.cart-icon {
+          background: linear-gradient(135deg, #f56c6c 0%, #ff8c94 100%);
         }
 
         &.order-icon {

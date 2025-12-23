@@ -119,8 +119,25 @@ export default {
           }
         })
         .catch((err) => {
-          this.$message.error('添加失败，请先登录');
-          console.error(err);
+          console.error('加入购物车错误:', err);
+          // 处理错误信息
+          if (err && typeof err === 'object') {
+            if (err.flag === false) {
+              const errorMsg = err.message || '添加失败';
+              if (errorMsg.includes('登录') || err.status === 401) {
+                this.$message.warning('请先登录');
+                this.$router.push('/login').catch(() => {});
+              } else {
+                this.$message.error(errorMsg);
+              }
+            } else if (err.isNetworkError) {
+              this.$message.error(err.message || '网络连接失败，请检查网络设置');
+            } else {
+              this.$message.error(err.message || '添加失败，请检查网络连接');
+            }
+          } else {
+            this.$message.error('添加失败，请先登录');
+          }
         });
     },
     changeInfo() {

@@ -21,6 +21,19 @@
           <el-form :model="matchForm" :rules="rules" ref="matchForm" label-width="120px">
             <el-row :gutter="24">
               <el-col :span="12">
+                <el-form-item label="您的姓名" prop="applicantName">
+                  <el-input v-model="matchForm.applicantName" placeholder="请输入真实姓名"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系电话" prop="applicantPhone">
+                  <el-input v-model="matchForm.applicantPhone" placeholder="请输入联系电话"></el-input>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="24">
+              <el-col :span="12">
                 <el-form-item label="贷款金额" prop="amount">
                   <el-input-number
                     v-model="matchForm.amount"
@@ -123,7 +136,7 @@
               <i class="el-icon-success"></i>
               <span>匹配结果</span>
               <el-tag type="success" size="small" style="margin-left: 10px;">
-                共找到 {{ matchResults.length }} 个匹配产品
+                共找到 {{ matchResults.length }} 位推荐合作伙伴
               </el-tag>
             </div>
             <el-button type="text" @click="showResults = false" class="close-btn">
@@ -134,7 +147,7 @@
           <div class="results-content">
             <div class="no-results" v-if="matchResults.length === 0">
               <i class="el-icon-warning-outline"></i>
-              <p>暂无匹配的金融产品</p>
+              <p>暂无匹配的推荐结果</p>
               <p class="no-results-tip">请调整您的需求条件后重新匹配</p>
             </div>
             
@@ -164,38 +177,49 @@
                 </div>
                 
                 <div class="result-details">
+                  <!-- 匹配标签/原因 -->
+                  <div class="match-tags" v-if="result.matchReason" style="margin-bottom: 12px;">
+                    <el-alert
+                      :title="result.matchReason"
+                      type="success"
+                      :closable="false"
+                      show-icon
+                      style="padding: 8px 16px;">
+                    </el-alert>
+                  </div>
+
                   <div class="detail-row">
                     <div class="detail-item">
                       <span class="label">
                         <i class="el-icon-coin"></i>
-                        申请额度
+                        意向额度
                       </span>
                       <span class="value">{{ formatAmount(result.amount) }}</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">
                         <i class="el-icon-time"></i>
-                        贷款期限
+                        期望期限
                       </span>
                       <span class="value">{{ result.term }}个月</span>
                     </div>
                     <div class="detail-item">
                       <span class="label">
-                        <i class="el-icon-trophy"></i>
-                        参考利率
+                        <i class="el-icon-collection-tag"></i>
+                        资金用途
                       </span>
-                      <span class="value highlight">{{ result.interestRate }}</span>
+                      <span class="value highlight">{{ formatPurpose(result.purpose) }}</span>
                     </div>
-                    <div class="detail-item">
-                      <span class="label">
-                        <i class="el-icon-alarm-clock"></i>
-                        最快放款
-                      </span>
-                      <span class="value">{{ result.loanTime }}</span>
-                    </div>
+                      <div class="detail-item">
+                       <span class="label">
+                         <i class="el-icon-money"></i>
+                         年收入
+                       </span>
+                       <span class="value">{{ formatAmount(result.income) }}</span>
+                     </div>
                   </div>
                   <div class="match-progress">
-                    <span class="progress-label">匹配度</span>
+                    <span class="progress-label">综合匹配度</span>
                     <el-progress 
                       :percentage="result.matchRate" 
                       :color="getProgressColor(result.matchRate)"
@@ -231,10 +255,56 @@
         </el-card>
       </div>
     </div>
+
+    <!-- 联合贷款推荐弹窗 -->
+    <el-dialog
+      title="为您推荐的专属联合贷"
+      :visible.sync="showProductDialog"
+      width="600px"
+      append-to-body>
+      
+      <div v-loading="loadingProducts">
+        <el-alert
+          v-if="recommendationReason"
+          :title="recommendationReason"
+          type="success"
+          show-icon
+          :closable="false"
+          style="margin-bottom: 20px;">
+        </el-alert>
+        
+        <div class="recommended-products">
+          <div 
+            v-for="product in recommendedProducts" 
+            :key="product.id"
+            class="product-card-small"
+          >
+            <div class="product-info">
+              <div class="product-name">{{ product.name }}</div>
+              <div class="product-tags">
+                <el-tag size="mini" effect="plain">{{ product.bank }}</el-tag>
+                <el-tag size="mini" type="success" v-if="product.fastestDisbursement">最快{{ product.fastestDisbursement }}放款</el-tag>
+              </div>
+              <div class="product-meta">
+                <span>额度: {{ formatAmount(product.amount) }}</span>
+                <span>利率: {{ product.rate }}%</span>
+              </div>
+            </div>
+            <div class="product-action">
+              <el-button type="primary" size="small" @click="confirmApply(product)">申请此产品</el-button>
+            </div>
+          </div>
+          
+          <el-empty v-if="recommendedProducts.length === 0 && !loadingProducts" description="暂无特别推荐的产品"></el-empty>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { selectIntention, updateIntention, insertIntention, selectRecommned, selectComboRecommend } from '../api/finance'
+
 export default {
   name: 'SmartMatchPage',
   data() {
@@ -244,7 +314,9 @@ export default {
         period: '',
         purpose: '',
         income: null,
-        requirements: ''
+        requirements: '',
+        applicantName: '',
+        applicantPhone: ''
       },
       rules: {
         amount: [
@@ -258,78 +330,164 @@ export default {
         ],
         income: [
           { required: true, message: '请输入年收入', trigger: 'blur' }
+        ],
+        applicantName: [
+          { required: true, message: '请输入您的姓名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        applicantPhone: [
+          { required: true, message: '请输入联系电话', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
         ]
       },
       matching: false,
       showResults: false,
-      matchResults: []
+      matchResults: [],
+      
+      // 联合贷款推荐弹窗相关
+      showProductDialog: false,
+      recommendedProducts: [],
+      recommendationReason: '',
+      currentPartner: null,
+      loadingProducts: false,
+      combinedIncome: 0
     };
   },
   methods: {
-    startMatch() {
-      this.$refs.matchForm.validate((valid) => {
+    async startMatch() {
+      this.$refs.matchForm.validate(async (valid) => {
         if (valid) {
           this.matching = true;
-          // 模拟匹配过程
-          setTimeout(() => {
-            this.performMatch();
+          try {
+            // 1. 构建意向数据对象
+            const intentionDTO = {
+              amount: this.matchForm.amount,
+              repaymentPeriod: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12),
+              application: this.matchForm.purpose || 'other',
+              annualIncome: this.matchForm.income,
+              otherNeeds: this.matchForm.requirements,
+              realName: this.matchForm.applicantName,
+              phone: this.matchForm.applicantPhone
+            };
+
+            // 2. 查询是否存在意向，决定是插入还是更新
+            const res = await selectIntention();
+            if (res && res.success && res.data) {
+              // 更新
+              intentionDTO.id = res.data.id;
+              await updateIntention(intentionDTO);
+            } else {
+              // 插入
+              await insertIntention(intentionDTO);
+            }
+
+            // 3. 获取推荐（智能匹配）
+            const recommendRes = await selectRecommned();
+            if (recommendRes && recommendRes.success) {
+               this.processMatchResults(recommendRes.data);
+               this.showResults = true;
+            } else {
+               this.matchResults = [];
+               this.$message.warning('未找到匹配的推荐结果');
+            }
+          } catch (error) {
+            console.error('Matching failed:', error);
+            this.$message.error('匹配失败，请稍后重试');
+          } finally {
             this.matching = false;
-            this.showResults = true;
-          }, 2000);
+          }
         }
       });
     },
     
-    performMatch() {
-      // 模拟匹配结果
-      this.matchResults = [
-        {
-          id: 1,
-          productName: '农业专项贷款',
-          bankName: '中国农业银行',
-          matchRate: 95,
-          interestRate: '3.85%',
-          loanTime: '1-3个工作日',
-          amount: 100000,
-          term: 12
-        },
-        {
-          id: 2,
-          productName: '惠农e贷',
-          bankName: '中国建设银行',
-          matchRate: 88,
-          interestRate: '4.2%',
-          loanTime: '2-5个工作日',
-          amount: 50000,
-          term: 6
-        },
-        {
-          id: 3,
-          productName: '乡村振兴贷',
-          bankName: '中国工商银行',
-          matchRate: 82,
-          interestRate: '4.5%',
-          loanTime: '3-7个工作日',
-          amount: 200000,
-          term: 24
-        }
-      ];
+    processMatchResults(results) {
+      // 将返回的匹配结果列表映射为视图模型
+      if (!results || !Array.isArray(results)) {
+        this.matchResults = [];
+        return;
+      }
+      
+      this.matchResults = results.map((result) => {
+        const intention = result.intention || {};
+        const score = result.score || 60;
+        
+        return {
+          id: intention.userId, 
+          productName: intention.realName || intention.userName || `推荐用户 ${intention.userId}`,
+          bankName: '优质合作伙伴', 
+          matchRate: score,
+          matchReason: result.matchReason, // 匹配原因
+          
+          // 使用匹配对象的真实数据
+          amount: intention.amount, 
+          term: intention.repaymentPeriod,
+          purpose: intention.application,
+          income: intention.annualIncome,
+          phone: intention.phone
+        };
+      });
     },
     formatAmount(amount) {
-      if (!amount) return '-';
-      return amount.toLocaleString('zh-CN') + ' 元';
+      if (!amount && amount !== 0) return '-';
+      return parseInt(amount).toLocaleString('zh-CN') + ' 元';
     },
-    goToApply(result) {
-      // 跳转到申请页面
-      localStorage.setItem('loanProduct', JSON.stringify(result));
-      const productId = result.id || result.name;
-      this.$router.push(`/home/loanApply/${productId}`);
+    formatPurpose(purpose) {
+      const map = {
+        'agriculture': '农业生产',
+        'equipment': '设备采购',
+        'working_capital': '流动资金',
+        'other': '其他'
+      };
+      return map[purpose] || purpose || '其他';
     },
+    
+    // 打开组合推荐弹窗
+    async goToApply(result) {
+      this.currentPartner = result;
+      this.showProductDialog = true;
+      this.loadingProducts = true;
+      
+      try {
+        const res = await selectComboRecommend(result.id);
+        if (res && res.success && res.data) {
+          this.recommendedProducts = res.data.recommendedProducts || [];
+          this.recommendationReason = res.data.recommendationReason;
+          this.combinedIncome = res.data.combinedIncome;
+        } else {
+          this.$message.warning('暂无特定推荐产品，请直接浏览金融超市');
+        }
+      } catch (error) {
+        console.error('Fetch combo products failed:', error);
+        this.$message.error('获取推荐产品失败');
+      } finally {
+        this.loadingProducts = false;
+      }
+    },
+    
+    // 确认申请（从弹窗跳转）
+    confirmApply(product) {
+       // 跳转到申请页面
+      localStorage.setItem('loanProduct', JSON.stringify(product));
+      
+      // 传递用户信息和partnerId
+      this.$router.push({
+        path: `/home/loanApply/${product.id}`,
+        query: {
+          partnerId: this.currentPartner.id,
+          partnerName: this.currentPartner.productName,
+          applicantName: this.matchForm.applicantName,
+          applicantPhone: this.matchForm.applicantPhone,
+          amount: this.matchForm.amount,
+          term: this.matchForm.period === '6' ? 6 : (parseInt(this.matchForm.period) || 12),
+          purpose: this.matchForm.purpose
+        }
+      });
+    },
+
     goToDetail(result) {
-      // 跳转到产品详情页
-      localStorage.setItem('loanProduct', JSON.stringify(result));
-      const productId = result.id || result.name;
-      this.$router.push(`/home/loanProductDetail/${productId}`);
+      // 这里的逻辑可能需要调整，因为现在的result是人，不是产品详情
+      // 如果要查看人的详情，需要有专门的用户详情页，当前暂不支持
+       this.$message.info('用户详情页开发中');
     },
     
     resetForm() {
@@ -786,3 +944,52 @@ export default {
   }
 }
 </style>
+
+.recommended-products {
+  .product-card-small {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #EBEEF5;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all 0.3s;
+    
+    &:hover {
+      border-color: #409EFF;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+    }
+    
+    .product-info {
+      flex: 1;
+      
+      .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 8px;
+      }
+      
+      .product-tags {
+        margin-bottom: 8px;
+        .el-tag {
+          margin-right: 8px;
+        }
+      }
+      
+      .product-meta {
+        font-size: 13px;
+        color: #606266;
+        
+        span {
+          margin-right: 16px;
+        }
+      }
+    }
+    
+    .product-action {
+      margin-left: 16px;
+    }
+  }
+}

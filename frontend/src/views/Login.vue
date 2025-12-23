@@ -15,7 +15,7 @@
               class="form-control"
               id="username"
               name="username"
-              placeholder="请输入账�?"
+              placeholder="请输入账号?"
               v-model="acount"
           />
         </div>

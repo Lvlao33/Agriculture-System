@@ -1,12 +1,13 @@
 <template>
   <div class="publish-message">
     <el-form ref="form" :model="form" label-width="90px" class="publish-form">
-      <el-form-item label="�ϼ�ͼƬ">
+      <el-form-item label="上架图片">
         <el-upload
           class="orders-img_el_upload"
           :action="upurl"
           :headers="upheaders"
           :limit="3"
+          :auto-upload="true"
           list-type="picture-card"
           :on-change="handleChange"
           :on-preview="handlePreview"
@@ -17,53 +18,53 @@
           :class="{ disUoloadSty: noneBtnImg }"
           ref="upload"
         >
-          <span class="orders-img_el_upload_btn" @click.stop="submitUpload">����ͼƬ</span>
+          <i class="el-icon-plus"></i>
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="��Ʒ����">
+      <el-form-item label="商品标题">
         <el-input
           v-model="form.title"
           style="width:800px;"
-          placeholder="��������Ʒ����"
+          placeholder="请输入商品标题"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="��Ʒ����">
+      <el-form-item label="商品描述">
         <el-input
           type="textarea"
           style="width:800px;"
           v-model="form.content"
-          placeholder="����д��ϸ����Ʒ����"
+          placeholder="请填写详细的商品描述"
           :rows="4"
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="��Ʒ����">
+      <el-form-item label="商品分类">
         <el-cascader
           v-model="form.categoryPath"
           :options="categoryOptions"
           :props="{ expandTrigger: 'hover' }"
           clearable
           style="width:400px;"
-          placeholder="��ѡ����Ʒ��������"
+          placeholder="请选择商品所属分类"
         ></el-cascader>
       </el-form-item>
 
-      <el-form-item label="��Ʒ�۸�">
+      <el-form-item label="商品价格">
         <el-input
           v-model="form.price"
           style="width:150px;"
-          placeholder="������۸�"
+          placeholder="请输入价格"
         >
-          <template slot="append">Ԫ</template>
+          <template slot="append">元</template>
         </el-input>
       </el-form-item>
     </el-form>
 
     <div class="submit-row">
       <el-button type="success" :disabled="isDisabled" @click="publishClick">
-        ������Ϣ
+        发布信息
       </el-button>
     </div>
   </div>
@@ -98,45 +99,45 @@ export default {
       categoryOptions: [
         {
           value: "vegetable",
-          label: "�߲���",
+          label: "蔬菜类",
           children: [
-            { value: "leafy", label: "Ҷ���ࣨ���ˡ����˵ȣ�" },
-            { value: "root", label: "�����ࣨ�ܲ��������ȣ�" },
-            { value: "gourd", label: "�Ϲ��ࣨ�ƹϡ����ѵȣ�" },
+            { value: "leafy", label: "叶菜类（菠菜、生菜等）" },
+            { value: "root", label: "根茎类（萝卜、土豆等）" },
+            { value: "gourd", label: "瓜果类（黄瓜、番茄等）" },
           ],
         },
         {
           value: "fruit",
-          label: "ˮ����",
+          label: "水果类",
           children: [
-            { value: "berry", label: "�����ࣨ��ݮ����ݮ�ȣ�" },
-            { value: "stone", label: "�˹��ࣨ���ӡ����ӵȣ�" },
-            { value: "citrus", label: "�����ࣨ���ӡ����ӵȣ�" },
+            { value: "berry", label: "浆果类（草莓、蓝莓等）" },
+            { value: "stone", label: "核果类（桃子、李子等）" },
+            { value: "citrus", label: "柑橘类（橙子、柚子等）" },
           ],
         },
         {
           value: "grain",
-          label: "��ʳ����",
+          label: "粮食作物",
           children: [
-            { value: "cereals", label: "�����ࣨˮ����С��ȣ�" },
-            { value: "beans", label: "���ࣨ�󶹡��̶��ȣ�" },
+            { value: "cereals", label: "谷物类（水稻、小麦等）" },
+            { value: "beans", label: "豆类（大豆、绿豆等）" },
           ],
         },
         {
           value: "livestock",
-          label: "���ݲ�Ʒ",
+          label: "畜禽产品",
           children: [
-            { value: "meat", label: "���ࣨ���⡢ţ��ȣ�" },
-            { value: "eggMilk", label: "�����ࣨ������ţ�̵ȣ�" },
+            { value: "meat", label: "肉类（猪肉、牛肉等）" },
+            { value: "eggMilk", label: "蛋奶类（鸡蛋、牛奶等）" },
           ],
         },
         {
           value: "specialty",
-          label: "��ɫũ��Ʒ",
+          label: "特色农产品",
           children: [
-            { value: "organic", label: "�л�ʳƷ" },
-            { value: "geo", label: "������־��Ʒ" },
-            { value: "handcraft", label: "�ֹ���Ʒ" },
+            { value: "organic", label: "有机食品" },
+            { value: "geo", label: "地理标志产品" },
+            { value: "handcraft", label: "手工艺品" },
           ],
         },
       ],
@@ -165,24 +166,92 @@ export default {
     },
   },
   methods: {
-    handleError(err) {
-      this.$message.error("ͼƬ�ϴ�ʧ�ܣ�������");
-      console.log(err);
+    handleError(err, file, fileList) {
+      console.error('图片上传失败:', err);
+      let errorMessage = "图片上传失败，请重试";
+      
+      if (err.response) {
+        // 服务器返回了错误响应
+        if (err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+        } else if (err.response.status === 413) {
+          errorMessage = "图片文件过大，请选择小于10MB的图片";
+        } else if (err.response.status === 404) {
+          errorMessage = "上传接口不存在，请检查后端服务是否启动";
+        } else if (err.response.status === 500) {
+          errorMessage = "服务器内部错误，请稍后重试";
+        }
+      } else if (err.message) {
+        // 网络错误或其他错误
+        if (err.message.includes('Network Error') || err.message.includes('timeout')) {
+          errorMessage = "网络连接失败，请检查后端服务地址是否正确";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      this.$message.error(errorMessage);
+      
+      // 从文件列表中移除失败的文件
+      const index = this.fileList.findIndex(f => f.uid === file.uid);
+      if (index > -1) {
+        this.fileList.splice(index, 1);
+      }
     },
     handleSuccess(response, file, fileList) {
-      if (response.flag === true) {
+      console.log('上传成功响应:', response, '文件:', file, '文件列表:', fileList);
+      if (response && response.flag === true) {
         this.fileList = fileList;
-        this.form.picture = response.data;
+        // 确保 response.data 是字符串
+        const filename = typeof response.data === 'string' ? response.data : String(response.data || '');
+        
+        // 如果这是第一张图片，或者 form.picture 为空，则设置为主图
+        if (filename && (!this.form.picture || fileList.length === 1)) {
+          this.form.picture = filename;
+        }
+        
+        // 确保 form.picture 始终有值（使用第一张成功上传的图片）
+        if (!this.form.picture && fileList.length > 0) {
+          // 从文件列表中查找第一张有响应数据的图片
+          for (let i = 0; i < fileList.length; i++) {
+            const f = fileList[i];
+            if (f.response && f.response.flag === true && f.response.data) {
+              this.form.picture = typeof f.response.data === 'string' 
+                ? f.response.data 
+                : String(f.response.data);
+              break;
+            }
+          }
+        }
+        
+        console.log('设置后的 form.picture:', this.form.picture);
+        
         if (fileList.length >= 3) {
           this.uploadDisabled = true;
         }
-        this.$message.success("ͼƬ�ϴ��ɹ�");
+        this.$message.success("图片上传成功");
       } else {
-        this.$message.error(response.message || "�ϴ�ʧ��");
+        this.$message.error(response?.message || "上传失败");
+        // 上传失败时移除该文件
+        const index = this.fileList.findIndex(f => f.uid === file.uid);
+        if (index > -1) {
+          this.fileList.splice(index, 1);
+        }
       }
     },
     handleChange(file, fileList) {
       this.noneBtnImg = fileList.length >= this.limitCountImg;
+      // 更新 fileList
+      this.fileList = fileList;
+      // 确保 form.picture 有值（使用第一张图片）
+      if (fileList.length > 0 && !this.form.picture) {
+        const firstFile = fileList[0];
+        if (firstFile.response && firstFile.response.data) {
+          this.form.picture = typeof firstFile.response.data === 'string' 
+            ? firstFile.response.data 
+            : String(firstFile.response.data);
+        }
+      }
     },
     handleRemove(file, fileList) {
       this.noneBtnImg = fileList.length >= this.limitCountImg;
@@ -190,6 +259,16 @@ export default {
       this.uploadDisabled = false;
       if (fileList.length === 0) {
         this.form.picture = "";
+      } else {
+        // 如果还有文件，使用第一张图片的路径
+        const firstFile = fileList[0];
+        if (firstFile.response && firstFile.response.data) {
+          this.form.picture = typeof firstFile.response.data === 'string' 
+            ? firstFile.response.data 
+            : String(firstFile.response.data);
+        } else if (firstFile.name) {
+          this.form.picture = firstFile.name;
+        }
       }
     },
     handlePreview(file) {
@@ -215,10 +294,28 @@ export default {
       return labels.join(" / ");
     },
     publishClick() {
-      if (this.ctype !== "needs" && this.form.picture === "") {
-        this.$message.warning("�������ϴ�һ����ƷͼƬ");
+      // 发布前再次确保 form.picture 有值
+      if (this.fileList.length > 0 && !this.form.picture) {
+        // 从文件列表中查找第一张有响应数据的图片
+        for (let i = 0; i < this.fileList.length; i++) {
+          const f = this.fileList[i];
+          if (f.response && f.response.flag === true && f.response.data) {
+            this.form.picture = typeof f.response.data === 'string' 
+              ? f.response.data 
+              : String(f.response.data);
+            break;
+          }
+        }
+      }
+      
+      // 检查是否有上传的图片（检查 fileList 或 form.picture）
+      if (this.ctype !== "needs" && (this.fileList.length === 0 || !this.form.picture || this.form.picture === "")) {
+        this.$message.warning("请至少上传一张商品图片");
         return;
       }
+      
+      console.log('发布商品，图片路径:', this.form.picture);
+      
       const categoryLabel = this.getCategoryLabel(this.form.categoryPath);
       addOrder({
         title: this.form.title,
@@ -230,15 +327,15 @@ export default {
       })
         .then((res) => {
           if (res.flag === true) {
-            this.$message.success(res.message || "�����ɹ�");
+            this.$message.success(res.message || "发布成功");
             this.$router.push("/home/user/published" + this.ctype);
           } else {
-            this.$message.error(res.message || "����ʧ��");
+            this.$message.error(res.message || "发布失败");
           }
         })
         .catch((err) => {
-          console.log("����ʧ��", err);
-          this.$message.error("����ʧ�ܣ����Ժ�����");
+          console.log("发布失败", err);
+          this.$message.error("发布失败，请稍后再试");
         });
     },
   },

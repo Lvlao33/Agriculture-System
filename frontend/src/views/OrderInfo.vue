@@ -227,7 +227,7 @@
 </template>
 
 <script>
-import { selectBuyByUserName, selectAllPage, deleteOrderById } from "../api/order";
+import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive } from "../api/trade";
 import { addOrderToCart } from "../api/cart";
 
 export default {
@@ -355,9 +355,27 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        // 调用确认收货接口
-        this.$message.success("确认收货成功");
-        this.loadOrders();
+        const orderId = order.id || order.orderId || order.order_id;
+        if (!orderId) {
+          this.$message.error("订单ID缺失，无法确认收货");
+          return;
+        }
+        confirmOrderReceive(orderId)
+          .then((res) => {
+            if (res && res.flag) {
+              // 前端直接更新状态，避免再次拉全量
+              order.status = "pending_review";
+              this.$message.success(res.message || "确认收货成功");
+              this.$forceUpdate();
+              this.loadOrders();
+            } else {
+              this.$message.error((res && res.message) || "确认收货失败");
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            this.$message.error("确认收货失败");
+          });
       });
     },
     evaluate(order) {
@@ -376,7 +394,25 @@ export default {
           this.$message.error(res.message || "加入购物车失败");
         }
       }).catch((err) => {
-        this.$message.error("加入购物车失败");
+        console.error('加入购物车错误:', err);
+        // 处理错误信息
+        if (err && typeof err === 'object') {
+          if (err.flag === false) {
+            const errorMsg = err.message || '加入购物车失败';
+            if (errorMsg.includes('登录') || err.status === 401) {
+              this.$message.warning('请先登录');
+              this.$router.push('/login').catch(() => {});
+            } else {
+              this.$message.error(errorMsg);
+            }
+          } else if (err.isNetworkError) {
+            this.$message.error(err.message || '网络连接失败，请检查网络设置');
+          } else {
+            this.$message.error(err.message || '加入购物车失败，请检查网络连接');
+          }
+        } else {
+          this.$message.error('加入购物车失败');
+        }
       });
     },
     viewLogistics(order) {
@@ -392,7 +428,25 @@ export default {
           this.$message.error(res.message || "加入购物车失败");
         }
       }).catch((err) => {
-        this.$message.error("加入购物车失败");
+        console.error('加入购物车错误:', err);
+        // 处理错误信息
+        if (err && typeof err === 'object') {
+          if (err.flag === false) {
+            const errorMsg = err.message || '加入购物车失败';
+            if (errorMsg.includes('登录') || err.status === 401) {
+              this.$message.warning('请先登录');
+              this.$router.push('/login').catch(() => {});
+            } else {
+              this.$message.error(errorMsg);
+            }
+          } else if (err.isNetworkError) {
+            this.$message.error(err.message || '网络连接失败，请检查网络设置');
+          } else {
+            this.$message.error(err.message || '加入购物车失败，请检查网络连接');
+          }
+        } else {
+          this.$message.error('加入购物车失败');
+        }
       });
     },
     applyAfterSale(order) {

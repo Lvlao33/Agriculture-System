@@ -95,6 +95,8 @@ public class LoanService {
                 loan.setLoanTermMonths(loanDTO.getLoanTermMonths());
                 loan.setInterestRate(loanDTO.getInterestRate());
                 loan.setRemark(loanDTO.getRemark());
+                loan.setApplicantName(loanDTO.getApplicantName());
+                loan.setApplicantPhone(loanDTO.getApplicantPhone());
 
                 // 默认值设置
                 loan.setStatus(Status.CREATED);
@@ -272,6 +274,8 @@ public class LoanService {
             loan.setLoanTermMonths(loanDto.getLoanTermMonths());
             loan.setLoanPurpose(loanDto.getLoanPurpose());
             loan.setRemark(loanDto.getRemark());
+            loan.setApplicantName(loanDto.getApplicantName());
+            loan.setApplicantPhone(loanDto.getApplicantPhone());
             loan.setUpdateDate(LocalDateTime.now());
 
             // 保存到数据库并确认是否成功

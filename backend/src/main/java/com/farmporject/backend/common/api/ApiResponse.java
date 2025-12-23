@@ -1,9 +1,9 @@
 package com.farmporject.backend.common.api;
 
 /**
- * 统一响应包装
+ * 缁熶竴鍝嶅簲鍖呰
  */
-// 未使用
+// 鏈娇鐢�
 
 public class ApiResponse<T> {
     private boolean success;

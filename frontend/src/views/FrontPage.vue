@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="front-page-container">
     <!-- 主内容区 -->
     <div class="front-page-main">
@@ -24,6 +24,48 @@
               <span class="headline-date">{{ item.date }}</span>
             </li>
           </ul>
+        </div>
+      </section>
+
+      <!-- 价格预测 CTA -->
+      <section class="forecast-cta card">
+        <div class="cta-left">
+          <div class="tag">价格预测</div>
+          <h3>主要品类未来7天价格走势</h3>
+          <p class="desc">基于 XGBoost 时序回归，结合滞后与季节特征，帮助您提前锁定采购成本。</p>
+          <div class="cta-metrics">
+            <div class="metric">
+              <span class="label">预测均价</span>
+              <span class="value">{{ homeForecast.avg }} 元/斤</span>
+            </div>
+            <div class="metric">
+              <span class="label">波动范围</span>
+              <span class="value">{{ homeForecast.range }}</span>
+            </div>
+            <div class="metric">
+              <span class="label">模型</span>
+              <span class="value">XGBoost</span>
+            </div>
+          </div>
+          <el-button type="primary" size="medium" @click="goForecast">
+            查看货源预测
+          </el-button>
+        </div>
+        <div class="cta-right">
+          <div class="mini-chart" v-if="homeForecast.series.length">
+            <div
+              v-for="(p, idx) in homeForecast.series"
+              :key="idx"
+              class="mini-bar"
+              :style="{ height: p.barHeight + '%'}"
+            >
+              <span class="mini-value">{{ p.pred }}</span>
+              <span class="mini-date">{{ p.date }}</span>
+            </div>
+          </div>
+          <div v-else class="mini-skeleton">
+            <el-skeleton animated :rows="2"></el-skeleton>
+          </div>
         </div>
       </section>
 
@@ -147,6 +189,7 @@
 <script>
 import SupplySection from '@/components/SupplySection.vue'
 import { selectAllPage, selectGoodsPage } from '@/api/order'
+import { getPriceForecast } from '@/api/price'
 
 export default {
   name: 'FrontPage',
@@ -156,6 +199,11 @@ export default {
       goods: [],
       goodsTopics: [],
       carouselImg: true,
+      homeForecast: {
+        avg: '--',
+        range: '--',
+        series: []
+      },
       supplySections: [
         {
           title: '农资农机',
@@ -480,8 +528,66 @@ export default {
   mounted() {
     this.getData()
     this.getTopicData()
+    this.loadHomeForecast()
   },
   methods: {
+    async loadHomeForecast() {
+      try {
+        const res = await getPriceForecast({ commodity: '苹果', horizon: 7 })
+        // 处理响应数据：后端返回格式为 { flag: true, data: { series, model, mape, updatedAt } }
+        let payload = {};
+        if (res.flag && res.data) {
+          payload = res.data;
+        } else if (res.series) {
+          payload = res;
+        } else if (res.data && res.data.series) {
+          payload = res.data;
+        } else {
+          payload = res;
+        }
+        
+        const series = payload.series || []
+        if (!Array.isArray(series) || series.length === 0) {
+          throw new Error('预测数据为空')
+        }
+        this.applyHomeSeries(series)
+      } catch (e) {
+        console.error('获取首页预测数据失败:', e)
+        this.applyHomeSeries(this.getHomeSample())
+      }
+    },
+    applyHomeSeries(series) {
+      const normalized = series.map(item => ({
+        date: item.date || item.ds || item.time || '',
+        pred: Number(item.pred || item.yhat || item.value || item.price || 0).toFixed(2)
+      }))
+      const preds = normalized.map(i => Number(i.pred))
+      const max = Math.max(...preds)
+      const min = Math.min(...preds)
+      const span = Math.max(max - min, 0.01)
+      this.homeForecast.series = normalized.map(p => ({
+        ...p,
+        barHeight: ((Number(p.pred) - min) / span) * 70 + 20
+      }))
+      const avg = (preds.reduce((a, b) => a + b, 0) / preds.length).toFixed(2)
+      this.homeForecast.avg = avg
+      this.homeForecast.range = `${min.toFixed(2)} - ${max.toFixed(2)} 元/斤`
+    },
+    getHomeSample() {
+      const today = new Date()
+      return Array.from({ length: 6 }).map((_, idx) => {
+        const d = new Date(today)
+        d.setDate(d.getDate() + idx + 1)
+        const price = 3.2 + Math.cos(idx / 2) * 0.15 + idx * 0.03
+        return {
+          date: `${d.getMonth() + 1}-${String(d.getDate()).padStart(2, '0')}`,
+          pred: price.toFixed(2)
+        }
+      })
+    },
+    goForecast() {
+      this.$router.push({ path: '/home/goods', query: { section: 'forecast', commodity: '苹果' } }).catch(() => {})
+    },
     getData() {
       this.$store.commit('updateActiveIndex', '1')
       selectAllPage({
@@ -588,6 +694,114 @@ export default {
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
+}
+
+.forecast-cta {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+  align-items: center;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 8px;
+    background: #ecf5ff;
+    color: #409eff;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  h3 {
+    margin: 4px 0 6px;
+    font-size: 22px;
+    color: #2c3e50;
+  }
+
+  .desc {
+    color: #606266;
+    margin: 0 0 12px;
+    line-height: 1.6;
+  }
+
+  .cta-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 12px 0 16px;
+
+    .metric {
+      background: #f7f9fc;
+      padding: 10px 12px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .label {
+        font-size: 12px;
+        color: #909399;
+      }
+
+      .value {
+        font-size: 16px;
+        color: #303133;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .cta-right {
+    background: linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+    border: 1px solid #ebeef5;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .mini-chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    gap: 8px;
+    align-items: end;
+    min-height: 160px;
+  }
+
+  .mini-bar {
+    background: #ecf5ff;
+    border-radius: 6px 6px 2px 2px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #d9ecff;
+      transform: translateY(-3px);
+    }
+
+    .mini-value {
+      position: absolute;
+      top: -20px;
+      font-size: 12px;
+      color: #303133;
+    }
+
+    .mini-date {
+      position: absolute;
+      bottom: -18px;
+      font-size: 12px;
+      color: #909399;
+    }
+  }
+
+  .mini-skeleton {
+    padding: 10px;
+  }
 }
 .carousel-item img {
   width: 100%;

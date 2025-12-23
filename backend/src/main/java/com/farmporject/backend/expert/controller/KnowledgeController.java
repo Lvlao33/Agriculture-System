@@ -1,6 +1,8 @@
 package com.farmporject.backend.expert.controller;
 
+import com.farmporject.backend.expert.model.Comment;
 import com.farmporject.backend.expert.model.Knowledge;
+import com.farmporject.backend.expert.service.CommentService;
 import com.farmporject.backend.expert.service.KnowledgeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,310 +17,220 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 知识模块-农业知识
- * 路由前缀：/api/knowledge
+ * 农业知识模块
+ * 统一前缀：/api/knowledge
  */
 @RestController
 @RequestMapping("/api/knowledge")
 public class KnowledgeController {
 
     private final KnowledgeService knowledgeService;
+    private final CommentService commentService;
 
     @Autowired
-    public KnowledgeController(KnowledgeService knowledgeService) {
+    public KnowledgeController(KnowledgeService knowledgeService,
+                               CommentService commentService) {
         this.knowledgeService = knowledgeService;
+        this.commentService = commentService;
     }
 
     /**
-     * 知识列表（分页）
-     * 示例：GET /api/knowledge/1?size=10
+     * 分页获取知识列表（农业知识页）
+     * GET /api/knowledge/{pageNum}?size=10
      */
     @GetMapping("/{pageNum}")
     public ResponseEntity<?> list(@PathVariable Integer pageNum,
                                   @RequestParam(defaultValue = "10") Integer size) {
-        Map<String, Object> response = new HashMap<>();
-
+        Map<String, Object> resp = new HashMap<>();
         try {
             Pageable pageable = PageRequest.of(pageNum - 1, size);
-            Page<Knowledge> knowledgePage = knowledgeService.getPublishedKnowledge(pageable);
+            Page<Knowledge> page = knowledgeService.getPublishedKnowledge(pageable);
 
-            response.put("flag", true);
+            resp.put("flag", true);
             Map<String, Object> data = new HashMap<>();
-            data.put("list", knowledgePage.getContent());
-            data.put("total", knowledgePage.getTotalElements());
-            data.put("totalPages", knowledgePage.getTotalPages());
+            data.put("list", page.getContent());
+            data.put("total", page.getTotalElements());
+            data.put("totalPages", page.getTotalPages());
             data.put("currentPage", pageNum);
             data.put("pageSize", size);
+            resp.put("data", data);
 
-            response.put("data", data);
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取知识列表失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "获取知识列表失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
-     * 知识列表（无分页，兼容旧接口）
-     * 示例：GET /api/knowledge
-     */
-    @GetMapping
-    public ResponseEntity<?> listAll() {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            // 获取前20条记录作为兼容
-            Pageable pageable = PageRequest.of(0, 20);
-            Page<Knowledge> knowledgePage = knowledgeService.getPublishedKnowledge(pageable);
-
-            response.put("flag", true);
-            Map<String, Object> data = new HashMap<>();
-            data.put("list", knowledgePage.getContent());
-            data.put("total", knowledgePage.getTotalElements());
-
-            response.put("data", data);
-
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取知识列表失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 知识详情
-     * 示例：GET /api/knowledge/detail/1
+     * 知识详情（新接口）
+     * GET /api/knowledge/detail/{id}
      */
     @GetMapping("/detail/{knowledgeId}")
     public ResponseEntity<?> detail(@PathVariable Long knowledgeId) {
-        Map<String, Object> response = new HashMap<>();
-
+        Map<String, Object> resp = new HashMap<>();
         try {
-            Optional<Knowledge> knowledge = knowledgeService.getKnowledgeById(knowledgeId);
-            if (knowledge.isPresent()) {
-                response.put("flag", true);
-                response.put("data", knowledge.get());
-            } else {
-                response.put("flag", false);
-                response.put("message", "知识不存在");
+            Optional<Knowledge> k = knowledgeService.getKnowledgeById(knowledgeId);
+            if (k.isEmpty()) {
+                resp.put("flag", false);
+                resp.put("message", "知识不存在");
                 return ResponseEntity.notFound().build();
             }
-
-            return ResponseEntity.ok().body(response);
+            resp.put("flag", true);
+            resp.put("data", k.get());
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取知识详情失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "获取知识详情失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
-     * 新增知识
-     * 示例：POST /api/knowledge
+     * 知识详情（旧接口兼容）
+     * GET /api/knowledge/selectById/{id}
+     */
+    @GetMapping("/selectById/{knowledgeId}")
+    public ResponseEntity<?> selectById(@PathVariable Long knowledgeId) {
+        return detail(knowledgeId);
+    }
+
+    /**
+     * 新增知识（专家发布）
+     * POST /api/knowledge
+     * body: { title, content, picPath?, url? , ... }
      */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Knowledge knowledge) {
-        Map<String, Object> response = new HashMap<>();
-
+        Map<String, Object> resp = new HashMap<>();
         try {
-            Knowledge createdKnowledge = knowledgeService.createKnowledge(knowledge);
-            response.put("flag", true);
-            response.put("message", "知识创建成功");
-            response.put("data", createdKnowledge);
-            return ResponseEntity.status(201).body(response);
+            Knowledge created = knowledgeService.createKnowledge(knowledge);
+            resp.put("flag", true);
+            resp.put("message", "知识创建成功");
+            resp.put("data", created);
+            return ResponseEntity.status(201).body(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "创建知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "创建知识失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
      * 更新知识
-     * 示例：PUT /api/knowledge/1
+     * PUT /api/knowledge/{id}
      */
     @PutMapping("/{knowledgeId}")
-    public ResponseEntity<?> update(@PathVariable Long knowledgeId, @RequestBody Knowledge knowledge) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<?> update(@PathVariable Long knowledgeId,
+                                    @RequestBody Knowledge knowledge) {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            Knowledge updatedKnowledge = knowledgeService.updateKnowledge(knowledgeId, knowledge);
-            response.put("flag", true);
-            response.put("message", "知识更新成功");
-            response.put("data", updatedKnowledge);
-            return ResponseEntity.ok().body(response);
+            Knowledge updated = knowledgeService.updateKnowledge(knowledgeId, knowledge);
+            resp.put("flag", true);
+            resp.put("message", "知识更新成功");
+            resp.put("data", updated);
+            return ResponseEntity.ok(resp);
         } catch (RuntimeException e) {
-            response.put("flag", false);
-            response.put("message", e.getMessage());
+            resp.put("flag", false);
+            resp.put("message", e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "更新知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "更新知识失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
      * 删除知识
-     * 示例：DELETE /api/knowledge/1
+     * DELETE /api/knowledge/{id}
      */
     @DeleteMapping("/{knowledgeId}")
     public ResponseEntity<?> delete(@PathVariable Long knowledgeId) {
-        Map<String, Object> response = new HashMap<>();
-
+        Map<String, Object> resp = new HashMap<>();
         try {
             knowledgeService.deleteKnowledge(knowledgeId);
-            response.put("flag", true);
-            response.put("message", "知识删除成功");
-            return ResponseEntity.ok().body(response);
+            resp.put("flag", true);
+            resp.put("message", "知识删除成功");
+            return ResponseEntity.ok(resp);
         } catch (RuntimeException e) {
-            response.put("flag", false);
-            response.put("message", e.getMessage());
+            resp.put("flag", false);
+            resp.put("message", e.getMessage());
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "删除知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "删除知识失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
-     * 搜索知识
-     * 示例：GET /api/knowledge/search?keyword=小麦
+     * 根据登录用户查询知识（目前先返回已发布列表，占位用）
+     * GET /api/knowledge/selectByUsername/
      */
-    @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam String keyword,
-                                    @RequestParam(defaultValue = "1") Integer page,
-                                    @RequestParam(defaultValue = "10") Integer size) {
-        Map<String, Object> response = new HashMap<>();
-
+    @GetMapping("/selectByUsername")
+    public ResponseEntity<?> selectByUsername() {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            Pageable pageable = PageRequest.of(page - 1, size);
-            Page<Knowledge> knowledgePage = knowledgeService.searchKnowledgeByKeyword(keyword, pageable);
+            Pageable pageable = PageRequest.of(0, 100);
+            Page<Knowledge> page = knowledgeService.getPublishedKnowledge(pageable);
 
-            response.put("flag", true);
+            resp.put("flag", true);
             Map<String, Object> data = new HashMap<>();
-            data.put("list", knowledgePage.getContent());
-            data.put("total", knowledgePage.getTotalElements());
-            data.put("totalPages", knowledgePage.getTotalPages());
-            data.put("currentPage", page);
-            data.put("pageSize", size);
-            data.put("keyword", keyword);
+            data.put("list", page.getContent());
+            data.put("total", page.getTotalElements());
+            resp.put("data", data);
 
-            response.put("data", data);
-
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "搜索知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "获取用户知识列表失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 
     /**
-     * 点赞知识
-     * 示例：POST /api/knowledge/1/like
+     * 根据知识ID获取评论列表
+     * GET /api/knowledge/selectByKnowledge/{knowledgeId}
      */
-    @PostMapping("/{knowledgeId}/like")
-    public ResponseEntity<?> like(@PathVariable Long knowledgeId) {
-        Map<String, Object> response = new HashMap<>();
-
+    @GetMapping("/selectByKnowledge/{knowledgeId}")
+    public ResponseEntity<?> getCommentsByKnowledge(@PathVariable Long knowledgeId) {
+        Map<String, Object> resp = new HashMap<>();
         try {
-            knowledgeService.likeKnowledge(knowledgeId);
-            response.put("flag", true);
-            response.put("message", "点赞成功");
-            return ResponseEntity.ok().body(response);
+            List<Comment> comments = commentService.getCommentsByKnowledgeId(knowledgeId);
+            resp.put("flag", true);
+            resp.put("data", comments);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            resp.put("flag", false);
+            resp.put("message", "获取评论列表失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
+        }
+    }
+
+    /**
+     * 添加评论
+     * POST /api/knowledge/addByKnowledge/{knowledgeId}/{content}
+     */
+    @PostMapping("/addByKnowledge/{knowledgeId}/{content}")
+    public ResponseEntity<?> addComment(@PathVariable Long knowledgeId,
+                                        @PathVariable String content) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            Comment comment = commentService.addComment(knowledgeId, content);
+            resp.put("flag", true);
+            resp.put("message", "添加评论成功");
+            resp.put("data", comment);
+            return ResponseEntity.ok(resp);
         } catch (RuntimeException e) {
-            response.put("flag", false);
-            response.put("message", e.getMessage());
-            return ResponseEntity.notFound().build();
+            resp.put("flag", false);
+            resp.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "点赞失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 获取热门知识
-     * 示例：GET /api/knowledge/popular
-     */
-    @GetMapping("/popular")
-    public ResponseEntity<?> getPopularKnowledge() {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            List<Knowledge> popularKnowledge = knowledgeService.getPopularKnowledge();
-            response.put("flag", true);
-            response.put("data", popularKnowledge);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取热门知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 获取最新知识
-     * 示例：GET /api/knowledge/recent
-     */
-    @GetMapping("/recent")
-    public ResponseEntity<?> getRecentKnowledge() {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            List<Knowledge> recentKnowledge = knowledgeService.getRecentKnowledge();
-            response.put("flag", true);
-            response.put("data", recentKnowledge);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取最新知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 获取所有分类
-     * 示例：GET /api/knowledge/categories
-     */
-    @GetMapping("/categories")
-    public ResponseEntity<?> getCategories() {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            List<String> categories = knowledgeService.getAllCategories();
-            response.put("flag", true);
-            response.put("data", categories);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取分类失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
-    /**
-     * 根据分类获取知识
-     * 示例：GET /api/knowledge/category/种植技术
-     */
-    @GetMapping("/category/{category}")
-    public ResponseEntity<?> getKnowledgeByCategory(@PathVariable String category) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            List<Knowledge> knowledgeList = knowledgeService.getKnowledgeByCategory(category);
-            response.put("flag", true);
-            response.put("data", knowledgeList);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            response.put("flag", false);
-            response.put("message", "获取分类知识失败: " + e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+            resp.put("flag", false);
+            resp.put("message", "添加评论失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
         }
     }
 }

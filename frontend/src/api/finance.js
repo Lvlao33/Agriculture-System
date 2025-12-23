@@ -32,58 +32,71 @@ import { request } from '../utils/request'
 //         },
 //     })
 // }
-// // 查询意向
-// export function selectIntention() {
-//     return request({
-//         method: 'get',
-//         url: '/finance/selectIntentionByName',
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//         },
-//     })
-// }
-// // 插入意向
-// export function insertIntention(params) {
-//     return request({
-//         method: 'post',
-//         url: '/finance/insertIntentionByName',
-//         data: params,
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//         },
-//     })
-// }
-// // 更新意向
-// export function updateIntention(params) {
-//     return request({
-//         method: 'put',
-//         url: '/finance/updateIntentionByName',
-//         data: params,
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//         },
-//     })
-//
-// // 删除意向
-// export function deleteIntention() {
-//     return request({
-//         method: 'delete',
-//         url: '/finance/deleteIntentionByName',
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//         },
-//     })
-// }
-// // 查找推荐人
-// export function selectRecommned() {
-//     return request({
-//         method: 'get',
-//         url: '/finance/selectRecommendByName',
-//         headers: {
-//             'Authorization': window.localStorage.token,
-//         },
-//     })
-// }
+// 查询意向
+export function selectIntention() {
+    return request({
+        method: 'get',
+        url: '/api/finance/matching/intention',
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+// 插入意向
+export function insertIntention(params) {
+    return request({
+        method: 'post',
+        url: '/api/finance/matching/intention',
+        data: params,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+// 更新意向
+export function updateIntention(params) {
+    return request({
+        method: 'post',
+        url: '/api/finance/matching/intention',
+        data: params,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 删除意向
+export function deleteIntention() {
+    return request({
+        method: 'delete',
+        url: '/api/finance/matching/intention',
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+// 查找推荐人
+export function selectRecommned() {
+    return request({
+        method: 'get',
+        url: '/api/finance/matching/recommend',
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
+
+// 联合贷款推荐产品
+export function selectComboRecommend(partnerId) {
+    return request({
+        method: 'get',
+        url: '/api/finance/matching/recommend-combo',
+        params: { partnerId },
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
 
 // // 查找同个银行的贷款证人
 // export function selectFinaceUser(bank_id) {
@@ -237,16 +250,16 @@ export function uploadLoanFile(loanId, formData) {
 }
 
 // 授权用户
-export function toAuthorizationUser(params) {
-    return request({
-        method: 'post',
-        url: '/finance/toAuthorizationUser',
-        data: params,
-        headers: {
-            'Authorization': window.localStorage.token,
-        },
-    })
-}
+// export function toAuthorizationUser(params) {
+//     return request({
+//         method: 'post',
+//         url: '/finance/toAuthorizationUser',
+//         data: params,
+//         headers: {
+//             'Authorization': window.localStorage.token,
+//         },
+//     })
+// }
 
 // 获取贷款用户状态列表
 export function getLoanUserStatuses(loanId) {

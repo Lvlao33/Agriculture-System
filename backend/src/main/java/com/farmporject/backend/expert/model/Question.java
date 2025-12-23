@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import com.farmporject.backend.user.model.User;
+
 @Entity
 @Table(name = "questions")
 public class Question {
@@ -20,15 +22,14 @@ public class Question {
     @Column(length = 2000, nullable = false)
     private String content;
 
-    @Column(name = "user_id", nullable = false)
-    private String userId;
-
-    @Column(name = "user_name")
-    private String userName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expert_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Expert expert;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -51,13 +52,19 @@ public class Question {
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.CASCADE)
     private List<String> tags;
 
+    @Column(nullable = false)
+    private Integer viewCount = 0;
+
+    @Column(nullable = false)
+    private Integer likeCount = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private QuestionStatus status = QuestionStatus.PENDING;
 
     @Column(name = "create_time")
     private LocalDateTime createTime;
-    
+
     @Column(name = "update_time")
     private LocalDateTime updateTime;
 
@@ -66,44 +73,105 @@ public class Question {
     }
 
     // 默认构造函数
-    public Question() {}
+    public Question() {
+    }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public String getContent() {
+        return content;
+    }
 
-    public Expert getExpert() { return expert; }
-    public void setExpert(Expert expert) { this.expert = expert; }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public User getUser() {
+        return user;
+    }
 
-    public List<String> getAttachmentUrls() { return attachmentUrls; }
-    public void setAttachmentUrls(List<String> attachmentUrls) { this.attachmentUrls = attachmentUrls; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public List<String> getTags() { return tags; }
-    public void setTags(List<String> tags) { this.tags = tags; }
+    public Expert getExpert() {
+        return expert;
+    }
 
-    public QuestionStatus getStatus() { return status; }
-    public void setStatus(QuestionStatus status) { this.status = status; }
+    public void setExpert(Expert expert) {
+        this.expert = expert;
+    }
 
-    public LocalDateTime getCreateTime() { return createTime; }
-    public void setCreateTime(LocalDateTime createTime) { this.createTime = createTime; }
+    public List<String> getAttachmentUrls() {
+        return attachmentUrls;
+    }
 
-    public LocalDateTime getUpdateTime() { return updateTime; }
-    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
+    public void setAttachmentUrls(List<String> attachmentUrls) {
+        this.attachmentUrls = attachmentUrls;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public QuestionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(QuestionStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -118,8 +186,10 @@ public class Question {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Question)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Question))
+            return false;
         Question question = (Question) o;
         return Objects.equals(id, question.id);
     }
@@ -134,8 +204,16 @@ public class Question {
         return "Question{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", userId='" + userId + '\'' +
+                ", content='" + content + '\'' +
+                ", user=" + user +
+                ", expert=" + expert +
+                ", attachmentUrls=" + attachmentUrls +
+                ", tags=" + tags +
+                ", viewCount=" + viewCount +
+                ", likeCount=" + likeCount +
                 ", status=" + status +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
                 '}';
     }
 }

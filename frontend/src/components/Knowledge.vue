@@ -121,7 +121,7 @@
       </el-card>
     </div>
 
-    <!-- 空状态 -->
+    <!-- 空状�? -->
     <div v-if="cknowledges.length === 0" class="empty-knowledge">
       <i class="el-icon-document-delete"></i>
       <p>暂无知识内容</p>
@@ -157,13 +157,19 @@ export default {
   },
   methods: {
     handleDetail(item) {
+      // 如果有外部链接，则优先跳转到外站链接
+      if (item.url) {
+        window.open(item.url, '_blank');
+        return;
+      }
+      // 否则跳转到站内的知识详情页
       this.$router.push(`/home/knowledge/${item.knowledgeId}`).catch((err) => err);
     },
     playPreview(event) {
       const video = event.target;
       if (video.tagName === 'VIDEO') {
         video.play().catch(() => {
-          // 自动播放失败时忽略错误
+          // 自动播放失败时忽略错�?
         });
       }
     },
@@ -435,7 +441,7 @@ export default {
   }
 }
 
-// 响应式设计
+// 响应式设�?
 @media (max-width: 1200px) {
   .knowledge-box {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

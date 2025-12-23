@@ -1,6 +1,7 @@
 package com.farmporject.backend.expert.service;
 
 import com.farmporject.backend.expert.model.Knowledge;
+import com.farmporject.backend.expert.model.Expert;
 import com.farmporject.backend.expert.repository.KnowledgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,34 +23,34 @@ public class KnowledgeService {
         this.knowledgeRepository = knowledgeRepository;
     }
 
-    // 分页获取已发布的知识列表
+    // 鍒嗛〉鑾峰彇宸插彂甯冪殑鐭ヨ瘑鍒楄〃
     public Page<Knowledge> getPublishedKnowledge(Pageable pageable) {
         return knowledgeRepository.findByIsPublishedTrue(pageable);
     }
 
-    // 获取所有知识（包含未发布的，管理员用）
+    // 鑾峰彇鎵€鏈夌煡璇嗭紙鍖呭惈鏈彂甯冪殑锛岀鐞嗗憳鐢級
     public Page<Knowledge> getAllKnowledge(Pageable pageable) {
         return knowledgeRepository.findAll(pageable);
     }
 
-    // 根据发布状态获取知识
+    // 鏍规嵁鍙戝竷鐘舵€佽幏鍙栫煡璇?
     public Page<Knowledge> getKnowledgeByPublishStatus(Boolean isPublished, Pageable pageable) {
         return knowledgeRepository.findByIsPublished(isPublished, pageable);
     }
 
-    // 根据ID获取知识详情
+    // 鏍规嵁ID鑾峰彇鐭ヨ瘑璇︽儏
     public Optional<Knowledge> getKnowledgeById(Long knowledgeId) {
         Optional<Knowledge> knowledge = knowledgeRepository.findById(knowledgeId);
 
-        // 增加浏览量
+        // 澧炲姞娴忚閲?
         knowledge.ifPresent(k -> knowledgeRepository.incrementViewCount(knowledgeId));
 
         return knowledge;
     }
 
-    // 创建知识
+    // 鍒涘缓鐭ヨ瘑
     public Knowledge createKnowledge(Knowledge knowledge) {
-        // 设置默认值
+        // 璁剧疆榛樿鍊?
         if (knowledge.getViewCount() == null) {
             knowledge.setViewCount(0);
         }
@@ -63,7 +64,7 @@ public class KnowledgeService {
         return knowledgeRepository.save(knowledge);
     }
 
-    // 更新知识
+    // 鏇存柊鐭ヨ瘑
     public Knowledge updateKnowledge(Long knowledgeId, Knowledge knowledgeDetails) {
         return knowledgeRepository.findById(knowledgeId)
                 .map(knowledge -> {
@@ -96,7 +97,7 @@ public class KnowledgeService {
                 .orElseThrow(() -> new RuntimeException("Knowledge not found with id: " + knowledgeId));
     }
 
-    // 更新发布状态
+    // 鏇存柊鍙戝竷鐘舵€?
     public Knowledge updatePublishStatus(Long knowledgeId, Boolean isPublished) {
         return knowledgeRepository.findById(knowledgeId)
                 .map(knowledge -> {
@@ -106,7 +107,7 @@ public class KnowledgeService {
                 .orElseThrow(() -> new RuntimeException("Knowledge not found with id: " + knowledgeId));
     }
 
-    // 删除知识
+    // 鍒犻櫎鐭ヨ瘑
     public void deleteKnowledge(Long knowledgeId) {
         if (knowledgeRepository.existsById(knowledgeId)) {
             knowledgeRepository.deleteById(knowledgeId);
@@ -115,42 +116,42 @@ public class KnowledgeService {
         }
     }
 
-    // 关键词搜索
+    // 鍏抽敭璇嶆悳绱?
     public List<Knowledge> searchKnowledgeByKeyword(String keyword) {
         return knowledgeRepository.findByKeyword(keyword);
     }
 
-    // 分页关键词搜索
+    // 鍒嗛〉鍏抽敭璇嶆悳绱?
     public Page<Knowledge> searchKnowledgeByKeyword(String keyword, Pageable pageable) {
         return knowledgeRepository.findByKeyword(keyword, pageable);
     }
 
-    // 根据分类查询
+    // 鏍规嵁鍒嗙被鏌ヨ
     public List<Knowledge> getKnowledgeByCategory(String category) {
         return knowledgeRepository.findByCategoriesContainingAndIsPublishedTrue(category);
     }
 
-    // 根据标签查询
+    // 鏍规嵁鏍囩鏌ヨ
     public List<Knowledge> getKnowledgeByTag(String tag) {
         return knowledgeRepository.findByTagsContainingAndIsPublishedTrue(tag);
     }
 
-    // 根据作者查询
-    public List<Knowledge> getKnowledgeByAuthor(String author) {
+    // 鏍规嵁浣滆€呮煡璇?
+    public List<Knowledge> getKnowledgeByAuthor(Expert author) {
         return knowledgeRepository.findByAuthorAndIsPublishedTrue(author);
     }
 
-    // 获取热门知识
+    // 鑾峰彇鐑棬鐭ヨ瘑
     public List<Knowledge> getPopularKnowledge() {
         return knowledgeRepository.findTop10ByIsPublishedTrueOrderByViewCountDesc();
     }
 
-    // 获取最新知识
+    // 鑾峰彇鏈€鏂扮煡璇?
     public List<Knowledge> getRecentKnowledge() {
         return knowledgeRepository.findTop10ByIsPublishedTrueOrderByCreateTimeDesc();
     }
 
-    // 点赞知识
+    // 鐐硅禐鐭ヨ瘑
     public void likeKnowledge(Long knowledgeId) {
         if (!knowledgeRepository.existsById(knowledgeId)) {
             throw new RuntimeException("Knowledge not found with id: " + knowledgeId);
@@ -158,7 +159,7 @@ public class KnowledgeService {
         knowledgeRepository.incrementLikeCount(knowledgeId);
     }
 
-    // 取消点赞
+    // 鍙栨秷鐐硅禐
     public void unlikeKnowledge(Long knowledgeId) {
         if (!knowledgeRepository.existsById(knowledgeId)) {
             throw new RuntimeException("Knowledge not found with id: " + knowledgeId);
@@ -166,37 +167,37 @@ public class KnowledgeService {
         knowledgeRepository.decrementLikeCount(knowledgeId);
     }
 
-    // 获取所有分类
+    // 鑾峰彇鎵€鏈夊垎绫?
     public List<String> getAllCategories() {
         return knowledgeRepository.findAllCategories();
     }
 
-    // 获取所有标签
+    // 鑾峰彇鎵€鏈夋爣绛?
     public List<String> getAllTags() {
         return knowledgeRepository.findAllTags();
     }
 
-    // 统计分类下的知识数量
+    // 缁熻鍒嗙被涓嬬殑鐭ヨ瘑鏁伴噺
     public long countByCategory(String category) {
         return knowledgeRepository.countByCategory(category);
     }
 
-    // 统计标签下的知识数量
+    // 缁熻鏍囩涓嬬殑鐭ヨ瘑鏁伴噺
     public long countByTag(String tag) {
         return knowledgeRepository.countByTag(tag);
     }
 
-    // 获取知识总数
+    // 鑾峰彇鐭ヨ瘑鎬绘暟
     public long countAllKnowledge() {
         return knowledgeRepository.count();
     }
 
-    // 获取已发布知识总数
+    // 鑾峰彇宸插彂甯冪煡璇嗘€绘暟
     public long countPublishedKnowledge() {
         return knowledgeRepository.findByIsPublishedTrue(Pageable.unpaged()).getTotalElements();
     }
 
-    // 检查知识是否存在
+    // 妫€鏌ョ煡璇嗘槸鍚﹀瓨鍦?
     public boolean existsById(Long knowledgeId) {
         return knowledgeRepository.existsById(knowledgeId);
     }

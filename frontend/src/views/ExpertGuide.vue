@@ -279,98 +279,98 @@ export default {
           title: '江淮冬油菜抗湿应急飞播技术意见',
           createTime: '2025-11-10',
           updateTime: '2025-11-10',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.moa.gov.cn/gk/nszd_1/2025n/202511/t20251107_6478754.htm' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-4',
           title: '11月4日北方冬麦区土壤墒情状况',
           createTime: '2025-11-04',
           updateTime: '2025-11-04',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-5',
           title: '种植业成熟适用技术推广服务指导目录(2025)',
           createTime: '2025-10-31',
           updateTime: '2025-10-31',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-6',
           title: '2025年秋播冬油菜苗期病虫害防控技术指导意见',
           createTime: '2025-10-29',
           updateTime: '2025-10-29',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-7',
           title: '10月28日北方冬麦区土壤墒情状况',
           createTime: '2025-10-28',
           updateTime: '2025-10-28',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-8',
           title: '10月24日北方冬小麦区土壤墒情状况',
           createTime: '2025-10-24',
           updateTime: '2025-10-24',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-9',
           title: '用好十招应对晚播——————小麦抗湿晚播技术明白纸',
           createTime: '2025-10-23',
           updateTime: '2025-10-23',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-10',
           title: '2025年冬油菜抗渍涝保播种促壮苗技术意见',
           createTime: '2025-10-21',
           updateTime: '2025-10-21',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-11',
           title: '晚播小麦抗湿保苗科学施肥指导意见',
           createTime: '2025-10-20',
           updateTime: '2025-10-20',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-12',
           title: '2025年秋播小麦田和油菜田杂草科学防控技术方案',
           createTime: '2025-10-15',
           updateTime: '2025-10-15',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-13',
           title: '2025年黄淮海小麦播种期病虫草害防控技术指导意见',
           createTime: '2025-10-14',
           updateTime: '2025-10-14',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-14',
           title: '大豆花生收获期应对连阴雨防灾减损技术指导意见',
           createTime: '2025-10-13',
           updateTime: '2025-10-13',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-15',
           title: '因墒分类施策科学应对"烂秋雨"',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-16',
           title: '黄淮海小麦应对连阴雨抗湿晚播技术意见',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
-          url: '' // 可以在这里添加外部链接URL
+          url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         }
       ]
     };

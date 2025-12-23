@@ -21,8 +21,10 @@ export default new Vuex.Store({
     userActiveIndex: '1-1',
     token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
     paymentInfo: '',
-    imgShowRoad: 'http://119.3.180.117:9090',
-    fileUploadRoad: 'http://119.3.180.117:9090',
+    // 使用相对路径，自动匹配当前域名和端口
+    // 如果后端运行在 localhost:8080，前端运行在 localhost:5173，需要配置代理或使用完整URL
+    imgShowRoad: process.env.NODE_ENV === 'production' ? 'http://119.3.180.117:9090' : 'http://localhost:8080',
+    fileUploadRoad: process.env.NODE_ENV === 'production' ? 'http://119.3.180.117:9090' : 'http://localhost:8080',
     mutiFile: '',
   },
   getters: {
