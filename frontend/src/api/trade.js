@@ -264,13 +264,27 @@ export function checkout(params) {
 }
 
 /**
- * 订单付款，将待付款订单移入待收货
+ * 订单付款，将待付款订单移入待发货
  * @param {Number} orderId - 订单ID
  */
 export function payOrder(orderId) {
   return request({
     method: 'put',
     url: `/api/trade/orders/${orderId}/pay`,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
+ * 确认发货，将待发货订单移入待收货
+ * @param {Number} orderId - 订单ID
+ */
+export function shipOrder(orderId) {
+  return request({
+    method: 'put',
+    url: `/api/trade/orders/${orderId}/ship`,
     headers: {
       'Authorization': localStorage.getItem('token') || '',
     },

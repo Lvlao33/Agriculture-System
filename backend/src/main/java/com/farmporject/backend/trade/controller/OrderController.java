@@ -224,7 +224,7 @@ public class OrderController {
     }
 
     /**
-     * 订单付款：将待付款订单更新为待收货状态
+     * 订单付款：将待付款订单更新为待发货状态
      * PUT /api/trade/orders/{id}/pay
      */
     @PutMapping("/{id}/pay")
@@ -241,7 +241,7 @@ public class OrderController {
 
             Order order = orderService.payOrder(id);
             
-            // 验证订单是否属于当前用户
+            // 验证订单是否属于当前用户（买家）
             if (!order.getUserId().equals(userId)) {
                 response.put("flag", false);
                 response.put("message", "无权操作此订单");
@@ -249,13 +249,50 @@ public class OrderController {
             }
 
             response.put("flag", true);
-            response.put("message", "付款成功，订单已进入待收货状态");
+            response.put("message", "付款成功，订单已进入待发货状态");
             response.put("data", order);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             response.put("flag", false);
             response.put("message", "付款失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 确认发货：将待发货订单更新为待收货状态
+     * PUT /api/trade/orders/{id}/ship
+     */
+    @PutMapping("/{id}/ship")
+    public ResponseEntity<?> shipOrder(@PathVariable Long id,
+                                      @RequestHeader(value = "Authorization", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Long userId = parseUserId(token);
+            if (userId == null) {
+                response.put("flag", false);
+                response.put("message", "请先登录");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Order order = orderService.shipOrder(id);
+            
+            // 验证订单是否属于当前用户（卖家）
+            if (!order.getSellerId().equals(userId)) {
+                response.put("flag", false);
+                response.put("message", "无权操作此订单");
+                return ResponseEntity.status(403).body(response);
+            }
+
+            response.put("flag", true);
+            response.put("message", "发货成功，订单已进入待收货状态");
+            response.put("data", order);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("flag", false);
+            response.put("message", "发货失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
@@ -277,7 +314,7 @@ public class OrderController {
 
             Order order = orderService.confirmReceipt(id);
             
-            // 验证订单是否属于当前用户
+            // 验证订单是否属于当前用户（买家）
             if (!order.getUserId().equals(userId)) {
                 response.put("flag", false);
                 response.put("message", "无权操作此订单");
@@ -314,7 +351,7 @@ public class OrderController {
 
             Order order = orderService.completeReview(id);
             
-            // 验证订单是否属于当前用户
+            // 验证订单是否属于当前用户（买家）
             if (!order.getUserId().equals(userId)) {
                 response.put("flag", false);
                 response.put("message", "无权操作此订单");

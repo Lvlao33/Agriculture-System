@@ -167,8 +167,9 @@
             </div>
             <div class="order-status">{{ getStatusText(order.status || order.type) }}</div>
             <div class="action-buttons">
+              <!-- 我买的模块：买家操作 -->
               <el-button 
-                v-if="order.status === 'pending_payment' || order.type === 0" 
+                v-if="currentModule === 'my_buy' && (order.status === 'pending_payment' || order.type === 0)" 
                 size="small" 
                 type="danger"
                 @click="payOrder(order)"
@@ -176,7 +177,7 @@
                 立即付款
               </el-button>
               <el-button 
-                v-if="order.status === 'pending_receipt'" 
+                v-if="currentModule === 'my_buy' && order.status === 'pending_receipt'" 
                 size="small" 
                 type="danger"
                 @click="confirmReceive(order)"
@@ -184,7 +185,41 @@
                 确认收货
               </el-button>
               <el-button 
-                v-if="order.status === 'pending_review'" 
+                v-if="currentModule === 'my_buy' && order.status === 'pending_review'" 
+                size="small" 
+                type="warning"
+                @click="evaluate(order)"
+              >
+                评价
+              </el-button>
+              <!-- 我卖的模块：卖家操作 -->
+              <el-button 
+                v-if="currentModule === 'my_sell' && order.status === 'pending_shipment'" 
+                size="small" 
+                type="danger"
+                @click="shipOrder(order)"
+              >
+                确认发货
+              </el-button>
+              <!-- 兼容旧逻辑（如果没有currentModule） -->
+              <el-button 
+                v-if="!currentModule && (order.status === 'pending_payment' || order.type === 0)" 
+                size="small" 
+                type="danger"
+                @click="payOrder(order)"
+              >
+                立即付款
+              </el-button>
+              <el-button 
+                v-if="!currentModule && order.status === 'pending_receipt'" 
+                size="small" 
+                type="danger"
+                @click="confirmReceive(order)"
+              >
+                确认收货
+              </el-button>
+              <el-button 
+                v-if="!currentModule && order.status === 'pending_review'" 
                 size="small" 
                 type="warning"
                 @click="evaluate(order)"
@@ -248,7 +283,7 @@
 </template>
 
 <script>
-import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive, payOrder, completeReview, getOrders } from "../api/trade";
+import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive, payOrder, shipOrder, completeReview, getOrders } from "../api/trade";
 import { selectSellByUserName } from "../api/order";
 import { addOrderToCart } from "../api/cart";
 
@@ -272,30 +307,40 @@ export default {
       let filtered = this.orders;
       
       // 根据子标签筛选订单状态（如果子标签不是"all"）
+      // 严格按status字段筛选，避免订单在多个标签下重复显示
       if (this.currentTab === "pending_payment") {
-        filtered = filtered.filter(order => 
-          (order.status === "pending_payment" || order.type === 0)
-        );
+        filtered = filtered.filter(order => {
+          const status = order.status;
+          // 只显示待付款状态的订单，兼容旧数据（type === 0 且没有status）
+          return status === "pending_payment" || (!status && order.type === 0);
+        });
       } else if (this.currentTab === "pending_shipment") {
-        filtered = filtered.filter(order => 
-          (order.status === "pending_shipment" || order.type === 0)
-        );
+        filtered = filtered.filter(order => {
+          const status = order.status;
+          // 只显示待发货状态的订单
+          return status === "pending_shipment";
+        });
       } else if (this.currentTab === "pending_receipt") {
-        filtered = filtered.filter(order => 
-          (order.status === "pending_receipt" || order.type === 1)
-        );
+        filtered = filtered.filter(order => {
+          const status = order.status;
+          // 只显示待收货状态的订单
+          return status === "pending_receipt";
+        });
       } else if (this.currentTab === "pending_review") {
-        filtered = filtered.filter(order => 
-          (order.status === "pending_review" || order.reviewed === false)
-        );
+        filtered = filtered.filter(order => {
+          const status = order.status;
+          // 只显示待评价状态的订单
+          return status === "pending_review";
+        });
       } else if (this.currentTab === "refund_after_sale") {
-        filtered = filtered.filter(order => 
-          order.status === "refund_after_sale" ||
-          order.refundStatus || order.afterSaleStatus || 
-          order.refund_status || order.after_sale_status ||
-          order.status === "refunding" || order.status === "refunded" ||
-          order.status === "after_sale"
-        );
+        filtered = filtered.filter(order => {
+          const status = order.status;
+          // 只显示退款/售后状态的订单
+          return status === "refund_after_sale" ||
+                 status === "refunding" || 
+                 status === "refunded" ||
+                 status === "after_sale";
+        });
       }
       // "all" 标签不进行状态筛选，显示所有数据
 
@@ -387,11 +432,13 @@ export default {
         try {
           const res = await payOrder(orderId);
           if (res && res.flag) {
-            // 更新订单状态
-            order.status = "pending_receipt";
-            this.$message.success(res.message || "付款成功，订单已进入待收货状态");
-            this.$forceUpdate();
-            this.loadOrders();
+            this.$message.success(res.message || "付款成功，订单已进入待发货状态");
+            // 重新加载订单列表，确保状态正确（不直接修改order对象，避免状态不一致）
+            await this.loadOrders();
+            // 如果当前在待付款标签，切换到待发货标签
+            if (this.currentTab === "pending_payment") {
+              this.currentTab = "pending_shipment";
+            }
           } else {
             this.$message.error((res && res.message) || "付款失败");
           }
@@ -415,6 +462,51 @@ export default {
         }
       }).catch(() => {});
     },
+    async shipOrder(order) {
+      const orderId = order.id || order.orderId || order.order_id;
+      if (!orderId) {
+        this.$message.error("订单ID缺失，无法发货");
+        return;
+      }
+      
+      this.$confirm("确认发货？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(async () => {
+        try {
+          const res = await shipOrder(orderId);
+          if (res && res.flag) {
+            this.$message.success(res.message || "发货成功，订单已进入待收货状态");
+            // 重新加载订单列表，确保状态正确（不直接修改order对象，避免状态不一致）
+            await this.loadOrders();
+            // 如果当前在待发货标签，切换到待收货标签
+            if (this.currentTab === "pending_shipment") {
+              this.currentTab = "pending_receipt";
+            }
+          } else {
+            this.$message.error((res && res.message) || "发货失败");
+          }
+        } catch (error) {
+          console.error("发货失败:", error);
+          if (error && typeof error === 'object') {
+            if (error.flag === false) {
+              const errorMsg = error.message || '发货失败';
+              if (errorMsg.includes('登录') || error.status === 401) {
+                this.$message.warning('请先登录');
+                this.$router.push('/login').catch(() => {});
+              } else {
+                this.$message.error(errorMsg);
+              }
+            } else {
+              this.$message.error(error.message || '发货失败，请检查网络连接');
+            }
+          } else {
+            this.$message.error("发货失败");
+          }
+        }
+      }).catch(() => {});
+    },
     confirmReceive(order) {
       this.$confirm("确认收货？", "提示", {
         confirmButtonText: "确定",
@@ -427,13 +519,15 @@ export default {
           return;
         }
         confirmOrderReceive(orderId)
-          .then((res) => {
+          .then(async (res) => {
             if (res && res.flag) {
-              // 前端直接更新状态，避免再次拉全量
-              order.status = "pending_review";
-              this.$message.success(res.message || "确认收货成功");
-              this.$forceUpdate();
-              this.loadOrders();
+              this.$message.success(res.message || "确认收货成功，订单已进入待评价");
+              // 重新加载订单列表，确保状态正确（不直接修改order对象，避免状态不一致）
+              await this.loadOrders();
+              // 如果当前在待收货标签，切换到待评价标签
+              if (this.currentTab === "pending_receipt") {
+                this.currentTab = "pending_review";
+              }
             } else {
               this.$message.error((res && res.message) || "确认收货失败");
             }
@@ -444,52 +538,12 @@ export default {
           });
       });
     },
-    async evaluate(order) {
+    evaluate(order) {
+      // 跳转到评价页面
       const orderId = order.id || order.orderId || order.order_id;
-      if (!orderId) {
-        this.$message.error("订单ID缺失，无法评价");
-        return;
-      }
-      
-      // 这里可以打开评价对话框或跳转到评价页面
-      // 暂时使用确认对话框模拟评价完成
-      this.$confirm("确认完成评价？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      }).then(async () => {
-        try {
-          const res = await completeReview(orderId);
-          if (res && res.flag) {
-            // 更新订单状态
-            order.status = "refund_after_sale";
-            this.$message.success(res.message || "评价完成，订单已进入退款/售后");
-            // 切换到退款/售后标签页
-            this.currentTab = "refund_after_sale";
-            // 重新加载订单列表
-            await this.loadOrders();
-            this.$forceUpdate();
-          } else {
-            this.$message.error((res && res.message) || "完成评价失败");
-          }
-        } catch (error) {
-          console.error("完成评价失败:", error);
-          if (error && typeof error === 'object') {
-            if (error.flag === false) {
-              const errorMsg = error.message || '完成评价失败';
-              if (errorMsg.includes('登录') || error.status === 401) {
-                this.$message.warning('请先登录');
-                this.$router.push('/login').catch(() => {});
-              } else {
-                this.$message.error(errorMsg);
-              }
-            } else {
-              this.$message.error(error.message || '完成评价失败，请检查网络连接');
-            }
-          } else {
-            this.$message.error("完成评价失败");
-          }
-        }
+      this.$router.push({
+        path: '/home/order/evaluate',
+        query: { orderId: orderId }
       }).catch(() => {});
     },
     buyAgain(order) {
@@ -766,8 +820,10 @@ export default {
                 count: orderItems.length > 0 
                   ? orderItems.reduce((sum, item) => sum + (item.quantity || item.count || 1), 0)
                   : (order.quantity || order.count || 1),
-                status: order.status || order.type === 0 ? "pending_payment" : "completed",
-                type: order.type !== undefined ? order.type : (order.status === "pending_payment" ? 0 : 1),
+                // 优先使用status字段，如果没有status则根据type推断（兼容旧数据）
+                status: order.status || (order.type === 0 ? "pending_payment" : (order.type === 1 ? "completed" : "pending_payment")),
+                // type字段仅用于兼容旧数据，新数据统一使用status字段
+                type: undefined, // 清除type字段，统一使用status避免混乱
                 createTime: order.createTime || order.create_time || order.createDate,
                 create_time: order.createTime || order.create_time || order.createDate,
                 shippingAddress: order.shippingAddress || order.shipping_address,

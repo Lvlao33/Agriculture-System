@@ -54,6 +54,7 @@ import AboutUs from '../views/AboutUs'
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
+import OrderEvaluate from '../views/OrderEvaluate'
 import PublishSupply from '../views/PublishSupply'
 import PurchaseList from '../views/PurchaseList'
 import PublishNeed from '../views/PublishNeed'
@@ -195,6 +196,10 @@ const routes = [
       {
         path: 'orderInfo',
         component: OrderInfo
+      },
+      {
+        path: 'order/evaluate',
+        component: OrderEvaluate
       },
       {
         path: 'collect',

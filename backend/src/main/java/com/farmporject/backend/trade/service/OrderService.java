@@ -230,7 +230,7 @@ public class OrderService {
     }
 
     /**
-     * 订单付款：将待付款订单更新为待收货状态
+     * 订单付款：将待付款订单更新为待发货状态
      * @param orderId 订单ID
      * @return 更新后的订单
      */
@@ -242,8 +242,26 @@ public class OrderService {
             throw new RuntimeException("订单状态不正确，无法付款");
         }
 
-        order.setStatus("pending_receipt"); // 待收货
+        order.setStatus("pending_shipment"); // 待发货
         order.setPaymentStatus("PAID"); // 已付款
+
+        return orderRepository.save(order);
+    }
+
+    /**
+     * 确认发货：将待发货订单更新为待收货状态
+     * @param orderId 订单ID
+     * @return 更新后的订单
+     */
+    public Order shipOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("订单不存在，ID: " + orderId));
+
+        if (!"pending_shipment".equals(order.getStatus())) {
+            throw new RuntimeException("订单状态不正确，无法发货");
+        }
+
+        order.setStatus("pending_receipt"); // 待收货
 
         return orderRepository.save(order);
     }
@@ -283,4 +301,5 @@ public class OrderService {
 
         return orderRepository.save(order);
     }
+
 }
