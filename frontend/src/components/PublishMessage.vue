@@ -326,16 +326,42 @@ export default {
         category: categoryLabel,
       })
         .then((res) => {
-          if (res.flag === true) {
+          console.log('发布商品响应:', res);
+          if (res && res.flag === true) {
             this.$message.success(res.message || "发布成功");
             this.$router.push("/home/user/published" + this.ctype);
           } else {
-            this.$message.error(res.message || "发布失败");
+            const errorMsg = res?.message || res?.data?.message || "发布失败";
+            console.error('发布失败:', res);
+            this.$message.error(errorMsg);
           }
         })
         .catch((err) => {
-          console.log("发布失败", err);
-          this.$message.error("发布失败，请稍后再试");
+          console.error("发布失败，详细错误:", err);
+          let errorMessage = "发布失败，请稍后再试";
+          
+          // 尝试从错误响应中提取错误信息
+          if (err && err.response) {
+            const responseData = err.response.data;
+            if (responseData && responseData.message) {
+              errorMessage = responseData.message;
+            } else if (err.response.status === 401) {
+              errorMessage = "请先登录";
+              this.$router.push('/login').catch(() => {});
+            } else if (err.response.status === 400) {
+              errorMessage = responseData?.message || "请求参数错误，请检查填写的信息";
+            } else if (err.response.status === 500) {
+              errorMessage = "服务器内部错误，请稍后重试";
+            }
+          } else if (err && err.message) {
+            if (err.message.includes('Network Error') || err.message.includes('timeout')) {
+              errorMessage = "网络连接失败，请检查后端服务是否启动";
+            } else {
+              errorMessage = err.message;
+            }
+          }
+          
+          this.$message.error(errorMessage);
         });
     },
   },

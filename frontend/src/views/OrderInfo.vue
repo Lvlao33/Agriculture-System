@@ -1,6 +1,26 @@
 <template>
   <div class="order-info-page">
-    <!-- 顶部标签导航 -->
+    <!-- 顶部主标签导航：我买的 / 我卖的 -->
+    <div class="main-tabs-container">
+      <div class="main-tabs-wrapper">
+        <div 
+          class="main-tab-item" 
+          :class="{ active: currentModule === 'my_buy' }"
+          @click="switchModule('my_buy')"
+        >
+          我买的
+        </div>
+        <div 
+          class="main-tab-item" 
+          :class="{ active: currentModule === 'my_sell' }"
+          @click="switchModule('my_sell')"
+        >
+          我卖的
+        </div>
+      </div>
+    </div>
+
+    <!-- 子标签导航：所有订单、待付款等 -->
     <div class="tabs-container">
       <div class="tabs-wrapper">
         <div 
@@ -229,13 +249,15 @@
 
 <script>
 import { selectBuyByUserName, selectAllPage, deleteOrderById, confirmOrderReceive, payOrder, completeReview, getOrders } from "../api/trade";
+import { selectSellByUserName } from "../api/order";
 import { addOrderToCart } from "../api/cart";
 
 export default {
   name: "OrderInfo",
   data() {
     return {
-      currentTab: "all",
+      currentModule: "my_buy", // 当前主模块：my_buy(我买的) 或 my_sell(我卖的)
+      currentTab: "all", // 当前子标签：all, pending_payment, pending_shipment, pending_receipt, pending_review, refund_after_sale
       currentPage: 1,
       pageSize: 10,
       searchKeyword: "",
@@ -249,7 +271,7 @@ export default {
     filteredOrders() {
       let filtered = this.orders;
       
-      // 根据标签筛选
+      // 根据子标签筛选订单状态（如果子标签不是"all"）
       if (this.currentTab === "pending_payment") {
         filtered = filtered.filter(order => 
           (order.status === "pending_payment" || order.type === 0)
@@ -275,6 +297,7 @@ export default {
           order.status === "after_sale"
         );
       }
+      // "all" 标签不进行状态筛选，显示所有数据
 
       // 根据搜索关键词筛选
       if (this.searchKeyword) {
@@ -301,6 +324,12 @@ export default {
     }
   },
   methods: {
+    switchModule(module) {
+      this.currentModule = module;
+      this.currentTab = "all"; // 切换主模块时，重置为"所有订单"
+      this.currentPage = 1;
+      this.loadOrders();
+    },
     switchTab(tab) {
       this.currentTab = tab;
       this.currentPage = 1;
@@ -675,47 +704,81 @@ export default {
     },
     async loadOrders() {
       try {
-        // 根据当前标签加载订单
-        let status = null;
-        if (this.currentTab === "pending_payment") {
-          status = "pending_payment";
-        } else if (this.currentTab === "pending_receipt") {
-          status = "pending_receipt";
-        } else if (this.currentTab === "pending_review") {
-          status = "pending_review";
-        } else if (this.currentTab === "refund_after_sale") {
-          status = "refund_after_sale";
+        let res;
+        
+        // 根据当前主模块和子标签加载订单
+        // 根据主模块确定是"我买的"还是"我卖的"
+        // 先获取所有订单，然后在前端根据子标签筛选
+        if (this.currentModule === "my_buy") {
+          // "我买的"模块：获取当前用户作为买家的所有订单
+          res = await selectBuyByUserName({});
+        } else if (this.currentModule === "my_sell") {
+          // "我卖的"模块：获取当前用户作为卖家的所有订单
+          res = await selectSellByUserName({});
+        } else {
+          // 兼容旧逻辑（如果currentModule不是my_buy或my_sell）
+          let status = null;
+          if (this.currentTab === "pending_payment") {
+            status = "pending_payment";
+          } else if (this.currentTab === "pending_receipt") {
+            status = "pending_receipt";
+          } else if (this.currentTab === "pending_review") {
+            status = "pending_review";
+          } else if (this.currentTab === "refund_after_sale") {
+            status = "refund_after_sale";
+          }
+          res = await getOrders({ status: status });
         }
         
-        const res = await getOrders({ status: status });
         if (res && res.flag && res.data) {
-          const apiOrders = res.data.list || res.data || [];
-          if (Array.isArray(apiOrders) && apiOrders.length > 0) {
+          // 处理不同API返回的数据格式
+          let apiOrders = [];
+          if (Array.isArray(res.data)) {
+            apiOrders = res.data;
+          } else if (res.data.list) {
+            apiOrders = res.data.list;
+          } else if (res.data.orders) {
+            apiOrders = res.data.orders;
+          }
+          
+          if (apiOrders.length > 0) {
             // 转换订单数据格式，兼容前端显示
-            this.orders = apiOrders.map(order => ({
-              id: order.id,
-              orderId: order.id,
-              order_id: order.id,
-              orderNumber: order.orderNumber,
-              title: order.orderItems && order.orderItems.length > 0 
-                ? order.orderItems[0].productName 
-                : '商品名称',
-              productName: order.orderItems && order.orderItems.length > 0 
-                ? order.orderItems[0].productName 
-                : '商品名称',
-              price: order.totalAmount,
-              totalPrice: order.totalAmount,
-              quantity: order.orderItems ? order.orderItems.reduce((sum, item) => sum + item.quantity, 0) : 1,
-              count: order.orderItems ? order.orderItems.reduce((sum, item) => sum + item.quantity, 0) : 1,
-              status: order.status,
-              type: order.status === "pending_payment" ? 0 : 1,
-              createTime: order.createTime,
-              create_time: order.createTime,
-              shippingAddress: order.shippingAddress,
-              receiverName: order.receiverName,
-              receiverPhone: order.receiverPhone,
-              orderItems: order.orderItems || []
-            }));
+            this.orders = apiOrders.map(order => {
+              // 兼容不同的数据格式
+              const orderId = order.id || order.orderId || order.order_id;
+              const orderItems = order.orderItems || order.items || [];
+              const productName = orderItems.length > 0 
+                ? orderItems[0].productName || orderItems[0].name || orderItems[0].title
+                : (order.title || order.productName || order.name || '商品名称');
+              
+              return {
+                id: orderId,
+                orderId: orderId,
+                order_id: orderId,
+                orderNumber: order.orderNumber || order.order_number || orderId,
+                title: productName,
+                productName: productName,
+                price: order.totalAmount || order.total_amount || order.price || 0,
+                totalPrice: order.totalAmount || order.total_amount || order.price || 0,
+                quantity: orderItems.length > 0 
+                  ? orderItems.reduce((sum, item) => sum + (item.quantity || item.count || 1), 0)
+                  : (order.quantity || order.count || 1),
+                count: orderItems.length > 0 
+                  ? orderItems.reduce((sum, item) => sum + (item.quantity || item.count || 1), 0)
+                  : (order.quantity || order.count || 1),
+                status: order.status || order.type === 0 ? "pending_payment" : "completed",
+                type: order.type !== undefined ? order.type : (order.status === "pending_payment" ? 0 : 1),
+                createTime: order.createTime || order.create_time || order.createDate,
+                create_time: order.createTime || order.create_time || order.createDate,
+                shippingAddress: order.shippingAddress || order.shipping_address,
+                receiverName: order.receiverName || order.receiver_name,
+                receiverPhone: order.receiverPhone || order.receiver_phone,
+                orderItems: orderItems,
+                image: order.image || order.imageUrl || order.picture,
+                picture: order.picture || order.imageUrl || order.image,
+                storeName: order.storeName || order.store_name || '店铺名称'
+              };
+            });
             
             // 更新待评价数量
             const pendingReviewOrders = this.orders.filter(o => o.status === "pending_review");
@@ -748,6 +811,40 @@ export default {
   background: #fff;
   padding: 15px;
   min-height: 600px;
+
+  .main-tabs-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e8e8e8;
+
+    .main-tabs-wrapper {
+      display: flex;
+      gap: 30px;
+
+      .main-tab-item {
+        cursor: pointer;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #666;
+        position: relative;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #ff5000;
+        }
+
+        &.active {
+          color: #ff5000;
+          border-bottom-color: #ff5000;
+        }
+      }
+    }
+  }
 
   .tabs-container {
     display: flex;
