@@ -1,6 +1,7 @@
 package com.farmporject.backend.expert.controller;
 
 import com.farmporject.backend.expert.model.Knowledge;
+import com.farmporject.backend.expert.service.CommentService;
 import com.farmporject.backend.expert.service.KnowledgeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,9 @@ class KnowledgeControllerTest {
     @Mock
     private KnowledgeService knowledgeService;
 
+    @Mock
+    private CommentService commentService;
+
     @InjectMocks
     private KnowledgeController controller;
 
@@ -43,7 +47,7 @@ class KnowledgeControllerTest {
             knowledgeList.add(knowledge);
         }
         Page<Knowledge> knowledgePage = new PageImpl<>(knowledgeList, PageRequest.of(0, 10), 5);
-        
+
         when(knowledgeService.getPublishedKnowledge(any(Pageable.class))).thenReturn(knowledgePage);
 
         ResponseEntity<?> response = controller.list(1, 10);
@@ -60,13 +64,13 @@ class KnowledgeControllerTest {
     }
 
     @Test
-    void listAll() {
+    void selectByUsername() {
         // 准备空数据
-        Page<Knowledge> emptyPage = new PageImpl<>(new ArrayList<>(), PageRequest.of(0, 20), 0);
-        
+        Page<Knowledge> emptyPage = new PageImpl<>(new ArrayList<>(), PageRequest.of(0, 100), 0);
+
         when(knowledgeService.getPublishedKnowledge(any(Pageable.class))).thenReturn(emptyPage);
 
-        ResponseEntity<?> response = controller.listAll();
+        ResponseEntity<?> response = controller.selectByUsername();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Map<?, ?> body = (Map<?, ?>) response.getBody();
@@ -82,11 +86,11 @@ class KnowledgeControllerTest {
         knowledge.setContent("test content");
         knowledge.setCreateTime(LocalDateTime.now());
         knowledge.setUpdateTime(LocalDateTime.now());
-        
+
         Knowledge savedKnowledge = new Knowledge();
         savedKnowledge.setKnowledgeId(1L);
         savedKnowledge.setTitle("new knowledge");
-        
+
         when(knowledgeService.createKnowledge(any(Knowledge.class))).thenReturn(savedKnowledge);
 
         ResponseEntity<?> response = controller.create(knowledge);
