@@ -160,8 +160,32 @@ public class OrderController {
         try {
             var order = orderService.getOrderById(id);
             if (order.isPresent()) {
+                Order orderObj = order.get();
+                // 构建包含订单项的订单数据
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("id", orderObj.getId());
+                orderMap.put("orderId", orderObj.getId());
+                orderMap.put("order_id", orderObj.getId());
+                orderMap.put("orderNumber", orderObj.getOrderNumber());
+                orderMap.put("totalAmount", orderObj.getTotalAmount());
+                orderMap.put("total_amount", orderObj.getTotalAmount());
+                orderMap.put("status", orderObj.getStatus());
+                orderMap.put("createTime", orderObj.getCreateTime());
+                orderMap.put("create_time", orderObj.getCreateTime());
+                orderMap.put("userId", orderObj.getUserId());
+                orderMap.put("sellerId", orderObj.getSellerId());
+                orderMap.put("shippingAddress", orderObj.getShippingAddress());
+                orderMap.put("receiverName", orderObj.getReceiverName());
+                orderMap.put("receiverPhone", orderObj.getReceiverPhone());
+                orderMap.put("paymentMethod", orderObj.getPaymentMethod());
+                orderMap.put("paymentStatus", orderObj.getPaymentStatus());
+                
+                // 添加订单项（重要：包含 productId）
+                List<com.farmporject.backend.trade.model.OrderItem> orderItems = orderService.getOrderItems(orderObj.getId());
+                orderMap.put("orderItems", orderItems);
+                
                 response.put("flag", true);
-                response.put("data", order.get());
+                response.put("data", orderMap);
                 return ResponseEntity.ok().body(response);
             } else {
                 response.put("flag", false);

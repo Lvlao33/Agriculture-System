@@ -31,6 +31,14 @@
             >
               我的问答记录
             </el-button>
+            <el-button
+              class="back-to-guide-btn"
+              type="default"
+              plain
+              @click="goBackGuide"
+            >
+              返回
+            </el-button>
           </div>
         </div>
       </div>
@@ -298,6 +306,21 @@ export default {
         this.$router.push('/login').catch(() => {})
       }
     },
+    // 返回到来源页面（优先使用历史回退），若无法回退则返回到专家指导页
+    goBackGuide() {
+      try {
+        if (window.history && window.history.length > 1) {
+          // 尝试回退到上一个页面
+          this.$router.go(-1);
+        } else {
+          // 没有历史记录可回退，回到专家指导页作为兜底
+          this.$router.push('/home/guide').catch(() => {});
+        }
+      } catch (e) {
+        // 保底跳转
+        this.$router.push('/home/guide').catch(() => {});
+      }
+    },
     // 根据关键词过滤并分页
     applyFilter() {
       const keyword = this.searchKeyword.trim().toLowerCase()
@@ -391,6 +414,7 @@ export default {
 
       .search-input {
         flex: 1;
+        max-width: 680px; /* 缩短搜索框，不再占满整行 */
 
         &::v-deep .el-input__inner {
           height: 46px;
@@ -443,6 +467,27 @@ export default {
           background: rgba(95, 139, 255, 0.18);
           color: #1f3fbf;
           border-color: #2f54eb;
+        }
+      }
+ 
+      /* 返回按钮样式：放在“我的问答记录”右侧 */
+      .back-to-guide-btn {
+        height: 48px;
+        line-height: 46px;
+        padding: 0 26px; /* 更长一些以增强可见性 */
+        border-radius: 999px;
+        font-size: 15px;
+        border: none;
+        color: #fff;
+        background: linear-gradient(90deg, #4b79ff 0%, #3057ff 100%);
+        font-weight: 600;
+        box-shadow: 0 6px 14px rgba(48,87,255,0.12);
+        transition: all 160ms ease;
+
+        &:hover {
+          background: linear-gradient(90deg, #405fef 0%, #274be6 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 18px rgba(39,75,230,0.14);
         }
       }
     }
