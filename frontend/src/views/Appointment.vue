@@ -9,6 +9,10 @@
         </h2>
         <p class="page-desc">填写预约信息，专家将为您提供专业的农业指导服务</p>
       </div>
+      <!-- 返回按钮（放在绿色框外，位于 header 下方） -->
+      <div class="after-header-back">
+        <el-button class="header-back" icon="el-icon-arrow-left" @click="goBackHistory">返回</el-button>
+      </div>
 
       <!-- 预约表单 -->
       <div class="appointment-form-wrapper">
@@ -329,6 +333,19 @@ export default {
         this.appointmentForm.expertId = parseInt(this.$route.query.id)
       }
     }
+    ,
+    // 返回到来源页面（优先使用历史回退），若无法回退则返回到专家指导页
+    goBackHistory() {
+      try {
+        if (window.history && window.history.length > 1) {
+          this.$router.go(-1);
+        } else {
+          this.$router.push('/home/guide').catch(() => {});
+        }
+      } catch (e) {
+        this.$router.push('/home/guide').catch(() => {});
+      }
+    }
   }
 }
 </script>
@@ -344,11 +361,11 @@ export default {
     width: 1100px;
     margin: 0 auto;
 
-    .page-header {
+      .page-header {
       background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
       border-radius: 8px;
-      padding: 30px;
-      margin-bottom: 30px;
+      padding: 24px 30px;
+      margin-bottom: 6px; /* minimal gap to the button */
       color: #fff;
       text-align: center;
 
@@ -364,6 +381,24 @@ export default {
         i {
           font-size: 32px;
         }
+      }
+      /* header-back placed outside the green header */
+      .after-header-back {
+        display: flex;
+        justify-content: flex-start;
+        margin: 6px 0 12px 0; /* small gap above and below, tight layout */
+      }
+
+      .header-back {
+        height: 36px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        background: #fff;
+        color: #67c23a;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        display: inline-flex;
+        align-items: center;
       }
 
       .page-desc {

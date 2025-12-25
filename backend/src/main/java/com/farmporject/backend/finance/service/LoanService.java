@@ -442,7 +442,10 @@ public class LoanService {
         // 查询user对应的loanUserStatus
         List<LoanUserStatus> loanUserStatuses = user.getLoanUserStatuses();
         // 直接提取Loan列表
-        return loanUserStatuses.stream().map(LoanUserStatus::getLoan).collect(Collectors.toList());
+        List<Loan> loans = loanUserStatuses.stream().map(LoanUserStatus::getLoan).collect(Collectors.toList());
+        // 显式初始化 loanUserStatuses 以防止懒加载异常
+        loans.forEach(loan -> loan.getLoanUserStatuses().size());
+        return loans;
     }
 
     /**
@@ -492,7 +495,9 @@ public class LoanService {
      */
     @Transactional(readOnly = true)
     public List<Loan> findLoanListByStatus(Status status) {
-        return repo.findByStatus(status);
+        List<Loan> loans = repo.findByStatus(status);
+        loans.forEach(loan -> loan.getLoanUserStatuses().size());
+        return loans;
     }
 
     /**
@@ -509,7 +514,9 @@ public class LoanService {
         }
         User staff = userRepository.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("人员不存在"));
-        return repo.findByStatusAndStaff(status, staff);
+        List<Loan> loans = repo.findByStatusAndStaff(status, staff);
+        loans.forEach(loan -> loan.getLoanUserStatuses().size());
+        return loans;
     }
 
     /**
@@ -519,7 +526,9 @@ public class LoanService {
      */
     @Transactional(readOnly = true)
     public List<Loan> findUnassignedLoans() {
-        return repo.findByStatusAndStaffIsNull(Status.CREATED);
+        List<Loan> loans = repo.findByStatusAndStaffIsNull(Status.CREATED);
+        loans.forEach(loan -> loan.getLoanUserStatuses().size());
+        return loans;
     }
 
     /**
@@ -536,6 +545,8 @@ public class LoanService {
         }
         User staff = userRepository.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("人员不存在"));
-        return repo.findByStatusInAndStaff(statuses, staff);
+        List<Loan> loans = repo.findByStatusInAndStaff(statuses, staff);
+        loans.forEach(loan -> loan.getLoanUserStatuses().size());
+        return loans;
     }
 }

@@ -90,7 +90,6 @@ public class Loan implements Serializable {
     // 表与表的关系
     /** 关联的农户ID（外键） */
     @OneToMany(mappedBy = "loan")
-    @JsonIgnore
     private List<LoanUserStatus> loanUserStatuses; // 贷款与多个农户的多对多关系
 
     /** 所关联的产品ID */

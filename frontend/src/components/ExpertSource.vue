@@ -2,7 +2,13 @@
   <div class="expert-source-container">
     <!-- 搜索框 -->
     <div class="search-section">
-      <div class="search-wrapper">
+    <div class="search-wrapper">
+      <div class="search-row">
+        <el-button
+          class="back-btn"
+          icon="el-icon-arrow-left"
+          @click="goBackHistory"
+        >返回</el-button>
         <el-input 
           v-model="searchValue" 
           maxlength="100" 
@@ -20,6 +26,7 @@
           ></el-button>
         </el-input>
       </div>
+    </div>
     </div>
 
     <!-- 专家列表 -->
@@ -127,6 +134,18 @@ export default {
     handleSearch(){
       this.$emit('handleSearch',this.searchValue)
     }
+    ,
+    goBackHistory() {
+      try {
+        if (window.history && window.history.length > 1) {
+          this.$router.go(-1);
+        } else {
+          this.$router.push('/home/guide').catch(() => {});
+        }
+      } catch (e) {
+        this.$router.push('/home/guide').catch(() => {});
+      }
+    }
   },
 };
 </script>
@@ -135,14 +154,38 @@ export default {
 .expert-source-container {
   width: 100%;
   margin: 0 auto;
+  position: relative;
 
   // 搜索区域
   .search-section {
     margin-bottom: 25px;
 
-    .search-wrapper {
+      .search-wrapper {
       max-width: 600px;
       margin: 0 auto;
+
+      .search-row {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* center search input within wrapper */
+        gap: 12px;
+      }
+
+      .back-btn {
+        position: absolute;
+        left: calc(50% - 550px); /* align to left edge of 1100px central content */
+        top: 6px;
+        height: 36px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #fff;
+        color: #67C23A;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+      }
 
       .search-input {
         /deep/ .el-input-group {

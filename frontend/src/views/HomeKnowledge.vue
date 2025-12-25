@@ -17,6 +17,13 @@
       </div>
       
       <div class="filter-tabs">
+        <div
+          class="tab-item back-tab"
+          @click="goBackHistory"
+        >
+          <i class="el-icon-arrow-left"></i>
+          <span>返回</span>
+        </div>
         <div 
           class="tab-item" 
           :class="{ active: activeTab === 'all' }"
@@ -158,6 +165,18 @@ export default {
     handleSearch() {
       // 搜索功能已在 computed 中实现
     },
+    // 返回到来源页面（优先使用历史回退），若无法回退则返回到交易首页
+    goBackHistory() {
+      try {
+        if (window.history && window.history.length > 1) {
+          this.$router.go(-1);
+        } else {
+          this.$router.push('/home/trade').catch(() => {});
+        }
+      } catch (e) {
+        this.$router.push('/home/trade').catch(() => {});
+      }
+    },
     switchTab(tab) {
       this.activeTab = tab;
     },
@@ -233,6 +252,12 @@ export default {
             background: linear-gradient(135deg, #5daf34 0%, #73c850 100%);
           }
         }
+      }
+      .back-tab {
+        background: #fff;
+        color: #67c23a;
+        border-color: #e8e8e8;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
       }
     }
   }
