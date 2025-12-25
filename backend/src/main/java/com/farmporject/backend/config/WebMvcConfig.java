@@ -10,6 +10,7 @@ import java.io.File;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
     private static final String ORDER_DIR = System.getProperty("user.dir") + File.separator + "uploads" + File.separator + "order" + File.separator;
+    private static final String LOANS_FILES_DIR = System.getProperty("user.dir") + File.separator + "loans_files" + File.separator;
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
@@ -19,6 +20,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 兼容前端使用的 /file/{filename} 访问图片的方式
         registry.addResourceHandler("/file/**")
                 .addResourceLocations("file:" + ORDER_DIR);
+
+        // 贷款文件下载
+        registry.addResourceHandler("/loans_files/**")
+                .addResourceLocations("file:" + LOANS_FILES_DIR);
     }
 }
 

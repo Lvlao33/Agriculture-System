@@ -67,6 +67,7 @@ import MyQuestions from '../views/MyQuestions'
 import QuestionDetail from '../views/QuestionDetail'
 import AskQuestion from '../views/AskQuestion'
 import ExpertDashboard from '../views/ExpertDashboard'
+import LoanReviewList from '../views/LoanReviewList'
 
 
 Vue.use(VueRouter)
@@ -234,6 +235,11 @@ const routes = [
       {
         path: 'edit-product/:id',
         component: EditProduct,
+      },
+      {
+        path: 'loanApply/overview',
+        component: LoanReviewList,
+        meta: { roles: ['bank'] }
       },
       {
         path: 'loanApply/:id',

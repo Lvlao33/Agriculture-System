@@ -377,4 +377,59 @@ public class LoanService {
             throw new RuntimeException("贷款申请不存在");
         return loanRecordRepository.findByLoanId(loanId);
     }
+
+    /**
+     * 根据状态查询贷款列表
+     * 
+     * @param status 贷款状态
+     * @return 贷款列表
+     */
+    @Transactional(readOnly = true)
+    public List<Loan> findLoanListByStatus(Status status) {
+        return repo.findByStatus(status);
+    }
+
+    /**
+     * 根据状态和负责人员查询贷款列表
+     * 
+     * @param status  贷款状态
+     * @param staffId 负责人员ID
+     * @return 贷款列表
+     */
+    @Transactional(readOnly = true)
+    public List<Loan> findLoanListByStatusAndStaff(Status status, Long staffId) {
+        if (staffId == null) {
+            throw new RuntimeException("人员ID不能为空");
+        }
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("人员不存在"));
+        return repo.findByStatusAndStaff(status, staff);
+    }
+
+    /**
+     * 查询未分配负责人的贷款（状态为CREATED且staff为null）
+     * 
+     * @return 贷款列表
+     */
+    @Transactional(readOnly = true)
+    public List<Loan> findUnassignedLoans() {
+        return repo.findByStatusAndStaffIsNull(Status.CREATED);
+    }
+
+    /**
+     * 根据多个状态和负责人员查询贷款列表（用于查询已结束的贷款）
+     * 
+     * @param statuses 状态列表
+     * @param staffId  负责人员ID
+     * @return 贷款列表
+     */
+    @Transactional(readOnly = true)
+    public List<Loan> findLoanListByStatusesAndStaff(List<Status> statuses, Long staffId) {
+        if (staffId == null) {
+            throw new RuntimeException("人员ID不能为空");
+        }
+        User staff = userRepository.findById(staffId)
+                .orElseThrow(() -> new RuntimeException("人员不存在"));
+        return repo.findByStatusInAndStaff(statuses, staff);
+    }
 }
