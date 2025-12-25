@@ -36,12 +36,20 @@ export default {
           this.$message.error(this.ctype === "needs" ? "缺少ID，无法删除" : "缺少ID，无法下架");
           return;
         }
+        
+        let res;
         if (this.ctype === "needs") {
-          await deleteDemand(id);
-          this.$message.success("删除成功");
+          // 删除需求
+          res = await deleteDemand(id);
+          if (res && res.flag) {
+            this.$message.success(res.message || "删除成功");
+          } else {
+            this.$message.error(res?.message || "删除失败");
+            return;
+          }
         } else {
-          // 使用deleteProduct API删除商品（下架）
-          const res = await deleteProduct(id);
+          // 下架商品
+          res = await deleteProduct(id);
           if (res && res.flag) {
             this.$message.success(res.message || "下架成功");
           } else {
@@ -49,6 +57,7 @@ export default {
             return;
           }
         }
+        
         this.dialogVisible = false;
         // 触发父组件刷新列表
         this.$emit('deleted');
@@ -57,8 +66,18 @@ export default {
           this.reload();
         }
       } catch (err) {
-        console.error('删除商品失败:', err);
-        const errorMsg = err?.message || (this.ctype === "needs" ? "删除失败" : "下架失败");
+        console.error(this.ctype === "needs" ? '删除需求失败:' : '下架商品失败:', err);
+        let errorMsg = this.ctype === "needs" ? "删除失败" : "下架失败";
+        
+        // 处理不同的错误格式
+        if (err && err.message) {
+          errorMsg = err.message;
+        } else if (err && err.response && err.response.data && err.response.data.message) {
+          errorMsg = err.response.data.message;
+        } else if (typeof err === 'string') {
+          errorMsg = err;
+        }
+        
         this.$message.error(errorMsg);
       }
     },

@@ -74,16 +74,14 @@ export function updateProduct(productId, product) {
 }
 
 /**
- * 删除商品
+ * 删除商品（下架）
  * @param {Number} productId - 商品ID
  */
 export function deleteProduct(productId) {
   return request({
     method: 'delete',
     url: `/api/trade/products/${productId}`,
-    headers: {
-      'Authorization': localStorage.getItem('token') || '',
-    },
+    // request.js 会自动添加 Authorization header
   })
 }
 
@@ -129,6 +127,22 @@ export function getDemandDetail(demandId) {
 }
 
 /**
+ * 更新采购需求
+ * @param {Number} demandId - 需求ID
+ * @param {Object} demand - 需求信息
+ */
+export function updateDemand(demandId, demand) {
+  return request({
+    method: 'put',
+    url: `/api/trade/demands/${demandId}`,
+    data: demand,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
  * 删除采购需求
  * @param {Number} demandId - 需求ID
  */
@@ -136,9 +150,7 @@ export function deleteDemand(demandId) {
   return request({
     method: 'delete',
     url: `/api/trade/demands/${demandId}`,
-    headers: {
-      'Authorization': localStorage.getItem('token') || '',
-    },
+    // request.js 会自动添加 Authorization header
   })
 }
 

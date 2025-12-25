@@ -143,15 +143,26 @@ export default {
           deleteDemandAPI(demand.id)
             .then((res) => {
               if (res.flag === true) {
-                this.$message.success("删除成功");
+                this.$message.success(res.message || "删除成功");
                 this.loadDemands();
               } else {
                 this.$message.error(res.message || "删除失败");
               }
             })
             .catch((err) => {
-              this.$message.error("删除失败");
               console.error("删除需求失败", err);
+              let errorMsg = "删除失败";
+              
+              // 处理不同的错误格式
+              if (err && err.message) {
+                errorMsg = err.message;
+              } else if (err && err.response && err.response.data && err.response.data.message) {
+                errorMsg = err.response.data.message;
+              } else if (typeof err === 'string') {
+                errorMsg = err;
+              }
+              
+              this.$message.error(errorMsg);
             });
         })
         .catch(() => {});

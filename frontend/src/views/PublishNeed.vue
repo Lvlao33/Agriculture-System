@@ -1,8 +1,8 @@
 <template>
   <div class="publish-need-container">
     <div class="publish-header">
-      <h2><i class="el-icon-plus"></i> 发布求购需求</h2>
-      <p class="subtitle">填写您的求购信息，让更多供应商看到您的需求</p>
+      <h2><i class="el-icon-plus"></i> {{ isEditMode ? '编辑求购需求' : '发布求购需求' }}</h2>
+      <p class="subtitle">{{ isEditMode ? '修改您的求购信息' : '填写您的求购信息，让更多供应商看到您的需求' }}</p>
     </div>
 
     <el-form 
@@ -139,7 +139,7 @@
           :loading="submitting"
           @click="submitForm"
         >
-          <i class="el-icon-check"></i> 发布求购
+          <i class="el-icon-check"></i> {{ isEditMode ? '保存修改' : '发布求购' }}
         </el-button>
         <el-button 
           size="large" 
@@ -153,13 +153,15 @@
 </template>
 
 <script>
-import { createDemand } from "../api/trade";
+import { createDemand, getDemandDetail, updateDemand } from "../api/trade";
 
 export default {
   name: "PublishNeed",
   data() {
     return {
       submitting: false,
+      isEditMode: false,
+      demandId: null,
       form: {
         title: "",
         category: "",
@@ -190,7 +192,88 @@ export default {
       }
     };
   },
+  mounted() {
+    this.$store.commit("updateActiveIndex", "3");
+    
+    // 检查是否是编辑模式
+    const id = this.$route.query.id || this.$route.params.id;
+    if (id) {
+      this.isEditMode = true;
+      this.demandId = id;
+      this.loadDemandDetail(id);
+    }
+  },
   methods: {
+    loadDemandDetail(id) {
+      getDemandDetail(id)
+        .then((res) => {
+          if (res.flag === true && res.data) {
+            const demand = res.data;
+            this.form.title = demand.title || "";
+            this.form.category = demand.category || "";
+            
+            // 解析描述内容，提取各部分信息
+            const description = demand.description || "";
+            this.form.content = description.split('\n')[0] || description; // 第一行是主要内容
+            
+            // 解析其他信息（数量、地区、联系人、QQ、联系方式）
+            if (description.includes('求购数量：')) {
+              const qtyMatch = description.match(/求购数量：(\d+)([^\\n]+)/);
+              if (qtyMatch) {
+                this.form.quantity = parseInt(qtyMatch[1]) || 0;
+                this.form.unit = qtyMatch[2].trim() || "斤";
+              }
+            }
+            if (description.includes('所在地区：')) {
+              const locMatch = description.match(/所在地区：([^\\n]+)/);
+              if (locMatch) {
+                this.form.location = locMatch[1].trim();
+              }
+            }
+            if (description.includes('联系人：')) {
+              const nameMatch = description.match(/联系人：([^，\\n]+)/);
+              if (nameMatch) {
+                this.form.contactName = nameMatch[1].trim();
+              }
+            }
+            if (description.includes('QQ：')) {
+              const qqMatch = description.match(/QQ：([^，\\n]+)/);
+              if (qqMatch) {
+                this.form.qq = qqMatch[1].trim();
+              }
+            }
+            
+            // 解析联系方式
+            if (demand.contactInfo) {
+              const contactInfo = demand.contactInfo;
+              // 尝试从联系信息中提取电话号码
+              const phoneMatch = contactInfo.match(/(1[3-9]\d{9})/);
+              if (phoneMatch) {
+                this.form.contact = phoneMatch[1];
+              } else {
+                // 如果没有匹配到电话号码，使用完整的联系信息
+                this.form.contact = contactInfo.replace(/联系人：[^，]+，?/, "").replace(/，QQ：[^，]+/, "");
+              }
+            }
+            
+            // 如果需求中有 quantity 和 unit 字段，优先使用
+            if (demand.quantity) {
+              this.form.quantity = demand.quantity;
+            }
+            if (demand.unit) {
+              this.form.unit = demand.unit;
+            }
+          } else {
+            this.$message.error("获取需求详情失败");
+            this.$router.push("/home/user/publishedneeds").catch(() => {});
+          }
+        })
+        .catch((err) => {
+          console.error("加载需求详情失败", err);
+          this.$message.error("加载需求详情失败");
+          this.$router.push("/home/user/publishedneeds").catch(() => {});
+        });
+    },
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
@@ -229,8 +312,7 @@ export default {
             contactInfo += `，QQ：${this.form.qq}`;
           }
 
-          // 调用新的 createDemand API
-          createDemand({
+          const demandData = {
             title: this.form.title,
             description: fullContent,
             category: this.form.category,
@@ -239,22 +321,36 @@ export default {
             contactInfo: contactInfo,
             userId: userId,
             status: "ACTIVE"
-          })
+          };
+
+          // 根据是否是编辑模式调用不同的API
+          const apiCall = this.isEditMode
+            ? updateDemand(this.demandId, demandData)
+            : createDemand(demandData);
+
+          apiCall
             .then((res) => {
               this.submitting = false;
               if (res.flag === true) {
-                this.$message.success(res.message || "发布成功");
+                const successMsg = this.isEditMode ? "更新成功" : "发布成功";
+                this.$message.success(res.message || successMsg);
                 setTimeout(() => {
-                  this.$router.push("/home/purchase").catch((err) => err);
+                  if (this.isEditMode) {
+                    this.$router.push("/home/user/publishedneeds").catch((err) => err);
+                  } else {
+                    this.$router.push("/home/purchase").catch((err) => err);
+                  }
                 }, 1500);
               } else {
-                this.$message.error(res.message || "发布失败");
+                const errorMsg = this.isEditMode ? "更新失败" : "发布失败";
+                this.$message.error(res.message || errorMsg);
               }
             })
             .catch((err) => {
               this.submitting = false;
-              this.$message.error("发布失败，请重试");
-              console.error("发布需求失败", err);
+              const errorMsg = this.isEditMode ? "更新失败，请重试" : "发布失败，请重试";
+              this.$message.error(errorMsg);
+              console.error(this.isEditMode ? "更新需求失败" : "发布需求失败", err);
             });
         } else {
           this.$message.warning("请完善表单信息");
@@ -276,9 +372,6 @@ export default {
       this.$router.push('/home/trade').catch(() => {});
     }
   },
-  mounted() {
-    this.$store.commit("updateActiveIndex", "3");
-  }
 };
 </script>
 

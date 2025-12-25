@@ -74,6 +74,24 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
+    /**
+     * 下架商品（标记为不可用，而不是物理删除）
+     * 这样可以保留历史订单数据，避免外键约束问题
+     */
+    public Product deactivateProduct(Long id) {
+        return productRepository.findById(id)
+                .map(product -> {
+                    product.setIsAvailable(false);
+                    return productRepository.save(product);
+                })
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+    }
+
+    /**
+     * 物理删除商品（谨慎使用，可能因外键约束失败）
+     * 建议使用 deactivateProduct 方法进行下架
+     */
+    @Deprecated
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
