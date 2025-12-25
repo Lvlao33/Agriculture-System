@@ -154,96 +154,7 @@ export default {
         pendingPayment: 0,
         pendingShipment: 0,
         pendingReceipt: 0
-      },
-      // 示例商品数据（当API返回空数据时使用）
-      defaultGoods: [
-        {
-          name: '新鲜有机蔬菜',
-          content: '新鲜有机蔬菜',
-          price: 28.00,
-          picture: 'pro1.jpg',
-          origin: '山东',
-          orderId: 'demo1'
-        },
-        {
-          name: '优质水果礼盒',
-          content: '优质水果礼盒',
-          price: 88.00,
-          picture: 'pro2.jpg',
-          origin: '新疆',
-          orderId: 'demo2'
-        },
-        {
-          name: '绿色有机大米',
-          content: '绿色有机大米',
-          price: 45.00,
-          picture: 'rice.png',
-          origin: '东北',
-          orderId: 'demo3'
-        },
-        {
-          name: '新鲜土鸡蛋',
-          content: '新鲜土鸡蛋',
-          price: 35.00,
-          picture: 'pro3.jpg',
-          origin: '河北',
-          orderId: 'demo4'
-        },
-        {
-          name: '有机茶叶',
-          content: '有机茶叶',
-          price: 128.00,
-          picture: 'chayangji.jpg',
-          origin: '福建',
-          orderId: 'demo5'
-        },
-        {
-          name: '新鲜玉米',
-          content: '新鲜玉米',
-          price: 15.00,
-          picture: 'farm.jpeg',
-          origin: '河南',
-          orderId: 'demo6'
-        }
-      ],
-      // 示例求购数据（当API返回空数据时使用）
-      defaultNeeds: [
-        {
-          content: '大量求购新鲜有机蔬菜，要求无农药残留，产地直供',
-          title: '求购有机蔬菜',
-          ownName: '张先生',
-          createTime: new Date().toISOString(),
-          orderId: 'need1'
-        },
-        {
-          content: '急需采购优质苹果，要求甜度高，外观美观，长期合作',
-          title: '求购优质苹果',
-          ownName: '李女士',
-          createTime: new Date(Date.now() - 86400000).toISOString(),
-          orderId: 'need2'
-        },
-        {
-          content: '求购绿色有机大米，需要有机认证，批量采购',
-          title: '求购有机大米',
-          ownName: '王经理',
-          createTime: new Date(Date.now() - 172800000).toISOString(),
-          orderId: 'need3'
-        },
-        {
-          content: '长期收购新鲜土鸡蛋，要求散养，品质优良',
-          title: '求购土鸡蛋',
-          ownName: '赵老板',
-          createTime: new Date(Date.now() - 259200000).toISOString(),
-          orderId: 'need4'
-        },
-        {
-          content: '求购有机茶叶，需要原产地证明，高端品质',
-          title: '求购有机茶叶',
-          ownName: '陈总',
-          createTime: new Date(Date.now() - 345600000).toISOString(),
-          orderId: 'need5'
-        }
-      ]
+      }
     };
   },
   mounted() {
@@ -277,13 +188,11 @@ export default {
         if (res.flag == true && res.data.list && res.data.list.length > 0) {
           this.hotGoods = res.data.list.slice(0, 6);
         } else {
-          // 如果API返回空数据，使用示例数据
-          this.hotGoods = this.defaultGoods;
+          this.hotGoods = [];
         }
       }).catch(err => {
         console.log(err);
-        // API调用失败时，使用示例数据
-        this.hotGoods = this.defaultGoods;
+        this.hotGoods = [];
       });
     },
     loadLatestNeeds() {
@@ -294,13 +203,11 @@ export default {
         if (res.flag == true && res.data.list && res.data.list.length > 0) {
           this.latestNeeds = res.data.list.slice(0, 5);
         } else {
-          // 如果API返回空数据，使用示例数据
-          this.latestNeeds = this.defaultNeeds;
+          this.latestNeeds = [];
         }
       }).catch(err => {
         console.log(err);
-        // API调用失败时，使用示例数据
-        this.latestNeeds = this.defaultNeeds;
+        this.latestNeeds = [];
       });
     },
     loadOrderStats() {
@@ -308,8 +215,16 @@ export default {
       // 这里可以调用订单统计接口
     },
     goToGoodsDetail(item) {
-      // 点击商品，直接跳转到商品货源页面
-      this.$router.push("/home/goods").catch((err) => err);
+      // 点击商品，跳转到商品详情页
+      // 支持多种字段名：orderId, id, productId
+      const productId = item.orderId || item.id || item.productId;
+      if (productId) {
+        this.$store.commit("updateOrderId", productId);
+        this.$router.push(`/home/details?orderId=${productId}`).catch((err) => err);
+      } else {
+        console.error('商品信息缺少ID字段，无法跳转到详情页', item);
+        this.$message.error('商品信息不完整，无法查看详情');
+      }
     },
     goToPurchaseDetail(item) {
       // 点击求购信息，跳转到求购需求页面

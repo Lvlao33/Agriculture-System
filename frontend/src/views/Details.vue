@@ -1,8 +1,14 @@
 <template>
   <div class="details-box">
-    <div class="details-main">
-    <div class="left">
-        <img v-if="data.picture" :src="`/order/${data.picture}`" alt="商品图片" />
+    <div v-if="loading" class="loading-container">
+      <el-loading text="加载中..."></el-loading>
+    </div>
+    <div v-else-if="error" class="error-container">
+      <el-alert :title="error" type="error" :closable="false"></el-alert>
+    </div>
+    <div v-else class="details-main">
+      <div class="left">
+        <img v-if="data.picture && data.picture !== ''" :src="getImageUrl(data.picture)" alt="商品图片" @error="handleImageError" />
         <img v-else src="/order/wutu.gif" alt="暂无图片" />
     </div>
 
@@ -16,10 +22,10 @@
       </div>
 
         <div class="time">
-          <span>卖家：{{ updateUserData.userName || data.ownName || '未知' }}</span>
+          <span>卖家：{{ updateUserData.nickname || updateUserData.username || data.ownName || '未知' }}</span>
           <span>库存：{{ data.stock != null ? data.stock : '—' }}</span>
-          <span>发布时间：{{ data.createTime | changeTime }}</span>
-      </div>
+          <span v-if="data.createTime">发布时间：{{ data.createTime | changeTime }}</span>
+        </div>
 
         <div class="actions">
           <el-button type="primary" @click="onBuyNow">立即购买</el-button>
@@ -43,6 +49,45 @@
           <div class="rating-summary">
             <div class="rating-count">共 {{ commentArray.length || 0 }} 条评论</div>
           </div>
+          
+          <!-- 评论输入框 -->
+          <div class="comment-editor" v-if="isLoggedIn">
+            <el-input
+              type="textarea"
+              :rows="3"
+              placeholder="请输入您的评论..."
+              v-model="content"
+              maxlength="500"
+              show-word-limit>
+            </el-input>
+            <div class="comment-actions">
+              <el-button type="primary" @click="handleComment">发表评论</el-button>
+            </div>
+          </div>
+          <div v-else class="comment-login-tip">
+            <el-button type="text" @click="$router.push('/login')">请先登录后发表评论</el-button>
+          </div>
+
+          <!-- 评论列表 -->
+          <div class="comment-list" v-if="commentArray.length > 0">
+            <div class="comment-item" v-for="(comment, index) in commentArray" :key="index">
+              <div class="comment-header">
+                <img v-if="comment.userAvatar" :src="comment.userAvatar" class="comment-avatar" alt="头像" />
+                <img v-else src="/person.png" class="comment-avatar" alt="默认头像" />
+                <span class="comment-author">{{ comment.ownName }}</span>
+                <span class="comment-rating" v-if="comment.rating">
+                  <span v-for="i in 5" :key="i" class="star" :class="{ 'star-filled': i <= comment.rating }">★</span>
+                </span>
+              </div>
+              <div class="comment-content">{{ comment.content }}</div>
+              <div class="comment-meta">
+                <span>{{ comment.createTime | formatTimer2 }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="no-comments">
+            <p>暂无评论，快来发表第一条评论吧！</p>
+          </div>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -52,8 +97,10 @@
 <script>
 import { addOrderToCart,addOrderToCollect } from "../api/cart";
 import { selectOrderById,selectComment,addComment } from "../api/order";
+import { getProductReviews, createProductReview, getProductDetail } from "../api/trade";
 import ChangeMessage from "../components/ChangeMessage.vue";
-import { selectUserByUsername } from "../api/user";
+import { selectUserByUsername, searchUserById } from "../api/user";
+import { request } from "../utils/request";
 
 export default {
   data() {
@@ -73,10 +120,18 @@ export default {
       updateGoodInfo: {},
       updateUserData:{},
       activeTab: 'desc',
+      loading: false,
+      error: null,
+      isLoggedIn: false,
 
 
 
     };
+  },
+  computed: {
+    isLoggedIn() {
+      return !!localStorage.getItem('token');
+    }
   },
   filters: {
     changeTime(time) {
@@ -130,30 +185,41 @@ export default {
     },
   },
   methods: {
-    // 查询评论：映射后端返回字段到组件所需结构；若后端返回空数组则保留初始测试数据
+    // 查询评论：使用商品ID获取评论列表
     getCommentData(){
-      selectComment({
-        orderId: this.$route.query.orderId
-      }).then(res => {
+      // 获取商品ID（优先使用data.id，否则使用orderId作为productId）
+      const productId = this.data.id || this.data.orderId || this.$route.query.orderId;
+      if (!productId) {
+        console.warn('无法获取商品ID，跳过评论加载');
+        return;
+      }
+
+      getProductReviews(productId).then(res => {
         try {
-          const serverComments = (res && res.data && Array.isArray(res.data)) ? res.data : [];
-          if (serverComments.length > 0) {
-            // 映射后端评论字段到 { ownName, content, createTime }
+          if (res.flag && res.data && res.data.list) {
+            const serverComments = res.data.list;
+            // 映射后端评论字段到 { ownName, content, createTime, rating }
             this.commentArray = serverComments.map(item => {
               return {
-                ownName: item.ownName || item.userName || item.username || item.nick || ('匿名' + Math.floor(Math.random()*9000+1000)),
-                content: item.content || item.text || item.comment || '',
-                createTime: item.createTime || item.createdAt || item.time || new Date().toISOString()
+                ownName: item.userNickname || item.userName || item.username || ('匿名' + Math.floor(Math.random()*9000+1000)),
+                content: item.content || '',
+                createTime: item.createTime || item.createdAt || new Date().toISOString(),
+                rating: item.rating || 5,
+                userAvatar: item.userAvatar || ''
               };
             });
+          } else {
+            // 若后端无数据，清空评论数组
+            this.commentArray = [];
           }
-          // 若后端无数据，保持组件内置的测试评论（用于演示）
         } catch (e) {
           console.error('处理评论数据失败', e);
+          this.commentArray = [];
         }
       }).catch(err=>{
-        // 网络或接口错误时保留本地测试评论，便于演示
-        console.log(err)
+        // 网络或接口错误时保留空数组
+        console.log('获取评论失败', err);
+        this.commentArray = [];
       })
     },
     handleComment(){
@@ -161,20 +227,33 @@ export default {
         this.$message.error('评论内容不能为空！')
         return
       }
-      if(localStorage.getItem('token')){
-        addComment({
-          orderId: this.$route.query.orderId,
-          content: this.content
-        }).then(res=>{
+      if(!this.isLoggedIn){
+        this.$message.error('请先登录')
+        return
+      }
+
+      // 获取商品ID
+      const productId = this.data.id || this.data.orderId || this.$route.query.orderId;
+      if (!productId) {
+        this.$message.error('无法获取商品ID')
+        return
+      }
+
+      createProductReview(productId, {
+        content: this.content,
+        rating: 5 // 默认5分，可以后续添加评分选择功能
+      }).then(res=>{
+        if (res.flag) {
           this.content=''
           this.$message.success('评论成功！')
           this.getCommentData()
-        }).catch(err=>{
-          console.log(err)
-        })
-      }else{
-        this.$message.error('请先登录')
-      }
+        } else {
+          this.$message.error(res.message || '评论失败')
+        }
+      }).catch(err=>{
+        console.log('评论失败', err)
+        this.$message.error(err.message || '评论失败，请稍后重试')
+      })
     },
 
 
@@ -290,13 +369,60 @@ export default {
           });
     },
     getSalesInfo(){
+      // 优先使用sellerId查询卖家信息（新API）
+      if (this.data.sellerId) {
+        // 使用后端getUserById接口
+        searchUserById(this.data.sellerId).then((res) => {
+          if (res.flag && res.data) {
+            this.updateUserData = res.data;
+            // 如果ownName为空，使用查询到的用户名或昵称
+            if (!this.data.ownName && res.data) {
+              this.data.ownName = res.data.nickname || res.data.username;
+            }
+          }
+        }).catch(err=>{
+          console.log('通过sellerId查询卖家信息失败', err);
+          // 如果通过ID查询失败，尝试使用用户名查询（向后兼容）
+          if (this.data.ownName) {
+            this.getSalesInfoByUsername();
+          }
+        });
+      } else if (this.data.ownName) {
+        // 如果没有sellerId，使用用户名查询（向后兼容）
+        this.getSalesInfoByUsername();
+      }
+    },
+    getSalesInfoByUsername(){
       selectUserByUsername({
         user_name: this.data.ownName,
       }).then((res) => {
         this.updateUserData = res.data;
       }).catch(err=>{
-        console.log(err);
+        console.log('通过用户名查询卖家信息失败', err);
       })
+    },
+    // 处理图片URL
+    getImageUrl(picture) {
+      if (!picture) return '/order/wutu.gif';
+      // 如果已经是完整URL，直接返回
+      if (picture.startsWith('http://') || picture.startsWith('https://')) {
+        return picture;
+      }
+      // 如果已经包含/order/前缀，直接返回
+      if (picture.startsWith('/order/')) {
+        return picture;
+      }
+      // 如果以/开头，直接返回
+      if (picture.startsWith('/')) {
+        return picture;
+      }
+      // 否则添加/order/前缀
+      return `/order/${picture}`;
+    },
+    // 图片加载错误处理
+    handleImageError(event) {
+      console.log('图片加载失败，使用默认图片', event.target.src);
+      event.target.src = '/order/wutu.gif';
     }
     ,
     goBackGoodsSource() {
@@ -306,40 +432,151 @@ export default {
     ,
     mapResponseToData(resData) {
       // 统一后端返回字段到组件需要的 data 字段
-      if (!resData || typeof resData !== 'object') return {};
+      if (!resData || typeof resData !== 'object') {
+        console.warn('mapResponseToData: resData为空或不是对象', resData);
+        return {};
+      }
+      console.log('mapResponseToData: 原始数据', resData);
       const mapped = {};
+      // 优先使用id字段（新API返回的格式）
+      mapped.id = resData.id || resData.productId;
       mapped.orderId = resData.orderId || resData.id || resData.order_id || resData.productId;
-      mapped.title = resData.title || resData.name || resData.productName || resData.goodsName;
+      // 商品名称：新API返回name字段
+      mapped.title = resData.title || resData.name || resData.productName || resData.goodsName || '商品名称';
       mapped.name = mapped.title;
+      // 商品描述：新API返回description字段
       mapped.content = resData.content || resData.description || resData.intro || resData.desc || '';
+      // 价格
       mapped.price = resData.price != null ? resData.price : (resData.unitPrice != null ? resData.unitPrice : null);
+      // 库存
       mapped.stock = resData.stock != null ? resData.stock : (resData.inventory != null ? resData.inventory : null);
-      // 图片可能是单条或数组或字段名不同
-      let pic = resData.picture || resData.image || resData.images || resData.pictures || resData.img;
+      // 图片：新API返回imageUrl字段
+      let pic = resData.picture || resData.image || resData.images || resData.pictures || resData.img || resData.imageUrl;
       if (Array.isArray(pic)) {
         mapped.picture = pic[0] || '';
-      } else if (typeof pic === 'string') {
-        mapped.picture = pic;
-      } else if (resData.imageUrl) {
-        mapped.picture = resData.imageUrl;
+      } else if (typeof pic === 'string' && pic.trim() !== '') {
+        // 如果图片路径不包含/order/前缀，且不是完整URL，则添加前缀
+        if (!pic.startsWith('http') && !pic.startsWith('/order/') && !pic.startsWith('/')) {
+          mapped.picture = `/order/${pic}`;
+        } else if (pic.startsWith('/')) {
+          mapped.picture = pic;
+        } else {
+          mapped.picture = pic;
+        }
       } else {
         mapped.picture = '';
       }
-      mapped.ownName = resData.ownName || resData.owner || resData.seller || resData.userName;
-      mapped.type = resData.type || (resData.category === 'goods' ? 'goods' : resData.goodsType);
+      // 卖家信息：新API返回sellerId，需要通过sellerId查询卖家信息
+      mapped.sellerId = resData.sellerId;
+      mapped.ownName = resData.ownName || resData.owner || resData.seller || resData.userName || '';
+      mapped.type = resData.type || (resData.category === 'goods' ? 'goods' : resData.goodsType) || 'goods';
+      // 创建时间：Product实体没有createTime字段，使用当前时间或留空
+      mapped.createTime = resData.createTime || resData.createdAt || null;
+      // 分类和单位
+      mapped.category = resData.category || '';
+      mapped.unit = resData.unit || '';
+      console.log('mapResponseToData: 映射后的数据', mapped);
       return mapped;
+    },
+    // 使用旧API加载数据（向后兼容）
+    loadWithOldAPI(orderId) {
+      console.log('尝试使用旧API加载商品信息:', orderId);
+      this.loading = true;
+      this.error = null;
+      selectOrderById({
+        order_id: orderId,
+      }).then((res) => {
+        console.log('旧API响应:', res);
+        this.loading = false;
+        if (res && res.flag == true && res.data) {
+          this.data = this.mapResponseToData(res.data);
+          console.log('旧API映射后的商品数据:', this.data);
+          // 确保data.id存在
+          if (!this.data.id) {
+            this.data.id = orderId;
+          }
+          // 确保orderId存在
+          if (!this.data.orderId) {
+            this.data.orderId = this.data.id || orderId;
+          }
+          // 确保data对象不为空
+          if (!this.data || Object.keys(this.data).length === 0) {
+            console.error('旧API映射后的数据为空');
+            this.error = '商品数据格式错误，无法显示';
+            this.$message.error(this.error);
+            return;
+          }
+          console.log('旧API最终商品数据:', this.data);
+          this.getSalesInfo();
+          this.getCommentData();
+        } else {
+          console.error('旧API返回失败:', res);
+          this.error = res?.message || '获取商品信息失败，商品可能不存在';
+          this.$message.error(this.error);
+        }
+      }).catch((err) => {
+        console.error('旧API调用失败:', err);
+        this.loading = false;
+        this.error = err?.message || '获取商品信息失败，请稍后重试';
+        this.$message.error(this.error);
+      });
     },
   },
   mounted() {
-    this.getCommentData()
+    // 获取商品ID（优先使用productId，否则使用orderId）
+    const productId = this.$route.query.productId || this.$route.query.orderId;
+    
+    console.log('商品详情页加载，商品ID:', productId, '路由参数:', this.$route.query);
+    
+    if (!productId) {
+      this.error = '缺少商品ID参数，无法加载商品信息';
+      this.$message.error('缺少商品ID参数');
+      console.error('缺少商品ID参数，路由参数:', this.$route.query);
+      return;
+    }
 
-    selectOrderById({
-      order_id: this.$route.query.orderId,
-    }).then((res) => {
-      if (res.flag == true) {
+    this.loading = true;
+    this.error = null;
+
+    // 优先使用新的商品API
+    console.log('开始调用新商品API，商品ID:', productId);
+    getProductDetail(productId).then((res) => {
+      console.log('商品详情API响应:', res);
+      this.loading = false;
+      if (res && res.flag && res.data) {
+        console.log('新API成功，商品数据:', res.data);
         this.data = this.mapResponseToData(res.data);
-        this.getSalesInfo()
+        console.log('映射后的商品数据:', this.data);
+        // 确保data.id存在，用于后续评论功能
+        if (!this.data.id) {
+          this.data.id = productId;
+        }
+        // 确保orderId存在（用于兼容旧代码）
+        if (!this.data.orderId) {
+          this.data.orderId = this.data.id || productId;
+        }
+        console.log('最终商品数据:', this.data);
+        // 确保data对象不为空
+        if (!this.data || Object.keys(this.data).length === 0) {
+          console.error('映射后的数据为空，尝试使用旧API');
+          this.loadWithOldAPI(productId);
+          return;
+        }
+        this.getSalesInfo();
+        this.getCommentData();
+      } else {
+        // 如果新API返回flag=false，尝试使用旧API（向后兼容）
+        console.warn('新API返回flag=false，尝试旧API', res);
+        if (res && res.message) {
+          console.warn('新API错误信息:', res.message);
+        }
+        this.loadWithOldAPI(productId);
       }
+    }).catch((err) => {
+      console.error('新API调用异常，尝试旧API', err);
+      this.loading = false;
+      // 如果新API失败，尝试使用旧API（向后兼容）
+      this.loadWithOldAPI(productId);
     });
   },
 };
@@ -355,6 +592,17 @@ export default {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+  .loading-container {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .error-container {
+    margin: 40px 0;
+  }
 
   .details-main {
     display: flex;
@@ -462,29 +710,74 @@ export default {
     .comment-editor {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
+      margin-bottom: 24px;
     }
     .comment-actions {
       display: flex;
       justify-content: flex-end;
     }
+    .comment-login-tip {
+      margin-bottom: 24px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      text-align: center;
+    }
     .comment-list {
       margin-top: 16px;
       .comment-item {
-        padding: 12px 0;
+        padding: 16px 0;
         border-bottom: 1px solid #f2f2f2;
+        &:last-child {
+          border-bottom: none;
+        }
+        .comment-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+          .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          .comment-author {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+          }
+          .comment-rating {
+            margin-left: auto;
+            .star {
+              color: #ddd;
+              font-size: 14px;
+              &.star-filled {
+                color: #ffa500;
+              }
+            }
+          }
+        }
+        .comment-content {
+          color: #666;
+          line-height: 1.6;
+          margin-bottom: 8px;
+          font-size: 14px;
+        }
         .comment-meta {
           display:flex;
           justify-content: space-between;
           color:#999;
           font-size:12px;
-          margin-top:8px;
         }
       }
-      .more-comments {
-        text-align: center;
-        margin-top: 12px;
-      }
+    }
+    .no-comments {
+      text-align: center;
+      padding: 40px 0;
+      color: #999;
+      font-size: 14px;
     }
   }
   .comments-overview {

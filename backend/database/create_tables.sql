@@ -441,11 +441,33 @@ CREATE TABLE `loan_files` (
 -- ============================================
 -- 恢复外键检�?
 -- ============================================
+-- ============================================
+-- 23. 商品评论表 (product_reviews)
+-- ============================================
+DROP TABLE IF EXISTS `product_reviews`;
+CREATE TABLE `product_reviews` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '评论ID',
+    `product_id` BIGINT NOT NULL COMMENT '商品ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID（买家）',
+    `content` VARCHAR(2000) DEFAULT NULL COMMENT '评论内容',
+    `rating` INT NOT NULL DEFAULT 5 COMMENT '评分（1-5分）',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `user_nickname` VARCHAR(64) DEFAULT NULL COMMENT '用户昵称（冗余字段）',
+    `user_avatar` VARCHAR(256) DEFAULT NULL COMMENT '用户头像（冗余字段）',
+    PRIMARY KEY (`id`),
+    INDEX `idx_product_id` (`product_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_create_time` (`create_time`),
+    CONSTRAINT `fk_review_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_review_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品评论表';
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
 -- 脚本执行完成
 -- ============================================
+
 
 
 

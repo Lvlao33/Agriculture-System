@@ -2,6 +2,7 @@ package com.farmporject.backend.trade.controller;
 
 import com.farmporject.backend.trade.model.Product;
 import com.farmporject.backend.trade.service.ProductService;
+import com.farmporject.backend.security.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * - GET /api/trade/products 商品列表
  * - POST /api/trade/products 新建商品
  * - GET /api/trade/products/{id} 商品详情
+ * - DELETE /api/trade/products/{id} 删除商品
  */
 @RestController
 @RequestMapping("/api/trade/products")
@@ -72,16 +74,30 @@ public class ProductController {
         Map<String, Object> response = new HashMap<>();
         try {
             // 解析 sellerId（token 形如 tk_{userId}_{username}）
+            // 优先使用UserContext（如果JWT过滤器已填充）
             Long sellerId = null;
-            if (token != null && token.startsWith("tk_")) {
-                String[] parts = token.split("_");
-                if (parts.length >= 2) {
-                    try {
-                        sellerId = Long.parseLong(parts[1]);
-                    } catch (NumberFormatException e) {
-                        response.put("flag", false);
-                        response.put("message", "无效的 token 格式");
-                        return ResponseEntity.badRequest().body(response);
+            if (UserContext.isAuthenticated()) {
+                sellerId = UserContext.getCurrentUserId();
+            }
+            
+            // 如果UserContext中没有userId，则从token中解析
+            if (sellerId == null && token != null) {
+                // 移除Bearer前缀（如果存在）
+                String cleanToken = token;
+                if (token.startsWith("Bearer ") || token.startsWith("bearer ")) {
+                    cleanToken = token.substring(7).trim();
+                }
+                // 检查token格式：tk_{userId}_{username}
+                if (cleanToken.startsWith("tk_")) {
+                    String[] parts = cleanToken.split("_");
+                    if (parts.length >= 2) {
+                        try {
+                            sellerId = Long.parseLong(parts[1]);
+                        } catch (NumberFormatException e) {
+                            response.put("flag", false);
+                            response.put("message", "无效的 token 格式");
+                            return ResponseEntity.badRequest().body(response);
+                        }
                     }
                 }
             }
@@ -165,11 +181,83 @@ public class ProductController {
             } else {
                 response.put("flag", false);
                 response.put("message", "商品不存在");
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.ok().body(response); // 改为返回200，但flag为false
             }
         } catch (Exception e) {
             response.put("flag", false);
             response.put("message", "获取商品详情失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
+     * 删除商品（下架）
+     * 从Authorization header中解析userId，只有商品所有者可以删除
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(
+            @PathVariable Long id,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 解析userId
+            Long userId = null;
+            if (token != null) {
+                // 移除Bearer前缀（如果存在）
+                String cleanToken = token;
+                if (token.startsWith("Bearer ") || token.startsWith("bearer ")) {
+                    cleanToken = token.substring(7).trim();
+                }
+                // 检查token格式：tk_{userId}_{username}
+                if (cleanToken.startsWith("tk_")) {
+                    String[] parts = cleanToken.split("_");
+                    if (parts.length >= 2) {
+                        try {
+                            userId = Long.parseLong(parts[1]);
+                        } catch (NumberFormatException e) {
+                            response.put("flag", false);
+                            response.put("message", "无效的 token 格式");
+                            return ResponseEntity.badRequest().body(response);
+                        }
+                    }
+                }
+            }
+            if (userId == null) {
+                response.put("flag", false);
+                response.put("message", "请先登录");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 检查商品是否存在
+            Optional<Product> productOpt = productService.getProductById(id);
+            if (!productOpt.isPresent()) {
+                response.put("flag", false);
+                response.put("message", "商品不存在");
+                return ResponseEntity.ok().body(response);
+            }
+
+            Product product = productOpt.get();
+            // 检查权限：只有商品所有者可以删除
+            if (!product.getSellerId().equals(userId)) {
+                response.put("flag", false);
+                response.put("message", "无权删除此商品");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 执行删除
+            productService.deleteProduct(id);
+
+            response.put("flag", true);
+            response.put("message", "商品删除成功");
+            return ResponseEntity.ok().body(response);
+
+        } catch (IllegalArgumentException e) {
+            response.put("flag", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            response.put("flag", false);
+            response.put("message", "删除商品失败: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
     }
