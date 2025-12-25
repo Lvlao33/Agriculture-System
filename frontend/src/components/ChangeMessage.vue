@@ -146,13 +146,16 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.changemessage {
+  .changemessage {
   // margin-top: -10px;
-  .modify-text {
+  .modify-text,
+  .modify-text.action-link {
     height: 25px;
     cursor: pointer;
     margin-right: 10px;
     color: #67C23A;
+    font-size: 14px;
+    transition: color .15s ease;
     &:hover{
       color: #035D1C;
     }

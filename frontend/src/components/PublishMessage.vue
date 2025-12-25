@@ -52,13 +52,16 @@
       </el-form-item>
 
       <el-form-item label="商品价格">
-        <el-input
-          v-model="form.price"
-          style="width:150px;"
-          placeholder="请输入价格"
-        >
-          <template slot="append">元</template>
-        </el-input>
+        <el-row :gutter="12" type="flex" align="middle">
+          <el-col :span="8" style="display:flex; align-items:center;">
+            <el-input-number v-model.number="form.price" :min="0" :step="1" style="width:120px" />
+            <span style="margin-left:8px">元</span>
+          </el-col>
+          <el-col :span="8" style="display:flex; align-items:center;">
+            <span class="stock-label" style="margin-right:8px;">库存</span>
+            <el-input-number v-model.number="form.stock" :min="0" :step="1" style="width:120px" />
+          </el-col>
+        </el-row>
       </el-form-item>
     </el-form>
 
@@ -93,6 +96,7 @@ export default {
         title: "",
         content: "",
         price: "",
+        stock: 0,
         picture: "",
         categoryPath: [],
       },
@@ -321,6 +325,7 @@ export default {
         title: this.form.title,
         content: this.form.content,
         price: this.form.price,
+        stock: this.form.stock,
         type: this.ctype,
         picture: this.form.picture,
         category: categoryLabel,

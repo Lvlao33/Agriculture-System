@@ -56,6 +56,7 @@ import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
 import OrderEvaluate from '../views/OrderEvaluate'
 import PublishSupply from '../views/PublishSupply'
+import EditProduct from '../views/EditProduct'
 import PurchaseList from '../views/PurchaseList'
 import PublishNeed from '../views/PublishNeed'
 import ExpertGuide from '../views/ExpertGuide'
@@ -229,6 +230,10 @@ const routes = [
       {
         path: 'loanProductDetail/:id',
         component: LoanProductDetail,
+      },
+      {
+        path: 'edit-product/:id',
+        component: EditProduct,
       },
       {
         path: 'loanApply/:id',
