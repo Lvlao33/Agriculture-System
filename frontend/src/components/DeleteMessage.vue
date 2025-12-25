@@ -2,7 +2,7 @@
   <div class="delete-message">
     <div class="delete-text" @click="dialogVisible = true">下架</div>
 
-    <el-dialog title="提示" v-model:visible="dialogVisible" width="30%">
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
       <span v-if="ctype === 'needs'">确认删除该需求？</span>
       <span v-else>确认下架该商品？</span>
       <span slot="footer" class="dialog-footer">
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { updateProduct, deleteDemand } from "../api/trade";
+import { deleteProduct, deleteDemand } from "../api/trade";
 export default {
   inject: ["reload"],
   props: {
@@ -40,14 +40,26 @@ export default {
           await deleteDemand(id);
           this.$message.success("删除成功");
         } else {
-          await updateProduct(id, { isAvailable: false });
-          this.$message.success("下架成功");
+          // 使用deleteProduct API删除商品（下架）
+          const res = await deleteProduct(id);
+          if (res && res.flag) {
+            this.$message.success(res.message || "下架成功");
+          } else {
+            this.$message.error(res?.message || "下架失败");
+            return;
+          }
         }
         this.dialogVisible = false;
-        if (this.reload) this.reload();
+        // 触发父组件刷新列表
+        this.$emit('deleted');
+        // 如果父组件有reload方法，也调用它
+        if (this.reload) {
+          this.reload();
+        }
       } catch (err) {
-        console.error(err);
-        this.$message.error(this.ctype === "needs" ? "删除失败" : "下架失败");
+        console.error('删除商品失败:', err);
+        const errorMsg = err?.message || (this.ctype === "needs" ? "删除失败" : "下架失败");
+        this.$message.error(errorMsg);
       }
     },
   },

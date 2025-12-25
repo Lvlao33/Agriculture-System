@@ -478,3 +478,46 @@ export function deleteOrderById(params) {
   return deleteOrder(orderId);
 }
 
+// ==================== 商品评论相关API ====================
+
+/**
+ * 获取商品评论列表
+ * @param {Number} productId - 商品ID
+ */
+export function getProductReviews(productId) {
+  return request({
+    method: 'get',
+    url: `/api/trade/products/${productId}/reviews`,
+    // 不需要手动设置 Authorization，request.js 的拦截器会自动添加
+  })
+}
+
+/**
+ * 创建商品评论
+ * @param {Number} productId - 商品ID
+ * @param {Object} review - 评论信息
+ * @param {String} review.content - 评论内容
+ * @param {Number} review.rating - 评分（1-5分，可选）
+ */
+export function createProductReview(productId, review) {
+  return request({
+    method: 'post',
+    url: `/api/trade/products/${productId}/reviews`,
+    data: review,
+    // 不需要手动设置 Authorization，request.js 的拦截器会自动添加
+  })
+}
+
+/**
+ * 删除商品评论
+ * @param {Number} productId - 商品ID
+ * @param {Number} reviewId - 评论ID
+ */
+export function deleteProductReview(productId, reviewId) {
+  return request({
+    method: 'delete',
+    url: `/api/trade/products/${productId}/reviews/${reviewId}`,
+    // 不需要手动设置 Authorization，request.js 的拦截器会自动添加
+  })
+}
+

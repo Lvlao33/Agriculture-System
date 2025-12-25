@@ -39,8 +39,8 @@
         </div>
         <div class="action-area">
           <span class="action-btn edit-btn" @click.stop="goEdit(item.orderId)">修改</span>
-          <div class="delete-wrapper" @click.stop="prepareDelete(item.orderId)">
-            <delete-message :ctype="ctype"></delete-message>
+          <div class="delete-wrapper" @click.stop="prepareDelete(item.orderId || item.id)">
+            <delete-message :ctype="ctype" @deleted="handleDeleted"></delete-message>
           </div>
         </div>
       </div>
@@ -126,6 +126,10 @@ export default {
     prepareDelete(itemId) {
       // 将要操作的 id 写入 store，DeleteMessage 组件会读取并执行下架/删除
       this.$store.commit("updateChangedOrderId", itemId);
+    },
+    handleDeleted() {
+      // 删除成功后刷新列表
+      this.getData();
     },
     deleteInfo(item) {
       this.$store.commit("updateChangedOrderId", item);
