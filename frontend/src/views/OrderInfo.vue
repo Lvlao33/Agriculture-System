@@ -1,6 +1,6 @@
 <template>
   <div class="order-info-page">
-    <!-- 顶部主标签导航：我买的 / 我卖的 -->
+    <!-- 顶部主标签导航：我买的 / 我卖的（返回按钮放在右侧，与标签水平对齐） -->
     <div class="main-tabs-container">
       <div class="main-tabs-wrapper">
         <div 
@@ -17,6 +17,16 @@
         >
           我卖的
         </div>
+      </div>
+      <div class="main-tabs-actions">
+        <el-button
+          type="default"
+          class="main-return-btn"
+          icon="el-icon-arrow-left"
+          @click="goBackTrade"
+        >
+          返回
+        </el-button>
       </div>
     </div>
 
@@ -851,6 +861,10 @@ export default {
         // 出错时使用模拟数据
         this.orders = this.getMockOrders();
       }
+    },
+    goBackTrade() {
+      // 返回到农产品交易页面
+      this.$router.push('/home/trade').catch(() => {});
     }
   },
   mounted() {
@@ -870,7 +884,7 @@ export default {
 
   .main-tabs-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 10px;
@@ -898,6 +912,30 @@ export default {
           color: #ff5000;
           border-bottom-color: #ff5000;
         }
+      }
+    }
+  }
+
+  .main-tabs-actions {
+    display: flex;
+    align-items: center;
+
+    .main-return-btn {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      color: #444;
+      height: 34px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(16,23,30,0.06);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(16,23,30,0.08);
+        color: #222;
       }
     }
   }

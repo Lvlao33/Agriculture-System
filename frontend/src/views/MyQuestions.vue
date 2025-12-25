@@ -3,6 +3,7 @@
     <div class="questions-wrapper">
       <!-- 页面头部 -->
       <div class="page-header">
+        <el-button class="header-back" icon="el-icon-arrow-left" @click="goBackHistory">返回</el-button>
         <h2 class="page-title">我的问答记录</h2>
         <div class="filter-row">
           <el-radio-group v-model="statusFilter" size="small" @change="applyFilter">
@@ -186,6 +187,18 @@ export default {
     goToAskQuestion() {
       this.$router.push('/home/askQuestion').catch(() => {})
     },
+    // 返回到来源页面（优先使用历史回退），若无法回退则返回到专家指导页
+    goBackHistory() {
+      try {
+        if (window.history && window.history.length > 1) {
+          this.$router.go(-1);
+        } else {
+          this.$router.push('/home/guide').catch(() => {});
+        }
+      } catch (e) {
+        this.$router.push('/home/guide').catch(() => {});
+      }
+    },
     formatDate(value) {
       if (!value) return ''
       try {
@@ -241,6 +254,16 @@ export default {
         align-items: center;
         gap: 10px;
       }
+        .header-back {
+          height: 36px;
+          padding: 6px 12px;
+          border-radius: 6px;
+          background: #fff;
+          border: 1px solid #e8e8e8;
+          color: #666;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+          margin-right: 12px;
+        }
     }
 
     .questions-list {

@@ -1,32 +1,33 @@
 <template>
   <div class="details-box">
     <div class="details-main">
-      <div class="left">
+    <div class="left">
         <img v-if="data.picture" :src="`/order/${data.picture}`" alt="商品图片" />
         <img v-else src="/order/wutu.gif" alt="暂无图片" />
-      </div>
+    </div>
 
-      <div class="info">
+    <div class="info">
         <div class="meta">
           <div class="price-block">
             <div class="product-name-large">{{ data.title || data.name || (data.content ? (data.content.length>30 ? data.content.substr(0,30)+'...' : data.content) : '商品名称') }}</div>
             <span class="price">¥{{ data.price != null ? data.price : '面议' }}</span>
-          </div>
+      </div>
           <span class="stock" v-if="data.stock != null">库存：{{ data.stock }}</span>
-        </div>
+      </div>
 
         <div class="time">
           <span>卖家：{{ updateUserData.userName || data.ownName || '未知' }}</span>
           <span>库存：{{ data.stock != null ? data.stock : '—' }}</span>
           <span>发布时间：{{ data.createTime | changeTime }}</span>
-        </div>
+      </div>
 
         <div class="actions">
           <el-button type="primary" @click="onBuyNow">立即购买</el-button>
           <el-button type="success" @click="onAddToCart">加入购物车</el-button>
-        </div>
+          <el-button type="default" class="details-back-btn" icon="el-icon-arrow-left" @click="goBackGoodsSource">返回</el-button>
       </div>
     </div>
+  </div>
 
     <!-- 评论总览（始终显示在顶部） -->
     <div class="comments-overview">
@@ -298,6 +299,11 @@ export default {
       })
     }
     ,
+    goBackGoodsSource() {
+      // 返回到 商品货源 页面
+      this.$router.push('/home/goods').catch(() => {});
+    }
+    ,
     mapResponseToData(resData) {
       // 统一后端返回字段到组件需要的 data 字段
       if (!resData || typeof resData !== 'object') return {};
@@ -358,11 +364,11 @@ export default {
 
   .left {
     flex: 0 0 300px;
-    img {
+  img {
       width: 100%;
       height: 220px;
       object-fit: cover;
-      border-radius: 6px;
+    border-radius: 6px;
       border: 1px solid #f2f2f2;
       background: #fafafa;
     }
@@ -393,8 +399,8 @@ export default {
         color: #333;
         line-height: 1.1;
         margin-bottom: 6px;
-      }
-      .price {
+    }
+    .price {
         color: #e55353;
         font-size: 20px;
         font-weight: 700;
@@ -422,16 +428,18 @@ export default {
       display: flex;
       gap: 12px;
       align-items: center;
-    }
-    .item-sales{
-      color: #333 !important;
-      line-height: 30px;
-      max-height: 30px;
-      .sales-text{
-        color: #666;
-      }
+      /* 确保按钮在小屏下不换行并保持一致高度 */
+      flex-wrap: nowrap;
+  }
+  .item-sales{
+    color: #333 !important;
+    line-height: 30px;
+    max-height: 30px;
+    .sales-text{
+      color: #666;
     }
   }
+}
 
   .comments-section {
     margin-top: 24px;
@@ -445,7 +453,7 @@ export default {
       .rating-label{
         font-weight:700;
         color:#333;
-      }
+  }
       .rating-count{
         color:#999;
         font-size:13px;
@@ -482,7 +490,7 @@ export default {
   .comments-overview {
     margin-bottom: 12px;
     .rating-count {
-      color: #666;
+        color: #666;
       font-size: 14px;
       font-weight: 500;
     }
