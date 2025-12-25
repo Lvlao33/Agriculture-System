@@ -2,27 +2,41 @@
   <div class="goods-box">
     <el-backtop target=".home-content"></el-backtop>
 
-    <!-- 顶部操作�? -->
+    <!-- 顶部操作栏 -->
     <div class="top-bar">
-      <div class="search-section">
-        <el-input
-          v-model="searchValue"
-          maxlength="100"
-          clearable
-          placeholder="搜索商品名称、产�?..."
-          style="width: 300px;"
-          @keyup.enter.native="handleSearch"
-        />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+      <div class="left-controls">
+        <el-button
+          type="default"
+          icon="el-icon-arrow-left"
+          class="secondary-btn"
+          @click="goBackTrade"
+        >
+          返回
+        </el-button>
+        <el-button
+          type="success"
+          icon="el-icon-plus"
+          class="publish-btn"
+          @click="handlePublish"
+        >
+          发布商品
+        </el-button>
       </div>
-      <el-button
-        type="success"
-        icon="el-icon-plus"
-        class="publish-btn"
-        @click="handlePublish"
-      >
-        发布商品
-      </el-button>
+      <div class="search-section">
+        <div class="search-wrap">
+          <el-input
+            v-model="searchValue"
+            maxlength="100"
+            clearable
+            placeholder="请输入商品关键词进行搜索"
+            class="search-input"
+            @keyup.enter.native="handleSearch"
+          />
+          <button class="search-btn" @click="handleSearch" aria-label="搜索">
+            <i class="el-icon-search" style="color:#fff;font-size:16px"></i>
+          </button>
+        </div>
+      </div>
     </div>
  
     <!-- 价格预测 -->
@@ -30,27 +44,30 @@
       <div class="forecast-header">
         <div>
           <div class="tag">价格预测</div>
-          <h2>未来7天价格走�?</h2>
+          <h2>未来7天价格走势</h2>
           <p class="sub">基于XGBoost 时间序列回归，提供均值和置信区间</p>
         </div>
         <div class="forecast-actions">
-          <el-select
-            v-model="forecastCommodity"
-            placeholder="选择品类"
-            size="small"
-            style="width: 150px;"
-            @change="fetchForecast"
-          >
-            <el-option
-              v-for="item in forecastCommodities"
-              :key="item"
-              :value="item"
-              :label="item"
-            />
-          </el-select>
-          <el-button size="small" type="primary" plain @click="refreshForecast" :loading="forecastLoading">
-            刷新预测
-          </el-button>
+          <div class="select-wrap">
+            <el-select
+              v-model="forecastCommodity"
+              placeholder="选择品类"
+              size="small"
+              class="forecast-select"
+              @change="fetchForecast"
+            >
+              <el-option
+                v-for="item in forecastCommodities"
+                :key="item"
+                :value="item"
+                :label="item"
+              />
+            </el-select>
+            <button type="button" class="select-btn" @click.stop.prevent="refreshForecast" :aria-disabled="forecastLoading" :title="'刷新预测'">
+              <span v-if="!forecastLoading">刷新预测</span>
+              <i v-else class="el-icon-loading"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -62,7 +79,7 @@
           </div>
           <div class="meta-item">
             <span class="meta-label">预测均价</span>
-            <span class="meta-value">{{ forecastSummary.avg }} �?/�?</span>
+            <span class="meta-value">{{ forecastSummary.avg }} 元/斤</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">波动范围</span>
@@ -82,7 +99,7 @@
           <!-- ECharts 图表容器 -->
           <div class="forecast-chart-container">
             <div class="chart-title">
-              <span class="commodity-name-inline">{{ forecastCommodity }}</span> 未来7天价格预测趋�?
+              <span class="commodity-name-inline">{{ forecastCommodity }}</span> 未来7天价格预测趋势
             </div>
             <div 
               ref="forecastChart" 
@@ -109,7 +126,7 @@
                   <span class="table-commodity-name">{{ forecastCommodity }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="pred" label="预测�?(�?/�?)" width="120">
+              <el-table-column prop="pred" label="预测价(元/斤)" width="120">
                 <template slot-scope="scope">
                   <span class="pred-value">{{ scope.row.pred }}</span>
                 </template>
@@ -146,7 +163,7 @@
           @click="selectCategory('fruit')"
         >
           <i class="el-icon-grape"></i>
-          <span>水果�?</span>
+          <span>水果类</span>
         </div>
         <div
           class="category-item"
@@ -154,7 +171,7 @@
           @click="selectCategory('vegetable')"
         >
           <i class="el-icon-food"></i>
-          <span>蔬菜�?</span>
+          <span>蔬菜类</span>
         </div>
         <div
           class="category-item"
@@ -162,7 +179,7 @@
           @click="selectCategory('grain')"
         >
           <i class="el-icon-coffee-cup"></i>
-          <span>粮食�?</span>
+          <span>粮食类</span>
         </div>
         <div
           class="category-item"
@@ -170,7 +187,7 @@
           @click="selectCategory('livestock')"
         >
           <i class="el-icon-cherry"></i>
-          <span>畜牧�?</span>
+          <span>畜牧类</span>
         </div>
         <div
           class="category-item"
@@ -182,7 +199,7 @@
         </div>
       </div>
 
-      <!-- 右侧商品展示�? -->
+      <!-- 右侧商品展示区 -->
       <div class="goods-display">
         <div v-if="filteredGoods.length === 0" class="empty-state">
           <i class="el-icon-box"></i>
@@ -219,7 +236,7 @@
               <div class="goods-footer">
                 <span class="goods-price" v-if="item.price">
                   <i class="el-icon-coin"></i>
-                  ?{{ item.price }}
+                  ¥{{ item.price }}
                 </span>
                 <span class="goods-price" v-else>价格面议</span>
               </div>
@@ -272,7 +289,7 @@
               </div>
               <div class="detail-goods-price">
                 <i class="el-icon-coin"></i>
-                ?{{ item.price || '面议' }}
+                ¥{{ item.price || '面议' }}
               </div>
               <div class="detail-goods-stock" v-if="item.stock !== undefined">
                 库存：{{ item.stock }}
@@ -280,7 +297,7 @@
             </div>
             <div class="detail-goods-actions">
               <el-button type="primary" size="small" @click.stop="handleBuyNow(item)">立即购买</el-button>
-              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物�?</el-button>
+              <el-button type="success" size="small" icon="el-icon-shopping-cart-2" @click.stop="handleAddToCart(item)">加入购物车</el-button>
             </div>
           </div>
           <div v-if="similarGoods.length === 0" class="empty-detail-state">
@@ -295,6 +312,7 @@
 
 <script>
 import { getPriceForecast } from "@/api/price";
+import { addOrderToCart } from "@/api/cart";
 import * as echarts from 'echarts';
 
 export default {
@@ -307,16 +325,16 @@ export default {
       detailDialogTitle: '商品详情',
       currentGoodsItem: null,
       similarGoods: [],
-      // 示例商品数据（当API返回空数据时使用�?
+      // 示例商品数据（当API返回空数据时使用）
       defaultGoods: [
-        // 水果�?
+        // 水果类
         {
           name: '新鲜苹果',
-          content: '新鲜苹果 红富�? 脆甜多汁',
+          content: '新鲜苹果 红富士 脆甜多汁',
           price: 12.00,
           picture: 'pro2.jpg',
           origin: '山东烟台',
-          ownName: '张果�?',
+          ownName: '张果农',
           category: 'fruit',
           stock: 500,
           orderId: 'fruit1',
@@ -324,11 +342,11 @@ export default {
         },
         {
           name: '优质苹果',
-          content: '优质苹果 有机种植 无农药残�?',
+          content: '优质苹果 有机种植 无农药残留',
           price: 15.00,
           picture: 'pro2.jpg',
           origin: '陕西',
-          ownName: '李农�?',
+          ownName: '李农户',
           category: 'fruit',
           stock: 300,
           orderId: 'fruit2',
@@ -336,11 +354,11 @@ export default {
         },
         {
           name: '精品苹果',
-          content: '精品苹果 个大饱满 甜度�?',
+          content: '精品苹果 个大饱满 甜度高',
           price: 18.00,
           picture: 'pro2.jpg',
           origin: '新疆',
-          ownName: '王果�?',
+          ownName: '王果农',
           category: 'fruit',
           stock: 200,
           orderId: 'fruit3',
@@ -352,7 +370,7 @@ export default {
           price: 10.00,
           picture: 'pro2.jpg',
           origin: '江西',
-          ownName: '陈果�?',
+          ownName: '陈果农',
           category: 'fruit',
           stock: 400,
           orderId: 'fruit4',
@@ -360,24 +378,24 @@ export default {
         },
         {
           name: '优质葡萄',
-          content: '优质葡萄 无籽 甜度�?',
+          content: '优质葡萄 无籽 甜度高',
           price: 20.00,
           picture: 'pro2.jpg',
           origin: '新疆',
-          ownName: '赵果�?',
+          ownName: '赵果农',
           category: 'fruit',
           stock: 250,
           orderId: 'fruit5',
           keyword: '葡萄'
         },
-        // 蔬菜�?
+        // 蔬菜类
         {
           name: '新鲜白菜',
           content: '新鲜白菜 有机种植 口感脆嫩',
           price: 5.00,
           picture: 'pro1.jpg',
           origin: '山东',
-          ownName: '刘菜�?',
+          ownName: '刘菜农',
           category: 'vegetable',
           stock: 800,
           orderId: 'veg1',
@@ -385,11 +403,11 @@ export default {
         },
         {
           name: '有机白菜',
-          content: '有机白菜 无农�? 绿色健康',
+          content: '有机白菜 无农药 绿色健康',
           price: 8.00,
           picture: 'pro1.jpg',
           origin: '河北',
-          ownName: '周农�?',
+          ownName: '周农户',
           category: 'vegetable',
           stock: 600,
           orderId: 'veg2',
@@ -397,11 +415,11 @@ export default {
         },
         {
           name: '新鲜萝卜',
-          content: '新鲜萝卜 白萝�? 清脆爽口',
+          content: '新鲜萝卜 白萝卜 清脆爽口',
           price: 4.00,
           picture: 'pro1.jpg',
           origin: '河南',
-          ownName: '吴菜�?',
+          ownName: '吴菜农',
           category: 'vegetable',
           stock: 700,
           orderId: 'veg3',
@@ -412,21 +430,21 @@ export default {
           content: '新鲜土豆 黄心土豆 品质优良',
           price: 6.00,
           picture: 'pro1.jpg',
-          origin: '内蒙�?',
-          ownName: '郑农�?',
+          origin: '内蒙古',
+          ownName: '郑农户',
           category: 'vegetable',
           stock: 900,
           orderId: 'veg4',
           keyword: '土豆'
         },
-        // 粮食�?
+        // 粮食类
         {
           name: '优质大米',
           content: '优质大米 东北大米 香糯可口',
           price: 45.00,
           picture: 'rice.png',
-          origin: '黑龙�?',
-          ownName: '孙粮�?',
+          origin: '黑龙江',
+          ownName: '孙粮农',
           category: 'grain',
           stock: 1000,
           orderId: 'grain1',
@@ -438,7 +456,7 @@ export default {
           price: 58.00,
           picture: 'rice.png',
           origin: '吉林',
-          ownName: '钱农�?',
+          ownName: '钱农户',
           category: 'grain',
           stock: 500,
           orderId: 'grain2',
@@ -446,20 +464,20 @@ export default {
         },
         {
           name: '优质小麦',
-          content: '优质小麦 高筋小麦 适合做面�?',
+          content: '优质小麦 高筋小麦 适合做面条',
           price: 35.00,
           picture: 'rice.png',
           origin: '河南',
-          ownName: '周粮�?',
+          ownName: '周粮农',
           category: 'grain',
           stock: 800,
           orderId: 'grain3',
           keyword: '小麦'
         },
-        // 畜牧�?
+        // 畜牧类
         {
-          name: '新鲜土鸡�?',
-          content: '新鲜土鸡�? 散养 营养丰富',
+          name: '新鲜土鸡蛋',
+          content: '新鲜土鸡蛋 散养 营养丰富',
           price: 35.00,
           picture: 'pro3.jpg',
           origin: '河北',
@@ -470,8 +488,8 @@ export default {
           keyword: '鸡蛋'
         },
         {
-          name: '有机土鸡�?',
-          content: '有机土鸡�? 无激�? 品质保证',
+          name: '有机土鸡蛋',
+          content: '有机土鸡蛋 无激素 品质保证',
           price: 42.00,
           picture: 'pro3.jpg',
           origin: '山东',
@@ -483,11 +501,11 @@ export default {
         },
         {
           name: '新鲜牛奶',
-          content: '新鲜牛奶 当日配�? 营养健康',
+          content: '新鲜牛奶 当日配送 营养健康',
           price: 25.00,
           picture: 'pro3.jpg',
-          origin: '内蒙�?',
-          ownName: '赵牧�?',
+          origin: '内蒙古',
+          ownName: '赵牧农',
           category: 'livestock',
           stock: 300,
           orderId: 'live3',
@@ -496,11 +514,11 @@ export default {
         // 其他
         {
           name: '有机茶叶',
-          content: '有机茶叶 原产地直�? 品质优良',
+          content: '有机茶叶 原产地直供 品质优良',
           price: 128.00,
           picture: 'chayangji.jpg',
           origin: '福建',
-          ownName: '陈茶�?',
+          ownName: '陈茶农',
           category: 'other',
           stock: 100,
           orderId: 'other1',
@@ -542,7 +560,7 @@ export default {
   computed: {
     filteredGoods() {
       // 优先使用传入的商品数据，如果为空则使用示例数�?
-      let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [];
+      let goods = (this.cgoods && this.cgoods.length > 0) ? [...this.cgoods] : [...this.defaultGoods];
       
       // 分类筛�?
       if (this.selectedCategory !== 'all') {
@@ -619,18 +637,18 @@ export default {
         this.forecastSummary.updatedAt = payload.updatedAt || new Date().toLocaleString();
         this.forecastError = ''; // 清除错误信息
       } catch (err) {
-        this.forecastError = '预测数据获取失败';
-        this.forecastSeries = [];
-        this.forecastTable = [];
-        this.forecastSummary.avg = '--';
-        this.forecastSummary.range = '--';
-        this.forecastSummary.updatedAt = '--';
+        this.forecastError = '预测数据获取失败，已显示示例数据';
+        this.applySeries(this.getSampleForecast());
+        this.forecastSummary.updatedAt = new Date().toLocaleString();
       } finally {
         this.forecastLoading = false;
       }
     },
     refreshForecast() {
       this.fetchForecast();
+    },
+    goBackTrade() {
+      this.$router.push('/home/trade');
     },
     initChart() {
       if (!this.$refs.forecastChart) {
@@ -671,7 +689,7 @@ export default {
             params.forEach(param => {
               result += `<div style="margin: 2px 0;">
                 <span style="display:inline-block;width:10px;height:10px;background:${param.color};border-radius:50%;margin-right:5px;"></span>
-                ${param.seriesName}: <strong>${param.value} �?/�?</strong>
+                ${param.seriesName}: <strong>${param.value} 元/斤</strong>
               </div>`;
             });
             return result;
@@ -705,7 +723,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '价格 (�?/�?)',
+          name: '价格 (元/斤)',
           nameLocation: 'middle',
           nameGap: 40,
           axisLabel: {
@@ -877,23 +895,125 @@ export default {
     },
     goToGoodsDetailPage(item) {
       // 跳转到商品详情页
-      // 支持多种字段名：orderId, id, productId
-      const productId = item.orderId || item.id || item.productId;
-      if (productId) {
-        this.$store.commit("updateOrderId", productId);
-        this.$router.push(`/home/details?orderId=${productId}`).catch((err) => err);
-      } else {
-        console.error('商品信息缺少ID字段，无法跳转到详情页', item);
-        this.$message.error('商品信息不完整，无法查看详情');
+      if (item.orderId) {
+        this.$store.commit("updateOrderId", item.orderId);
+        this.$router.push(`/home/details?orderId=${item.orderId}`).catch((err) => err);
       }
     },
     handleBuyNow(item) {
       // 立即购买
       this.goToGoodsDetailPage(item);
     },
-    handleAddToCart(item) {
+    async handleAddToCart(item) {
       // 加入购物�?
-      this.$emit('addToCart', item);
+      // 检查是否登录
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.$message.warning('请先登录');
+        this.$router.push('/login').catch(err => err);
+        return;
+      }
+
+      // 获取商品ID，优先使用 id，其次使用 orderId
+      const productId = item.id || item.orderId;
+      if (!productId) {
+        this.$message.error('商品信息不完整，无法添加到购物车');
+        return;
+      }
+
+      try {
+        // 确保productId是数字类型
+        const numProductId = Number(productId);
+        if (isNaN(numProductId) || numProductId <= 0) {
+          this.$message.error('商品ID格式错误');
+          console.error('商品ID格式错误:', productId);
+          return;
+        }
+
+        console.log('添加商品到购物车:', { productId: numProductId, item });
+        
+        const res = await addOrderToCart({
+          order_id: numProductId,
+          productId: numProductId,
+          quantity: 1
+        });
+        
+        console.log('加入购物车响应:', res);
+        
+        if (res && res.flag === true) {
+          this.$message.success(res.message || '已加入购物车');
+          // 触发事件，让父组件知道已添加
+          this.$emit('addToCart', item);
+        } else {
+          const errorMsg = res?.message || res?.data || '加入购物车失败';
+          this.$message.error(errorMsg);
+          console.error('加入购物车失败，响应:', res);
+        }
+      } catch (error) {
+        console.error('加入购物车异常:', error);
+        console.error('错误详情:', {
+          message: error.message,
+          response: error.response,
+          data: error.data,
+          status: error.status,
+          flag: error.flag,
+          isNetworkError: error.isNetworkError,
+          errorObject: error
+        });
+        
+        // request.js 的拦截器会返回 err.response.data，所以 error 可能是后端返回的数据对象
+        // 检查是否是后端返回的数据格式（包含 flag 和 message）
+        if (error && typeof error === 'object' && 'flag' in error) {
+          // 后端返回的错误数据格式
+          if (error.flag === false) {
+            const errorMsg = error.message || '加入购物车失败';
+            const status = error.status;
+            
+            // 根据状态码处理不同错误
+            if (status === 401 || errorMsg.includes('登录') || errorMsg.includes('请先登录')) {
+              this.$message.warning('请先登录');
+              this.$router.push('/login').catch(err => err);
+            } else if (status === 404 || errorMsg.includes('不存在')) {
+              this.$message.error('商品不存在');
+            } else {
+              this.$message.error(errorMsg);
+            }
+            return;
+          }
+        }
+        
+        // 处理网络错误
+        if (error.isNetworkError) {
+          this.$message.error(error.message || '加入购物车失败，请检查网络连接');
+          return;
+        }
+        
+        // 处理 HTTP 错误响应（原始 axios 错误格式，兼容性处理）
+        if (error.response) {
+          const status = error.response.status || error.status;
+          const errorData = error.response.data || error.data || {};
+          
+          if (status === 401) {
+            this.$message.warning('请先登录');
+            this.$router.push('/login').catch(err => err);
+          } else if (status === 404) {
+            this.$message.error('商品不存在');
+          } else if (status === 400) {
+            const msg = errorData.message || (typeof errorData === 'string' ? errorData : '请求参数错误');
+            this.$message.error(msg);
+          } else {
+            const msg = errorData.message || (typeof errorData === 'string' ? errorData : `加入购物车失败 (${status})`);
+            this.$message.error(msg);
+          }
+        } else if (error.message) {
+          // 其他错误（有错误消息）
+          this.$message.error(error.message);
+        } else {
+          // 未知错误
+          const errorMsg = error.message || (typeof error === 'string' ? error : '加入购物车失败，请检查网络连接');
+          this.$message.error(errorMsg);
+        }
+      }
     },
     getImageUrl(picture) {
       // 如果图片路径包含 /kn/ �? /order/，直接使�?
@@ -955,11 +1075,54 @@ export default {
       margin-bottom: 10px;
     }
 
-    .forecast-actions {
+      .forecast-actions {
       display: flex;
       gap: 10px;
       align-items: center;
-    }
+
+      .select-wrap {
+        position: relative;
+        width: 210px; /* 下拉框宽度含按钮 */
+      }
+
+      /* 让 el-select 内部输入部分为目标高度，并为右侧按钮预留空间 */
+      ::v-deep .forecast-select .el-input__inner {
+        height: 40px;
+        line-height: 40px;
+        padding-right: 90px; /* 预留按钮区域 */
+        border-radius: 6px 0 0 6px;
+      }
+
+      /* 保持下拉小三角（caret）在按钮左侧可见 */
+      ::v-deep .forecast-select .el-input__suffix {
+        right: 72px; /* 向左移动，确保与按钮保持更大间距 */
+        z-index: 4;
+        position: absolute;
+      }
+
+      .select-btn {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 0 6px 6px 0;
+        background: #409eff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .select-btn[aria-disabled="true"] {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+     }
 
     .forecast-card {
       border-radius: 10px;
@@ -1195,6 +1358,41 @@ export default {
       display: flex;
       align-items: center;
       gap: 10px;
+
+      .search-wrap {
+        position: relative;
+        width: 500px;
+      }
+
+      .search-input ::v-deep .el-input__inner {
+        height: 40px;
+        line-height: 40px;
+        padding-right: 40px; /* 与按钮宽度一致，去除额外空隙 */
+        border-radius: 6px 0 0 6px; /* 右侧由按钮负责圆角，确保连成一体 */
+        border: 1px solid #e6e6e6;
+        box-shadow: none;
+      }
+
+      .search-btn {
+        position: absolute;
+        right: 0; /* 紧贴输入框右边界，去除空隙 */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 0 6px 6px 0; /* 左侧不圆，和输入框连成一体 */
+        background: #6aa84f;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      }
+
+      .search-btn:hover {
+        background: #5a993e;
+      }
     }
 
     .publish-btn {
@@ -1210,6 +1408,30 @@ export default {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(103, 194, 58, 0.3);
       }
+    }
+    
+    .left-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .secondary-btn {
+      background: #ffffff;
+      border: 1px solid #85ce61;
+      color: #67c23a;
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 6px;
+      margin-left: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+
+    .secondary-btn:hover {
+      background: #f7fff5;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.08);
     }
   }
 

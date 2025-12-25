@@ -50,25 +50,7 @@
             <div class="rating-count">共 {{ commentArray.length || 0 }} 条评论</div>
           </div>
           
-          <!-- 评论输入框 -->
-          <div class="comment-editor" v-if="isLoggedIn">
-            <el-input
-              type="textarea"
-              :rows="3"
-              placeholder="请输入您的评论..."
-              v-model="content"
-              maxlength="500"
-              show-word-limit>
-            </el-input>
-            <div class="comment-actions">
-              <el-button type="primary" @click="handleComment">发表评论</el-button>
-            </div>
-          </div>
-          <div v-else class="comment-login-tip">
-            <el-button type="text" @click="$router.push('/login')">请先登录后发表评论</el-button>
-          </div>
-
-          <!-- 评论列表 -->
+          <!-- 评论列表（仅展示，不允许在商品详情页评论） -->
           <div class="comment-list" v-if="commentArray.length > 0">
             <div class="comment-item" v-for="(comment, index) in commentArray" :key="index">
               <div class="comment-header">
@@ -86,7 +68,7 @@
             </div>
           </div>
           <div v-else class="no-comments">
-            <p>暂无评论，快来发表第一条评论吧！</p>
+            <p>暂无评论</p>
           </div>
         </div>
       </el-tab-pane>
@@ -96,17 +78,16 @@
 
 <script>
 import { addOrderToCart,addOrderToCollect } from "../api/cart";
-import { selectOrderById,selectComment,addComment } from "../api/order";
-import { getProductReviews, createProductReview, getProductDetail } from "../api/trade";
+import { selectOrderById,selectComment } from "../api/order";
+import { getProductReviews, getProductDetail, buyNow } from "../api/trade";
 import ChangeMessage from "../components/ChangeMessage.vue";
 import { selectUserByUsername, searchUserById } from "../api/user";
 import { request } from "../utils/request";
+import { selectDefaultByOwnName } from "../api/address";
 
 export default {
   data() {
     return {
-
-      content:'',
       // 测试评论（若后端返回空则保留这些测试数据）
       commentArray:[
         { ownName: '匿名' + Math.floor(Math.random()*9000+1000), content: '不错，质量很好，值得购买！', createTime: '2025-12-01T10:00:00Z' },
@@ -121,17 +102,8 @@ export default {
       updateUserData:{},
       activeTab: 'desc',
       loading: false,
-      error: null,
-      isLoggedIn: false,
-
-
-
+      error: null
     };
-  },
-  computed: {
-    isLoggedIn() {
-      return !!localStorage.getItem('token');
-    }
   },
   filters: {
     changeTime(time) {
@@ -222,39 +194,6 @@ export default {
         this.commentArray = [];
       })
     },
-    handleComment(){
-      if(this.content===''){
-        this.$message.error('评论内容不能为空！')
-        return
-      }
-      if(!this.isLoggedIn){
-        this.$message.error('请先登录')
-        return
-      }
-
-      // 获取商品ID
-      const productId = this.data.id || this.data.orderId || this.$route.query.orderId;
-      if (!productId) {
-        this.$message.error('无法获取商品ID')
-        return
-      }
-
-      createProductReview(productId, {
-        content: this.content,
-        rating: 5 // 默认5分，可以后续添加评分选择功能
-      }).then(res=>{
-        if (res.flag) {
-          this.content=''
-          this.$message.success('评论成功！')
-          this.getCommentData()
-        } else {
-          this.$message.error(res.message || '评论失败')
-        }
-      }).catch(err=>{
-        console.log('评论失败', err)
-        this.$message.error(err.message || '评论失败，请稍后重试')
-      })
-    },
 
 
 
@@ -296,11 +235,76 @@ export default {
             }
           });
     },
-    onBuyNow() {
-      if (this.data && this.data.type === 'goods') {
-        this.handleBuyNow(this.data);
-      } else {
+    async onBuyNow() {
+      // 检查是否登录
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.$message.warning('请先登录');
+        this.$router.push('/login').catch(err => err);
+        return;
+      }
+
+      // 检查商品信息
+      if (!this.data || !this.data.id) {
+        this.$message.error('商品信息不完整，无法购买');
+        return;
+      }
+
+      // 检查商品是否可购买
+      if (this.data.type && this.data.type !== 'goods') {
         this.$message.warning('该商品暂不可购买');
+        return;
+      }
+
+      // 检查库存
+      if (this.data.stock != null && this.data.stock <= 0) {
+        this.$message.warning('商品库存不足');
+        return;
+      }
+
+      try {
+        // 获取商品ID
+        const productId = this.data.id || this.data.productId;
+        if (!productId) {
+          this.$message.error('无法获取商品ID');
+          return;
+        }
+
+        // 创建订单（数量默认为1，可以从商品详情页添加数量选择功能）
+        const quantity = 1; // 可以后续添加数量选择功能
+        
+        const res = await buyNow({
+          productId: productId,
+          quantity: quantity,
+          shippingAddress: '请填写收货地址', // 可以从地址管理获取
+          receiverName: '请填写收货人姓名',
+          receiverPhone: '请填写收货人电话'
+        });
+
+        if (res && res.flag) {
+          this.$message.success('订单创建成功，请前往订单管理付款');
+          // 跳转到订单管理页面
+          this.$router.push('/home/orderInfo').catch(err => err);
+        } else {
+          this.$message.error(res?.message || '创建订单失败');
+        }
+      } catch (error) {
+        console.error('立即购买失败:', error);
+        if (error && typeof error === 'object') {
+          if (error.flag === false) {
+            const errorMsg = error.message || '创建订单失败';
+            if (errorMsg.includes('登录') || error.status === 401) {
+              this.$message.warning('请先登录');
+              this.$router.push('/login').catch(() => {});
+            } else {
+              this.$message.error(errorMsg);
+            }
+          } else {
+            this.$message.error(error.message || '创建订单失败，请检查网络连接');
+          }
+        } else {
+          this.$message.error('创建订单失败');
+        }
       }
     },
     onAddToCart() {
@@ -706,23 +710,6 @@ export default {
         color:#999;
         font-size:13px;
       }
-    }
-    .comment-editor {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .comment-actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .comment-login-tip {
-      margin-bottom: 24px;
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 4px;
-      text-align: center;
     }
     .comment-list {
       margin-top: 16px;

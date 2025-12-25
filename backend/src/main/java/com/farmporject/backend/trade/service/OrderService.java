@@ -122,13 +122,27 @@ public class OrderService {
                 throw new RuntimeException("商品已下架: " + product.getName());
             }
 
+            // 检查库存
+            Integer quantity = cartItem.getQuantity();
+            Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+            if (currentStock <= 0) {
+                throw new RuntimeException("商品库存为零，无法购买: " + product.getName());
+            }
+            if (currentStock < quantity) {
+                throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity + "，商品: " + product.getName());
+            }
+
+            // 减少库存
+            product.setStock(currentStock - quantity);
+            productRepository.save(product);
+
             // 创建订单项（同一商品的所有数量在一个订单中）
             OrderItem orderItem = new OrderItem();
             orderItem.setProductId(productId);
             orderItem.setProductName(product.getName());
             orderItem.setProductPrice(product.getPrice());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            orderItem.setQuantity(quantity);
+            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
 
             // 创建订单
             Order order = new Order();
@@ -186,6 +200,16 @@ public class OrderService {
                 throw new RuntimeException("商品已下架: " + product.getName());
             }
 
+            // 检查库存
+            Integer quantity = cartItem.getQuantity();
+            Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+            if (currentStock <= 0) {
+                throw new RuntimeException("商品库存为零，无法购买: " + product.getName());
+            }
+            if (currentStock < quantity) {
+                throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity + "，商品: " + product.getName());
+            }
+
             // 设置卖家ID（取第一个商品的卖家ID）
             if (sellerId == null) {
                 sellerId = product.getSellerId();
@@ -196,11 +220,24 @@ public class OrderService {
             orderItem.setProductId(productId);
             orderItem.setProductName(product.getName());
             orderItem.setProductPrice(product.getPrice());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            orderItem.setQuantity(quantity);
+            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
             
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(orderItem.getSubtotal());
+        }
+
+        // 减少所有商品的库存（在创建订单之前）
+        for (Long productId : productIds) {
+            CartProduct cartItem = cartProductRepository.findByUserIdAndProductId(userId, productId);
+            if (cartItem != null) {
+                Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new RuntimeException("商品不存在，ID: " + productId));
+                Integer quantity = cartItem.getQuantity();
+                Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+                product.setStock(currentStock - quantity);
+                productRepository.save(product);
+            }
         }
 
         if (sellerId == null) {
@@ -300,6 +337,74 @@ public class OrderService {
         order.setStatus("refund_after_sale"); // 退款/售后
 
         return orderRepository.save(order);
+    }
+
+    /**
+     * 直接从商品创建订单（立即购买，不经过购物车）
+     * @param userId 用户ID
+     * @param productId 商品ID
+     * @param quantity 购买数量
+     * @param shippingAddress 收货地址
+     * @param receiverName 收货人姓名
+     * @param receiverPhone 收货人电话
+     * @return 创建的订单
+     */
+    public Order createOrderDirectly(Long userId, Long productId, Integer quantity,
+                                     String shippingAddress, String receiverName, String receiverPhone) {
+        if (productId == null) {
+            throw new RuntimeException("商品ID不能为空");
+        }
+        if (quantity == null || quantity <= 0) {
+            quantity = 1; // 默认数量为1
+        }
+
+        // 获取商品信息
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("商品不存在，ID: " + productId));
+
+        if (product.getIsAvailable() == null || !product.getIsAvailable()) {
+            throw new RuntimeException("商品已下架: " + product.getName());
+        }
+
+        // 检查库存
+        Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+        if (currentStock <= 0) {
+            throw new RuntimeException("商品库存为零，无法购买");
+        }
+        if (currentStock < quantity) {
+            throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity);
+        }
+
+        // 减少库存
+        product.setStock(currentStock - quantity);
+        productRepository.save(product);
+
+        // 创建订单项
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProductId(productId);
+        orderItem.setProductName(product.getName());
+        orderItem.setProductPrice(product.getPrice());
+        orderItem.setQuantity(quantity);
+        orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+
+        // 创建订单
+        Order order = new Order();
+        order.setUserId(userId);
+        order.setSellerId(product.getSellerId());
+        order.setTotalAmount(orderItem.getSubtotal());
+        order.setStatus("pending_payment"); // 待付款
+        order.setPaymentStatus("PENDING");
+        order.setShippingAddress(shippingAddress);
+        order.setReceiverName(receiverName);
+        order.setReceiverPhone(receiverPhone);
+        order.setPaymentMethod("ONLINE"); // 默认在线支付
+
+        // 保存订单和订单项
+        Order savedOrder = orderRepository.save(order);
+        orderItem.setOrderId(savedOrder.getId());
+        orderItemRepository.save(orderItem);
+
+        return savedOrder;
     }
 
 }
