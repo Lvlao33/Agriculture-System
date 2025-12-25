@@ -17,6 +17,25 @@ public class LoanUserStatus {
     @JoinColumn(name = "loan_id")
     private Loan loan; // 关联贷款
 
+    /**
+     * 该申请人/用户在此笔贷款中的具体信息
+     * 主贷人在创建贷款时写入，联合贷人在补充资料时写入
+     */
+    @Column(name = "amount", precision = 14, scale = 2)
+    private java.math.BigDecimal amount; // 申请/分担金额
+
+    @Column(name = "purpose", length = 255)
+    private String purpose; // 贷款用途（个人视角）
+
+    @Column(name = "name", length = 64)
+    private String name; // 真实姓名
+
+    @Column(name = "phone", length = 20)
+    private String phone; // 联系电话
+
+    @Column(name = "remark", length = 1000)
+    private String remark; // 备注/描述
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user; // 关联农户
@@ -35,6 +54,46 @@ public class LoanUserStatus {
     }
 
     // Getters and Setters
+    public java.math.BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(java.math.BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     public Long getId() {
         return id;
     }

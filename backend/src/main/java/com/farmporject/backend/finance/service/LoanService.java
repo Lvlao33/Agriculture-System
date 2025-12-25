@@ -110,13 +110,38 @@ public class LoanService {
 
                 // 新建用户状态跟踪记录
                 // 设置与用户状态跟踪记录的表关联
-                for (User user : users) {
-                    LoanUserStatus loanUserStatus = new LoanUserStatus();
-                    loanUserStatus.setUser(user);
-                    loanUserStatus.setLoan(loan);
-                    loanUserStatus.setStatus(Status.CREATED);
-                    loanUserStatusRepository.save(loanUserStatus);
-                    loan.getLoanUserStatuses().add(loanUserStatus);
+                // 1. 处理主申请人/userIds列表中的用户（如果有的话，通常userIds可能包含主申请人和其他ID）
+                // 现在的逻辑改为：DTO中的 userIds 主要用于创建初始的 LoanUserStatus 关联
+                if (loanDTO.getUserIds() != null) {
+                    for (Long userId : loanDTO.getUserIds()) {
+                        User user = userRepository.findById(userId).orElse(null);
+                        if (user != null) {
+                            LoanUserStatus loanUserStatus = new LoanUserStatus();
+                            loanUserStatus.setUser(user);
+                            loanUserStatus.setLoan(savedLoan); // Use savedLoan to ensure ID exists
+                            loanUserStatus.setStatus(Status.CREATED);
+
+                            // 用户是操作员（主申请人）时，才填充详细申请信息
+                            // 其他联合申请人需后续补充资料或通过 jointApplicants 传入
+                            if (userId.equals(operatorId)) {
+                                loanUserStatus.setAmount(loanDTO.getLoanAmount());
+                                loanUserStatus.setPurpose(loanDTO.getLoanPurpose());
+                                loanUserStatus.setName(loanDTO.getApplicantName());
+                                loanUserStatus.setPhone(loanDTO.getApplicantPhone());
+                                loanUserStatus.setRemark(loanDTO.getRemark());
+                            }
+
+                            loanUserStatusRepository.save(loanUserStatus);
+                            // loan.getLoanUserStatuses().add(loanUserStatus); // savedLoan 不需要手动 add，JPA
+                            // 会处理
+                        }
+                    }
+                }
+
+                // 2. 处理 JointApplicants (如果有详细信息传入)
+                // 正常情况下这个方法是不会有 jointApplicants 的，若存在抛出错误
+                if (loanDTO.getJointApplicants() != null) {
+                    throw new RuntimeException("JointApplicants should not be provided in apply stage");
                 }
 
                 // 新建贷款操作记录
@@ -287,6 +312,87 @@ public class LoanService {
             // logger.error("Failed to update loan application", e);
             return false;
         }
+    }
+
+    /**
+     * 更新联合贷款人/申请人信息，并重新聚合 Loan 总金额
+     * 
+     * @param applicantDTO 包含用户ID、贷款ID及详细信息的DTO
+     * @return true 如果更新成功
+     */
+    @Transactional
+    public boolean updateApplicantInfo(JointApplicantDTO applicantDTO) {
+        if (applicantDTO == null || applicantDTO.getLoanId() == null || applicantDTO.getUserId() == null) {
+            return false;
+        }
+
+        try {
+            // 1. 查找对应的 LoanUserStatus
+            // 由于 LoanUserStatusRepository 可能没有直接根据 loanId 和 userId 查询的方法，我们需要添加或者遍历
+            // 这里假设我们先获取 Loan，再遍历找到对应的 status
+            Loan loan = repo.findById(applicantDTO.getLoanId())
+                    .orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+
+            LoanUserStatus targetStatus = null;
+            List<LoanUserStatus> statuses = loanUserStatusRepository.findByLoanId(loan.getId());
+
+            for (LoanUserStatus status : statuses) {
+                if (status.getUser().getId().equals(applicantDTO.getUserId())) {
+                    targetStatus = status;
+                    break;
+                }
+            }
+
+            // 如果不存在，可能需要新建（针对新加入的联合贷款人）
+            if (targetStatus == null) {
+                User user = userRepository.findById(applicantDTO.getUserId())
+                        .orElseThrow(() -> new RuntimeException("用户不存在"));
+                targetStatus = new LoanUserStatus();
+                targetStatus.setLoan(loan);
+                targetStatus.setUser(user);
+                targetStatus.setStatus(loanDTOIsStatus(loan) ? loan.getStatus() : Status.CREATED); // 跟随主单状态或默认
+                // 保存新关系到列表，以便后续计算
+                statuses.add(targetStatus);
+            }
+
+            // 2. 更新字段
+            if (applicantDTO.getAmount() != null)
+                targetStatus.setAmount(applicantDTO.getAmount());
+            if (applicantDTO.getPurpose() != null)
+                targetStatus.setPurpose(applicantDTO.getPurpose());
+            if (applicantDTO.getName() != null)
+                targetStatus.setName(applicantDTO.getName());
+            if (applicantDTO.getPhone() != null)
+                targetStatus.setPhone(applicantDTO.getPhone());
+            if (applicantDTO.getRemark() != null)
+                targetStatus.setRemark(applicantDTO.getRemark());
+
+            loanUserStatusRepository.save(targetStatus);
+
+            // 3. 聚合计算 Loan 总金额
+            java.math.BigDecimal totalAmount = java.math.BigDecimal.ZERO;
+            for (LoanUserStatus status : statuses) {
+                if (status.getAmount() != null) {
+                    totalAmount = totalAmount.add(status.getAmount());
+                }
+            }
+
+            // 只有当计算出的总金额大于0时才更新，避免数据丢失
+            if (totalAmount.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                loan.setLoanAmount(totalAmount);
+                repo.save(loan);
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean loanDTOIsStatus(Loan loan) {
+        return loan.getStatus() != null;
     }
 
     /**

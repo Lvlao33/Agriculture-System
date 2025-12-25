@@ -15,7 +15,12 @@ public class LoanDTO {
     private String applicantName;
     private String applicantPhone;
 
-    private List<Long> userIds; // 普通用户 ID 数组
+    private List<JointApplicantDTO> jointApplicants; // 联合贷款人（包括ID和其他信息），如果是创建，则只需要ID即可，其他信息为空
+    // 为了兼容旧代码，这里其实应该保留 userIds 或者在 Service 层做转换，
+    // 但根据需求“整体变动最小”，我们假设前端会改为传对象列表，或者我们暂时兼容处理。
+    // 鉴于 LoanService 的 apply 方法目前使用 userIds，
+    // 最佳策略是：LoanDTO 增加 jointApplicants 字段，userIds 字段保留用于向后兼容或简化传参。
+    private List<Long> userIds; // 保留此字段以兼容现有逻辑，或者作为主申请人之外的简单ID列表
     private Long loanProductId; // 贷款产品 ID
     private Long staffId; // 工作人员 ID //一开始创建可为空
     private Long operatorId; // 操作人员 ID //可能是用户也有可能是员工
@@ -86,6 +91,14 @@ public class LoanDTO {
 
     public void setUserIds(List<Long> userIds) {
         this.userIds = userIds;
+    }
+
+    public List<JointApplicantDTO> getJointApplicants() {
+        return jointApplicants;
+    }
+
+    public void setJointApplicants(List<JointApplicantDTO> jointApplicants) {
+        this.jointApplicants = jointApplicants;
     }
 
     public Long getLoanProductId() {
