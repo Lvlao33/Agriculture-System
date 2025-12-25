@@ -81,6 +81,42 @@
           </el-descriptions-item>
         </el-descriptions>
 
+        <!-- 申请人详细信息表格 (不折叠) -->
+        <div class="applicants-table" style="margin-top: 16px; margin-bottom: 16px;">
+           <el-table :data="loan.loanUserStatuses || []" size="mini" style="width: 100%" border class="consistent-height-table">
+              <el-table-column label="用户" width="150">
+                <template slot-scope="scope">
+                  <div class="user-cell" style="display: flex; align-items: center; gap: 8px; height: 28px;">
+                    <el-avatar :size="24" :src="scope.row.user?.avatar" style="flex-shrink: 0;"></el-avatar>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ scope.row.user?.nickname || scope.row.user?.username || '未知' }}</span>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="姓名" width="100" show-overflow-tooltip>
+                <template slot-scope="scope">{{ scope.row.name || '--' }}</template>
+              </el-table-column>
+              <el-table-column prop="phone" label="电话" width="120" show-overflow-tooltip>
+                  <template slot-scope="scope">{{ scope.row.phone || '--' }}</template>
+              </el-table-column>
+              <el-table-column label="分担金额" width="120">
+                <template slot-scope="scope">{{ formatCurrency(scope.row.amount) }}</template>
+              </el-table-column>
+              <el-table-column prop="purpose" label="用途" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="remark" label="备注" show-overflow-tooltip></el-table-column>
+              <el-table-column label="操作" width="100" fixed="right">
+                <template slot-scope="scope">
+                  <el-button 
+                    v-if="scope.row.user && scope.row.user.id == currentUserId"
+                    type="primary" 
+                    plain
+                    size="mini"
+                    @click="openApplicantEdit(scope.row, loan.id)"
+                  >修改资料</el-button>
+                </template>
+              </el-table-column>
+           </el-table>
+        </div>
+
         <div class="card-footer">
           <el-button
             type="text"
@@ -131,15 +167,15 @@
               <el-divider content-position="left">用户状态</el-divider>
               <div class="user-statuses">
                 <el-table :data="loanDetails[loan.id]?.userStatuses || []" size="mini" style="width: 100%">
-                  <el-table-column label="用户" width="180">
+                  <el-table-column label="用户">
                     <template slot-scope="scope">
-                      <div class="user-cell">
+                      <div class="user-cell" style="display: flex; align-items: center; gap: 8px;">
                         <el-avatar :size="24" :src="scope.row.user?.avatar"></el-avatar>
                         <span>{{ scope.row.user?.nickname || scope.row.user?.username || '未知用户' }}</span>
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="status" label="状态">
+                  <el-table-column prop="status" label="状态" width="120">
                     <template slot-scope="scope">
                       <el-tag size="mini" :type="getStatusType(scope.row.status)">{{ getStatusLabel(scope.row.status) }}</el-tag>
                     </template>
@@ -198,7 +234,10 @@
         label-width="120px"
       >
         <el-form-item label="贷款金额" prop="loanAmount">
-          <el-input v-model="editForm.loanAmount" placeholder="请输入贷款金额" />
+          <el-input v-model="editForm.loanAmount" placeholder="系统自动汇总，不可修改" disabled>
+             <template slot="append">元</template>
+          </el-input>
+          <div style="font-size: 12px; color: #909399; line-height: 1.5;">由所有申请人分担金额汇总得出</div>
         </el-form-item>
         <el-form-item label="贷款期限(个月)" prop="loanTermMonths">
           <el-input v-model="editForm.loanTermMonths" placeholder="请输入贷款期限" />
@@ -329,12 +368,45 @@
           上传文件
         </el-button>
       </template>
+    </el-dialog>
+    <el-dialog
+      title="修改申请人信息"
+      :visible.sync="applicantEditDialogVisible"
+      width="500px"
+      append-to-body
+    >
+      <el-form
+        ref="applicantEditFormRef"
+        :model="applicantEditForm"
+        :rules="applicantEditRules"
+        label-width="100px"
+      >
+        <el-form-item label="分担金额" prop="amount">
+          <el-input v-model="applicantEditForm.amount" type="number" placeholder="请输入分担金额" />
+        </el-form-item>
+        <el-form-item label="资金用途" prop="purpose">
+           <el-input v-model="applicantEditForm.purpose" placeholder="请输入资金用途" />
+        </el-form-item>
+        <el-form-item label="真实姓名" prop="name">
+           <el-input v-model="applicantEditForm.name" placeholder="请输入真实姓名" />
+        </el-form-item>
+        <el-form-item label="联系电话" prop="phone">
+           <el-input v-model="applicantEditForm.phone" placeholder="请输入联系电话" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+           <el-input v-model="applicantEditForm.remark" type="textarea" placeholder="可选备注" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="applicantEditDialogVisible = false">取 消</el-button>
+        <el-button type="primary" :loading="applicantEditLoading" @click="submitApplicantEdit">确 定</el-button>
+      </div>
     </el-dialog>    
   </div>
 </template>
 
 <script>
-import { getLoanList, updateLoan, getLoanFiles, uploadLoanFile, getLoanUserStatuses, getLoanRecords } from "../api/finance.js";
+import { getLoanList, updateLoan, getLoanFiles, uploadLoanFile, getLoanUserStatuses, getLoanRecords, updateApplicantInfo } from "../api/finance.js";
 import { searchUserById } from "../api/user";
 
 export default {
@@ -370,6 +442,22 @@ export default {
         interestRate: "",
         loanPurpose: "",
         remark: "",
+      },
+      applicantEditDialogVisible: false,
+      applicantEditLoading: false,
+      applicantEditForm: {
+        loanId: null,
+        userId: null,
+        amount: "",
+        purpose: "",
+        name: "",
+        phone: "",
+        remark: "",
+      },
+      applicantEditRules: {
+        amount: [{ required: true, message: "请输入分担金额", trigger: "blur" }],
+        name: [{ required: true, message: "请输入姓名", trigger: "blur" }],
+        phone: [{ required: true, message: "请输入联系电话", trigger: "blur" }],
       },
       editRules: {
         loanAmount: [{ required: true, message: "请输入贷款金额", trigger: "blur" }],
@@ -774,6 +862,7 @@ export default {
       if (stepIndex === activeStep - 1) return 'process'; // activeStep is 1-based
       return 'wait';
     },
+
     handlePageChange(page) {
       this.currentPage = page;
       // Scroll to top of loan list
@@ -783,7 +872,56 @@ export default {
           loanList.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
-    }
+    },
+    openApplicantEdit(row, loanId) {
+      if (!row || !row.user) return;
+      this.applicantEditForm = {
+        loanId: loanId, 
+        userId: row.user.id,
+        amount: row.amount || "",
+        purpose: row.purpose || "",
+        name: row.name || row.user.nickname || row.user.username || "",
+        phone: row.phone || row.user.phone || "",
+        remark: row.remark || "",
+      };
+      this.applicantEditDialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.applicantEditFormRef && this.$refs.applicantEditFormRef.clearValidate();
+      });
+    },
+    async submitApplicantEdit() {
+      if (!this.$refs.applicantEditFormRef) return;
+      this.$refs.applicantEditFormRef.validate(async (valid) => {
+        if (!valid) return;
+        this.applicantEditLoading = true;
+        try {
+          const payload = {
+            ...this.applicantEditForm,
+            amount: Number(this.applicantEditForm.amount),
+          };
+          const response = await updateApplicantInfo(payload);
+           if (response && response.success === false) {
+             this.$message.error(response.message || "修改失败");
+           } else {
+             this.$message.success("修改成功");
+             this.applicantEditDialogVisible = false;
+             // Refresh details to show new data
+             if (this.applicantEditForm.loanId) {
+                // Refresh loan list to update total amount
+                this.fetchLoans();
+                // Refresh details
+                this.loanDetails[this.applicantEditForm.loanId] = null; // Clear cache
+                this.fetchLoanDetails(this.applicantEditForm.loanId);
+             }
+           }
+        } catch (error) {
+          console.error("Failed to update applicant info:", error);
+          this.$message.error("修改失败，请稍后再试");
+        } finally {
+          this.applicantEditLoading = false;
+        }
+      });
+    },
   },
   created() {
     this.fetchLoans();
@@ -937,23 +1075,27 @@ export default {
 
 .record-card {
   padding: 10px;
-  
-  h4 {
-    margin: 0 0 5px;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 12px;
-    color: #666;
-  }
-
-  .operator-info {
-    margin-top: 5px;
-    color: #999;
-    font-style: italic;
-  }
+}
+.record-card h4 {
+  margin: 0 0 8px 0;
+  color: #303133;
+}
+.record-card p {
+  margin: 0;
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.operator-info {
+  margin-top: 8px !important;
+  color: #909399 !important;
+  font-size: 12px !important;
+}
+/* Ensure consistent row height regardless of button presence */
+.consistent-height-table .el-table__row {
+  height: 50px; /* Adjust according to button height + padding */
+}
+.consistent-height-table .cell {
+  line-height: 28px; /* Vertically align text with button */
 }
 </style>

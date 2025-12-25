@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.dto.LoanDTO;
+import com.farmporject.backend.finance.dto.JointApplicantDTO;
 import com.farmporject.backend.finance.model.*;
 
 import java.util.List;
@@ -158,6 +159,20 @@ public class LoanController {
             return ResponseEntity.ok().body(loanRecords);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("loan record list exception: " + e.getMessage());
+        }
+    }
+
+    // 更新联合贷款人信息
+    @PostMapping("/applicant/info")
+    public ResponseEntity<?> updateApplicantInfo(@RequestBody JointApplicantDTO applicantDTO) {
+        try {
+            if (loanService.updateApplicantInfo(applicantDTO)) {
+                return ResponseEntity.ok().body("update applicant info success");
+            } else {
+                return ResponseEntity.status(400).body("update applicant info failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("update applicant info exception: " + e.getMessage());
         }
     }
 }

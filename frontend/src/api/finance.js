@@ -282,3 +282,15 @@ export function getLoanRecords(loanId) {
         },
     })
 }
+
+// 更新联合贷款人信息
+export function updateApplicantInfo(data) {
+    return request({
+        method: 'post',
+        url: '/api/finance/loans/applicant/info',
+        data: data,
+        headers: {
+            'Authorization': window.localStorage.token,
+        },
+    })
+}
