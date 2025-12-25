@@ -1,5 +1,8 @@
 <template>
   <div class="shop-cart-container">
+    <div class="page-topbar">
+      <el-button type="default" class="secondary-btn back-top-btn" icon="el-icon-arrow-left" @click="goBackTrade">返回</el-button>
+    </div>
     <!-- 页面头部 -->
     <div class="cart-header">
       <h2 class="page-title">
@@ -393,6 +396,10 @@ export default {
     goShopping() {
       this.$router.push('/home/goods')
     }
+    ,
+    goBackTrade() {
+      this.$router.push('/home/trade').catch(() => {});
+    }
   }
 }
 </script>
@@ -439,6 +446,25 @@ export default {
           font-size: 18px;
         }
       }
+    }
+  }
+  .page-topbar {
+    /* 把按钮上移，紧贴下面的白色 header（使按钮底部与 header 顶部对齐） */
+    margin-bottom: -24px;
+    padding-left: 20px;
+    position: relative;
+    z-index: 5;
+    .back-top-btn {
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      color: #666;
+      padding: 12px 18px; /* 放大按钮 */
+      font-size: 14px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: inline-block;
+      margin-left: -12px; /* 向左微调，使按钮更贴近页面左边 */
+      line-height: 1;
     }
   }
 

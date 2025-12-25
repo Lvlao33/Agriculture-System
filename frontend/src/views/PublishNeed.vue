@@ -127,6 +127,13 @@
 
       <el-form-item>
         <el-button 
+          size="large" 
+          class="secondary-btn"
+          @click="goBackTrade"
+        >
+          <i class="el-icon-back"></i> 返回
+        </el-button>
+        <el-button 
           type="primary" 
           size="large" 
           :loading="submitting"
@@ -139,12 +146,6 @@
           @click="resetForm"
         >
           <i class="el-icon-refresh-left"></i> 重置
-        </el-button>
-        <el-button 
-          size="large" 
-          @click="goBack"
-        >
-          <i class="el-icon-back"></i> 返回
         </el-button>
       </el-form-item>
     </el-form>
@@ -269,6 +270,10 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    }
+    ,
+    goBackTrade() {
+      this.$router.push('/home/trade').catch(() => {});
     }
   },
   mounted() {

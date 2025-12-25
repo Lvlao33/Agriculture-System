@@ -4,25 +4,39 @@
 
     <!-- 顶部操作栏 -->
     <div class="top-bar">
-      <div class="search-section">
-        <el-input
-          v-model="searchValue"
-          maxlength="100"
-          clearable
-          placeholder="搜索商品名称、产地..."
-          style="width: 300px;"
-          @keyup.enter.native="handleSearch"
-        />
-        <el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+      <div class="left-controls">
+        <el-button
+          type="default"
+          icon="el-icon-arrow-left"
+          class="secondary-btn"
+          @click="goBackTrade"
+        >
+          返回
+        </el-button>
+        <el-button
+          type="success"
+          icon="el-icon-plus"
+          class="publish-btn"
+          @click="handlePublish"
+        >
+          发布商品
+        </el-button>
       </div>
-      <el-button
-        type="success"
-        icon="el-icon-plus"
-        class="publish-btn"
-        @click="handlePublish"
-      >
-        发布商品
-      </el-button>
+      <div class="search-section">
+        <div class="search-wrap">
+          <el-input
+            v-model="searchValue"
+            maxlength="100"
+            clearable
+            placeholder="请输入商品关键词进行搜索"
+            class="search-input"
+            @keyup.enter.native="handleSearch"
+          />
+          <button class="search-btn" @click="handleSearch" aria-label="搜索">
+            <i class="el-icon-search" style="color:#fff;font-size:16px"></i>
+          </button>
+        </div>
+      </div>
     </div>
  
     <!-- 价格预测 -->
@@ -34,23 +48,26 @@
           <p class="sub">基于XGBoost 时间序列回归，提供均值和置信区间</p>
         </div>
         <div class="forecast-actions">
-          <el-select
-            v-model="forecastCommodity"
-            placeholder="选择品类"
-            size="small"
-            style="width: 150px;"
-            @change="fetchForecast"
-          >
-            <el-option
-              v-for="item in forecastCommodities"
-              :key="item"
-              :value="item"
-              :label="item"
-            />
-          </el-select>
-          <el-button size="small" type="primary" plain @click="refreshForecast" :loading="forecastLoading">
-            刷新预测
-          </el-button>
+          <div class="select-wrap">
+            <el-select
+              v-model="forecastCommodity"
+              placeholder="选择品类"
+              size="small"
+              class="forecast-select"
+              @change="fetchForecast"
+            >
+              <el-option
+                v-for="item in forecastCommodities"
+                :key="item"
+                :value="item"
+                :label="item"
+              />
+            </el-select>
+            <button type="button" class="select-btn" @click.stop.prevent="refreshForecast" :aria-disabled="forecastLoading" :title="'刷新预测'">
+              <span v-if="!forecastLoading">刷新预测</span>
+              <i v-else class="el-icon-loading"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -192,7 +209,7 @@
           v-for="(item, index) in filteredGoods"
           :key="index"
           class="goods-card"
-          @click="showGoodsDetail(item)"
+          @click="goToGoodsDetailPage(item)"
         >
           <el-card shadow="hover" :body-style="{ padding: '0' }">
             <div class="goods-image-wrapper">
@@ -630,6 +647,9 @@ export default {
     refreshForecast() {
       this.fetchForecast();
     },
+    goBackTrade() {
+      this.$router.push('/home/trade');
+    },
     initChart() {
       if (!this.$refs.forecastChart) {
         return;
@@ -1055,11 +1075,54 @@ export default {
       margin-bottom: 10px;
     }
 
-    .forecast-actions {
+      .forecast-actions {
       display: flex;
       gap: 10px;
       align-items: center;
-    }
+
+      .select-wrap {
+        position: relative;
+        width: 210px; /* 下拉框宽度含按钮 */
+      }
+
+      /* 让 el-select 内部输入部分为目标高度，并为右侧按钮预留空间 */
+      ::v-deep .forecast-select .el-input__inner {
+        height: 40px;
+        line-height: 40px;
+        padding-right: 90px; /* 预留按钮区域 */
+        border-radius: 6px 0 0 6px;
+      }
+
+      /* 保持下拉小三角（caret）在按钮左侧可见 */
+      ::v-deep .forecast-select .el-input__suffix {
+        right: 72px; /* 向左移动，确保与按钮保持更大间距 */
+        z-index: 4;
+        position: absolute;
+      }
+
+      .select-btn {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 0 6px 6px 0;
+        background: #409eff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .select-btn[aria-disabled="true"] {
+        opacity: 0.7;
+        pointer-events: none;
+      }
+     }
 
     .forecast-card {
       border-radius: 10px;
@@ -1295,6 +1358,41 @@ export default {
       display: flex;
       align-items: center;
       gap: 10px;
+
+      .search-wrap {
+        position: relative;
+        width: 500px;
+      }
+
+      .search-input ::v-deep .el-input__inner {
+        height: 40px;
+        line-height: 40px;
+        padding-right: 40px; /* 与按钮宽度一致，去除额外空隙 */
+        border-radius: 6px 0 0 6px; /* 右侧由按钮负责圆角，确保连成一体 */
+        border: 1px solid #e6e6e6;
+        box-shadow: none;
+      }
+
+      .search-btn {
+        position: absolute;
+        right: 0; /* 紧贴输入框右边界，去除空隙 */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 0 6px 6px 0; /* 左侧不圆，和输入框连成一体 */
+        background: #6aa84f;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      }
+
+      .search-btn:hover {
+        background: #5a993e;
+      }
     }
 
     .publish-btn {
@@ -1310,6 +1408,30 @@ export default {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(103, 194, 58, 0.3);
       }
+    }
+    
+    .left-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .secondary-btn {
+      background: #ffffff;
+      border: 1px solid #85ce61;
+      color: #67c23a;
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 6px;
+      margin-left: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      transition: all 0.2s;
+    }
+
+    .secondary-btn:hover {
+      background: #f7fff5;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(103, 194, 58, 0.08);
     }
   }
 

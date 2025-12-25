@@ -12,6 +12,7 @@
             农产品供需发布平台、智能匹配优质货源、一站式采购解决方案
           </p>
           <div class="hero-actions">
+            <el-button type="default" class="secondary-btn" icon="el-icon-arrow-left" @click="goBackTrade">返回</el-button>
             <el-button type="primary" icon="el-icon-plus" @click="handlePublish">发布需求</el-button>
             <el-button type="success" icon="el-icon-s-shop" @click="goToGoods">查看货源</el-button>
           </div>
@@ -375,6 +376,9 @@ export default {
           this.applyFilters();
           this.updateStats();
         });
+    },
+    goBackTrade() {
+      this.$router.push('/home/trade').catch(() => {});
     },
     inferUrgency(createTime, expireTime) {
       if (!expireTime) return "long_term";
