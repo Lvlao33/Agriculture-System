@@ -197,6 +197,49 @@ public class OrderCompatController {
     }
 
     /**
+     * 兼容旧接口：根据 id 查询（订单或商品）
+     * GET /order/selectById/{id}
+     */
+    @GetMapping("/selectById/{id}")
+    public ResponseEntity<?> selectById(@PathVariable("id") Long id) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            // 先尝试按订单查
+            var orderOpt = orderService.getOrderById(id);
+            if (orderOpt != null && orderOpt.isPresent()) {
+                Map<String, Object> orderMap = convertOrderToMap(orderOpt.get());
+                resp.put("flag", true);
+                resp.put("data", orderMap);
+                return ResponseEntity.ok(resp);
+            }
+
+            // 再尝试按商品查
+            var productOpt = productService.getProductById(id);
+            if (productOpt != null && productOpt.isPresent()) {
+                var p = productOpt.get();
+                Map<String, Object> m = new HashMap<>();
+                m.put("orderId", p.getId());
+                m.put("title", p.getName());
+                m.put("content", p.getDescription());
+                m.put("picture", p.getImageUrl());
+                m.put("price", p.getPrice());
+                m.put("ownName", "平台商家");
+                resp.put("flag", true);
+                resp.put("data", m);
+                return ResponseEntity.ok(resp);
+            }
+
+            resp.put("flag", false);
+            resp.put("message", "未找到对应订单或商品");
+            return ResponseEntity.status(404).body(resp);
+        } catch (Exception e) {
+            resp.put("flag", false);
+            resp.put("message", "查询失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(resp);
+        }
+    }
+
+    /**
      * GET /order/goods/{page} - 分页获取商品列表
      */
     @GetMapping("/goods/{page}")
