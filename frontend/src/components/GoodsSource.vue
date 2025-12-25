@@ -4,6 +4,24 @@
 
     <!-- 顶部操作栏 -->
     <div class="top-bar">
+      <div class="left-controls">
+        <el-button
+          type="default"
+          icon="el-icon-arrow-left"
+          class="secondary-btn"
+          @click="goBackTrade"
+        >
+          返回
+        </el-button>
+        <el-button
+          type="success"
+          icon="el-icon-plus"
+          class="publish-btn"
+          @click="handlePublish"
+        >
+          发布商品
+        </el-button>
+      </div>
       <div class="search-section">
         <div class="search-wrap">
           <el-input
@@ -18,24 +36,6 @@
             <i class="el-icon-search" style="color:#fff;font-size:16px"></i>
           </button>
         </div>
-      </div>
-      <div class="right-controls">
-        <el-button
-          type="success"
-          icon="el-icon-plus"
-          class="publish-btn"
-          @click="handlePublish"
-        >
-          发布商品
-        </el-button>
-        <el-button
-          type="default"
-          icon="el-icon-arrow-left"
-          class="secondary-btn"
-          @click="goBackTrade"
-        >
-          返回
-        </el-button>
       </div>
     </div>
  
@@ -1410,11 +1410,10 @@ export default {
       }
     }
     
-    .right-controls {
+    .left-controls {
       display: flex;
       gap: 12px;
       align-items: center;
-      margin-left: auto; /* push to right within flex container */
     }
 
     .secondary-btn {
