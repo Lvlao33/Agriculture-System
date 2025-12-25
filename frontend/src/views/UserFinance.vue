@@ -69,8 +69,14 @@
           <el-descriptions-item label="最近更新时间">
             {{ formatDateTime(loan.updateDate) }}
           </el-descriptions-item>
+          <el-descriptions-item label="产品">
+            {{ loan.loanProduct?.name || '--' }}
+          </el-descriptions-item>
           <el-descriptions-item label="还款截止日">
             {{ formatDate(loan.repaymentDueDate) }}
+          </el-descriptions-item>
+          <el-descriptions-item label="预计放款日">
+            {{ formatDate(loan.disbursementDate) }}
           </el-descriptions-item>
 
           <el-descriptions-item label="贷款用途" :span="3">
@@ -106,7 +112,7 @@
               <el-table-column label="操作" width="100" fixed="right">
                 <template slot-scope="scope">
                   <el-button 
-                    v-if="scope.row.user && scope.row.user.id == currentUserId"
+                    v-if="scope.row.user && scope.row.user.id == currentUserId && canEditLoan(scope.row.status)"
                     type="primary" 
                     plain
                     size="mini"
@@ -142,6 +148,11 @@
             >
               补充文件
             </el-button>
+          </div>
+          <div v-if="loan.status === 'APPROVED' && !hasSigned(loan)">
+             <el-button type="primary" size="mini" @click="handleSign(loan)">
+               签 约
+             </el-button>
           </div>
         </div>
 
@@ -406,7 +417,7 @@
 </template>
 
 <script>
-import { getLoanList, updateLoan, getLoanFiles, uploadLoanFile, getLoanUserStatuses, getLoanRecords, updateApplicantInfo } from "../api/finance.js";
+import { getLoanList, updateLoan, getLoanFiles, uploadLoanFile, getLoanUserStatuses, getLoanRecords, updateApplicantInfo, signLoan } from "../api/finance.js";
 import { searchUserById } from "../api/user";
 
 export default {
@@ -564,10 +575,20 @@ export default {
     },
     formatDateTime(value) {
       if (!value) return "--";
+      if (Array.isArray(value)) {
+        // [yyyy, MM, dd, HH, mm, ss]
+        const [y, m, d, h, min, s] = value;
+        return `${y}/${m}/${d} ${h}:${min.toString().padStart(2, '0')}:${s ? s.toString().padStart(2, '0') : '00'}`;
+      }
       return new Date(value).toLocaleString("zh-CN");
     },
     formatDate(value) {
       if (!value) return "--";
+      if (Array.isArray(value)) {
+        // [yyyy, MM, dd]
+        const [y, m, d] = value;
+        return `${y}/${m}/${d}`;
+      }
       return new Date(value).toLocaleDateString("zh-CN");
     },
     openEditDialog(loan) {
@@ -776,6 +797,31 @@ export default {
       } else {
         this.expandedLoans.push(loan.id);
         this.fetchLoanDetails(loan.id);
+      }
+    },
+    hasSigned(loan) {
+      if (!loan.loanUserStatuses) return false;
+      const status = loan.loanUserStatuses.find(s => s.user && s.user.id == this.currentUserId);
+      return status && status.status === 'SIGNED';
+    },
+    async handleSign(loan) {
+      try {
+        await this.$confirm('确认签约此贷款？签约后将进入放款阶段。', '签约确认', {
+          confirmButtonText: '确定签约',
+          cancelButtonText: '取消',
+          type: 'info'
+        });
+        
+        const res = await signLoan(loan.id, this.currentUserId);
+     
+        this.$message.success("签约成功");
+        await this.fetchLoans();
+        
+      } catch (err) {
+        if (err !== 'cancel') {
+           console.error("签约失败:", err);
+           this.$message.error("签约失败，请重试");
+        }
       }
     },
     async fetchLoanDetails(loanId) {

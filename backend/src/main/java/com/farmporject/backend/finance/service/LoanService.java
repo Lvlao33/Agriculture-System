@@ -226,6 +226,11 @@ public class LoanService {
                     loan.setStatus(status);
                     loan.setUpdateDate(LocalDateTime.now());
 
+                    // 如果状态变为 REPAYING (放款), 自动设置放款时间
+                    if (status == Status.REPAYING) {
+                        loan.setDisbursementDate(LocalDateTime.now());
+                    }
+
                     // 修改用户状态跟踪记录
                     if (loan.getLoanUserStatuses() != null) {
                         for (LoanUserStatus loanUserStatus : loan.getLoanUserStatuses()) {
@@ -529,6 +534,115 @@ public class LoanService {
         List<Loan> loans = repo.findByStatusAndStaffIsNull(Status.CREATED);
         loans.forEach(loan -> loan.getLoanUserStatuses().size());
         return loans;
+    }
+
+    /**
+     * 审批通过贷款
+     * 
+     * @param approvalDTO 审批详情
+     * @return true 如果成功
+     */
+    public boolean approveLoan(LoanApprovalDTO approvalDTO) {
+        try {
+            if (approvalDTO == null || approvalDTO.getLoanId() == null) {
+                return false;
+            }
+
+            Loan loan = repo.findById(approvalDTO.getLoanId())
+                    .orElseThrow(() -> new RuntimeException("贷款申请不存在"));
+
+            // 更新条款字段
+            if (approvalDTO.getLoanAmount() != null) {
+                loan.setLoanAmount(approvalDTO.getLoanAmount());
+            }
+            if (approvalDTO.getLoanTermMonths() != null) {
+                loan.setLoanTermMonths(approvalDTO.getLoanTermMonths());
+            }
+            if (approvalDTO.getInterestRate() != null) {
+                loan.setInterestRate(approvalDTO.getInterestRate());
+            }
+            if (approvalDTO.getRepaymentDueDate() != null) {
+                loan.setRepaymentDueDate(approvalDTO.getRepaymentDueDate());
+            }
+            // 审批时填写的预计放款已
+            if (approvalDTO.getDisbursementDate() != null) {
+                loan.setDisbursementDate(approvalDTO.getDisbursementDate());
+            }
+
+            // 调用 submitByLoanId 更新状态为 APPROVED
+            return submitByLoanId(loan.getId(), Status.APPROVED, approvalDTO.getOperatorId(),
+                    approvalDTO.getRemark() != null ? approvalDTO.getRemark() : "审批通过");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 审批单个申请人
+     * 
+     * @param loanId 贷款ID
+     * @param userId 申请人ID
+     * @return true 如果成功
+     */
+    public boolean approveApplicant(Long loanId, Long userId) {
+        try {
+            LoanUserStatus status = loanUserStatusRepository.findByLoanId(loanId).stream()
+                    .filter(s -> s.getUser().getId().equals(userId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("申请人记录不存在"));
+
+            // 将用户状态更为 APPROVED
+            status.setStatus(Status.APPROVED);
+            loanUserStatusRepository.save(status);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 用户签约
+     * 
+     * @param loanId 贷款ID
+     * @param userId 用户ID
+     * @return true 如果成功
+     */
+    public boolean userSignLoan(Long loanId, Long userId) {
+        try {
+            Loan loan = repo.findById(loanId).orElseThrow(() -> new RuntimeException("贷款不存在"));
+
+            // 找到对应用户的状态记录
+            LoanUserStatus targetStatus = loanUserStatusRepository.findByLoanId(loanId).stream()
+                    .filter(s -> s.getUser().getId().equals(userId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("用户无权签约此贷款"));
+
+            if (targetStatus.getStatus() != Status.APPROVED) {
+                throw new RuntimeException("当前状态不可签约");
+            }
+
+            // 更新个人状态为 SIGNED
+            targetStatus.setStatus(Status.SIGNED);
+            loanUserStatusRepository.save(targetStatus);
+
+            // 检查是否所有申请人都已签约
+            List<LoanUserStatus> allStatuses = loanUserStatusRepository.findByLoanId(loanId);
+            boolean allSigned = allStatuses.stream().allMatch(s -> s.getStatus() == Status.SIGNED);
+
+            if (allSigned) {
+                // 如果都已签约，更新主贷款状态为 SIGNED (待放款)
+                // 此时不需要操作人ID，可以传一个系统ID或者null，这里复用 userId 作为记录的操作者
+                submitByLoanId(loanId, Status.SIGNED, userId, "所有申请人已签约");
+            }
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**

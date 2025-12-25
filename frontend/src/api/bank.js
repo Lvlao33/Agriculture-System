@@ -128,15 +128,22 @@ export function assignLoan(loanId, operatorId) {
 }
 
 // 审核通过
-export function approveLoan(loanId, operatorId, remark) {
-  const params = { operatorId };
-  if (remark) {
-    params.remark = remark;
-  }
+export function approveLoan(data) {
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/approve`,
-    params: params,
+    url: `api/finance/bank-review/applications/${data.loanId}/approve`,
+    data: data,
+    headers: {
+      'Authorization': window.localStorage.token || ''
+    }
+  })
+}
+
+// 审核申请人
+export function approveApplicant(loanId, userId) {
+  return request({
+    method: 'post',
+    url: `api/finance/bank-review/applications/${loanId}/applicant/${userId}/approve`,
     headers: {
       'Authorization': window.localStorage.token || ''
     }

@@ -175,4 +175,18 @@ public class LoanController {
             return ResponseEntity.status(500).body("update applicant info exception: " + e.getMessage());
         }
     }
+
+    // 用户签署贷款
+    @PostMapping("/{loan_id}/user-sign")
+    public ResponseEntity<?> userSign(@PathVariable("loan_id") Long loanId, @RequestParam Long userId) {
+        try {
+            if (loanService.userSignLoan(loanId, userId)) {
+                return ResponseEntity.ok().body("sign success");
+            } else {
+                return ResponseEntity.status(400).body("sign failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("sign exception: " + e.getMessage());
+        }
+    }
 }
