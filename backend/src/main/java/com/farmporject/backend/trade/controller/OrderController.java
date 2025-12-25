@@ -3,6 +3,7 @@ package com.farmporject.backend.trade.controller;
 import com.farmporject.backend.config.JwtConfig;
 import com.farmporject.backend.trade.model.Order;
 import com.farmporject.backend.trade.service.OrderService;
+import com.farmporject.backend.trade.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    
+    @Autowired
+    private ProductService productService;
     
     @Autowired
     private JwtConfig jwtConfig;
@@ -102,9 +106,30 @@ public class OrderController {
                 orderMap.put("paymentMethod", order.getPaymentMethod());
                 orderMap.put("paymentStatus", order.getPaymentStatus());
                 
-                // 添加订单项
+                // 添加订单项，并为每个订单项添加商品图片信息
                 List<com.farmporject.backend.trade.model.OrderItem> orderItems = orderService.getOrderItems(order.getId());
-                orderMap.put("orderItems", orderItems);
+                List<Map<String, Object>> orderItemsWithImage = new ArrayList<>();
+                for (com.farmporject.backend.trade.model.OrderItem item : orderItems) {
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("id", item.getId());
+                    itemMap.put("orderId", item.getOrderId());
+                    itemMap.put("productId", item.getProductId());
+                    itemMap.put("productName", item.getProductName());
+                    itemMap.put("productPrice", item.getProductPrice());
+                    itemMap.put("quantity", item.getQuantity());
+                    itemMap.put("subtotal", item.getSubtotal());
+                    // 查询商品图片
+                    try {
+                        var productOpt = productService.getProductById(item.getProductId());
+                        if (productOpt.isPresent()) {
+                            itemMap.put("imageUrl", productOpt.get().getImageUrl());
+                        }
+                    } catch (Exception e) {
+                        // 如果查询商品失败，忽略
+                    }
+                    orderItemsWithImage.add(itemMap);
+                }
+                orderMap.put("orderItems", orderItemsWithImage);
                 
                 orderList.add(orderMap);
             }
@@ -180,9 +205,30 @@ public class OrderController {
                 orderMap.put("paymentMethod", orderObj.getPaymentMethod());
                 orderMap.put("paymentStatus", orderObj.getPaymentStatus());
                 
-                // 添加订单项（重要：包含 productId）
+                // 添加订单项（重要：包含 productId 和商品图片）
                 List<com.farmporject.backend.trade.model.OrderItem> orderItems = orderService.getOrderItems(orderObj.getId());
-                orderMap.put("orderItems", orderItems);
+                List<Map<String, Object>> orderItemsWithImage = new ArrayList<>();
+                for (com.farmporject.backend.trade.model.OrderItem item : orderItems) {
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("id", item.getId());
+                    itemMap.put("orderId", item.getOrderId());
+                    itemMap.put("productId", item.getProductId());
+                    itemMap.put("productName", item.getProductName());
+                    itemMap.put("productPrice", item.getProductPrice());
+                    itemMap.put("quantity", item.getQuantity());
+                    itemMap.put("subtotal", item.getSubtotal());
+                    // 查询商品图片
+                    try {
+                        var productOpt = productService.getProductById(item.getProductId());
+                        if (productOpt.isPresent()) {
+                            itemMap.put("imageUrl", productOpt.get().getImageUrl());
+                        }
+                    } catch (Exception e) {
+                        // 如果查询商品失败，忽略
+                    }
+                    orderItemsWithImage.add(itemMap);
+                }
+                orderMap.put("orderItems", orderItemsWithImage);
                 
                 response.put("flag", true);
                 response.put("data", orderMap);
