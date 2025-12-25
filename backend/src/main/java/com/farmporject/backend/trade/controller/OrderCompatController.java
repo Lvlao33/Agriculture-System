@@ -142,6 +142,23 @@ public class OrderCompatController {
                 return ResponseEntity.badRequest().body(response);
             }
 
+            // 库存解析
+            Integer stock = 0;
+            Object stockObj = requestBody.get("stock");
+            if (stockObj instanceof Number) {
+                stock = ((Number) stockObj).intValue();
+            } else if (stockObj instanceof String) {
+                try {
+                    stock = Integer.parseInt((String) stockObj);
+                } catch (NumberFormatException e) {
+                    // 使用默认值0
+                }
+            }
+            // 库存不能为负数
+            if (stock < 0) {
+                stock = 0;
+            }
+
             Product product = new Product();
             product.setName(name);
             product.setDescription(description);
@@ -149,7 +166,7 @@ public class OrderCompatController {
             product.setImageUrl(imageUrl);
             product.setCategory(category);
             product.setSellerId(sellerId);
-            product.setStock(0);
+            product.setStock(stock); // 设置库存
             product.setIsAvailable(true);
 
             System.out.println("准备保存商品到数据库...");

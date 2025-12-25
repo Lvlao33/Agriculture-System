@@ -122,13 +122,27 @@ public class OrderService {
                 throw new RuntimeException("商品已下架: " + product.getName());
             }
 
+            // 检查库存
+            Integer quantity = cartItem.getQuantity();
+            Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+            if (currentStock <= 0) {
+                throw new RuntimeException("商品库存为零，无法购买: " + product.getName());
+            }
+            if (currentStock < quantity) {
+                throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity + "，商品: " + product.getName());
+            }
+
+            // 减少库存
+            product.setStock(currentStock - quantity);
+            productRepository.save(product);
+
             // 创建订单项（同一商品的所有数量在一个订单中）
             OrderItem orderItem = new OrderItem();
             orderItem.setProductId(productId);
             orderItem.setProductName(product.getName());
             orderItem.setProductPrice(product.getPrice());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            orderItem.setQuantity(quantity);
+            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
 
             // 创建订单
             Order order = new Order();
@@ -186,6 +200,16 @@ public class OrderService {
                 throw new RuntimeException("商品已下架: " + product.getName());
             }
 
+            // 检查库存
+            Integer quantity = cartItem.getQuantity();
+            Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+            if (currentStock <= 0) {
+                throw new RuntimeException("商品库存为零，无法购买: " + product.getName());
+            }
+            if (currentStock < quantity) {
+                throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity + "，商品: " + product.getName());
+            }
+
             // 设置卖家ID（取第一个商品的卖家ID）
             if (sellerId == null) {
                 sellerId = product.getSellerId();
@@ -196,11 +220,24 @@ public class OrderService {
             orderItem.setProductId(productId);
             orderItem.setProductName(product.getName());
             orderItem.setProductPrice(product.getPrice());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            orderItem.setQuantity(quantity);
+            orderItem.setSubtotal(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
             
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(orderItem.getSubtotal());
+        }
+
+        // 减少所有商品的库存（在创建订单之前）
+        for (Long productId : productIds) {
+            CartProduct cartItem = cartProductRepository.findByUserIdAndProductId(userId, productId);
+            if (cartItem != null) {
+                Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new RuntimeException("商品不存在，ID: " + productId));
+                Integer quantity = cartItem.getQuantity();
+                Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+                product.setStock(currentStock - quantity);
+                productRepository.save(product);
+            }
         }
 
         if (sellerId == null) {
@@ -330,9 +367,17 @@ public class OrderService {
         }
 
         // 检查库存
-        if (product.getStock() != null && product.getStock() < quantity) {
-            throw new RuntimeException("商品库存不足，当前库存: " + product.getStock());
+        Integer currentStock = product.getStock() != null ? product.getStock() : 0;
+        if (currentStock <= 0) {
+            throw new RuntimeException("商品库存为零，无法购买");
         }
+        if (currentStock < quantity) {
+            throw new RuntimeException("商品库存不足，当前库存: " + currentStock + "，需要数量: " + quantity);
+        }
+
+        // 减少库存
+        product.setStock(currentStock - quantity);
+        productRepository.save(product);
 
         // 创建订单项
         OrderItem orderItem = new OrderItem();
