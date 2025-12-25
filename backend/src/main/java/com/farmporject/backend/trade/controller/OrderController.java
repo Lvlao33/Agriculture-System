@@ -248,6 +248,78 @@ public class OrderController {
     }
 
     /**
+     * 立即购买：直接从商品创建订单（不经过购物车）
+     * POST /api/trade/orders/buy-now
+     */
+    @PostMapping("/buy-now")
+    public ResponseEntity<?> buyNow(@RequestBody Map<String, Object> request,
+                                    @RequestHeader(value = "Authorization", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Long userId = parseUserId(token);
+            if (userId == null) {
+                response.put("flag", false);
+                response.put("message", "请先登录");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // 获取商品ID
+            Object productIdObj = request.get("productId");
+            if (productIdObj == null) {
+                response.put("flag", false);
+                response.put("message", "商品ID不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+            Long productId = null;
+            if (productIdObj instanceof Number) {
+                productId = ((Number) productIdObj).longValue();
+            } else if (productIdObj instanceof String) {
+                try {
+                    productId = Long.parseLong((String) productIdObj);
+                } catch (NumberFormatException e) {
+                    response.put("flag", false);
+                    response.put("message", "商品ID格式错误");
+                    return ResponseEntity.badRequest().body(response);
+                }
+            }
+
+            // 获取购买数量（默认为1）
+            Integer quantity = 1;
+            Object quantityObj = request.get("quantity");
+            if (quantityObj instanceof Number) {
+                quantity = ((Number) quantityObj).intValue();
+            } else if (quantityObj instanceof String) {
+                try {
+                    quantity = Integer.parseInt((String) quantityObj);
+                } catch (NumberFormatException e) {
+                    // 使用默认值
+                }
+            }
+            if (quantity == null || quantity <= 0) {
+                quantity = 1;
+            }
+
+            String shippingAddress = (String) request.getOrDefault("shippingAddress", "");
+            String receiverName = (String) request.getOrDefault("receiverName", "");
+            String receiverPhone = (String) request.getOrDefault("receiverPhone", "");
+
+            // 直接从商品创建订单
+            Order order = orderService.createOrderDirectly(userId, productId, quantity, 
+                                                          shippingAddress, receiverName, receiverPhone);
+
+            response.put("flag", true);
+            response.put("message", "订单创建成功，请前往订单管理付款");
+            response.put("data", order);
+            return ResponseEntity.status(201).body(response);
+
+        } catch (Exception e) {
+            response.put("flag", false);
+            response.put("message", "创建订单失败: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    /**
      * 订单付款：将待付款订单更新为待发货状态
      * PUT /api/trade/orders/{id}/pay
      */

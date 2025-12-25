@@ -264,6 +264,26 @@ export function checkout(params) {
 }
 
 /**
+ * 立即购买：直接从商品创建订单（不经过购物车）
+ * @param {Object} params - 购买参数
+ * @param {Number} params.productId - 商品ID
+ * @param {Number} params.quantity - 购买数量（可选，默认为1）
+ * @param {String} params.shippingAddress - 收货地址（可选）
+ * @param {String} params.receiverName - 收货人姓名（可选）
+ * @param {String} params.receiverPhone - 收货人电话（可选）
+ */
+export function buyNow(params) {
+  return request({
+    method: 'post',
+    url: '/api/trade/orders/buy-now',
+    data: params,
+    headers: {
+      'Authorization': localStorage.getItem('token') || '',
+    },
+  })
+}
+
+/**
  * 订单付款，将待付款订单移入待发货
  * @param {Number} orderId - 订单ID
  */
