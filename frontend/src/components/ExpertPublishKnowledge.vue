@@ -20,13 +20,13 @@
         </el-upload>
       </el-form-item>
       <el-form-item label="标题">
-        <el-input v-model="form.title" placeholder="请输入知识标题"></el-input>
+        <el-input v-model="form.title" placeholder="请输入知识标�?"></el-input>
       </el-form-item>
       <el-form-item label="内容">
-        <el-input type="textarea" v-model="form.content" placeholder="请输入知识正文内容"></el-input>
+        <el-input type="textarea" v-model="form.content" placeholder="请输入知识正文内�?"></el-input>
       </el-form-item>
       <el-form-item label="相关链接">
-        <el-input v-model="form.url" placeholder="可选：填写相关政策或技术文件链接"></el-input>
+        <el-input v-model="form.url" placeholder="可选：填写相关政策或技术文件链�?"></el-input>
       </el-form-item>
     </el-form>
     <div style="display:flex;justify-content:center;">
@@ -115,8 +115,8 @@ export default {
       })
         .then((res) => {
           if (res.flag == true) {
-            this.$message.success(res.message || '知识已发布');
-            // 发布成功后跳转到专家指导的农业知识页面
+            this.$message.success(res.message || '知识已发�?');
+            // 发布成功后跳转到专家指导的农业知识页�?
             this.$router.push("/home/knowledge");
           } else {
             this.$message.error(res.message || '发布失败');
@@ -133,7 +133,7 @@ export default {
 
 <style lang="less" scoped>
 .disUoloadSty .el-upload--picture-card {
-  display: none; /* 涓婁紶鎸夐挳闅愯棌 */
+  display: none; /* 涓婁紶鎸夐挳闅愯�? */
 }
 .publish-message {
   width: 1100px;

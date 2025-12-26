@@ -21,7 +21,7 @@ import java.util.Optional;
 
 /**
  * 农业知识模块
- * 统一前缀：/api/knowledge
+ * 统一前缀�?/api/knowledge
  */
 @RestController
 @RequestMapping("/api/knowledge")
@@ -41,7 +41,7 @@ public class KnowledgeController {
     }
 
     /**
-     * 分页获取知识列表（农业知识页）
+     * 分页获取知识列表（农业知识页�?
      * GET /api/knowledge/{pageNum}?size=10
      */
     @GetMapping("/{pageNum}")
@@ -70,7 +70,7 @@ public class KnowledgeController {
     }
 
     /**
-     * 知识详情（新接口）
+     * 知识详情（新接口�?
      * GET /api/knowledge/detail/{id}
      */
     @GetMapping("/detail/{knowledgeId}")
@@ -80,7 +80,7 @@ public class KnowledgeController {
             Optional<Knowledge> k = knowledgeService.getKnowledgeById(knowledgeId);
             if (k.isEmpty()) {
                 resp.put("flag", false);
-                resp.put("message", "知识不存在");
+                resp.put("message", "知识不存�?");
                 return ResponseEntity.notFound().build();
             }
             resp.put("flag", true);
@@ -94,7 +94,7 @@ public class KnowledgeController {
     }
 
     /**
-     * 知识详情（旧接口兼容）
+     * 知识详情（旧接口兼容�?
      * GET /api/knowledge/selectById/{id}
      */
     @GetMapping("/selectById/{knowledgeId}")
@@ -115,7 +115,7 @@ public class KnowledgeController {
             Long userId = com.farmporject.backend.security.UserContext.getCurrentUserId();
             if (userId == null) {
                 resp.put("flag", false);
-                resp.put("message", "用户未登录");
+                resp.put("message", "用户未登�?");
                 return ResponseEntity.status(401).body(resp);
             }
 
@@ -127,10 +127,10 @@ public class KnowledgeController {
                 return ResponseEntity.badRequest().body(resp);
             }
 
-            // 设置作者信息
+            // 设置作者信�?
             knowledge.setAuthor(expertOpt.get());
             
-            // 确保isPublished默认为true（如果未设置）
+            // 确保isPublished默认为true（如果未设置�?
             if (knowledge.getIsPublished() == null) {
                 knowledge.setIsPublished(true);
             }
@@ -197,7 +197,7 @@ public class KnowledgeController {
     }
 
     /**
-     * 根据登录用户查询知识（返回该专家的所有知识，包括未发布的）
+     * 根据登录用户查询知识（返回该专家的所有知识，包括未发布的�?
      * GET /api/knowledge/selectByUsername/
      */
     @GetMapping("/selectByUsername")
@@ -208,7 +208,7 @@ public class KnowledgeController {
             Long userId = com.farmporject.backend.security.UserContext.getCurrentUserId();
             if (userId == null) {
                 resp.put("flag", false);
-                resp.put("message", "用户未登录");
+                resp.put("message", "用户未登�?");
                 return ResponseEntity.status(401).body(resp);
             }
 
@@ -222,7 +222,7 @@ public class KnowledgeController {
             }
 
             Expert expert = expertOpt.get();
-            // 查询该专家的所有知识（包括未发布的）
+            // 查询该专家的所有知识（包括未发布的�?
             List<Knowledge> knowledgeList = knowledgeService.getAllKnowledgeByAuthor(expert);
 
             // 转换为DTO格式
