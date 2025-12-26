@@ -1,84 +1,62 @@
 // encoding: utf-8
-// Bank-side dashboard APIs with graceful fallbacks.
+// Bank-side dashboard APIs.
 import { request } from '../utils/request'
 
 export function getBankOverview() {
   return request({
     method: 'get',
-    url: 'api/bank/dashboard/overview',
+    url: '/api/bank/dashboard/overview',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
-  }).catch(() => ({
-    flag: true,
-    data: {
-      pendingLoans: 12,
-      matchedFarmers: 8,
-      riskAlerts: 2,
-      totalCredit: 56000000,
-      approvalRate: '92%',
-      avgProcessingTime: '1.6 ��'
-    }
-  }))
+  })
 }
 
 export function getBankLoans() {
   return request({
     method: 'get',
-    url: 'api/bank/dashboard/loans',
+    url: '/api/bank/dashboard/loans',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
-  }).catch(() => ({
-    flag: true,
-    data: []
-  }))
+  })
 }
 
 export function getBankMatches() {
   return request({
     method: 'get',
-    url: 'api/bank/dashboard/matches',
+    url: '/api/bank/dashboard/matches',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
-  }).catch(() => ({
-    flag: true,
-    data: []
-  }))
+  })
 }
 
-export function getBankAlerts() {
+export function getLoanStatusStats() {
   return request({
     method: 'get',
-    url: 'api/bank/dashboard/alerts',
+    url: '/api/bank/dashboard/stats',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
-  }).catch(() => ({
-    flag: true,
-    data: []
-  }))
+  })
 }
 
 export function getBankNotifications() {
   return request({
     method: 'get',
-    url: 'api/bank/dashboard/notifications',
+    url: '/api/bank/dashboard/notifications',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
-  }).catch(() => ({
-    flag: true,
-    data: []
-  }))
+  })
 }
 
 // 获取未分配的贷款（CREATED状态）
 export function getCreatedLoans() {
   return request({
     method: 'get',
-    url: 'api/finance/bank-review/loans/created',
+    url: '/api/finance/bank-review/loans/created',
     headers: {
       'Authorization': window.localStorage.token || ''
     }
@@ -89,7 +67,7 @@ export function getCreatedLoans() {
 export function getLoansByStatus(status, staffId) {
   return request({
     method: 'get',
-    url: 'api/finance/bank-review/loans/by-status',
+    url: '/api/finance/bank-review/loans/by-status',
     params: { status, staffId },
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -108,7 +86,7 @@ export function getLoansByStatuses(statuses, staffId) {
   
   return request({
     method: 'get',
-    url: `api/finance/bank-review/loans/by-statuses?${params.toString()}`,
+    url: `/api/finance/bank-review/loans/by-statuses?${params.toString()}`,
     headers: {
       'Authorization': window.localStorage.token || ''
     }
@@ -119,7 +97,7 @@ export function getLoansByStatuses(statuses, staffId) {
 export function assignLoan(loanId, operatorId) {
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/assign`,
+    url: `/api/finance/bank-review/applications/${loanId}/assign`,
     params: { operatorId },
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -128,15 +106,22 @@ export function assignLoan(loanId, operatorId) {
 }
 
 // 审核通过
-export function approveLoan(loanId, operatorId, remark) {
-  const params = { operatorId };
-  if (remark) {
-    params.remark = remark;
-  }
+export function approveLoan(data) {
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/approve`,
-    params: params,
+    url: `/api/finance/bank-review/applications/${data.loanId}/approve`,
+    data: data,
+    headers: {
+      'Authorization': window.localStorage.token || ''
+    }
+  })
+}
+
+// 审核申请人
+export function approveApplicant(loanId, userId) {
+  return request({
+    method: 'post',
+    url: `/api/finance/bank-review/applications/${loanId}/applicant/${userId}/approve`,
     headers: {
       'Authorization': window.localStorage.token || ''
     }
@@ -151,7 +136,7 @@ export function rejectLoan(loanId, operatorId, remark) {
   }
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/reject`,
+    url: `/api/finance/bank-review/applications/${loanId}/reject`,
     params: params,
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -163,7 +148,7 @@ export function rejectLoan(loanId, operatorId, remark) {
 export function commentLoan(loanId, operatorId, remark) {
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/comment`,
+    url: `/api/finance/bank-review/applications/${loanId}/comment`,
     params: { operatorId, remark },
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -179,7 +164,7 @@ export function signLoan(loanId, operatorId, remark) {
   }
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/sign`,
+    url: `/api/finance/bank-review/applications/${loanId}/sign`,
     params: params,
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -195,7 +180,7 @@ export function disburseLoan(loanId, operatorId, remark) {
   }
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/disburse`,
+    url: `/api/finance/bank-review/applications/${loanId}/disburse`,
     params: params,
     headers: {
       'Authorization': window.localStorage.token || ''
@@ -211,11 +196,10 @@ export function clearLoan(loanId, operatorId, remark) {
   }
   return request({
     method: 'post',
-    url: `api/finance/bank-review/applications/${loanId}/clear`,
+    url: `/api/finance/bank-review/applications/${loanId}/clear`,
     params: params,
     headers: {
       'Authorization': window.localStorage.token || ''
     }
   })
 }
-

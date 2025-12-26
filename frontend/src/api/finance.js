@@ -294,3 +294,15 @@ export function updateApplicantInfo(data) {
         },
     })
 }
+
+// 用户签约贷款
+export function signLoan(loanId, userId) {
+  return request({
+    method: 'post',
+    url: `api/finance/loans/${loanId}/user-sign`,
+    params: { userId },
+    headers: {
+      'Authorization': window.localStorage.token || ''
+    }
+  })
+}

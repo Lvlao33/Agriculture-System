@@ -127,9 +127,15 @@
             <div class="product-info">
               <div class="product-image">
                 <img 
-                  :src="order.image || ($store.state.imgShowRoad + '/file/' + (order.picture || order.pic))" 
+                  v-if="order.picture || order.image || order.imageUrl"
+                  :src="getImageUrl(order.picture || order.image || order.imageUrl)" 
                   :alt="order.productName || order.title"
                   @error="handleImageError"
+                />
+                <img 
+                  v-else
+                  src="/order/wutu.gif" 
+                  alt="暂无图片"
                 />
               </div>
               <div class="product-details">
@@ -423,9 +429,28 @@ export default {
       };
       return statusMap[status] || "交易成功";
     },
-    handleImageError(e) {
-      // 使用 require 引用本地资源，避免走代理
-      e.target.src = require("../assets/img/wutu.gif");
+    // 处理图片URL（参照商品详情页的实现）
+    getImageUrl(picture) {
+      if (!picture) return '/order/wutu.gif';
+      // 如果已经是完整URL，直接返回
+      if (picture.startsWith('http://') || picture.startsWith('https://')) {
+        return picture;
+      }
+      // 如果已经包含/order/前缀，直接返回
+      if (picture.startsWith('/order/')) {
+        return picture;
+      }
+      // 如果以/开头，直接返回
+      if (picture.startsWith('/')) {
+        return picture;
+      }
+      // 否则添加/order/前缀
+      return `/order/${picture}`;
+    },
+    // 图片加载错误处理
+    handleImageError(event) {
+      console.log('图片加载失败，使用默认图片', event.target.src);
+      event.target.src = '/order/wutu.gif';
     },
     async payOrder(order) {
       const orderId = order.id || order.orderId || order.order_id;
@@ -815,6 +840,18 @@ export default {
                 ? orderItems[0].productName || orderItems[0].name || orderItems[0].title
                 : (order.title || order.productName || order.name || '商品名称');
               
+              // 获取图片：优先从订单项中获取，其次从订单中获取
+              let picture = null;
+              if (orderItems.length > 0) {
+                // 从第一个订单项中获取图片（如果有）
+                const firstItem = orderItems[0];
+                picture = firstItem.imageUrl || firstItem.image || firstItem.picture || firstItem.img;
+              }
+              // 如果订单项中没有图片，从订单中获取
+              if (!picture) {
+                picture = order.picture || order.imageUrl || order.image || order.img;
+              }
+              
               return {
                 id: orderId,
                 orderId: orderId,
@@ -840,8 +877,9 @@ export default {
                 receiverName: order.receiverName || order.receiver_name,
                 receiverPhone: order.receiverPhone || order.receiver_phone,
                 orderItems: orderItems,
-                image: order.image || order.imageUrl || order.picture,
-                picture: order.picture || order.imageUrl || order.image,
+                image: picture,
+                picture: picture,
+                imageUrl: picture,
                 storeName: order.storeName || order.store_name || '店铺名称'
               };
             });

@@ -8,7 +8,12 @@
       @row-click="handleRowClick"
     >
       <el-table-column prop="id" label="ID" width="80" align="center" />
-      <el-table-column prop="applicantName" label="申请人" width="100" show-overflow-tooltip align="left" />
+      <el-table-column label="贷款提交人" width="130" show-overflow-tooltip align="left">
+        <template slot-scope="scope">
+          <span>{{ scope.row.applicantName }}</span>
+          <el-tag v-if="scope.row.loanUserStatuses && scope.row.loanUserStatuses.length >= 2" type="warning" size="mini" effect="plain" style="margin-left: 5px; padding: 0 4px; height: 18px; line-height: 16px;">联合</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="applicantPhone" label="电话" width="110" align="left" />
       <el-table-column label="金额" width="120" align="right">
         <template slot-scope="scope">

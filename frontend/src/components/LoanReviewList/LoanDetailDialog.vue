@@ -10,6 +10,7 @@
       <el-card class="detail-section" shadow="never">
         <div slot="header">
           <span>基本信息</span>
+          <el-tag v-if="loan.loanUserStatuses && loan.loanUserStatuses.length >= 2" type="warning" size="small" effect="plain" style="margin-left: 10px;">联合贷款</el-tag>
         </div>
         <el-descriptions :column="2" border>
           <el-descriptions-item label="贷款ID">{{ loan.id }}</el-descriptions-item>
@@ -27,6 +28,48 @@
           <el-descriptions-item label="贷款用途" :span="2">{{ loan.loanPurpose || "-" }}</el-descriptions-item>
           <el-descriptions-item label="备注" :span="2">{{ loan.remark || "-" }}</el-descriptions-item>
         </el-descriptions>
+
+
+      </el-card>
+
+      <!-- 申请人信息 -->
+      <el-card class="detail-section" shadow="never">
+        <div slot="header">
+          <span>申请人信息</span>
+        </div>
+        <el-table :data="loan.loanUserStatuses || []" border style="width: 100%">
+          <el-table-column label="用户" width="150">
+            <template slot-scope="scope">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                 <el-avatar :size="24" :src="scope.row.user && scope.row.user.avatar"></el-avatar>
+                 <span>{{ scope.row.user ? (scope.row.user.nickname || scope.row.user.username) : '未知' }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="姓名" width="100"></el-table-column>
+          <el-table-column prop="phone" label="电话" width="120"></el-table-column>
+          <el-table-column label="分担金额" width="120">
+            <template slot-scope="scope">¥{{ formatAmount(scope.row.amount) }}</template>
+          </el-table-column>
+          <el-table-column prop="purpose" label="用途" show-overflow-tooltip></el-table-column>
+          <el-table-column label="状态" width="100" align="center">
+            <template slot-scope="scope">
+               <el-tag :type="getStatusType(scope.row.status)" size="small">{{ getStatusText(scope.row.status) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100" align="center" fixed="right" v-if="status === 'REVIEWING'">
+            <template slot-scope="scope">
+              <el-button 
+                v-if="scope.row.status !== 'APPROVED'" 
+                type="success" 
+                size="mini" 
+                plain
+                @click="handleApproveApplicant(scope.row)"
+              >通过</el-button>
+              <span v-else style="color: #67C23A; font-size: 12px;">已通过</span>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-card>
 
       <!-- 文件资料 (仅REVIEWING状态显示) -->
@@ -73,7 +116,8 @@
 
         <!-- APPROVED状态：签约、联系客户 -->
         <template v-if="status === 'APPROVED'">
-          <el-button type="primary" @click="showSignDialog = true">签约</el-button>
+          <!-- 银行端取消签约按钮，只显示联系客户 -->
+          <!-- <el-button type="primary" @click="showSignDialog = true">签约</el-button> -->
           <el-button @click="handleContact">联系客户</el-button>
         </template>
 
@@ -98,20 +142,39 @@
 
     <!-- 审核通过对话框 -->
     <el-dialog
-      title="审核通过"
+      title="审核通过 - 确认条款"
       :visible.sync="showApproveDialog"
-      width="500px"
+      width="600px"
       append-to-body
     >
-      <el-input
-        v-model="approveRemark"
-        type="textarea"
-        :rows="4"
-        placeholder="请输入备注（可选）"
-      />
+      <el-form :model="approvalForm" label-width="120px" size="small">
+        <el-form-item label="贷款金额">
+           <el-input-number v-model="approvalForm.loanAmount" :precision="2" :step="1000" style="width: 100%"></el-input-number>
+        </el-form-item>
+        <el-form-item label="贷款期限(月)">
+           <el-input-number v-model="approvalForm.loanTermMonths" :min="1" style="width: 100%"></el-input-number>
+        </el-form-item>
+        <el-form-item label="年利率(%)">
+           <el-input-number v-model="approvalForm.interestRate" :precision="2" :step="0.1" :max="100" style="width: 100%"></el-input-number>
+        </el-form-item>
+        <el-form-item label="还款截止日期">
+           <el-date-picker v-model="approvalForm.repaymentDueDate" type="date" placeholder="选择日期" value-format="yyyy-MM-dd" style="width: 100%"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="预计放款日期">
+           <el-date-picker v-model="approvalForm.disbursementDate" type="datetime" placeholder="选择日期时间" value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%"></el-date-picker>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input
+            v-model="approveRemark"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入备注（可选）"
+          />
+        </el-form-item>
+      </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="showApproveDialog = false">取消</el-button>
-        <el-button type="success" @click="confirmApprove">确认</el-button>
+        <el-button type="success" @click="confirmApprove">确认通过</el-button>
       </div>
     </el-dialog>
 
@@ -214,6 +277,7 @@
 
 <script>
 import { getLoanFiles } from "../../api/loan";
+import { approveApplicant } from "../../api/bank";
 
 export default {
   name: "LoanDetailDialog",
@@ -247,7 +311,15 @@ export default {
       commentRemark: "",
       signRemark: "",
       disburseRemark: "",
-      clearRemark: ""
+      disburseRemark: "",
+      clearRemark: "",
+      approvalForm: {
+        loanAmount: 0,
+        loanTermMonths: 0,
+        interestRate: 0,
+        repaymentDueDate: "",
+        disbursementDate: ""
+      }
     };
   },
   watch: {
@@ -255,6 +327,14 @@ export default {
       this.dialogVisible = val;
       if (val && this.loan) {
         this.loadFiles();
+        // 初始化审批表单
+        this.approvalForm = {
+          loanAmount: this.loan.loanAmount,
+          loanTermMonths: this.loan.loanTermMonths,
+          interestRate: this.loan.interestRate,
+          repaymentDueDate: this.loan.repaymentDueDate,
+          disbursementDate: this.loan.disbursementDate
+        };
       }
     },
     dialogVisible(val) {
@@ -337,8 +417,40 @@ export default {
     handleAssign() {
       this.$emit("assign", this.loan);
     },
+    async handleApproveApplicant(userStatus) {
+      try {
+        const res = await approveApplicant(this.loan.id, userStatus.user.id);
+        if (res && res.flag) {
+          this.$message.success("申请人审核通过");
+          // 更新本地状
+          userStatus.status = 'APPROVED';
+          // 也可以重新加载 loan 详情，这里简单处理
+        } else {
+          this.$message.error(res?.message || "操作失败");
+        }
+      } catch (err) {
+        this.$message.error("操作失败");
+        console.error(err);
+      }
+    },
     confirmApprove() {
-      this.$emit("approve", this.loan, this.approveRemark);
+      // 构建 Approval DTO 数据
+      // 把 remark 放入 DTO
+      const approvalData = {
+        loanId: this.loan.id,
+        remark: this.approveRemark,
+        ...this.approvalForm
+      };
+      
+      // 注意：这里需要修改父组件的调用方式或直接在这里调用API，
+      // 原来的 emit('approve') 只传了 loan 和 remark。
+      // 为了最小化改动，我们可以把 approvalData 传出去，让父组件处理 API 调用，或者直接在这里调用。
+      // 这里的父组件是 LoanReviewList.vue，它的 handleApprove 只接受 (loan, remark)。
+      // 我们可以修改 $emit 以传递更多数据，或者重载 handleApprove。
+      // 鉴于 LoanReviewList.vue 是外部传入的，我们可以修改 emit 的参数。
+      // 但更好的是修改 LoanReviewList.vue 的 handleApprove 方法来支持 DTO。
+      this.$emit("approve", this.loan, approvalData); // Pass the whole object as the second arg (which was remark)
+      
       this.showApproveDialog = false;
       this.approveRemark = "";
     },

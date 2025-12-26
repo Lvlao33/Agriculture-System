@@ -142,6 +142,23 @@ public class OrderCompatController {
                 return ResponseEntity.badRequest().body(response);
             }
 
+            // 库存解析
+            Integer stock = 0;
+            Object stockObj = requestBody.get("stock");
+            if (stockObj instanceof Number) {
+                stock = ((Number) stockObj).intValue();
+            } else if (stockObj instanceof String) {
+                try {
+                    stock = Integer.parseInt((String) stockObj);
+                } catch (NumberFormatException e) {
+                    // 使用默认值0
+                }
+            }
+            // 库存不能为负数
+            if (stock < 0) {
+                stock = 0;
+            }
+
             Product product = new Product();
             product.setName(name);
             product.setDescription(description);
@@ -149,7 +166,7 @@ public class OrderCompatController {
             product.setImageUrl(imageUrl);
             product.setCategory(category);
             product.setSellerId(sellerId);
-            product.setStock(0);
+            product.setStock(stock); // 设置库存
             product.setIsAvailable(true);
 
             System.out.println("准备保存商品到数据库...");
@@ -390,9 +407,30 @@ public class OrderCompatController {
         orderMap.put("paymentMethod", order.getPaymentMethod());
         orderMap.put("paymentStatus", order.getPaymentStatus());
         
-        // 添加订单项
+        // 添加订单项，并为每个订单项添加商品图片信息
         List<com.farmporject.backend.trade.model.OrderItem> orderItems = orderService.getOrderItems(order.getId());
-        orderMap.put("orderItems", orderItems);
+        List<Map<String, Object>> orderItemsWithImage = new ArrayList<>();
+        for (com.farmporject.backend.trade.model.OrderItem item : orderItems) {
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("id", item.getId());
+            itemMap.put("orderId", item.getOrderId());
+            itemMap.put("productId", item.getProductId());
+            itemMap.put("productName", item.getProductName());
+            itemMap.put("productPrice", item.getProductPrice());
+            itemMap.put("quantity", item.getQuantity());
+            itemMap.put("subtotal", item.getSubtotal());
+            // 查询商品图片
+            try {
+                var productOpt = productService.getProductById(item.getProductId());
+                if (productOpt.isPresent()) {
+                    itemMap.put("imageUrl", productOpt.get().getImageUrl());
+                }
+            } catch (Exception e) {
+                // 如果查询商品失败，忽略
+            }
+            orderItemsWithImage.add(itemMap);
+        }
+        orderMap.put("orderItems", orderItemsWithImage);
         
         // 为了兼容前端显示，添加一些额外字段
         if (orderItems != null && !orderItems.isEmpty()) {
@@ -402,6 +440,18 @@ public class OrderCompatController {
             orderMap.put("price", firstItem.getProductPrice());
             orderMap.put("quantity", orderItems.stream().mapToInt(item -> item.getQuantity()).sum());
             orderMap.put("count", orderItems.stream().mapToInt(item -> item.getQuantity()).sum());
+            
+            // 添加图片信息（从第一个订单项获取）
+            try {
+                var productOpt = productService.getProductById(firstItem.getProductId());
+                if (productOpt.isPresent()) {
+                    orderMap.put("imageUrl", productOpt.get().getImageUrl());
+                    orderMap.put("picture", productOpt.get().getImageUrl());
+                    orderMap.put("image", productOpt.get().getImageUrl());
+                }
+            } catch (Exception e) {
+                // 如果查询商品失败，忽略
+            }
         } else {
             orderMap.put("title", "商品名称");
             orderMap.put("productName", "商品名称");
