@@ -17,15 +17,6 @@
             <el-button type="success" icon="el-icon-s-shop" @click="goToGoods">查看货源</el-button>
           </div>
         </div>
-        <div class="hero-steps">
-          <div class="step-card" v-for="step in processSteps" :key="step.title">
-            <div class="step-icon">{{ step.icon }}</div>
-            <div class="step-info">
-              <div class="step-title">{{ step.title }}</div>
-              <div class="step-desc">{{ step.desc }}</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -114,7 +105,6 @@
                 <span><i class="el-icon-time"></i> 截止 {{ formatDate(item.deadline) }}</span>
               </div>
               <div class="footer-actions">
-                <el-button type="primary" size="mini" @click.stop="contactBuyer(item)">联系采购</el-button>
                 <el-button size="mini" @click.stop="openDemandDetail(item)">查看详情</el-button>
               </div>
             </div>
@@ -128,18 +118,6 @@
 
       <!-- 侧边栏 -->
       <div class="side-column">
-        <div class="info-card">
-          <div class="card-title">采购流程  一目了然</div>
-          <div class="timeline">
-            <div class="timeline-step" v-for="(step, index) in demandFlow" :key="index">
-              <div class="step-index">{{ index + 1 }}</div>
-              <div class="step-body">
-                <div class="step-title">{{ step.title }}</div>
-                <div class="step-desc">{{ step.desc }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="info-card">
           <div class="card-title">数据统计</div>
           <div class="stats">
@@ -192,8 +170,7 @@
         </div>
         <div class="drawer-section">
           <div class="section-subtitle">立即行动</div>
-          <el-button type="primary" icon="el-icon-phone" @click="contactBuyer(activeDemand)">立即联系</el-button>
-          <el-button icon="el-icon-share" style="margin-left:12px;">分享需求</el-button>
+          <el-button icon="el-icon-share">分享需求</el-button>
         </div>
       </div>
     </el-drawer>
@@ -231,19 +208,6 @@ export default {
       ],
       detailDrawerVisible: false,
       activeDemand: null,
-      processSteps: [
-        { icon: "📝", title: "发布需求", desc: "填写需求信息确认产品品类、要求" },
-        { icon: "🔍", title: "智能匹配", desc: "平台智能匹配和推荐对口供应商" },
-        { icon: "💬", title: "在线沟通", desc: "支持在线沟通及时确认细节" },
-        { icon: "🤝", title: "签约合作", desc: "确认最终价格细节签订合同" }
-      ],
-      demandFlow: [
-        { title: "发布需求", desc: "采购方在平台发布" },
-        { title: "供应商响应", desc: "供应商查看并响应" },
-        { title: "确认细节", desc: "确认价格细节、质量" },
-        { title: "签订合同", desc: "在线签订合同" },
-        { title: "完成交易", desc: "货物交付完成" }
-      ],
       stats: [
         { label: "今日需求", value: 0 },
         { label: "紧急采购", value: 0 },
@@ -469,9 +433,6 @@ export default {
     goToGoods() {
       this.$router.push("/home/goods").catch((err) => err);
     },
-    contactBuyer(item) {
-      this.$message.info(`请登录查看 ${item.publisher} 联系方式`);
-    },
     openDemandDetail(item) {
       this.activeDemand = item;
       this.detailDrawerVisible = true;
@@ -599,42 +560,6 @@ export default {
   .hero-actions {
     display: flex;
     gap: 12px;
-  }
-
-  .hero-steps {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(200px, 1fr));
-    gap: 12px;
-  }
-
-  .step-card {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    padding: 12px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .step-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .step-title {
-    font-weight: bold;
-    font-size: 14px;
-  }
-
-  .step-desc {
-    font-size: 12px;
-    opacity: 0.9;
   }
 }
 
@@ -783,43 +708,6 @@ export default {
     font-weight: bold;
     margin-bottom: 15px;
     font-size: 16px;
-  }
-}
-
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.timeline-step {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-
-  .step-index {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #409eff;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-
-  .step-title {
-    font-weight: bold;
-    font-size: 13px;
-    margin-bottom: 4px;
-  }
-
-  .step-desc {
-    font-size: 12px;
-    color: #606266;
-    line-height: 1.4;
   }
 }
 
