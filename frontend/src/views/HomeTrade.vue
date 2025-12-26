@@ -517,9 +517,13 @@ export default {
               font-size: 14px;
               color: #333;
               margin-bottom: 8px;
+              /* 支持最多两行显示，超出使用省略号；在需要时也可以换行显示 */
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
               overflow: hidden;
               text-overflow: ellipsis;
-              white-space: nowrap;
+              word-break: break-word;
             }
 
             .purchase-meta {

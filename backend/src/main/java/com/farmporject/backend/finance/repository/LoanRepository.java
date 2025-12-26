@@ -27,4 +27,10 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     // 根据多个状态和负责人员查询贷款列表
     List<Loan> findByStatusInAndStaff(List<Status> statuses, User staff);
+
+    // 计算指定状态的贷款数量
+    long countByStatus(Status status);
+
+    // 查询指定状态且创建时间最早的三条记录
+    List<Loan> findFirst3ByStatusOrderByApplicationDateAsc(Status status);
 }

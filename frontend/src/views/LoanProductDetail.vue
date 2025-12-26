@@ -1,6 +1,10 @@
 <template>
   <div class="loan-product-detail">
-    <div class="detail-container">
+  <div class="detail-container">
+      <!-- 返回按钮 -->
+      <div class="top-actions">
+        <el-button class="back-button" type="text" icon="el-icon-arrow-left" @click="goBack">返回</el-button>
+      </div>
       <!-- 产品基本信息 -->
       <div class="product-info-section">
         <div class="section-header">
@@ -145,6 +149,15 @@ export default {
       const productId = this.product.id || this.product.name;
       this.$router.push(`/home/loanApply/${productId}`);
     }
+    ,
+    goBack() {
+      // 优先使用历史后退，回退不可用时兜底到贷款列表页
+      if (window.history && window.history.length > 1) {
+        this.$router.back();
+      } else {
+        this.$router.push('/home/finance/loans');
+      }
+    }
   }
 }
 </script>
@@ -164,6 +177,24 @@ export default {
   border-radius: 8px;
   padding: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 返回按钮样式 */
+.top-actions {
+  margin-bottom: 8px;
+}
+
+.back-button {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+  color: white;
+  font-size: 14px;
+  padding: 8px 16px;
+
+  &:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+  }
 }
 
 .product-info-section {

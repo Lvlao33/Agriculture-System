@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.farmporject.backend.finance.service.LoanService;
 import com.farmporject.backend.finance.model.Status;
+import com.farmporject.backend.finance.dto.LoanApprovalDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -120,14 +121,38 @@ public class BankReviewController {
      * 审核通过
      */
     @PostMapping("/applications/{id}/approve")
-    public ResponseEntity<?> approve(@PathVariable String id, @RequestParam Long operatorId,
-            @RequestParam(required = false) String remark) {
+    public ResponseEntity<?> approve(@PathVariable String id, @RequestBody LoanApprovalDTO approvalDTO) {
         try {
-            String remarkText = remark != null ? remark : "审核通过";
-            if (loanService.submitByLoanId(Long.parseLong(id), Status.APPROVED, operatorId, remarkText)) {
+            approvalDTO.setLoanId(Long.parseLong(id));
+            if (loanService.approveLoan(approvalDTO)) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("flag", true);
                 response.put("message", "审核通过");
+                return ResponseEntity.ok().body(response);
+            } else {
+                Map<String, Object> response = new HashMap<>();
+                response.put("flag", false);
+                response.put("message", "审核失败");
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("flag", false);
+            response.put("message", "审核失败: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 审核申请人
+     */
+    @PostMapping("/applications/{id}/applicant/{userId}/approve")
+    public ResponseEntity<?> approveApplicant(@PathVariable String id, @PathVariable String userId) {
+        try {
+            if (loanService.approveApplicant(Long.parseLong(id), Long.parseLong(userId))) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("flag", true);
+                response.put("message", "申请人审核通过");
                 return ResponseEntity.ok().body(response);
             } else {
                 Map<String, Object> response = new HashMap<>();

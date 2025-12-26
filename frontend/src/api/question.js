@@ -1,22 +1,22 @@
 import { request } from '../utils/request'
 
-// ¸ù¾ÝÓÃ»§Ãû²éÑ¯ÎÊ´ð  kind£ºÆÕÍ¨ÓÃ»§£ºquestioner£»×¨¼Ò£ºexpert
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯ï¿½Ê´ï¿½  kindï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ã»ï¿½ï¿½ï¿½questionerï¿½ï¿½×¨ï¿½Ò£ï¿½expert
 export function selectQuestionByUser(params) {
   return request({
       method: 'get',
-      url: `/question/selectByKind/` + params.role,
+      url: `/api/question/selectByKind/` + params.role,
       headers: {
           'Authorization': window.localStorage.token,
       },
-      // data:params ¿´Í¼Æ¬ÌØµã£¬Ò»°ãÉ³Ä®ÎªÒ»ÖÜÒ»´Î
+      // data:params ï¿½ï¿½Í¼Æ¬ï¿½Øµã£¬Ò»ï¿½ï¿½É³Ä®ÎªÒ»ï¿½ï¿½Ò»ï¿½ï¿½
   })
 }
 
-// ²éÑ¯ÎÊ´ð¸ù¾Ýid
+// ï¿½ï¿½Ñ¯ï¿½Ê´ï¿½ï¿½ï¿½ï¿½id
 export function selectQuestionByUserId(params) {
   return request({
       method: 'get',
-      url: `/question/selectId/{params.id}`,
+      url: `/api/question/selectId/${params.id}`,
       headers: {
           'Authorization': window.localStorage.token,
       },
@@ -24,11 +24,11 @@ export function selectQuestionByUserId(params) {
   })
 }
 
-// ¸ù¾ÝidÐÞ¸Ä
+// ï¿½ï¿½ï¿½ï¿½idï¿½Þ¸ï¿½
 export function reviseQuestionByUserId(params) {
   return request({
       method: 'put',
-      url: '/question/update',
+      url: '/api/question/update',
       headers: {
           'Authorization': window.localStorage.token,
       },
@@ -36,11 +36,11 @@ export function reviseQuestionByUserId(params) {
   })
 }
 
-// ¸ù¾ÝidÉ¾³ý
+// ï¿½ï¿½ï¿½ï¿½idÉ¾ï¿½ï¿½
 export function delQuestionByUserId(params) {
   return request({
       method: 'delete',
-      url: `/question/delete/${params.id}`,
+      url: `/api/question/delete/${params.id}`,
       headers: {
           'Authorization': window.localStorage.token,
       },
@@ -48,11 +48,11 @@ export function delQuestionByUserId(params) {
   })
 }
 
-// ¸ù¾ÝÓÃ»§Ãû²éÑ¯Ô¤Ô¼  kind£ºÆÕÍ¨ÓÃ»§£ºquestioner£»×¨¼Ò£ºexpert
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ô¤Ô¼  kindï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ã»ï¿½ï¿½ï¿½questionerï¿½ï¿½×¨ï¿½Ò£ï¿½expert
 export function selectAppointByUser(params) {
   return request({
       method: 'get',
-      url: `/reserve/selectByKind/${params.type}`,
+      url: `/api/reserve/selectByKind/${params.type}`,
       headers: {
           'Authorization': window.localStorage.token,
       },
@@ -60,11 +60,11 @@ export function selectAppointByUser(params) {
   })
 }
 
-// ¸ù¾ÝidÐÞ¸ÄÔ¤Ô¼
+// ï¿½ï¿½ï¿½ï¿½idï¿½Þ¸ï¿½Ô¤Ô¼
 export function reviseAppointByUserId(params) {
   return request({
       method: 'put',
-      url: '/reserve/update',
+      url: '/api/reserve/update',
       headers: {
           'Authorization': window.localStorage.token,
       },
@@ -72,11 +72,11 @@ export function reviseAppointByUserId(params) {
   })
 }
 
-// ¸ù¾ÝidÉ¾³ýÔ¤Ô¼
+// ï¿½ï¿½ï¿½ï¿½idÉ¾ï¿½ï¿½Ô¤Ô¼
 export function delAppointByUserId(params) {
   return request({
       method: 'delete',
-      url: `/reserve/delete/${params.id}`,
+      url: `/api/reserve/delete/${params.id}`,
       headers: {
           'Authorization': window.localStorage.token,
       },

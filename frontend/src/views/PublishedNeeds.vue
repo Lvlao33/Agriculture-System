@@ -206,9 +206,11 @@ export default {
 
 <style lang="less" scoped>
 .published-needs-container {
-  width: 1100px;
+  width: 900px;
+  max-width: calc(100% - 160px);
   margin: 0 auto;
-  padding: 30px;
+  padding: 16px 24px 30px 24px;
+  padding-right: 80px; /* 给右侧浮标留出安全区域，避免遮挡内容 */
   background: #fff;
   min-height: 100vh;
 
@@ -216,9 +218,9 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
 
     h2 {
       font-size: 24px;

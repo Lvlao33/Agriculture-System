@@ -222,9 +222,13 @@ export default {
         this.$message.error("分配失败");
       }
     },
-    async handleApprove(loan, remark) {
+    async handleApprove(loan, data) {
       try {
-        const res = await approveLoan(loan.id, this.currentUserId, remark);
+        const payload = {
+          ...data,
+          operatorId: this.currentUserId
+        };
+        const res = await approveLoan(payload);
         if (res && res.flag) {
           this.$message.success("审核通过");
           await this.loadAllLoans();

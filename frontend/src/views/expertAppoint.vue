@@ -1,46 +1,32 @@
 <!--专家问答-->
 <template>
   <div class="expert-appoint-container">
-    <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
-      <div class="appoint-content">
-        <div class="title">{{item.plantName}}</div>
-        <div class="content">{{item.plantDetail}}</div>
-        <div class="item-container">
-          <div class="item-content marginR30" v-if="role==='expert'">
-            <div class="item-title">咨询者：</div>
-            <div class="item-text">{{item.questioner}}</div> 
-          </div>
-          <div class="item-content marginR30" v-if="role==='expert'">
-            <div class="item-title">咨询者联系方式：</div>
-            <div class="item-text">{{item.phone}}</div> 
-          </div>
-          <div class="item-content marginR30" v-if="role==='questioner'">
-            <div class="item-title">专家姓名：</div>
-            <span class="item-text">{{item.expertName}}</span>
-          </div>
-        </div>
-        <div class="item-container">
-          <div class="item-content marginR30">
-            <div class="item-title">作物条件：</div>
-            <span class="item-text">{{item.plantCondition}}</span> 
-          </div>
-          <div class="item-content marginR30">
-            <div class="item-title">土壤条件：</div>
-            <div class="item-text" :title="item.soilCondition">{{item.soilCondition}}</div>
-          </div>
-          <div class="item-content marginR30">
-            <div class="item-title">面积：</div>
-            <div class="item-text">{{item.area}}亩</div> 
-          </div>
-          <el-tag style="position:relative;left:360px" :type="item.status === 0 ? 'danger':'success'" size="mini">{{item.status === 0 ? '未回答' :'已回答'}}</el-tag>
-        </div>
-      </div>
-      <div class="appoint-btn">
-        <div class="btn-text" @click="handleDetail(item)">详情</div>
-        <div class="btn-text" @click="handleEdit(item)">修改</div>
-        <div class="btn-text" @click="delAppoint(item)">删除</div>
-      </div>
+    <div class="page-header">
+      <h2 class="page-title"><i class="el-icon-date"></i> 我的预约</h2>
+      <p class="page-desc">在此查看您提交或收到的预约，专家确认后状态会更新。</p>
     </div>
+    <div class="appoints-wrapper">
+      <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
+        <div class="appoint-card">
+          <div class="appoint-main">
+            <h3 class="appoint-title" @click="handleDetail(item)">{{ truncateText(item.plantDetail || item.description || item.plantName || item.title || '预约详情', 8) }}</h3>
+            <div class="appoint-meta">
+              <span class="meta-item"><i class="el-icon-user"></i> 咨询者：{{ item.questioner || item.userName || '匿名用户' }}</span>
+              <span class="meta-item" v-if="item.phone"><i class="el-icon-phone"></i> 联系：{{ item.phone }}</span>
+              <span class="meta-item"><i class="el-icon-time"></i> 时间：{{ formatDate(item.appointmentTime || item.startTime || item.createTime) }}</span>
+            </div>
+            <div class="appoint-desc">{{ item.plantDetail || item.description || '' }}</div>
+          </div>
+          <div class="appoint-side">
+            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? '待确认' : '已确认' }}</el-tag>
+          </div>
+        </div>
+        <div class="appoint-actions">
+          <el-button type="text" @click="handleDetail(item)">详情</el-button>
+          <el-button type="text" @click="handleEdit(item)">修改</el-button>
+          <el-button type="text" style="color:#f56c6c" @click="delAppoint(item)">删除</el-button>
+        </div>
+      </div>
     <el-dialog title="详情" v-model:visible="showDetail" width="600px" :before-close="detailClose">
       <div class="detail-content">
         <div class="detail-item">
@@ -134,11 +120,13 @@
         <el-button type="primary" @click="submitRevise">确 定</el-button>
       </span>
     </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
 import { selectAppointByUser,reviseAppointByUserId,delAppointByUserId } from '../api/question.js'
+import { getAppointmentListByUserId } from '@/api/appointment'
 
 export default {
   data(){
@@ -156,16 +144,47 @@ export default {
     }
   },
   methods:{
-    getData(){
+    async getData(){
       this.role =  this.$store.getters.isExpert?'expert':'questioner'
-      
-      // kind：普通用户：questioner；专家：expert
-      selectAppointByUser({type:this.role}).then(res => {
-        console.log('rererer',res)
-        this.appointArray = res.data
-      }).catch(err=>{
-        console.log(err)
-      })
+      const userId = this.$store.state.loginUserId
+      try {
+        if (userId) {
+          const res = await getAppointmentListByUserId(userId)
+          let list = []
+          if (res) {
+            if (res.flag === true && res.data) {
+              list = Array.isArray(res.data) ? res.data : (res.data.list || [])
+            } else if (Array.isArray(res.data)) {
+              list = res.data
+            } else if (Array.isArray(res)) {
+              list = res
+            } else if (res.data && Array.isArray(res.data.list)) {
+              list = res.data.list
+            }
+          }
+          this.appointArray = list || []
+        } else {
+          this.appointArray = []
+        }
+      } catch (err) {
+        console.error('加载预约列表失败：', err)
+        this.appointArray = []
+      }
+    },
+    formatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      } catch (e) {
+        return dateStr;
+      }
     },
     delAppoint(item){
       this.$confirm('确认删除该行信息？', '删除', {
@@ -213,6 +232,13 @@ export default {
         console.log(err)
       })
     }
+    ,
+    truncateText(text, maxLen = 8) {
+      if (!text && text !== 0) return ''
+      const s = String(text)
+      if (s.length <= maxLen) return s
+      return s.slice(0, maxLen) + '...'
+    }
   },
   mounted(){
     this.$store.commit("updateUserActiveIndex", "4-2");
@@ -223,80 +249,109 @@ export default {
 
 <style lang="less" scoped>
 .expert-appoint-container{
-  width: 900px;
+  width: 100%;
   min-height: 100%;
-  // padding: 10px 20px;
-  background: #fff;
-  .appoint-item{
-    border:1px solid #f2f2f2;
-    border-radius: 6px;
+  background: #f5f7f9;
+  padding: 12px 0;
+
+  .appoints-wrapper {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .page-header {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto 12px auto;
     padding: 10px 20px;
-    margin: 10px 20px;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    .appoint-content{
-      width: 650px;
-      .title{
-        font-weight: bold;
-        font-size: 18px;
-        line-height: 30px;
-        height: 30px;
-      }
-      .content{
-        line-height: 25px;
-        height: auto;
-        word-break: break-all;
-      }
-      .item-container{
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        font-size: 12px;
-        line-height: 20px;
-        .item-content{
+    flex-direction: column;
+    gap: 6px;
+    h2.page-title {
+      font-size: 22px;
+      margin: 0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-desc {
+      margin: 0;
+      color: #666;
+      font-size: 13px;
+    }
+  }
+  .appoint-item {
+    margin: 12px 0;
+
+    .appoint-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid #e9eef1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+
+      .appoint-main {
+        flex: 1;
+        padding-right: 12px;
+
+        .appoint-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #222;
+          margin: 0 0 8px 0;
+          cursor: pointer;
+        }
+
+        .appoint-meta {
           display: flex;
-          flex-direction: row;
-          justify-content: flex-start;
+          gap: 16px;
           align-items: center;
+          color: #6b6f7b;
+          font-size: 13px;
         }
-        .item-title{
-          max-width: 100px;
+
+        .appoint-desc {
+          margin-top: 8px;
+          color: #666;
+          line-height: 1.6;
         }
       }
-      .marginR30{
-        margin-right: 30px;
-      }
-      .item-text{
-        color: #666;
-        max-width: 200px;
-        /*超出的部分隐藏*/
-        overflow: hidden;
-        /*文字用省略号替代超出的部分*/
-        text-overflow: ellipsis;
-        /*弹性伸缩盒子模型显示*/
-        display: -webkit-box;
-        /*限制在一个块元素显示文本的行数*/
-        -webkit-line-clamp: 1;
-        /*设置或检索伸缩盒对象的子元素排列方式*/
-        -webkit-box-orient: vertical;
-        word-break: break-all;
+
+      .appoint-side {
+        display: flex;
+        align-items: flex-start;
       }
     }
-    .appoint-btn{
+
+    .appoint-actions {
       display: flex;
-      .btn-text{
-        height: 25px;
-        cursor: pointer;
-        margin-right: 10px;
-        color: #67C23A;
-        &:hover{
-          color: #035D1C;
-          text-decoration: underline;
-        }
-      }
+      gap: 8px;
+      padding: 6px 10px;
+      align-items: center;
+    }
+
+    .appoint-actions ::v-deep .el-button {
+      border: 1px solid #e6e6e6;
+      background: #fff;
+      color: #333;
+      border-radius: 6px;
+      padding: 6px 12px;
+      min-width: 56px;
+      box-shadow: none;
+    }
+
+    .appoint-actions ::v-deep .el-button:hover {
+      background: #fafafa;
+      border-color: #dcdfe6;
     }
   }
   .detail-content{
@@ -321,4 +376,5 @@ export default {
     }
   }
 }
+</style>
 </style>

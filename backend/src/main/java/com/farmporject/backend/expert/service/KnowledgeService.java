@@ -2,6 +2,7 @@ package com.farmporject.backend.expert.service;
 
 import com.farmporject.backend.expert.model.Knowledge;
 import com.farmporject.backend.expert.model.Expert;
+import com.farmporject.backend.expert.dto.KnowledgeDTO;
 import com.farmporject.backend.expert.repository.KnowledgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -146,9 +147,41 @@ public class KnowledgeService {
         return knowledgeRepository.findTop10ByIsPublishedTrueOrderByViewCountDesc();
     }
 
-    // 鑾峰彇鏈€鏂扮煡璇?
-    public List<Knowledge> getRecentKnowledge() {
-        return knowledgeRepository.findTop10ByIsPublishedTrueOrderByCreateTimeDesc();
+    // 获取最新知识
+    // 用于首页展示
+    public List<KnowledgeDTO> getRecentKnowledge() {
+        return knowledgeRepository.findTop5ByIsPublishedTrueOrderByCreateTimeDesc()
+                .stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    private KnowledgeDTO toDTO(Knowledge knowledge) {
+        if (knowledge == null)
+            return null;
+        KnowledgeDTO dto = new KnowledgeDTO();
+        dto.setKnowledgeId(knowledge.getKnowledgeId());
+        dto.setTitle(knowledge.getTitle());
+        dto.setContent(knowledge.getContent());
+        dto.setSummary(knowledge.getSummary());
+        dto.setCategories(knowledge.getCategories());
+        dto.setTags(knowledge.getTags());
+        dto.setSource(knowledge.getSource());
+        dto.setPicPath(knowledge.getPicPath());
+        dto.setUrl(knowledge.getUrl());
+        dto.setViewCount(knowledge.getViewCount());
+        dto.setLikeCount(knowledge.getLikeCount());
+        dto.setIsPublished(knowledge.getIsPublished());
+        dto.setCreateTime(knowledge.getCreateTime());
+        dto.setUpdateTime(knowledge.getUpdateTime());
+
+        if (knowledge.getAuthor() != null) {
+            dto.setAuthorId(knowledge.getAuthor().getId());
+            dto.setAuthorName(knowledge.getAuthor().getName());
+            dto.setAuthorAvatar(knowledge.getAuthor().getAvatar());
+        }
+
+        return dto;
     }
 
     // 鐐硅禐鐭ヨ瘑

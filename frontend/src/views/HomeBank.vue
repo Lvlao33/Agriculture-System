@@ -4,14 +4,11 @@
       <div class="hero-text">
         <p class="hero-badge">银行端 · 融资管理</p>
         <h1>欢迎回来，金融服务专员！</h1>
-        <p class="hero-desc">今日共有 {{ overview.pendingLoans }} 笔贷款待审核，匹配成功 {{ overview.matchedFarmers }} 户农户。请优先处理高优先级业务。</p>
+        <p class="hero-desc">今日共有 {{ overview.pendingLoans }} 笔贷款待审核，当前共 {{ overview.matchedFarmersIntention }} 个意向农户待处理。请优先处理高优先级业务。</p>
         <div class="hero-actions">
           <el-button type="primary" round @click="handleAction('loan')">进入审批列表</el-button>
-          <el-button type="success" round plain @click="handleAction('match')">智能匹配</el-button>
+          <el-button type="success" round plain @click="handleAction('unassigned')">智能匹配</el-button>
         </div>
-      </div>
-      <div class="hero-illustration">
-        <img src="/kn/bank-dashboard.svg" alt="bank dashboard" @error="handleImageError">
       </div>
     </div>
 
@@ -33,7 +30,7 @@
           <div class="loan-list">
             <div class="loan-item" v-for="loan in loanList" :key="loan.id">
               <div class="loan-info">
-                <div class="loan-title">{{ loan.farmer }} · {{ loan.product }}</div>
+                <div class="loan-title">{{ loan.farmer }} {{ loan.product }}</div>
                 <div class="loan-meta">
                   <span>金额：¥{{ loan.amount.toLocaleString() }}</span>
                   <span>期限：{{ loan.term }}</span>
@@ -48,22 +45,22 @@
 
         <section class="panel">
           <div class="panel-header">
-            <h2>智能匹配结果</h2>
-            <el-link type="primary" @click="handleAction('match')">查看匹配 ></el-link>
+            <h2>未分配贷款队列</h2>
+            <el-link type="primary" @click="handleAction('unassigned')">查看全部 ></el-link>
           </div>
           <div class="match-list">
-            <div class="match-item" v-for="match in matchList" :key="match.id">
+            <div class="match-item" v-for="loan in matchList" :key="loan.id">
               <div>
-                <div class="match-title">{{ match.farmer }} · {{ match.crop }}</div>
+                <div class="match-title">{{ loan.farmer }} {{ loan.product }}</div>
                 <div class="match-meta">
-                  <span>需求：¥{{ match.need.toLocaleString() }}</span>
-                  <span>信用等级：{{ match.credit }}</span>
-                  <span>匹配银行：{{ match.bank }}</span>
+                  <span>金额：¥{{ loan.amount ? loan.amount.toLocaleString() : '0' }}</span>
+                  <span>期限：{{ loan.term }}</span>
+                  <span>申请时间：{{ loan.time }}</span>
                 </div>
               </div>
-              <el-button size="mini" type="primary" @click="handleAssign(match)">分配客户经理</el-button>
+              <el-button size="mini" type="primary" @click="handleAssign(loan)">分配负责人</el-button>
             </div>
-            <div v-if="matchList.length === 0" class="empty">暂无匹配数据</div>
+            <div v-if="matchList.length === 0" class="empty">暂无待分配贷款</div>
           </div>
         </section>
 
@@ -84,20 +81,6 @@
       </div>
 
       <div class="side-col">
-        <section class="panel">
-          <div class="panel-header">
-            <h2>风险预警</h2>
-          </div>
-          <div class="alert-list">
-            <div class="alert-item" v-for="alert in alertList" :key="alert.id">
-              <div class="alert-title">{{ alert.title }}</div>
-              <div class="alert-meta">{{ alert.desc }}</div>
-              <span class="status-tag warning">{{ alert.level }}</span>
-            </div>
-            <div v-if="alertList.length === 0" class="empty">暂无风险提醒</div>
-          </div>
-        </section>
-
         <section class="panel">
           <div class="panel-header">
             <h2>工作日历</h2>
@@ -136,8 +119,8 @@ import {
   getBankOverview,
   getBankLoans,
   getBankMatches,
-  getBankAlerts,
-  getBankNotifications
+  getBankNotifications,
+  getLoanStatusStats
 } from "../api/bank";
 
 export default {
@@ -146,22 +129,14 @@ export default {
     return {
       overview: {
         pendingLoans: 0,
-        matchedFarmers: 0,
-        riskAlerts: 0,
-        totalCredit: 0,
-        approvalRate: "0%",
-        avgProcessingTime: "--"
+        unassignedLoans: 0,
+        matchedFarmersIntention: 0
       },
       loanList: [],
       matchList: [],
-      alertList: [],
       notices: [],
       calendar: [],
-      stages: [
-        { title: "资料初审", value: "18", percent: 82, color: "#409EFF" },
-        { title: "授信评估", value: "12", percent: 68, color: "#67C23A" },
-        { title: "放款执行", value: "5", percent: 42, color: "#E6A23C" }
-      ],
+      stages: [],
       fallbackLoans: [
         { id: "L001", farmer: "张家湾合作社", product: "智慧温室升级", amount: 1200000, term: "24 个月", time: "09:15", level: "urgent", levelText: "高优" },
         { id: "L002", farmer: "吴川果农", product: "柑橘冷链扩建", amount: 600000, term: "18 个月", time: "08:40", level: "normal", levelText: "常规" },
@@ -184,11 +159,9 @@ export default {
   computed: {
     statCards() {
       return [
-        { label: "待审批贷款", value: this.overview.pendingLoans, trend: "优先处理高优订单", trendClass: "warning" },
-        { label: "已匹配农户", value: this.overview.matchedFarmers, trend: "本周 +12%", trendClass: "positive" },
-        { label: "风险预警", value: this.overview.riskAlerts, trend: "需要复核", trendClass: "danger" },
-        { label: "在贷余额 (万)", value: (this.overview.totalCredit / 10000).toFixed(1), trend: `审批率 ${this.overview.approvalRate}`, trendClass: "neutral" },
-        { label: "平均时效", value: this.overview.avgProcessingTime, trend: "较上周 -0.3 天", trendClass: "positive" }
+        { label: "待审批贷款", value: this.overview.pendingLoans, trend: "需尽快进入审核", trendClass: "warning" },
+        { label: "未分配贷款", value: this.overview.unassignedLoans, trend: "等待接收审批", trendClass: "neutral" },
+        { label: "智能匹配意向农户", value: this.overview.matchedFarmersIntention, trend: "意向库记录数", trendClass: "positive" }
       ];
     }
   },
@@ -197,38 +170,41 @@ export default {
     this.loadOverview();
     this.loadLoans();
     this.loadMatches();
-    this.loadAlerts();
+    this.loadStatusStats();
     this.loadNotices();
     this.buildCalendar();
   },
   methods: {
     loadOverview() {
       getBankOverview().then((res) => {
-        if (res && res.flag && res.data) {
+        if (res && (res.success || res.flag) && res.data) {
           this.overview = res.data;
         }
+      }).catch(err => {
+        console.error("Failed to load overview:", err);
       });
     },
     loadLoans() {
       getBankLoans().then((res) => {
-        if (res && res.flag && Array.isArray(res.data) && res.data.length > 0) {
+        if (res && (res.success || res.flag) && Array.isArray(res.data)) {
           this.loanList = res.data;
-        } else {
-          this.loanList = this.fallbackLoans;
         }
-      }).catch(() => {
-        this.loanList = this.fallbackLoans;
+      }).catch(err => {
+        console.error("Failed to load loans:", err);
       });
     },
     loadMatches() {
       getBankMatches().then((res) => {
-        if (res && res.flag && Array.isArray(res.data) && res.data.length > 0) {
+        if (res && (res.success || res.flag) && Array.isArray(res.data)) {
           this.matchList = res.data;
-        } else {
-          this.matchList = this.fallbackMatches;
         }
-      }).catch(() => {
-        this.matchList = this.fallbackMatches;
+      });
+    },
+    loadStatusStats() {
+      getLoanStatusStats().then((res) => {
+        if (res && (res.success || res.flag) && Array.isArray(res.data)) {
+          this.stages = res.data;
+        }
       });
     },
     loadAlerts() {
@@ -244,7 +220,7 @@ export default {
     },
     loadNotices() {
       getBankNotifications().then((res) => {
-        if (res && res.flag && Array.isArray(res.data) && res.data.length > 0) {
+        if (res && (res.success || res.flag) && Array.isArray(res.data) && res.data.length > 0) {
           this.notices = res.data;
         } else {
           this.notices = this.fallbackNotices;
@@ -268,12 +244,12 @@ export default {
     handleAction(type) {
       if (type === "loan") {
         this.$router.push("/home/loanApply/overview").catch((err) => err);
-      } else if (type === "match") {
-        this.$router.push("/home/smartMatch").catch((err) => err);
+      } else if (type === "unassigned") {
+        this.$router.push("/home/loanApply/overview").catch((err) => err);
       }
     },
     handleAssign(match) {
-      this.$message.success(`已为 ${match.farmer} 创建分配任务`);
+      this.$router.push("/home/loanApply/overview").catch((err) => err);
     },
     handleImageError(event) {
       event.target.src = "/order/wutu.gif";

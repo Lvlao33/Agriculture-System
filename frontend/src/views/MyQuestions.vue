@@ -74,6 +74,7 @@
 
 <script>
 import { getQuestionsList } from '@/api/qa'
+import { selectQuestionByUser } from '@/api/question'
 
 export default {
   name: 'MyQuestions',
@@ -99,54 +100,26 @@ export default {
           pageSize: 1000,
           mine: true
         })
-        console.log('=== 获取我的问题 ===')
-        console.log('返回的原始数据:', JSON.stringify(res, null, 2))
-        console.log('Token:', localStorage.getItem('token'))
-        console.log('res类型:', typeof res)
-        console.log('res.data类型:', typeof res?.data)
-        console.log('res.data是否为数组:', Array.isArray(res?.data))
-        
-        // 处理不同的返回格式
+        console.log('=== 获取我的问题 ===', res)
         let list = []
         if (res) {
-          // 后端返回格式: { flag: true, data: [...], total: x, pageNum: x, pageSize: x }
           if (res.flag && res.data && Array.isArray(res.data)) {
             list = res.data
-            console.log('使用 res.data，数量:', list.length)
-          }
-          // ApiResponse格式: { success: true, data: [...], message: "OK" }
-          else if (res.data && Array.isArray(res.data)) {
+          } else if (res.data && Array.isArray(res.data)) {
             list = res.data
-            console.log('使用 res.data (无flag)，数量:', list.length)
-          } 
-          // 直接是数组
-          else if (Array.isArray(res)) {
+          } else if (Array.isArray(res)) {
             list = res
-            console.log('res本身是数组，数量:', list.length)
-          }
-          // 其他格式尝试
-          else if (res.list && Array.isArray(res.list)) {
+          } else if (res.list && Array.isArray(res.list)) {
             list = res.list
-            console.log('使用 res.list，数量:', list.length)
-          } else {
-            console.warn('无法解析数据格式，res:', res)
           }
-        } else {
-          console.warn('返回数据为空')
         }
-        
-        console.log('解析后的问题列表:', list)
-        console.log('问题列表数量:', list.length)
-        if (list.length > 0) {
-          console.log('第一个问题:', list[0])
-        }
-        
         this.allQuestions = list || []
         this.applyFilter()
-        
         console.log('最终显示的问题数量:', this.questionsList.length)
       } catch (e) {
         console.error('加载问答记录失败:', e)
+        this.allQuestions = []
+        this.applyFilter()
         this.$message.error('加载问答记录失败: ' + (e.message || '未知错误'))
       }
     },
