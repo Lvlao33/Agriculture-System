@@ -2,25 +2,69 @@
   <div class="published-message">
     <div class="toolbar">
       <el-button type="success" @click="publishKnowledgeClick">发布知识</el-button>
-      <el-button type="warning" plain @click="batchManageClick">批量管理</el-button>
+      <el-button 
+        :type="isSelectMode ? 'danger' : 'warning'" 
+        plain 
+        @click="toggleSelectMode"
+      >
+        {{ isSelectMode ? '取消选择' : '选择' }}
+      </el-button>
+      <el-button 
+        v-if="isSelectMode && selectedKnowledgeIds.length > 0"
+        type="danger" 
+        @click="handleBatchDelete"
+        style="margin-left: 10px;"
+      >
+        删除 ({{ selectedKnowledgeIds.length }})
+      </el-button>
     </div>
     <div class="publish-content">
-      <div class="message" v-for="(item, index) in userKnowledges" :key="index" :style="(index+1)%2===0?'margin-right:0':'margin-right:20px'">
+      <div 
+        class="message" 
+        v-for="(item, index) in userKnowledges" 
+        :key="index" 
+        :class="{ 'selected': isSelectMode && selectedKnowledgeIds.includes(item.knowledgeId) }"
+        :style="(index+1)%2===0?'margin-right:0':'margin-right:20px'"
+        @click="handleKnowledgeClick(item.knowledgeId)"
+      >
+        <div v-if="isSelectMode" class="checkbox-wrapper">
+          <el-checkbox 
+            :value="selectedKnowledgeIds.includes(item.knowledgeId)"
+            @change="toggleKnowledgeSelection(item.knowledgeId)"
+            @click.stop
+          ></el-checkbox>
+        </div>
         <img v-if="item.picPath" class="knowleage-icon" :src="$store.state.imgShowRoad + '/file/' + item.picPath" alt="" />
         <img class="knowleage-icon" v-else src="../assets/img/wutu.gif">
         <div class="info">
           <h4 class="title">{{ item.title }}</h4>
           <span class="initiator">发起人：{{ item.ownName }}</span>
           <p class="content">{{ item.content }}</p>
-          <div class="btns-style">
-            <div @click.once="changeKnowledgeInfo(item.knowledgeId)">
+          <div class="btns-style" v-if="!isSelectMode">
+            <div @click.stop.once="changeKnowledgeInfo(item.knowledgeId)">
               <change-knowledge :cupdateKnowledgeInfo="updateInfo"></change-knowledge>
             </div>
             <delete-knowledge :knowledge-id="item.knowledgeId" @deleted="loadUserKnowledges" />
           </div>
         </div>
       </div>
+      <div v-if="userKnowledges.length === 0" class="empty-state">
+        <p>暂无知识内容</p>
+      </div>
     </div>
+
+    <!-- 确认删除弹窗 -->
+    <el-dialog
+      title="确认删除"
+      :visible.sync="deleteDialogVisible"
+      width="400px"
+    >
+      <p>确定要删除选中的 {{ selectedKnowledgeIds.length }} 条知识吗？删除后无法恢复。</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -28,16 +72,20 @@
 import {
   selectKnowledgeById,
   selectKnowledgeByUsername,
+  deleteKnowledgeById,
 } from "../api/knowledge";
 import ChangeKnowledge from "./ChangeKnowledge.vue";
 import DeleteKnowledge from "./DeleteKnowledge.vue";
-import { deleteKnowledgeById } from "../api/knowledge";
 
 export default {
   data() {
     return {
       userKnowledges: [],
       updateInfo: {},
+      isSelectMode: false,
+      selectedKnowledgeIds: [],
+      deleteDialogVisible: false,
+      deleting: false,
     };
   },
   components: { DeleteKnowledge, ChangeKnowledge },
@@ -47,16 +95,70 @@ export default {
         .push("/home/addmessage/publishknowledges")
         .catch((err) => err);
     },
-    batchManageClick() {
-      this.$message.info("可在此页逐条删除，批量删除暂未开放");
+    toggleSelectMode() {
+      this.isSelectMode = !this.isSelectMode;
+      if (!this.isSelectMode) {
+        // 退出选择模式时清空选择
+        this.selectedKnowledgeIds = [];
+      }
+    },
+    handleKnowledgeClick(knowledgeId) {
+      if (this.isSelectMode) {
+        this.toggleKnowledgeSelection(knowledgeId);
+      }
+    },
+    toggleKnowledgeSelection(knowledgeId) {
+      const index = this.selectedKnowledgeIds.indexOf(knowledgeId);
+      if (index > -1) {
+        this.selectedKnowledgeIds.splice(index, 1);
+      } else {
+        this.selectedKnowledgeIds.push(knowledgeId);
+      }
+    },
+    handleBatchDelete() {
+      if (this.selectedKnowledgeIds.length === 0) {
+        this.$message.warning("请先选择要删除的知识");
+        return;
+      }
+      this.deleteDialogVisible = true;
+    },
+    confirmDelete() {
+      this.deleting = true;
+      const deletePromises = this.selectedKnowledgeIds.map(id => 
+        deleteKnowledgeById({ knowledgeId: id })
+      );
+
+      Promise.all(deletePromises)
+        .then((results) => {
+          const successCount = results.filter(r => r && r.flag).length;
+          if (successCount === this.selectedKnowledgeIds.length) {
+            this.$message.success(`成功删除 ${successCount} 条知识`);
+          } else {
+            this.$message.warning(`部分删除失败，成功删除 ${successCount} 条`);
+          }
+          // 清空选择并退出选择模式
+          this.selectedKnowledgeIds = [];
+          this.isSelectMode = false;
+          this.deleteDialogVisible = false;
+          // 重新加载知识列表
+          this.loadUserKnowledges();
+        })
+        .catch((err) => {
+          console.error("批量删除失败:", err);
+          this.$message.error("删除失败，请重试");
+        })
+        .finally(() => {
+          this.deleting = false;
+        });
     },
     loadUserKnowledges() {
       selectKnowledgeByUsername({})
         .then((res) => {
-          this.userKnowledges = res.data;
+          this.userKnowledges = res.data || [];
         })
         .catch((err) => {
           console.log(err);
+          this.userKnowledges = [];
         });
     },
     changeKnowledgeInfo(item) {
@@ -84,17 +186,19 @@ export default {
   margin: 0 auto;
   width: 900px;
   height: 100%;
-  // display: flex;
-  // flex-direction: row;
-  // justify-content: flex-start;
-  // flex-wrap: wrap;
   background: #fff;
-  // padding: 0px 20px;
-  .publish-content{
+  .toolbar {
+    padding: 20px;
+    border-bottom: 1px solid #f2f2f2;
+    display: flex;
+    align-items: center;
+  }
+  .publish-content {
     background: #fff;
     display: flex;
     flex-wrap: wrap;
     padding: 10px 20px;
+    min-height: 400px;
   }
   .message {
     width: 420px;
@@ -105,10 +209,33 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    img{
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    
+    &.selected {
+      border: 2px solid #67C23A;
+      background-color: #f0f9ff;
+    }
+    
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .checkbox-wrapper {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px;
+      border-radius: 4px;
+    }
+    
+    img {
       border-radius: 6px;
     }
-    .knowleage-icon{
+    .knowleage-icon {
       width: 200px;
       height: 178px;
       margin-right: 10px;
@@ -120,42 +247,41 @@ export default {
       .initiator {
         color: #666;
       }
-      .title{
+      .title {
         height: 30px;
         line-height: 30px;
-        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
         overflow: hidden;
-        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
         text-overflow: ellipsis;
-        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
         display: -webkit-box;
-        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
         -webkit-line-clamp: 1;
-        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏冪礌鎺掑垪鏂瑰紡*/
+        line-clamp: 1;
         -webkit-box-orient: vertical;
         word-break: break-all;
       }
       .content {
         height: 75px;
         line-height: 25px;
-        /*瓒呭嚭鐨勯儴鍒嗛殣钘�*/
         overflow: hidden;
-        /*鏂囧瓧鐢ㄧ渷鐣ュ彿鏇夸唬瓒呭嚭鐨勯儴鍒�*/
         text-overflow: ellipsis;
-        /*寮规€т几缂╃洅瀛愭ā鍨嬫樉绀�*/
         display: -webkit-box;
-        /*闄愬埗鍦ㄤ竴涓潡鍏冪礌鏄剧ず鏂囨湰鐨勮鏁�*/
         -webkit-line-clamp: 3;
-        /*璁剧疆鎴栨绱几缂╃洅瀵硅薄鐨勫瓙鍏冪礌鎺掑垪鏂瑰紡*/
+        line-clamp: 3;
         -webkit-box-orient: vertical;
         word-break: break-all;
       }
     }
-    .btns-style{
+    .btns-style {
       display: flex;
       flex-direction: row;
       justify-content: flex-end;
     }
+  }
+  .empty-state {
+    width: 100%;
+    text-align: center;
+    padding: 60px 0;
+    color: #999;
+    font-size: 16px;
   }
 }
 </style>

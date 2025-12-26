@@ -38,34 +38,34 @@ private Long knowledgeId;
 
     private String source;
 
-    // 封面图片（可选）
-    @Column(length = 500)
+    // ����ͼƬ����ѡ��
+    @Column(name = "pic_path", length = 500)
     private String picPath;
 
-    // 相关外部链接（可选）
-    @Column(length = 500)
+    // ����ⲿ���ӣ���ѡ��
+    @Column(name = "url", length = 500)
     private String url;
 
-    @Column(nullable = false)
+    @Column(name = "view_count", nullable = false)
     private Integer viewCount = 0;
 
-    @Column(nullable = false)
+    @Column(name = "like_count", nullable = false)
     private Integer likeCount = 0;
 
-    @Column(nullable = false)
+    @Column(name = "is_published", nullable = false)
     private Boolean isPublished = true;
 
-    @Column(nullable = false)
+    @Column(name = "create_time", nullable = false)
     private LocalDateTime createTime;
 
-    @Column(nullable = false)
+    @Column(name = "update_time", nullable = false)
     private LocalDateTime updateTime;
 
-    // 榛樿鏋勯€犲嚱鏁?
+    // 榛樿鏋勯€犲嚱�??
     public Knowledge() {
     }
 
-    // 鍏ㄥ弬鏋勯€犲嚱鏁?
+    // 鍏ㄥ弬鏋勯€犲嚱�??
     public Knowledge(Long knowledgeId, String title, String content, String summary,
             List<String> categories, List<String> tags, Expert author, String source,
             String picPath, String url,

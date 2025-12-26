@@ -68,12 +68,13 @@ import QuestionDetail from '../views/QuestionDetail'
 import AskQuestion from '../views/AskQuestion'
 import ExpertDashboard from '../views/ExpertDashboard'
 import LoanReviewList from '../views/LoanReviewList'
+import MyKnowledge from '../views/MyKnowledge'
 
 
 Vue.use(VueRouter)
 
 
-// 修复ElementUI和vue-router的3.0版本冲突问题
+// 修复ElementUI和vue-router�?3.0版本冲突问题
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
@@ -303,6 +304,10 @@ const routes = [
             path:'expertInfo',
             component: expertInfo
           },
+          {
+            path: 'myKnowledge',
+            component: MyKnowledge
+          },
           // {
           //   path: 'publishedgoodsAdmin',
           //   component: PublishedGoodsAdmin
@@ -383,11 +388,11 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const role = store.state.userRole || 'farmer'
-  // 统一首页：任何角色都可以访问 /home 或 /home/front，不进行角色重定向
+  // 统一首页：任何角色都可以访问 /home �? /home/front，不进行角色重定�?
   if (to.path === '/home') {
     return next('/home/front')
   }
-  // 对于有角色限制的页面进行判断，不符合角色时统一跳回到首页
+  // 对于有角色限制的页面进行判断，不符合角色时统一跳回到首�?
   if (to.meta && to.meta.roles) {
     if (!to.meta.roles.includes(role)) {
       return next('/home/front')
