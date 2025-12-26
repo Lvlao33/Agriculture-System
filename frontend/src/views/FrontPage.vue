@@ -19,7 +19,7 @@
             <span class="tab active">近日要闻</span>
           </div>
           <ul class="headline-list">
-            <li v-for="(item, idx) in headlines" :key="idx">
+            <li v-for="(item, idx) in headlines" :key="idx" @click="goNews(item)">
               <span class="headline-text">{{ item.title }}</span>
               <span class="headline-date">{{ item.date }}</span>
             </li>
@@ -69,6 +69,27 @@
         </div>
       </section>
 
+      <!-- 金融产品模块 -->
+      <section class="finance-section card" v-if="financeProducts.length">
+        <div class="section-header">
+          <h3>热门金融产品</h3>
+          <span class="more-link" @click="$router.push('/home/smartMatchPage')">更多></span>
+        </div>
+        <div class="finance-grid">
+          <div class="finance-card" v-for="item in financeProducts" :key="item.id" @click="goFinance(item.id)">
+            <div class="f-bank">{{ item.bank }}</div>
+            <div class="f-info">
+              <div class="f-name">{{ item.name }}</div>
+              <div class="f-metrics">
+                <span class="f-rate">利率：{{ item.rate }}%</span>
+                <span class="f-amount">最高：{{ item.amount }}万</span>
+              </div>
+            </div>
+            <div class="f-action">详情 ></div>
+          </div>
+        </div>
+      </section>
+
       <!-- 农产品供应模块 -->
       <supply-section
         v-for="section in supplySections"
@@ -81,6 +102,7 @@
         :categories="section.categories"
         :featuredGoods="section.featuredGoods"
         :suppliers="section.suppliers"
+        @good-click="goTrade($event.id)"
       />
 
       <!-- 农业技术大百科 -->
@@ -102,7 +124,16 @@
         </div>
         
         <div class="tech-grid">
-          <div class="tech-card" v-for="(tech, idx) in techCards" :key="idx">
+          <div class="tech-card knowledge-real" v-for="item in knowledgeItems" :key="item.id" @click="goKnowledge(item.id)">
+            <div class="tech-image">
+               <img :src="item.image || require('@/assets/img/pro1.jpg')" :alt="item.title" @error="e => e.target.src = require('../assets/img/placeholder.jpg')"/>
+            </div>
+            <div class="tech-content">
+              <h4 class="tech-title">{{ item.title }}</h4>
+              <p class="tech-summary">{{ item.summary }}</p>
+            </div>
+          </div>
+          <div v-if="knowledgeItems.length === 0" class="tech-card" v-for="(tech, idx) in techCards.slice(0, 3)" :key="'fallback-'+idx">
             <div class="tech-image">
               <img :src="tech.image" :alt="tech.title" />
             </div>
@@ -126,7 +157,7 @@
               <span class="more-link">更多></span>
             </div>
         <div class="expert-list">
-              <div class="expert-card" v-for="(expert, idx) in popularExperts" :key="idx">
+              <div class="expert-card" v-for="(expert, idx) in popularExperts" :key="expert.id || idx" @click="goExpert(expert.id)">
                 <div class="expert-avatar">
                   <img :src="expert.avatar" :alt="expert.name" />
                 </div>
@@ -149,7 +180,7 @@
                       <span class="stat-value">{{ expert.replyRate }}</span>
                     </span>
                   </div>
-                  <button class="ask-btn">限时免费提问</button>
+                  <button class="ask-btn">预约指导</button>
                 </div>
               </div>
             </div>
@@ -162,7 +193,7 @@
               <span class="more-link">更多></span>
             </div>
             <div class="qa-list">
-              <div class="qa-item" v-for="(qa, idx) in expertQAs" :key="idx">
+              <div class="qa-item" v-for="(qa, idx) in expertQAs" :key="idx" @click="goQA(qa.id)">
                 <div class="question">
                   <span class="qa-icon question-icon">问</span>
                   <span class="qa-text">{{ qa.question }}</span>
@@ -172,7 +203,7 @@
                   <span class="qa-text">{{ qa.answer }}</span>
                 </div>
                 <div class="qa-meta">
-                  <span class="answer-count">全部{{ qa.answerCount }}个回答</span>
+                  <span class="answer-count">全部{{ qa.answerCount }}个赞</span>
                   <span class="qa-date">{{ qa.date }}</span>
                 </div>
               </div>
@@ -190,6 +221,7 @@
 import SupplySection from '@/components/SupplySection.vue'
 import { selectAllPage, selectGoodsPage } from '@/api/order'
 import { getPriceForecast } from '@/api/price'
+import { getHomeData } from '@/api/home'
 
 export default {
   name: 'FrontPage',
@@ -204,6 +236,9 @@ export default {
         range: '--',
         series: []
       },
+      financeProducts: [],
+      tradeProducts: [],
+      knowledgeItems: [],
       supplySections: [
         {
           title: '农资农机',
@@ -529,6 +564,7 @@ export default {
     this.getData()
     this.getTopicData()
     this.loadHomeForecast()
+    this.loadHomeData()
   },
   methods: {
     async loadHomeForecast() {
@@ -599,6 +635,120 @@ export default {
           this.total = res.data.total
         }
       })
+    },
+    async loadHomeData() {
+      try {
+        const res = await getHomeData();
+        if (res && (res.success || res.flag) && res.data) {
+          const d = res.data;
+          
+          // 1. 新闻轮播
+          if (d.news && d.news.length > 0) {
+            this.headlines = d.news;
+          }
+
+          // 2. 专家团队
+          if (d.experts && d.experts.length > 0) {
+            this.popularExperts = d.experts.map(e => ({
+              id: e.id,
+              name: e.name,
+              title: e.title,
+              affiliation: e.contactInfo || '资深专家',
+              specialties: e.description || '农业技术咨询',
+              consultations: Math.floor(Math.random() * 1000) + 100, // 模拟数据或使用后端字段
+              replies: Math.floor(Math.random() * 800) + 50,
+              replyRate: '95%',
+              avatar: e.avatar ? (this.$store.state.imgShowRoad + '/file/' + e.avatar) : require('@/assets/img/person.png')
+            }));
+          }
+
+          // 3. 专家问答
+          if (d.qas && d.qas.length > 0) {
+            this.expertQAs = d.qas.map(q => ({
+              id: q.questionId, // 点击跳转到问题详情
+              question: q.questionTitle,
+              answer: q.content,
+              answerCount: q.likeCount || 1,
+              date: q.createTime ? q.createTime.split('T')[0] : '2024-12-25'
+            }));
+          }
+
+          // 4. 农业知识
+          if (d.knowledge && d.knowledge.length > 0) {
+            // 更新 techCards 或 单独渲染知识列表
+            this.knowledgeItems = d.knowledge;
+          }
+
+          // 5. 助农电商
+          if (d.tradeProducts && d.tradeProducts.length > 0) {
+            this.tradeProducts = d.tradeProducts;
+            // 将后端产品映射到 SupplySection
+            d.tradeProducts.forEach(product => {
+              // 简单的分类匹配逻辑
+              const category = product.category || '';
+              let targetSection = null;
+              
+              if (category.includes('水果')) {
+                targetSection = this.supplySections.find(s => s.title === '水果');
+              } else if (category.includes('蔬菜')) {
+                targetSection = this.supplySections.find(s => s.title === '热门供应');
+              } else if (category.includes('肉') || category.includes('禽') || category.includes('蛋')) {
+                targetSection = this.supplySections.find(s => s.title === '畜禽肉蛋');
+              } else if (category.includes('米') || category.includes('面') || category.includes('油')) {
+                targetSection = this.supplySections.find(s => s.title === '粮油米面');
+              } else if (category.includes('水产') || category.includes('鱼') || category.includes('虾')) {
+                targetSection = this.supplySections.find(s => s.title === '水产');
+              } else if (category.includes('机') || category.includes('肥') || category.includes('药')) {
+                targetSection = this.supplySections.find(s => s.title === '农资农机');
+              }
+
+              if (targetSection) {
+                // 如果该板块还是纯静态数据（featuredGoods 长度为 2 且都是本地图片路径），则清空它以放置真实数据
+                if (targetSection.isStatic === undefined) {
+                  targetSection.featuredGoods = [];
+                  targetSection.isStatic = false;
+                }
+                
+                targetSection.featuredGoods.push({
+                  id: product.id,
+                  img: product.imageUrl ? (this.$store.state.imgShowRoad + '/file/' + product.imageUrl) : require('@/assets/img/placeholder.jpg'),
+                  price: product.price,
+                  unit: product.unit || '元/件',
+                  title: product.name,
+                  tags: ['推荐', product.isAvailable ? '有货' : '售罄']
+                });
+              }
+            });
+          }
+
+          // 6. 金融产品
+          if (d.financeProducts && d.financeProducts.length > 0) {
+            this.financeProducts = d.financeProducts;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load home data:", err);
+      }
+    },
+    goKnowledge(id) {
+       this.$router.push(`/home/knowledge/${id}`).catch(() => {});
+    },
+    goExpert(id) {
+       // 如果没有专家详情页，跳到列表或指定路由
+       this.$router.push(`/home/allExpert`).catch(() => {});
+    },
+    goQA(id) {
+       this.$router.push(`/home/questionDetail/${id}`).catch(() => {});
+    },
+    goFinance(id) {
+       this.$router.push(`/home/loanProductDetail/${id}`).catch(() => {});
+    },
+    goTrade(id) {
+       this.$router.push(`/home/details?orderId=${id}`).catch(() => {});
+    },
+    goNews(item) {
+       // 新闻暂时跳到首页或指定板块，由于是静态数据，这里打印一下
+       console.log('Navigate to news:', item);
     },
     getTopicData() {
       selectGoodsPage({ pageNum: '1', keys: '' }).then(res => {
@@ -1204,4 +1354,73 @@ export default {
   }
 }
 
+/* 金融产品样式 */
+.finance-section {
+  .finance-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 10px;
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+  .finance-card {
+    display: flex;
+    align-items: center;
+    background: #f0f7f2;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+    &:hover {
+      border-color: @primary;
+      background: #e6f3eb;
+    }
+    .f-bank {
+      padding: 4px 8px;
+      background: @primary;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 4px;
+      margin-right: 12px;
+      white-space: nowrap;
+    }
+    .f-info {
+      flex: 1;
+      .f-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+      }
+      .f-metrics {
+        font-size: 12px;
+        color: #666;
+        .f-rate {
+          color: #ff7043;
+          margin-right: 12px;
+          font-weight: 600;
+        }
+      }
+    }
+    .f-action {
+      font-size: 12px;
+      color: @primary;
+      font-weight: 600;
+    }
+  }
+}
+
+.knowledge-real {
+  .tech-summary {
+    font-size: 12px;
+    color: #999;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
 </style>

@@ -22,7 +22,7 @@
           好货推荐
         </div>
         <div class="goods-list">
-          <div class="goods" v-for="(g, gidx) in featuredGoods" :key="gidx">
+          <div class="goods" v-for="(g, gidx) in featuredGoods" :key="gidx" @click="$emit('good-click', g)" style="cursor: pointer;">
             <img :src="g.img" alt="goods" />
             <div class="price">
               <span class="num">{{ g.price }}</span>

@@ -11,7 +11,10 @@ import com.farmporject.backend.expert.repository.AnswerRepository;
 import com.farmporject.backend.expert.model.*;
 import com.farmporject.backend.expert.dto.AnswerDTO;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class AnswerService {
     private final AnswerRepository answerRepository;
     private final ExpertRepository expertRepository;
@@ -64,6 +67,28 @@ public class AnswerService {
             return answerDto;
         }
         return null;
+    }
+
+    /**
+     * 获取最近的10条回答
+     * 
+     * @return
+     */
+    public List<AnswerDTO> getRecentAnswers() {
+        return answerRepository.findAll().stream()
+                .sorted((a1, a2) -> a2.getCreateTime().compareTo(a1.getCreateTime()))
+                .limit(5)
+                .map(answer -> {
+                    AnswerDTO dto = new AnswerDTO(answer.getQuestion().getId(), answer.getExpert().getId(),
+                            answer.getContent());
+                    dto.setId(answer.getId());
+                    dto.setExpertName(answer.getExpert().getName());
+                    dto.setCreateTime(answer.getCreateTime());
+                    dto.setViewCount(answer.getViewCount());
+                    dto.setLikeCount(answer.getLikeCount());
+                    dto.setQuestionTitle(answer.getQuestion().getTitle());
+                    return dto;
+                }).toList();
     }
 
     /**

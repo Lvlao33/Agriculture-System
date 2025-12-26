@@ -40,7 +40,7 @@ public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
         List<Knowledge> findTop10ByIsPublishedTrueOrderByViewCountDesc();
 
         // 获取最新知识
-        List<Knowledge> findTop10ByIsPublishedTrueOrderByCreateTimeDesc();
+        List<Knowledge> findTop5ByIsPublishedTrueOrderByCreateTimeDesc();
 
         // 根据发布状态查询
         Page<Knowledge> findByIsPublished(Boolean isPublished, Pageable pageable);

@@ -8,6 +8,7 @@ public class AnswerDTO {
     private String expertName;
     private Long questionId;
     private String content;
+    private String questionTitle;
     private LocalDateTime createTime;
     private Integer viewCount;
     private Integer likeCount;
@@ -83,6 +84,14 @@ public class AnswerDTO {
 
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public String getQuestionTitle() {
+        return questionTitle;
+    }
+
+    public void setQuestionTitle(String questionTitle) {
+        this.questionTitle = questionTitle;
     }
 
 }

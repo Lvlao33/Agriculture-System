@@ -34,3 +34,7 @@ build/
 
 ### loans_files ###
 loans_files/
+
+
+### upload ###
+uploads/
