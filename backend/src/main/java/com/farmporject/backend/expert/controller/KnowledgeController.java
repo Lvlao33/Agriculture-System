@@ -111,6 +111,30 @@ public class KnowledgeController {
     public ResponseEntity<?> create(@RequestBody Knowledge knowledge) {
         Map<String, Object> resp = new HashMap<>();
         try {
+            // 获取当前登录用户ID
+            Long userId = com.farmporject.backend.security.UserContext.getCurrentUserId();
+            if (userId == null) {
+                resp.put("flag", false);
+                resp.put("message", "用户未登录");
+                return ResponseEntity.status(401).body(resp);
+            }
+
+            // 根据userId获取Expert
+            Optional<Expert> expertOpt = expertService.getExpertByUserId(userId);
+            if (expertOpt.isEmpty()) {
+                resp.put("flag", false);
+                resp.put("message", "当前用户不是专家");
+                return ResponseEntity.badRequest().body(resp);
+            }
+
+            // 设置作者信息
+            knowledge.setAuthor(expertOpt.get());
+            
+            // 确保isPublished默认为true（如果未设置）
+            if (knowledge.getIsPublished() == null) {
+                knowledge.setIsPublished(true);
+            }
+
             Knowledge created = knowledgeService.createKnowledge(knowledge);
             resp.put("flag", true);
             resp.put("message", "知识创建成功");
@@ -119,6 +143,7 @@ public class KnowledgeController {
         } catch (Exception e) {
             resp.put("flag", false);
             resp.put("message", "创建知识失败: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(resp);
         }
     }

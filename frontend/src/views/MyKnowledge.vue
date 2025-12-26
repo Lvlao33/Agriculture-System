@@ -2,7 +2,7 @@
   <div class="my-knowledge-page">
     <div class="page-header">
       <h2>我的知识</h2>
-      <p class="subtitle">管理您发布的所有知识内容</p>
+      <p class="subtitle">管理您发布的所有知识内�?</p>
     </div>
 
     <div class="toolbar">
@@ -58,7 +58,7 @@
           />
         </div>
         <div class="knowledge-content">
-          <h3 class="knowledge-title">{{ item.title || '无标题' }}</h3>
+          <h3 class="knowledge-title">{{ item.title || '无标�?' }}</h3>
           <p class="knowledge-summary">{{ item.summary || item.content || '暂无摘要' }}</p>
           <div class="knowledge-meta">
             <span class="meta-item">
@@ -90,7 +90,7 @@
       <div v-if="knowledgeList.length === 0 && !loading" class="empty-state">
         <i class="el-icon-document"></i>
         <p>暂无知识内容</p>
-        <el-button type="primary" @click="publishKnowledgeClick">发布第一条知识</el-button>
+        <el-button type="primary" @click="publishKnowledgeClick">发布第一条知�?</el-button>
       </div>
     </div>
 
@@ -102,11 +102,11 @@
     >
       <div class="delete-dialog-content">
         <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
-        <p>确定要删除选中的 <strong style="color: #F56C6C;">{{ selectedKnowledgeIds.length }}</strong> 条知识吗？</p>
-        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复，这些知识将从农业知识页面和我的知识页面中移除。</p>
+        <p>确定要删除选中�? <strong style="color: #F56C6C;">{{ selectedKnowledgeIds.length }}</strong> 条知识吗�?</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复，这些知识将从农业知识页面和我的知识页面中移除�?</p>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button @click="deleteDialogVisible = false">�? �?</el-button>
         <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
       </span>
     </el-dialog>
@@ -166,7 +166,7 @@ export default {
         this.toggleKnowledgeSelection(knowledgeId);
       }
     },
-    // 切换知识选择状态
+    // 切换知识选择状�?
     toggleKnowledgeSelection(knowledgeId) {
       const index = this.selectedKnowledgeIds.indexOf(knowledgeId);
       if (index > -1) {
@@ -196,7 +196,7 @@ export default {
           if (successCount === this.selectedKnowledgeIds.length) {
             this.$message.success(`成功删除 ${successCount} 条知识`);
           } else {
-            this.$message.warning(`部分删除失败，成功删除 ${successCount} 条`);
+            this.$message.warning(`部分删除失败，成功删�? ${successCount} 条`);
           }
           // 清空选择并退出选择模式
           this.selectedKnowledgeIds = [];
@@ -217,7 +217,7 @@ export default {
     publishKnowledgeClick() {
       this.$router.push("/home/addmessage/publishknowledges").catch((err) => err);
     },
-    // 格式化日期
+    // 格式化日�?
     formatDate(dateStr) {
       if (!dateStr) return "未知时间";
       try {
@@ -237,6 +237,10 @@ export default {
   },
   created() {
     this.$store.commit("updateUserActiveIndex", "4-1");
+    this.loadKnowledgeList();
+  },
+  activated() {
+    // ��������ҳ�淵��ʱˢ���б�
     this.loadKnowledgeList();
   },
 };
