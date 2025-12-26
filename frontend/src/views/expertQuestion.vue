@@ -3,7 +3,7 @@
   <div class="my-question-page">
     <div class="page-header">
       <h2>我的问答</h2>
-      <p class="subtitle">管理您的所有问答记录</p>
+      <p class="subtitle">管理您的所有问答记�?</p>
     </div>
 
     <div class="toolbar">
@@ -49,7 +49,7 @@
           <i class="el-icon-question" :class="{ 'answered': item.status === 1 }"></i>
         </div>
         <div class="question-content">
-          <h3 class="question-title">{{ item.title || '无标题' }}</h3>
+          <h3 class="question-title">{{ item.title || '无标�?' }}</h3>
           <p class="question-text">{{ item.question || '暂无内容' }}</p>
           <div class="question-meta">
             <span class="meta-item" v-if="role === 'expert'">
@@ -58,11 +58,11 @@
             </span>
             <span class="meta-item" v-if="role === 'expert'">
               <i class="el-icon-phone"></i>
-              {{ item.phone || '未提供' }}
+              {{ item.phone || '未提�?' }}
             </span>
             <span class="meta-item" v-if="role === 'questioner'">
               <i class="el-icon-user-solid"></i>
-              专家：{{ item.expertName || '未指定' }}
+              专家：{{ item.expertName || '未指�?' }}
             </span>
             <span class="meta-item">
               <i class="el-icon-time"></i>
@@ -75,7 +75,7 @@
               size="small"
             >
               <i :class="item.status === 0 ? 'el-icon-warning' : 'el-icon-success'"></i>
-              {{ item.status === 0 ? '未回答' : '已回答' }}
+              {{ item.status === 0 ? '未回�?' : '已回�?' }}
             </el-tag>
             <div class="question-actions" @click.stop>
               <el-button 
@@ -121,7 +121,7 @@
       <div v-if="questionArray.length === 0 && !loading" class="empty-state">
         <i class="el-icon-question"></i>
         <p>暂无问答记录</p>
-        <el-button type="primary" @click="goToAskQuestion">去提问</el-button>
+        <el-button type="primary" @click="goToAskQuestion">去提�?</el-button>
       </div>
     </div>
 
@@ -145,13 +145,13 @@
           <div class="question-main">
             <h3 class="question-title" @click="goToDetail(item)">{{ item.title }}</h3>
             <div class="question-meta">
-              <span class="meta-item"><i class="el-icon-chat-line-round"></i> {{ item.answerCount || item.answersCount || 0 }} 个回答</span>
+              <span class="meta-item"><i class="el-icon-chat-line-round"></i> {{ item.answerCount || item.answersCount || 0 }} 个回�?</span>
               <span class="meta-item"><i class="el-icon-user"></i> 提问者：{{ item.questioner || item.username || '匿名用户' }}</span>
               <span class="meta-item"><i class="el-icon-time"></i> 最后更新：{{ formatDate(item.updateTime || item.createTime || item.create_time) }}</span>
             </div>
           </div>
           <div class="question-side">
-            <el-tag class="status-tag" :type="item.status === 0 || item.status === 'PENDING' ? 'info' : 'success'">{{ item.status === 0 || item.status === 'PENDING' ? '待解答' : '已解答' }}</el-tag>
+            <el-tag class="status-tag" :type="item.status === 0 || item.status === 'PENDING' ? 'info' : 'success'">{{ item.status === 0 || item.status === 'PENDING' ? '待解�?' : '已解�?' }}</el-tag>
           </div>
         </div>
         <div class="question-actions">
@@ -175,27 +175,27 @@
       <div>
 >>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
         <div class="detail-item">
-          <div class="item-title">问题标题：</div>
-          <div class="item-content">{{ detailObj.title || '无标题' }}</div>
+          <div class="item-title">问题标题�?</div>
+          <div class="item-content">{{ detailObj.title || '无标�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">问题内容：</div>
+          <div class="item-title">问题内容�?</div>
           <div class="item-content">{{ detailObj.question || '暂无内容' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'questioner'">
-          <div class="item-title">专家姓名：</div>
-          <div class="item-content">{{ detailObj.expertName || '未指定' }}</div>
+          <div class="item-title">专家姓名�?</div>
+          <div class="item-content">{{ detailObj.expertName || '未指�?' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
           <div class="item-title">提问者：</div>
           <div class="item-content">{{ detailObj.questioner || '未知' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">联系方式：</div>
-          <div class="item-content">{{ detailObj.phone || '未提供' }}</div>
+          <div class="item-title">联系方式�?</div>
+          <div class="item-content">{{ detailObj.phone || '未提�?' }}</div>
         </div>
         <div class="detail-item" v-if="detailObj.answer">
-          <div class="item-title">专家回答：</div>
+          <div class="item-title">专家回答�?</div>
           <div class="item-content answer-content">{{ detailObj.answer }}</div>
         </div>
         <div class="detail-item">
@@ -204,12 +204,12 @@
             :type="detailObj.status === 0 ? 'warning' : 'success'" 
             size="small"
           >
-            {{ detailObj.status === 0 ? '未回答' : '已回答' }}
+            {{ detailObj.status === 0 ? '未回�?' : '已回�?' }}
           </el-tag>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDetail = false">关 闭</el-button>
+        <el-button @click="showDetail = false">�? �?</el-button>
       </span>
     </el-dialog>
 
@@ -222,11 +222,11 @@
     >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">问题标题：</div>
-          <div class="item-content">{{ detailObj.title || '无标题' }}</div>
+          <div class="item-title">问题标题�?</div>
+          <div class="item-content">{{ detailObj.title || '无标�?' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert' || detailObj.status === 1">
-          <div class="item-title">问题内容：</div>
+          <div class="item-title">问题内容�?</div>
           <div class="item-content">{{ detailObj.question || '暂无内容' }}</div>
         </div>
         <el-form 
@@ -235,17 +235,17 @@
           label-width="80px" 
           v-if="role === 'questioner' && detailObj.status === 0"
         >
-          <el-form-item label="问题内容：">
+          <el-form-item label="问题内容�?">
             <el-input 
               type="textarea" 
               :rows="4"
               v-model="detailObj.question"
-              placeholder="请输入问题内容"
+              placeholder="请输入问题内�?"
             ></el-input>
           </el-form-item>
         </el-form>
         <div class="detail-item" v-if="role === 'questioner' && detailObj.answer">
-          <div class="item-title">专家回答：</div>
+          <div class="item-title">专家回答�?</div>
           <div class="item-content answer-content">{{ detailObj.answer }}</div>
         </div>
         <el-form 
@@ -254,19 +254,19 @@
           label-width="80px" 
           v-if="role === 'expert'"
         >
-          <el-form-item label="回答内容：">
+          <el-form-item label="回答内容�?">
             <el-input 
               type="textarea" 
               :rows="6"
               v-model="detailObj.answer"
-              placeholder="请输入您的回答"
+              placeholder="请输入您的回�?"
             ></el-input>
           </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeRevise">取 消</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitRevise">确 定</el-button>
+        <el-button @click="closeRevise">�? �?</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitRevise">�? �?</el-button>
       </span>
     </el-dialog>
 
@@ -278,14 +278,15 @@
     >
       <div class="delete-dialog-content">
         <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
-        <p>确定要删除选中的 <strong style="color: #F56C6C;">{{ selectedQuestionIds.length }}</strong> 条问答吗？</p>
-        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复。</p>
+        <p>确定要删除选中�? <strong style="color: #F56C6C;">{{ selectedQuestionIds.length }}</strong> 条问答吗�?</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复�?</p>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button @click="deleteDialogVisible = false">�? �?</el-button>
         <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
       </span>
     </el-dialog>
+    </div>
     </div>
   </div>
 </template>
@@ -355,6 +356,9 @@ export default {
       pageSize: 3,
       currentPage: 1,
       total: 0,
+      pageSize: 3,
+      currentPage: 1,
+      total: 0,
       detailObj:{
         title:'',
         question:'',
@@ -373,16 +377,17 @@ export default {
   },
   methods:{
     async getData(){
+    async getData(){
       this.role = this.$store.getters.isExpert?'expert':'questioner'
       console.log('role',this.role)
-      // 优先使用主接口 /api/qa/questions
+      // 优先使用主接�? /api/qa/questions
       try {
         const res = await getQuestionsList({
           pageNum: 1,
           pageSize: 1000,
           mine: this.role === 'questioner'
         })
-        console.log('获取问题（主接口）', res)
+        console.log('获取问题（主接口�?', res)
         let list = []
         if (res) {
           if (res.flag && res.data && Array.isArray(res.data)) list = res.data
@@ -390,28 +395,28 @@ export default {
           else if (Array.isArray(res)) list = res
           else if (res.list && Array.isArray(res.list)) list = res.list
         }
-        // 如果主接口没有返回数据，则回退到 legacy 接口
+        // 如果主接口没有返回数据，则回退�? legacy 接口
         if (!Array.isArray(list) || list.length === 0) {
           try {
             const fallback = await selectQuestionByUser({ role: this.role })
-            console.log('获取问题（fallback）', fallback)
+            console.log('获取问题（fallback�?', fallback)
             if (fallback && fallback.data && Array.isArray(fallback.data)) list = fallback.data
             else if (Array.isArray(fallback)) list = fallback
           } catch (e) {
-            console.warn('回退接口也失败', e)
+            console.warn('回退接口也失�?', e)
           }
         }
         this.questionArray = list || []
         this.total = (this.questionArray || []).length
       } catch (err) {
-        console.error('加载问题失败：', err)
+        console.error('加载问题失败�?', err)
         // 尝试 legacy 回退
         try {
           const fallback = await selectQuestionByUser({ role: this.role })
           this.questionArray = (fallback && fallback.data) ? fallback.data : []
           this.total = (this.questionArray || []).length
         } catch (e) {
-          console.error('回退接口失败：', e)
+          console.error('回退接口失败�?', e)
           this.questionArray = []
         }
       }
@@ -445,7 +450,7 @@ export default {
         this.toggleQuestionSelection(questionId);
       }
     },
-    // 切换问答选择状态
+    // 切换问答选择状�?
     toggleQuestionSelection(questionId) {
       const index = this.selectedQuestionIds.indexOf(questionId);
       if (index > -1) {
@@ -475,7 +480,7 @@ export default {
           if (successCount === this.selectedQuestionIds.length) {
             this.$message.success(`成功删除 ${successCount} 条问答`);
           } else {
-            this.$message.warning(`部分删除失败，成功删除 ${successCount} 条`);
+            this.$message.warning(`部分删除失败，成功删�? ${successCount} 条`);
           }
           this.selectedQuestionIds = [];
           this.isSelectMode = false;
@@ -512,7 +517,7 @@ export default {
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删�?'
         });
       });
     },
@@ -527,8 +532,17 @@ export default {
 =======
     handleDetail(item){
       // keep for backwards compatibility with edit modal flows
+      // keep for backwards compatibility with edit modal flows
       this.showDetail = true
       this.detailObj = Object.assign({},{...item})
+    },
+    goToDetail(item){
+      if (!item || !item.id) return
+      this.$router.push(`/home/questionDetail/${item.id}`).catch(()=>{})
+    },
+    handlePageChange(page) {
+      this.currentPage = page
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     goToDetail(item){
       if (!item || !item.id) return
@@ -559,13 +573,13 @@ export default {
     submitRevise() {
       if (this.role === 'expert') {
         if (!this.detailObj.answer || this.detailObj.answer.trim() === '') {
-          this.$message.warning('请输入回答内容');
+          this.$message.warning('请输入回答内�?');
           return;
         }
         this.detailObj.status = 1;
       } else {
         if (!this.detailObj.question || this.detailObj.question.trim() === '') {
-          this.$message.warning('请输入问题内容');
+          this.$message.warning('请输入问题内�?');
           return;
         }
         this.detailObj.status = 0;
@@ -586,11 +600,11 @@ export default {
           this.submitting = false;
         });
     },
-    // 去提问
+    // 去提�?
     goToAskQuestion() {
       this.$router.push("/home/askQuestion").catch((err) => err);
     },
-    // 格式化日期
+    // 格式化日�?
     formatDate(dateStr) {
       if (!dateStr) return "未知时间";
       try {
@@ -608,6 +622,13 @@ export default {
     this.$store.commit("updateUserActiveIndex", "4-1");
     this.getData();
   }
+,
+  computed: {
+    displayedQuestions() {
+      const start = (this.currentPage - 1) * this.pageSize
+      return (this.questionArray || []).slice(start, start + this.pageSize)
+    }
+  },
 ,
   computed: {
     displayedQuestions() {
@@ -809,7 +830,7 @@ export default {
       align-items: flex-start;
       border: 1px solid #e9eef1;
       border-radius: 8px;
-      padding: 12px 14px; /* 更紧凑的内边距 */
+      padding: 12px 14px; /* 更紧凑的内边�? */
       background: #fff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.02);
 

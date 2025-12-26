@@ -3,7 +3,7 @@
   <div class="my-appointment-page">
     <div class="page-header">
       <h2>我的预约</h2>
-      <p class="subtitle">管理您的所有预约记录</p>
+      <p class="subtitle">管理您的所有预约记�?</p>
     </div>
 
     <div class="toolbar">
@@ -49,7 +49,7 @@
           <i class="el-icon-alarm-clock" :class="{ 'answered': item.status === 1 }"></i>
         </div>
         <div class="appointment-content">
-          <h3 class="appointment-title">{{ item.plantName || '未命名作物' }}</h3>
+          <h3 class="appointment-title">{{ item.plantName || '未命名作�?' }}</h3>
           <p class="appointment-text">{{ item.plantDetail || '暂无详细信息' }}</p>
           <div class="appointment-info">
             <div class="info-row">
@@ -59,31 +59,31 @@
               </span>
               <span class="info-item" v-if="role === 'expert'">
                 <i class="el-icon-phone"></i>
-                {{ item.phone || '未提供' }}
+                {{ item.phone || '未提�?' }}
               </span>
               <span class="info-item" v-if="role === 'questioner'">
                 <i class="el-icon-user-solid"></i>
-                专家：{{ item.expertName || '未指定' }}
+                专家：{{ item.expertName || '未指�?' }}
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-location"></i>
-                地址：{{ item.address || '未提供' }}
+                地址：{{ item.address || '未提�?' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-data-line"></i>
-                面积：{{ item.area || '未知' }}亩
+                面积：{{ item.area || '未知' }}�?
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-sunny"></i>
-                作物条件：{{ item.plantCondition || '未提供' }}
+                作物条件：{{ item.plantCondition || '未提�?' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-s-grid"></i>
-                土壤条件：{{ truncateText(item.soilCondition, 20) || '未提供' }}
+                土壤条件：{{ truncateText(item.soilCondition, 20) || '未提�?' }}
               </span>
             </div>
           </div>
@@ -93,7 +93,7 @@
               size="small"
             >
               <i :class="item.status === 0 ? 'el-icon-warning' : 'el-icon-success'"></i>
-              {{ item.status === 0 ? '未回复' : '已回复' }}
+              {{ item.status === 0 ? '未回�?' : '已回�?' }}
             </el-tag>
             <div class="appointment-actions" @click.stop>
               <el-button 
@@ -144,7 +144,7 @@
   <div class="expert-appoint-container">
     <div class="page-header">
       <h2 class="page-title"><i class="el-icon-date"></i> 我的预约</h2>
-      <p class="page-desc">在此查看您提交或收到的预约，专家确认后状态会更新。</p>
+      <p class="page-desc">在此查看您提交或收到的预约，专家确认后状态会更新�?</p>
     </div>
     <div class="appoints-wrapper">
       <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
@@ -159,7 +159,7 @@
             <div class="appoint-desc">{{ item.plantDetail || item.description || '' }}</div>
           </div>
           <div class="appoint-side">
-            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? '待确认' : '已确认' }}</el-tag>
+            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? '待确�?' : '已确�?' }}</el-tag>
           </div>
         </div>
         <div class="appoint-actions">
@@ -172,43 +172,43 @@
 >>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">种植作物：</div>
-          <div class="item-content">{{ detailObj.plantName || '未提供' }}</div>
+          <div class="item-title">种植作物�?</div>
+          <div class="item-content">{{ detailObj.plantName || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">作物详细信息：</div>
-          <div class="item-content">{{ detailObj.plantDetail || '未提供' }}</div>
+          <div class="item-title">作物详细信息�?</div>
+          <div class="item-content">{{ detailObj.plantDetail || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">地址：</div>
-          <div class="item-content">{{ detailObj.address || '未提供' }}</div>
+          <div class="item-title">地址�?</div>
+          <div class="item-content">{{ detailObj.address || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">面积：</div>
-          <div class="item-content">{{ detailObj.area || '未知' }}亩</div>
+          <div class="item-title">面积�?</div>
+          <div class="item-content">{{ detailObj.area || '未知' }}�?</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">作物条件：</div>
-          <div class="item-content">{{ detailObj.plantCondition || '未提供' }}</div>
+          <div class="item-title">作物条件�?</div>
+          <div class="item-content">{{ detailObj.plantCondition || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">土壤条件：</div>
-          <div class="item-content">{{ detailObj.soilCondition || '未提供' }}</div>
+          <div class="item-title">土壤条件�?</div>
+          <div class="item-content">{{ detailObj.soilCondition || '未提�?' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
           <div class="item-title">咨询者：</div>
           <div class="item-content">{{ detailObj.questioner || '未知' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">联系方式：</div>
-          <div class="item-content">{{ detailObj.phone || '未提供' }}</div>
+          <div class="item-title">联系方式�?</div>
+          <div class="item-content">{{ detailObj.phone || '未提�?' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'questioner'">
-          <div class="item-title">专家姓名：</div>
-          <div class="item-content">{{ detailObj.expertName || '未指定' }}</div>
+          <div class="item-title">专家姓名�?</div>
+          <div class="item-content">{{ detailObj.expertName || '未指�?' }}</div>
         </div>
         <div class="detail-item" v-if="detailObj.answer">
-          <div class="item-title">专家回复：</div>
+          <div class="item-title">专家回复�?</div>
           <div class="item-content answer-content">{{ detailObj.answer }}</div>
         </div>
         <div class="detail-item">
@@ -217,12 +217,12 @@
             :type="detailObj.status === 0 ? 'warning' : 'success'" 
             size="small"
           >
-            {{ detailObj.status === 0 ? '未回复' : '已回复' }}
+            {{ detailObj.status === 0 ? '未回�?' : '已回�?' }}
           </el-tag>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDetail = false">关 闭</el-button>
+        <el-button @click="showDetail = false">�? �?</el-button>
       </span>
     </el-dialog>
 
@@ -235,55 +235,55 @@
     >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">种植作物：</div>
-          <div class="item-content">{{ detailObj.plantName || '未提供' }}</div>
+          <div class="item-title">种植作物�?</div>
+          <div class="item-content">{{ detailObj.plantName || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">作物详细信息：</div>
-          <div class="item-content">{{ detailObj.plantDetail || '未提供' }}</div>
+          <div class="item-title">作物详细信息�?</div>
+          <div class="item-content">{{ detailObj.plantDetail || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">地址：</div>
-          <div class="item-content">{{ detailObj.address || '未提供' }}</div>
+          <div class="item-title">地址�?</div>
+          <div class="item-content">{{ detailObj.address || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">面积：</div>
-          <div class="item-content">{{ detailObj.area || '未知' }}亩</div>
+          <div class="item-title">面积�?</div>
+          <div class="item-content">{{ detailObj.area || '未知' }}�?</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">作物条件：</div>
-          <div class="item-content">{{ detailObj.plantCondition || '未提供' }}</div>
+          <div class="item-title">作物条件�?</div>
+          <div class="item-content">{{ detailObj.plantCondition || '未提�?' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">土壤条件：</div>
-          <div class="item-content">{{ detailObj.soilCondition || '未提供' }}</div>
+          <div class="item-title">土壤条件�?</div>
+          <div class="item-content">{{ detailObj.soilCondition || '未提�?' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
           <div class="item-title">咨询者：</div>
           <div class="item-content">{{ detailObj.questioner || '未知' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">联系方式：</div>
-          <div class="item-content">{{ detailObj.phone || '未提供' }}</div>
+          <div class="item-title">联系方式�?</div>
+          <div class="item-content">{{ detailObj.phone || '未提�?' }}</div>
         </div>
         <el-form 
           ref="form" 
           :model="detailObj" 
           label-width="80px"
         >
-          <el-form-item label="回复内容：">
+          <el-form-item label="回复内容�?">
             <el-input 
               type="textarea" 
               :rows="6"
               v-model="detailObj.answer"
-              placeholder="请输入您的回复内容"
+              placeholder="请输入您的回复内�?"
             ></el-input>
           </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeRevise">取 消</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitRevise">确 定</el-button>
+        <el-button @click="closeRevise">�? �?</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitRevise">�? �?</el-button>
       </span>
     </el-dialog>
 
@@ -295,14 +295,15 @@
     >
       <div class="delete-dialog-content">
         <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
-        <p>确定要删除选中的 <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> 条预约吗？</p>
-        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复。</p>
+        <p>确定要删除选中�? <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> 条预约吗�?</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复�?</p>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button @click="deleteDialogVisible = false">�? �?</el-button>
         <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
       </span>
     </el-dialog>
+    </div>
     </div>
   </div>
 </template>
@@ -371,6 +372,7 @@ export default {
 =======
   methods:{
     async getData(){
+    async getData(){
       this.role =  this.$store.getters.isExpert?'expert':'questioner'
       const userId = this.$store.state.loginUserId
       try {
@@ -393,7 +395,7 @@ export default {
           this.appointArray = []
         }
       } catch (err) {
-        console.error('加载预约列表失败：', err)
+        console.error('加载预约列表失败�?', err)
         this.appointArray = []
       }
     },
@@ -426,7 +428,7 @@ export default {
         this.toggleAppointmentSelection(appointmentId);
       }
     },
-    // 切换预约选择状态
+    // 切换预约选择状�?
     toggleAppointmentSelection(appointmentId) {
       const index = this.selectedAppointmentIds.indexOf(appointmentId);
       if (index > -1) {
@@ -456,7 +458,7 @@ export default {
           if (successCount === this.selectedAppointmentIds.length) {
             this.$message.success(`成功删除 ${successCount} 条预约`);
           } else {
-            this.$message.warning(`部分删除失败，成功删除 ${successCount} 条`);
+            this.$message.warning(`部分删除失败，成功删�? ${successCount} 条`);
           }
           this.selectedAppointmentIds = [];
           this.isSelectMode = false;
@@ -493,7 +495,7 @@ export default {
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删�?'
         });
       });
     },
@@ -516,7 +518,7 @@ export default {
     // 提交回复
     submitRevise() {
       if (!this.detailObj.answer || this.detailObj.answer.trim() === '') {
-        this.$message.warning('请输入回复内容');
+        this.$message.warning('请输入回复内�?');
         return;
       }
 
@@ -536,7 +538,7 @@ export default {
           this.submitting = false;
         });
     },
-    // 去预约
+    // 去预�?
     goToAppointment() {
       this.$router.push("/home/appointment").catch((err) => err);
     },
@@ -551,7 +553,7 @@ export default {
     submitRevise(){
       this.detailObj.status = 1
       reviseAppointByUserId(this.detailObj).then(res => {
-        this.$message.success('修改成功！')
+        this.$message.success('修改成功�?')
         this.dialogVisible = false
         this.getData()
       }).catch(err=>{
@@ -609,7 +611,25 @@ export default {
 =======
 .expert-appoint-container{
   width: 100%;
+  width: 100%;
   min-height: 100%;
+  background: #f5f7f9;
+  padding: 12px 0;
+
+  .appoints-wrapper {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .page-header {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto 12px auto;
   background: #f5f7f9;
   padding: 12px 0;
 
@@ -671,7 +691,50 @@ export default {
         }
 
         .appoint-meta {
+    flex-direction: column;
+    gap: 6px;
+    h2.page-title {
+      font-size: 22px;
+      margin: 0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-desc {
+      margin: 0;
+      color: #666;
+      font-size: 13px;
+    }
+  }
+  .appoint-item {
+    margin: 12px 0;
+
+    .appoint-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid #e9eef1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+
+      .appoint-main {
+        flex: 1;
+        padding-right: 12px;
+
+        .appoint-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #222;
+          margin: 0 0 8px 0;
+          cursor: pointer;
+        }
+
+        .appoint-meta {
           display: flex;
+          gap: 16px;
           gap: 16px;
           align-items: center;
           color: #6b6f7b;
