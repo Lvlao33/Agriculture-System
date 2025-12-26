@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="my-appointment-page">
     <div class="page-header">
       <h2>我的预约</h2>
@@ -139,6 +140,36 @@
       width="700px"
       :before-close="detailClose"
     >
+=======
+  <div class="expert-appoint-container">
+    <div class="page-header">
+      <h2 class="page-title"><i class="el-icon-date"></i> 我的预约</h2>
+      <p class="page-desc">在此查看您提交或收到的预约，专家确认后状态会更新。</p>
+    </div>
+    <div class="appoints-wrapper">
+      <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
+        <div class="appoint-card">
+          <div class="appoint-main">
+            <h3 class="appoint-title" @click="handleDetail(item)">{{ truncateText(item.plantDetail || item.description || item.plantName || item.title || '预约详情', 8) }}</h3>
+            <div class="appoint-meta">
+              <span class="meta-item"><i class="el-icon-user"></i> 咨询者：{{ item.questioner || item.userName || '匿名用户' }}</span>
+              <span class="meta-item" v-if="item.phone"><i class="el-icon-phone"></i> 联系：{{ item.phone }}</span>
+              <span class="meta-item"><i class="el-icon-time"></i> 时间：{{ formatDate(item.appointmentTime || item.startTime || item.createTime) }}</span>
+            </div>
+            <div class="appoint-desc">{{ item.plantDetail || item.description || '' }}</div>
+          </div>
+          <div class="appoint-side">
+            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? '待确认' : '已确认' }}</el-tag>
+          </div>
+        </div>
+        <div class="appoint-actions">
+          <el-button type="text" @click="handleDetail(item)">详情</el-button>
+          <el-button type="text" @click="handleEdit(item)">修改</el-button>
+          <el-button type="text" style="color:#f56c6c" @click="delAppoint(item)">删除</el-button>
+        </div>
+      </div>
+    <el-dialog title="详情" v-model:visible="showDetail" width="600px" :before-close="detailClose">
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
       <div class="detail-content">
         <div class="detail-item">
           <div class="item-title">种植作物：</div>
@@ -272,11 +303,17 @@
         <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
       </span>
     </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
+<<<<<<< HEAD
 import { selectAppointByUser, reviseAppointByUserId, delAppointByUserId } from '../api/question.js'
+=======
+import { selectAppointByUser,reviseAppointByUserId,delAppointByUserId } from '../api/question.js'
+import { getAppointmentListByUserId } from '@/api/appointment'
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
 
 export default {
   name: "MyAppointment",
@@ -308,6 +345,7 @@ export default {
       }
     }
   },
+<<<<<<< HEAD
   methods: {
     // 加载预约列表
     getData() {
@@ -330,6 +368,50 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+=======
+  methods:{
+    async getData(){
+      this.role =  this.$store.getters.isExpert?'expert':'questioner'
+      const userId = this.$store.state.loginUserId
+      try {
+        if (userId) {
+          const res = await getAppointmentListByUserId(userId)
+          let list = []
+          if (res) {
+            if (res.flag === true && res.data) {
+              list = Array.isArray(res.data) ? res.data : (res.data.list || [])
+            } else if (Array.isArray(res.data)) {
+              list = res.data
+            } else if (Array.isArray(res)) {
+              list = res
+            } else if (res.data && Array.isArray(res.data.list)) {
+              list = res.data.list
+            }
+          }
+          this.appointArray = list || []
+        } else {
+          this.appointArray = []
+        }
+      } catch (err) {
+        console.error('加载预约列表失败：', err)
+        this.appointArray = []
+      }
+    },
+    formatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+      } catch (e) {
+        return dateStr;
+      }
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
     },
     // 切换选择模式
     toggleSelectMode() {
@@ -464,6 +546,26 @@ export default {
       if (text.length <= length) return text;
       return text.substring(0, length) + '...';
     },
+<<<<<<< HEAD
+=======
+    submitRevise(){
+      this.detailObj.status = 1
+      reviseAppointByUserId(this.detailObj).then(res => {
+        this.$message.success('修改成功！')
+        this.dialogVisible = false
+        this.getData()
+      }).catch(err=>{
+        console.log(err)
+      })
+    }
+    ,
+    truncateText(text, maxLen = 8) {
+      if (!text && text !== 0) return ''
+      const s = String(text)
+      if (s.length <= maxLen) return s
+      return s.slice(0, maxLen) + '...'
+    }
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
   },
   mounted() {
     this.$store.commit("updateUserActiveIndex", "4-2");
@@ -473,6 +575,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+<<<<<<< HEAD
 .my-appointment-page {
   width: 1100px;
   margin: 0 auto;
@@ -503,6 +606,113 @@ export default {
     display: flex;
     align-items: center;
     gap: 10px;
+=======
+.expert-appoint-container{
+  width: 100%;
+  min-height: 100%;
+  background: #f5f7f9;
+  padding: 12px 0;
+
+  .appoints-wrapper {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .page-header {
+    width: 900px;
+    max-width: calc(100% - 160px);
+    margin: 0 auto 12px auto;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    h2.page-title {
+      font-size: 22px;
+      margin: 0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-desc {
+      margin: 0;
+      color: #666;
+      font-size: 13px;
+    }
+  }
+  .appoint-item {
+    margin: 12px 0;
+
+    .appoint-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid #e9eef1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+
+      .appoint-main {
+        flex: 1;
+        padding-right: 12px;
+
+        .appoint-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #222;
+          margin: 0 0 8px 0;
+          cursor: pointer;
+        }
+
+        .appoint-meta {
+          display: flex;
+          gap: 16px;
+          align-items: center;
+          color: #6b6f7b;
+          font-size: 13px;
+        }
+
+        .appoint-desc {
+          margin-top: 8px;
+          color: #666;
+          line-height: 1.6;
+        }
+      }
+
+      .appoint-side {
+        display: flex;
+        align-items: flex-start;
+      }
+    }
+
+    .appoint-actions {
+      display: flex;
+      gap: 8px;
+      padding: 6px 10px;
+      align-items: center;
+    }
+
+    .appoint-actions ::v-deep .el-button {
+      border: 1px solid #e6e6e6;
+      background: #fff;
+      color: #333;
+      border-radius: 6px;
+      padding: 6px 12px;
+      min-width: 56px;
+      box-shadow: none;
+    }
+
+    .appoint-actions ::v-deep .el-button:hover {
+      background: #fafafa;
+      border-color: #dcdfe6;
+    }
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
   }
 
   .appointment-list {
@@ -687,6 +897,7 @@ export default {
     }
   }
 }
+<<<<<<< HEAD
 
 @media (max-width: 1200px) {
   .my-appointment-page {
@@ -704,3 +915,7 @@ export default {
   }
 }
 </style>
+=======
+</style>
+</style>
+>>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39

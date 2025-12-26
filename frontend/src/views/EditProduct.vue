@@ -31,22 +31,26 @@
         </el-form-item>
 
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="商品名称">
               <el-input v-model="form.name" placeholder="请输入商品名称" />
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="单价">
-              <el-input-number v-model.number="form.price" :min="0" :step="1" />
+              <el-input-number v-model.number="form.price" :min="0" :step="1" style="width: 100%;" />
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="8">
             <el-form-item label="库存">
-              <el-input-number v-model.number="form.stock" :min="0" />
+              <el-input-number v-model.number="form.stock" :min="0" style="width: 100%;" />
             </el-form-item>
           </el-col>
         </el-row>
+
+        <el-form-item label="商品分类">
+          <el-input v-model="form.category" placeholder="请输入商品分类" style="width: 400px;" />
+        </el-form-item>
 
         <el-form-item label="商品简介">
           <el-input type="textarea" v-model="form.description" placeholder="请输入商品简介" class="wide-textarea" />
@@ -73,6 +77,7 @@ export default {
         price: 0,
         stock: 0,
         imageUrl: "",
+        category: "",
       },
       fileList: [],
       saving: false,
@@ -96,7 +101,8 @@ export default {
               description: p.description || "",
               price: p.price || 0,
               stock: p.stock || 0,
-            imageUrl: p.imageUrl || "",
+              imageUrl: p.imageUrl || "",
+              category: p.category || "",
             };
           // 初始化 images 数组（后端可能只返回单个 imageUrl 字符串）
           this.images = this.form.imageUrl ? [this.form.imageUrl] : [];
@@ -160,6 +166,7 @@ export default {
         price: this.form.price,
         stock: this.form.stock,
         imageUrl: this.form.imageUrl,
+        category: this.form.category,
       })
         .then((res) => {
           if (res.flag === true || res.success === true) {
