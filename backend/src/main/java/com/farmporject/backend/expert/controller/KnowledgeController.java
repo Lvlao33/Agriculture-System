@@ -115,7 +115,7 @@ public class KnowledgeController {
             
             // 增加阅读量（如果 Service 没做，可以在这里做，或者忽略）
             // knowledgeService.incrementViewCount(knowledgeId);
-
+            
             resp.put("flag", true);
             resp.put("data", convertToDto(k.get())); // 同样使用 DTO
             return ResponseEntity.ok(resp);
@@ -143,20 +143,20 @@ public class KnowledgeController {
                 resp.put("message", "用户未登录");
                 return ResponseEntity.status(401).body(resp);
             }
-
+            
             Optional<Expert> expertOpt = expertService.getExpertByUserId(userId);
             if (expertOpt.isEmpty()) {
                 resp.put("flag", true);
                 resp.put("data", new ArrayList<>());
                 return ResponseEntity.ok(resp);
             }
-
+            
             List<Knowledge> knowledgeList = knowledgeService.getAllKnowledgeByAuthor(expertOpt.get());
             List<Map<String, Object>> resultList = new ArrayList<>();
             for (Knowledge k : knowledgeList) {
                 resultList.add(convertToDto(k));
             }
-
+            
             resp.put("flag", true);
             resp.put("data", resultList);
             return ResponseEntity.ok(resp);
@@ -185,7 +185,7 @@ public class KnowledgeController {
             }
             knowledge.setAuthor(expertOpt.get());
             Knowledge created = knowledgeService.createKnowledge(knowledge);
-
+            
             resp.put("flag", true);
             resp.put("message", "发布成功");
             resp.put("data", convertToDto(created)); 

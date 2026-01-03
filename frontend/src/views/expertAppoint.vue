@@ -1,14 +1,14 @@
 <template>
   <div class="my-appointment-page">
     <div class="page-header">
-      <h2>ÎÒµÄÔ¤Ô¼</h2>
-      <p class="subtitle">¹ÜÀíÄúµÄËùÓĞÔ¤Ô¼¼ÇÂ¼</p>
+      <h2>æˆ‘çš„é¢„çº¦</h2>
+      <p class="subtitle">ç®¡ç†æ‚¨çš„æ‰€æœ‰é¢„çº¦è®°å½•</p>
     </div>
 
     <div class="toolbar">
       <el-button type="success" @click="goToAppointment">
         <i class="el-icon-plus"></i>
-        ĞÂ½¨Ô¤Ô¼
+        æ–°å»ºé¢„çº¦
       </el-button>
       <el-button 
         :type="isSelectMode ? 'danger' : 'warning'" 
@@ -16,7 +16,7 @@
         @click="toggleSelectMode"
       >
         <i class="el-icon-check"></i>
-        {{ isSelectMode ? 'È¡ÏûÑ¡Ôñ' : 'Ñ¡Ôñ' }}
+        {{ isSelectMode ? 'å–æ¶ˆé€‰æ‹©' : 'é€‰æ‹©' }}
       </el-button>
       <el-button 
         v-if="isSelectMode && selectedAppointmentIds.length > 0"
@@ -25,7 +25,7 @@
         style="margin-left: 10px;"
       >
         <i class="el-icon-delete"></i>
-        É¾³ı ({{ selectedAppointmentIds.length }})
+        åˆ é™¤ ({{ selectedAppointmentIds.length }})
       </el-button>
     </div>
 
@@ -48,41 +48,41 @@
           <i class="el-icon-alarm-clock" :class="{ 'answered': item.status === 1 }"></i>
         </div>
         <div class="appointment-content">
-          <h3 class="appointment-title">{{ item.plantName || 'Î´ÃüÃû×÷Îï' }}</h3>
-          <p class="appointment-text">{{ item.plantDetail || 'ÔİÎŞÏêÏ¸ĞÅÏ¢' }}</p>
+          <h3 class="appointment-title">{{ item.plantName || 'æœªå‘½åä½œç‰©' }}</h3>
+          <p class="appointment-text">{{ item.plantDetail || 'æš‚æ— è¯¦ç»†ä¿¡æ¯' }}</p>
           <div class="appointment-info">
             <div class="info-row">
               <span class="info-item" v-if="role === 'expert'">
                 <i class="el-icon-user"></i>
-                ×ÉÑ¯Õß£º{{ item.questioner || 'Î´Öª' }}
+                å’¨è¯¢è€…ï¼š{{ item.questioner || 'æœªçŸ¥' }}
               </span>
               <span class="info-item" v-if="role === 'expert'">
                 <i class="el-icon-phone"></i>
-                {{ item.phone || 'Î´Ìá¹©' }}
+                {{ item.phone || 'æœªæä¾›' }}
               </span>
               <span class="info-item" v-if="role === 'questioner'">
                 <i class="el-icon-user-solid"></i>
-                ×¨¼Ò£º{{ item.expertName || 'Î´Ö¸¶¨' }}
+                ä¸“å®¶ï¼š{{ item.expertName || 'æœªæŒ‡å®š' }}
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-location"></i>
-                µØÖ·£º{{ item.address || 'Î´Ìá¹©' }}
+                åœ°å€ï¼š{{ item.address || 'æœªæä¾›' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-data-line"></i>
-                Ãæ»ı£º{{ item.area || 'Î´Öª' }}Ä¶
+                é¢ç§¯ï¼š{{ item.area || 'æœªçŸ¥' }}äº©
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-sunny"></i>
-                ×÷ÎïÌõ¼ş£º{{ item.plantCondition || 'Î´Ìá¹©' }}
+                ä½œç‰©æ¡ä»¶ï¼š{{ item.plantCondition || 'æœªæä¾›' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-s-grid"></i>
-                ÍÁÈÀÌõ¼ş£º{{ truncateText(item.soilCondition, 20) || 'Î´Ìá¹©' }}
+                åœŸå£¤æ¡ä»¶ï¼š{{ truncateText(item.soilCondition, 20) || 'æœªæä¾›' }}
               </span>
             </div>
           </div>
@@ -92,7 +92,7 @@
               size="small"
             >
               <i :class="item.status === 0 ? 'el-icon-warning' : 'el-icon-success'"></i>
-              {{ item.status === 0 ? 'Î´»Ø¸´' : 'ÒÑ»Ø¸´' }}
+              {{ item.status === 0 ? 'æœªå›å¤' : 'å·²å›å¤' }}
             </el-tag>
             <div class="appointment-actions" @click.stop>
               <el-button 
@@ -101,7 +101,7 @@
                 @click="handleDetail(item)"
                 icon="el-icon-view"
               >
-                ÏêÇé
+                è¯¦æƒ…
               </el-button>
               <el-button 
                 type="text" 
@@ -109,7 +109,7 @@
                 @click="handleEdit(item)"
                 icon="el-icon-edit"
               >
-                »Ø¸´
+                å›å¤
               </el-button>
               <el-button 
                 type="text" 
@@ -118,7 +118,7 @@
                 icon="el-icon-delete"
                 style="color: #F56C6C;"
               >
-                É¾³ı
+                åˆ é™¤
               </el-button>
             </div>
           </div>
@@ -127,149 +127,149 @@
 
       <div v-if="appointArray.length === 0 && !loading" class="empty-state">
         <i class="el-icon-alarm-clock"></i>
-        <p>ÔİÎŞÔ¤Ô¼¼ÇÂ¼</p>
-        <el-button type="primary" @click="goToAppointment">´´½¨Ô¤Ô¼</el-button>
+        <p>æš‚æ— é¢„çº¦è®°å½•</p>
+        <el-button type="primary" @click="goToAppointment">åˆ›å»ºé¢„çº¦</el-button>
       </div>
     </div>
 
-    <!-- ÏêÇéµ¯´° -->
+    <!-- è¯¦æƒ…å¼¹çª— -->
     <el-dialog 
-      title="Ô¤Ô¼ÏêÇé" 
+      title="é¢„çº¦è¯¦æƒ…" 
       :visible.sync="showDetail" 
       width="700px"
       :before-close="detailClose"
     >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">ÖÖÖ²×÷Îï£º</div>
-          <div class="item-content">{{ detailObj.plantName || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ç§æ¤ä½œç‰©ï¼š</div>
+          <div class="item-content">{{ detailObj.plantName || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">×÷ÎïÏêÏ¸ĞÅÏ¢£º</div>
-          <div class="item-content">{{ detailObj.plantDetail || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ä½œç‰©è¯¦ç»†ä¿¡æ¯ï¼š</div>
+          <div class="item-content">{{ detailObj.plantDetail || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">µØÖ·£º</div>
-          <div class="item-content">{{ detailObj.address || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">åœ°å€ï¼š</div>
+          <div class="item-content">{{ detailObj.address || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">Ãæ»ı£º</div>
-          <div class="item-content">{{ detailObj.area || 'Î´Öª' }}Ä¶</div>
+          <div class="item-title">é¢ç§¯ï¼š</div>
+          <div class="item-content">{{ detailObj.area || 'æœªçŸ¥' }}äº©</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">×÷ÎïÌõ¼ş£º</div>
-          <div class="item-content">{{ detailObj.plantCondition || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ä½œç‰©æ¡ä»¶ï¼š</div>
+          <div class="item-content">{{ detailObj.plantCondition || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">ÍÁÈÀÌõ¼ş£º</div>
-          <div class="item-content">{{ detailObj.soilCondition || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">åœŸå£¤æ¡ä»¶ï¼š</div>
+          <div class="item-content">{{ detailObj.soilCondition || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">×ÉÑ¯Õß£º</div>
-          <div class="item-content">{{ detailObj.questioner || 'Î´Öª' }}</div>
+          <div class="item-title">å’¨è¯¢è€…ï¼š</div>
+          <div class="item-content">{{ detailObj.questioner || 'æœªçŸ¥' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">ÁªÏµ·½Ê½£º</div>
-          <div class="item-content">{{ detailObj.phone || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">è”ç³»æ–¹å¼ï¼š</div>
+          <div class="item-content">{{ detailObj.phone || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'questioner'">
-          <div class="item-title">×¨¼ÒĞÕÃû£º</div>
-          <div class="item-content">{{ detailObj.expertName || 'Î´Ö¸¶¨' }}</div>
+          <div class="item-title">ä¸“å®¶å§“åï¼š</div>
+          <div class="item-content">{{ detailObj.expertName || 'æœªæŒ‡å®š' }}</div>
         </div>
         <div class="detail-item" v-if="detailObj.answer">
-          <div class="item-title">×¨¼Ò»Ø¸´£º</div>
+          <div class="item-title">ä¸“å®¶å›å¤ï¼š</div>
           <div class="item-content answer-content">{{ detailObj.answer }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">Ô¤Ô¼×´Ì¬£º</div>
+          <div class="item-title">é¢„çº¦çŠ¶æ€ï¼š</div>
           <el-tag 
             :type="detailObj.status === 0 ? 'warning' : 'success'" 
             size="small"
           >
-            {{ detailObj.status === 0 ? 'Î´»Ø¸´' : 'ÒÑ»Ø¸´' }}
+            {{ detailObj.status === 0 ? 'æœªå›å¤' : 'å·²å›å¤' }}
           </el-tag>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDetail = false">¹Ø ±Õ</el-button>
+        <el-button @click="showDetail = false">å…³ é—­</el-button>
       </span>
     </el-dialog>
 
-    <!-- ±à¼­/»Ø¸´µ¯´° -->
+    <!-- ç¼–è¾‘/å›å¤å¼¹çª— -->
     <el-dialog 
-      title="»Ø¸´Ô¤Ô¼" 
+      title="å›å¤é¢„çº¦" 
       :visible.sync="dialogVisible" 
       width="700px"
       :before-close="closeRevise"
     >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">ÖÖÖ²×÷Îï£º</div>
-          <div class="item-content">{{ detailObj.plantName || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ç§æ¤ä½œç‰©ï¼š</div>
+          <div class="item-content">{{ detailObj.plantName || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">×÷ÎïÏêÏ¸ĞÅÏ¢£º</div>
-          <div class="item-content">{{ detailObj.plantDetail || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ä½œç‰©è¯¦ç»†ä¿¡æ¯ï¼š</div>
+          <div class="item-content">{{ detailObj.plantDetail || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">µØÖ·£º</div>
-          <div class="item-content">{{ detailObj.address || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">åœ°å€ï¼š</div>
+          <div class="item-content">{{ detailObj.address || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">Ãæ»ı£º</div>
-          <div class="item-content">{{ detailObj.area || 'Î´Öª' }}Ä¶</div>
+          <div class="item-title">é¢ç§¯ï¼š</div>
+          <div class="item-content">{{ detailObj.area || 'æœªçŸ¥' }}äº©</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">×÷ÎïÌõ¼ş£º</div>
-          <div class="item-content">{{ detailObj.plantCondition || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">ä½œç‰©æ¡ä»¶ï¼š</div>
+          <div class="item-content">{{ detailObj.plantCondition || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">ÍÁÈÀÌõ¼ş£º</div>
-          <div class="item-content">{{ detailObj.soilCondition || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">åœŸå£¤æ¡ä»¶ï¼š</div>
+          <div class="item-content">{{ detailObj.soilCondition || 'æœªæä¾›' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">×ÉÑ¯Õß£º</div>
-          <div class="item-content">{{ detailObj.questioner || 'Î´Öª' }}</div>
+          <div class="item-title">å’¨è¯¢è€…ï¼š</div>
+          <div class="item-content">{{ detailObj.questioner || 'æœªçŸ¥' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">ÁªÏµ·½Ê½£º</div>
-          <div class="item-content">{{ detailObj.phone || 'Î´Ìá¹©' }}</div>
+          <div class="item-title">è”ç³»æ–¹å¼ï¼š</div>
+          <div class="item-content">{{ detailObj.phone || 'æœªæä¾›' }}</div>
         </div>
         <el-form 
           ref="form" 
           :model="detailObj" 
           label-width="80px"
         >
-          <el-form-item label="»Ø¸´ÄÚÈİ£º">
+          <el-form-item label="å›å¤å†…å®¹ï¼š">
             <el-input 
               type="textarea" 
               :rows="6"
               v-model="detailObj.answer"
-              placeholder="ÇëÊäÈëÄúµÄ»Ø¸´ÄÚÈİ"
+              placeholder="è¯·è¾“å…¥æ‚¨çš„å›å¤å†…å®¹"
             ></el-input>
           </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeRevise">È¡ Ïû</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitRevise">È· ¶¨</el-button>
+        <el-button @click="closeRevise">å– æ¶ˆ</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitRevise">ç¡® å®š</el-button>
       </span>
     </el-dialog>
 
-    <!-- È·ÈÏÉ¾³ıµ¯´° -->
+    <!-- ç¡®è®¤åˆ é™¤å¼¹çª— -->
     <el-dialog
-      title="È·ÈÏÉ¾³ı"
+      title="ç¡®è®¤åˆ é™¤"
       :visible.sync="deleteDialogVisible"
       width="400px"
     >
       <div class="delete-dialog-content">
         <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
-        <p>È·¶¨ÒªÉ¾³ıÑ¡ÖĞµÄ <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> ÌõÔ¤Ô¼Âğ£¿</p>
-        <p style="color: #909399; font-size: 12px; margin-top: 10px;">É¾³ıºóÎŞ·¨»Ö¸´¡£</p>
+        <p>ç¡®å®šè¦åˆ é™¤é€‰ä¸­çš„ <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> æ¡é¢„çº¦å—ï¼Ÿ</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">åˆ é™¤åæ— æ³•æ¢å¤ã€‚</p>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">È¡ Ïû</el-button>
-        <el-button type="danger" :loading="deleting" @click="confirmDelete">È·ÈÏÉ¾³ı</el-button>
+        <el-button @click="deleteDialogVisible = false">å– æ¶ˆ</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmDelete">ç¡®è®¤åˆ é™¤</el-button>
       </span>
     </el-dialog>
   </div>
@@ -310,38 +310,38 @@ export default {
     }
   },
   methods: {
-    // ¼ÓÔØÔ¤Ô¼ÁĞ±í - ÓÅÏÈÊ¹ÓÃĞÂAPI£¬Ê§°ÜÔò»ØÍËµ½¾ÉAPI
+    // åŠ è½½é¢„çº¦åˆ—è¡¨ - ä¼˜å…ˆä½¿ç”¨æ–°APIï¼Œå¤±è´¥åˆ™å›é€€åˆ°æ—§API
     async getData() {
       this.loading = true;
       this.role = this.$store.getters.isExpert ? 'expert' : 'questioner';
       
       try {
-        // ÓÅÏÈ³¢ÊÔĞÂAPI
+        // ä¼˜å…ˆå°è¯•æ–°API
         const userId = this.$store.state.loginUserId;
         if (userId) {
           try {
             const res = await getAppointmentListByUserId(userId);
             let list = [];
-            if (res) {
-              if (res.flag === true && res.data) {
+          if (res) {
+            if (res.flag === true && res.data) {
                 list = Array.isArray(res.data) ? res.data : (res.data.list || []);
-              } else if (Array.isArray(res.data)) {
+            } else if (Array.isArray(res.data)) {
                 list = res.data;
-              } else if (Array.isArray(res)) {
+            } else if (Array.isArray(res)) {
                 list = res;
-              } else if (res.data && Array.isArray(res.data.list)) {
+            } else if (res.data && Array.isArray(res.data.list)) {
                 list = res.data.list;
-              }
             }
+          }
             this.appointArray = list || [];
             this.loading = false;
             return;
           } catch (newApiError) {
-            console.warn('ĞÂAPIµ÷ÓÃÊ§°Ü£¬»ØÍËµ½¾ÉAPI:', newApiError);
+            console.warn('æ–°APIè°ƒç”¨å¤±è´¥ï¼Œå›é€€åˆ°æ—§API:', newApiError);
           }
         }
         
-        // »ØÍËµ½¾ÉAPI
+        // å›é€€åˆ°æ—§API
         const res = await selectAppointByUser({ type: this.role });
         if (res && res.data) {
           this.appointArray = Array.isArray(res.data) ? res.data : [];
@@ -349,8 +349,8 @@ export default {
           this.appointArray = [];
         }
       } catch (err) {
-        console.error('¼ÓÔØÔ¤Ô¼ÁĞ±íÊ§°Ü:', err);
-        this.$message.error('¼ÓÔØÔ¤Ô¼ÁĞ±íÊ§°Ü£¬ÇëÖØÊÔ');
+        console.error('åŠ è½½é¢„çº¦åˆ—è¡¨å¤±è´¥:', err);
+        this.$message.error('åŠ è½½é¢„çº¦åˆ—è¡¨å¤±è´¥ï¼Œè¯·é‡è¯•');
         this.appointArray = [];
       } finally {
         this.loading = false;
@@ -371,20 +371,20 @@ export default {
         return dateStr;
       }
     },
-    // ÇĞ»»Ñ¡ÔñÄ£Ê½
+    // åˆ‡æ¢é€‰æ‹©æ¨¡å¼
     toggleSelectMode() {
       this.isSelectMode = !this.isSelectMode;
       if (!this.isSelectMode) {
         this.selectedAppointmentIds = [];
       }
     },
-    // µã»÷Ô¤Ô¼¿¨Æ¬
+    // ç‚¹å‡»é¢„çº¦å¡ç‰‡
     handleAppointmentClick(appointmentId) {
       if (this.isSelectMode) {
         this.toggleAppointmentSelection(appointmentId);
       }
     },
-    // ÇĞ»»Ô¤Ô¼Ñ¡Ôñ×´Ì¬
+    // åˆ‡æ¢é¢„çº¦é€‰æ‹©çŠ¶æ€
     toggleAppointmentSelection(appointmentId) {
       const index = this.selectedAppointmentIds.indexOf(appointmentId);
       if (index > -1) {
@@ -393,15 +393,15 @@ export default {
         this.selectedAppointmentIds.push(appointmentId);
       }
     },
-    // ÅúÁ¿É¾³ı
+    // æ‰¹é‡åˆ é™¤
     handleBatchDelete() {
       if (this.selectedAppointmentIds.length === 0) {
-        this.$message.warning("ÇëÏÈÑ¡ÔñÒªÉ¾³ıµÄÔ¤Ô¼");
+        this.$message.warning("è¯·å…ˆé€‰æ‹©è¦åˆ é™¤çš„é¢„çº¦");
         return;
       }
       this.deleteDialogVisible = true;
     },
-    // È·ÈÏÉ¾³ı
+    // ç¡®è®¤åˆ é™¤
     confirmDelete() {
       this.deleting = true;
       const deletePromises = this.selectedAppointmentIds.map(id => 
@@ -412,9 +412,9 @@ export default {
         .then((results) => {
           const successCount = results.filter(r => r && (r.flag !== false)).length;
           if (successCount === this.selectedAppointmentIds.length) {
-            this.$message.success(`³É¹¦É¾³ı ${successCount} ÌõÔ¤Ô¼`);
+            this.$message.success(`æˆåŠŸåˆ é™¤ ${successCount} æ¡é¢„çº¦`);
           } else {
-            this.$message.warning(`²¿·ÖÉ¾³ıÊ§°Ü£¬³É¹¦É¾³ı ${successCount} Ìõ`);
+            this.$message.warning(`éƒ¨åˆ†åˆ é™¤å¤±è´¥ï¼ŒæˆåŠŸåˆ é™¤ ${successCount} æ¡`);
           }
           this.selectedAppointmentIds = [];
           this.isSelectMode = false;
@@ -422,40 +422,40 @@ export default {
           this.getData();
         })
         .catch((err) => {
-          console.error("ÅúÁ¿É¾³ıÊ§°Ü:", err);
-          this.$message.error("É¾³ıÊ§°Ü£¬ÇëÖØÊÔ");
+          console.error("æ‰¹é‡åˆ é™¤å¤±è´¥:", err);
+          this.$message.error("åˆ é™¤å¤±è´¥ï¼Œè¯·é‡è¯•");
         })
         .finally(() => {
           this.deleting = false;
         });
     },
-    // É¾³ıµ¥¸öÔ¤Ô¼
+    // åˆ é™¤å•ä¸ªé¢„çº¦
     delAppoint(item) {
-      this.$confirm('È·ÈÏÉ¾³ı¸ÃÔ¤Ô¼ĞÅÏ¢£¿', 'É¾³ı', {
-        confirmButtonText: 'È·¶¨',
-        cancelButtonText: 'È¡Ïû',
+      this.$confirm('ç¡®è®¤åˆ é™¤è¯¥é¢„çº¦ä¿¡æ¯ï¼Ÿ', 'åˆ é™¤', {
+        confirmButtonText: 'ç¡®å®š',
+        cancelButtonText: 'å–æ¶ˆ',
         type: 'warning'
       }).then(() => {
         delAppointByUserId({ id: item.id })
           .then(res => {
             this.$message({
               type: 'success',
-              message: 'É¾³ı³É¹¦!'
+              message: 'åˆ é™¤æˆåŠŸ!'
             });
             this.getData();
           })
           .catch(err => {
-            console.error('É¾³ıÊ§°Ü:', err);
-            this.$message.error('É¾³ıÊ§°Ü£¬ÇëÖØÊÔ');
+            console.error('åˆ é™¤å¤±è´¥:', err);
+            this.$message.error('åˆ é™¤å¤±è´¥ï¼Œè¯·é‡è¯•');
           });
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: 'ÒÑÈ¡ÏûÉ¾³ı'
+          message: 'å·²å–æ¶ˆåˆ é™¤'
         });
       });
     },
-    // ²é¿´ÏêÇé
+    // æŸ¥çœ‹è¯¦æƒ…
     handleDetail(item) {
       this.showDetail = true;
       this.detailObj = Object.assign({}, { ...item });
@@ -463,7 +463,7 @@ export default {
     detailClose() {
       this.showDetail = false;
     },
-    // ±à¼­/»Ø¸´
+    // ç¼–è¾‘/å›å¤
     handleEdit(item) {
       this.dialogVisible = true;
       this.detailObj = Object.assign({}, { ...item });
@@ -471,10 +471,10 @@ export default {
     closeRevise() {
       this.dialogVisible = false;
     },
-    // Ìá½»»Ø¸´
+    // æäº¤å›å¤
     submitRevise() {
       if (!this.detailObj.answer || this.detailObj.answer.trim() === '') {
-        this.$message.warning('ÇëÊäÈë»Ø¸´ÄÚÈİ');
+        this.$message.warning('è¯·è¾“å…¥å›å¤å†…å®¹');
         return;
       }
 
@@ -482,23 +482,23 @@ export default {
       this.submitting = true;
       reviseAppointByUserId(this.detailObj)
         .then(res => {
-          this.$message.success('»Ø¸´³É¹¦');
+          this.$message.success('å›å¤æˆåŠŸ');
           this.dialogVisible = false;
           this.getData();
         })
         .catch(err => {
-          console.error('»Ø¸´Ê§°Ü:', err);
-          this.$message.error('»Ø¸´Ê§°Ü£¬ÇëÖØÊÔ');
+          console.error('å›å¤å¤±è´¥:', err);
+          this.$message.error('å›å¤å¤±è´¥ï¼Œè¯·é‡è¯•');
         })
         .finally(() => {
           this.submitting = false;
         });
     },
-    // È¥Ô¤Ô¼
+    // å»é¢„çº¦
     goToAppointment() {
       this.$router.push("/home/appointment").catch((err) => err);
     },
-    // ½Ø¶ÏÎÄ±¾
+    // æˆªæ–­æ–‡æœ¬
     truncateText(text, length) {
       if (!text) return '';
       if (text.length <= length) return text;
