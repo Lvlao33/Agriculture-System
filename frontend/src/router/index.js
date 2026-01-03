@@ -141,6 +141,14 @@ const routes = [
         component: KnowledgeDetail
       },
       {
+        // 路径必须带参数 :id
+        path: 'knowledgeDetail/:id', 
+        name: 'KnowledgeDetail',
+        // 确保这个 vue 文件是真实存在的
+        component: () => import('@/views/KnowledgeDetail.vue'), 
+        meta: { title: '知识详情' }
+      },
+      {
         path: 'guide',
         component: HomeGuide
       },

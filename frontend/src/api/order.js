@@ -212,7 +212,7 @@ export function selectQuestions(params) {
     if(params.keys===''){
         return request({
             method: 'get',
-            url: `/question/findAllQues/${params.pageNum}`,
+            url: `/api/question/findAllQues/${params.pageNum}`,
             headers: {
                 'Authorization': window.localStorage.token,
             },
@@ -220,7 +220,7 @@ export function selectQuestions(params) {
     }else{
         return request({
             method: 'get',
-            url: `/question/findPageQues/${params.keys}/${params.pageNum}`,
+            url: `/api/question/findPageQues/${params.keys}/${params.pageNum}`,
             headers: {
                 'Authorization': window.localStorage.token,
             },
@@ -233,7 +233,7 @@ export function selectExpert(params) {
     if(params.keys===''){
         return request({
             method: 'get',
-            url: `/question/findExpert/${params.pageNum}`,
+            url: `/api/question/findExpert/${params.pageNum}`,
             headers: {
                 'Authorization': window.localStorage.token,
             },
@@ -241,7 +241,7 @@ export function selectExpert(params) {
     }else{
         return request({
             method: 'get',
-            url: `/question/findExpertByKeys/${params.keys}/${params.pageNum}`,
+            url: `/api/question/findExpertByKeys/${params.keys}/${params.pageNum}`,
             headers: {
                 'Authorization': window.localStorage.token,
             },
@@ -252,7 +252,7 @@ export function selectExpert(params) {
 export function questionDetail(params) {
     return request({
         method: 'get',
-        url: `/question/selectId/${params.id}`,
+        url: `/api/question/selectId/${params.id}`,
         headers: {
             'Authorization': window.localStorage.token,
         },
@@ -262,7 +262,7 @@ export function questionDetail(params) {
 export function addQuestion(params) {
     return request({
         method: 'post',
-        url: `/question/add`,
+        url: `/api/question/add`,
         headers: {
             'Authorization': window.localStorage.token,
         },

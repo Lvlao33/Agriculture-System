@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * ¼æÈİÇ°¶Ë¾É½Ó¿ÚµÄÎÊ´ğ¿ØÖÆÆ÷
- * ´¦Àí /question Â·¾¶µÄÇëÇó
+ * é—®ç­”æ§åˆ¶å™¨
+ * ç»Ÿä¸€å‰ç¼€: /api/question
  */
 @RestController
-@RequestMapping("/question")
+@RequestMapping("/api/question")
 public class QuestionController {
 
     private final QAService qaService;
@@ -25,240 +25,97 @@ public class QuestionController {
         this.qaService = qaService;
     }
 
-    /**
-     * GET /question/findAllQues/{pageNum}
-     * ¼æÈİÇ°¶Ë¾É½Ó¿Ú£º»ñÈ¡ÎÊ´ğÁĞ±í£¨·ÖÒ³£©
-     */
+    // è¡¥å……ç¼ºå¤±æ¥å£ï¼šè§£å†³ ExpertQuestion.vue çš„æŠ¥é”™
+    @GetMapping("/selectByKind/{kind}")
+    public ResponseEntity<Map<String, Object>> selectByKind(@PathVariable String kind) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            List<Question> list = qaService.getAllQuestions();
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            for (Question q : list) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("questionId", q.getId());
+                item.put("title", q.getTitle());
+                item.put("content", q.getContent());
+                item.put("status", q.getStatus());
+                resultList.add(item);
+            }
+            resp.put("flag", true);
+            resp.put("data", resultList);
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            resp.put("flag", false);
+            resp.put("message", "æŸ¥è¯¢å¤±è´¥");
+            return ResponseEntity.badRequest().body(resp);
+        }
+    }
+
+    // åˆ é™¤æ¥å£
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, Object>> deleteQuestion(@PathVariable Long id) {
+        Map<String, Object> resp = new HashMap<>();
+        try {
+            qaService.deleteQuestion(id);
+            resp.put("flag", true);
+            resp.put("message", "åˆ é™¤æˆåŠŸ");
+            return ResponseEntity.ok(resp);
+        } catch (Exception e) {
+            resp.put("flag", false);
+            resp.put("message", "åˆ é™¤å¤±è´¥: " + e.getMessage());
+            return ResponseEntity.badRequest().body(resp);
+        }
+    }
+
+    // åˆ†é¡µæŸ¥è¯¢æ¥å£
     @GetMapping("/findAllQues/{pageNum}")
-    public ResponseEntity<Map<String, Object>> findAllQues(
-            @PathVariable Integer pageNum,
-            @RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<Map<String, Object>> findAllQues(@PathVariable Integer pageNum) {
         try {
             int pageSize = 10;
             List<Question> list = qaService.getAllQuestions();
-
-            // °´¸üĞÂÊ±¼ä½µĞòÅÅÁĞ
-            list.sort((a, b) -> {
-                if (a.getUpdateTime() != null && b.getUpdateTime() != null) {
-                    return b.getUpdateTime().compareTo(a.getUpdateTime());
-                } else if (a.getUpdateTime() != null) {
-                    return -1;
-                } else if (b.getUpdateTime() != null) {
-                    return 1;
-                } else if (a.getCreateTime() != null && b.getCreateTime() != null) {
-                    return b.getCreateTime().compareTo(a.getCreateTime());
-                }
-                return 0;
-            });
-
-            // ÊÖ¶¯·ÖÒ³
             int total = list.size();
             int start = (pageNum - 1) * pageSize;
             int end = Math.min(start + pageSize, total);
-            List<Question> pagedList = start < total ? list.subList(start, end) : new ArrayList<>();
+            List<Question> pagedList = (start < total) ? list.subList(start, end) : new ArrayList<>();
 
-            // ×ª»»ÎªDTO¸ñÊ½
             List<Map<String, Object>> resultList = new ArrayList<>();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
             for (Question q : pagedList) {
                 Map<String, Object> item = new HashMap<>();
                 item.put("questionId", q.getId());
-                item.put("title", q.getTitle() != null ? q.getTitle() : "");
-                item.put("content", q.getContent() != null ? q.getContent() : "");
-                
-                // ´¦ÀíÓÃ»§ĞÅÏ¢
-                try {
-                    if (q.getUser() != null) {
-                        item.put("questioner", q.getUser().getUsername());
-                        item.put("userId", q.getUser().getId());
-                    } else {
-                        item.put("questioner", "ÄäÃûÓÃ»§");
-                        item.put("userId", null);
-                    }
-                } catch (Exception e) {
-                    item.put("questioner", "ÄäÃûÓÃ»§");
-                    item.put("userId", null);
+                item.put("title", q.getTitle());
+                item.put("content", q.getContent());
+                if (q.getUser() != null) {
+                    item.put("questioner", q.getUser().getUsername());
+                    item.put("userId", q.getUser().getId());
+                } else {
+                    item.put("questioner", "åŒ¿å");
                 }
-
-                // ´¦Àí×¨¼ÒĞÅÏ¢
-                try {
-                    if (q.getExpert() != null) {
-                        item.put("expertName", q.getExpert().getName());
-                        item.put("expertId", q.getExpert().getId());
-                    } else {
-                        item.put("expertName", "");
-                        item.put("expertId", null);
-                    }
-                } catch (Exception e) {
-                    item.put("expertName", "");
-                    item.put("expertId", null);
+                if (q.getExpert() != null) {
+                    item.put("expertName", q.getExpert().getName());
                 }
-
-                item.put("status", q.getStatus() != null ? q.getStatus().name() : "PENDING");
-                
+                item.put("status", q.getStatus());
                 if (q.getCreateTime() != null) {
                     item.put("createTime", q.getCreateTime().format(formatter));
-                } else {
-                    item.put("createTime", null);
                 }
-
-                // ²éÑ¯»Ø´ğÊıÁ¿
                 try {
-                    int answerCount = qaService.getQuestionAnswersCount(q.getId());
-                    item.put("answerCount", answerCount);
+                    item.put("answerCount", qaService.getQuestionAnswersCount(q.getId()));
                 } catch (Exception e) {
                     item.put("answerCount", 0);
                 }
-
                 resultList.add(item);
             }
 
-            // ·µ»ØÇ°¶ËÆÚÍûµÄ¸ñÊ½£º{ flag: true, data: { list: [...], total: ... } }
             Map<String, Object> response = new HashMap<>();
             response.put("flag", true);
             Map<String, Object> data = new HashMap<>();
             data.put("list", resultList);
             data.put("total", total);
             response.put("data", data);
-
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("»ñÈ¡ÎÊ´ğÁĞ±íÊ§°Ü: " + e.getMessage());
             e.printStackTrace();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", false);
-            response.put("message", "»ñÈ¡ÎÊ´ğÁĞ±íÊ§°Ü: " + e.getMessage());
-            Map<String, Object> data = new HashMap<>();
-            data.put("list", new ArrayList<>());
-            data.put("total", 0);
-            response.put("data", data);
-
-            return ResponseEntity.status(500).body(response);
-        }
-    }
-
-    /**
-     * GET /question/findPageQues/{keys}/{pageNum}
-     * ¼æÈİÇ°¶Ë¾É½Ó¿Ú£º¸ù¾İ¹Ø¼ü´ÊËÑË÷ÎÊ´ğÁĞ±í£¨·ÖÒ³£©
-     */
-    @GetMapping("/findPageQues/{keys}/{pageNum}")
-    public ResponseEntity<Map<String, Object>> findPageQues(
-            @PathVariable String keys,
-            @PathVariable Integer pageNum,
-            @RequestHeader(value = "Authorization", required = false) String token) {
-        try {
-            int pageSize = 10;
-            List<Question> list;
-
-            // ¸ù¾İ¹Ø¼ü´ÊËÑË÷
-            if (keys != null && !keys.trim().isEmpty()) {
-                list = qaService.searchQuestionsByKeyword(keys.trim());
-            } else {
-                list = qaService.getAllQuestions();
-            }
-
-            // °´¸üĞÂÊ±¼ä½µĞòÅÅÁĞ
-            list.sort((a, b) -> {
-                if (a.getUpdateTime() != null && b.getUpdateTime() != null) {
-                    return b.getUpdateTime().compareTo(a.getUpdateTime());
-                } else if (a.getUpdateTime() != null) {
-                    return -1;
-                } else if (b.getUpdateTime() != null) {
-                    return 1;
-                } else if (a.getCreateTime() != null && b.getCreateTime() != null) {
-                    return b.getCreateTime().compareTo(a.getCreateTime());
-                }
-                return 0;
-            });
-
-            // ÊÖ¶¯·ÖÒ³
-            int total = list.size();
-            int start = (pageNum - 1) * pageSize;
-            int end = Math.min(start + pageSize, total);
-            List<Question> pagedList = start < total ? list.subList(start, end) : new ArrayList<>();
-
-            // ×ª»»ÎªDTO¸ñÊ½
-            List<Map<String, Object>> resultList = new ArrayList<>();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-            for (Question q : pagedList) {
-                Map<String, Object> item = new HashMap<>();
-                item.put("questionId", q.getId());
-                item.put("title", q.getTitle() != null ? q.getTitle() : "");
-                item.put("content", q.getContent() != null ? q.getContent() : "");
-                
-                // ´¦ÀíÓÃ»§ĞÅÏ¢
-                try {
-                    if (q.getUser() != null) {
-                        item.put("questioner", q.getUser().getUsername());
-                        item.put("userId", q.getUser().getId());
-                    } else {
-                        item.put("questioner", "ÄäÃûÓÃ»§");
-                        item.put("userId", null);
-                    }
-                } catch (Exception e) {
-                    item.put("questioner", "ÄäÃûÓÃ»§");
-                    item.put("userId", null);
-                }
-
-                // ´¦Àí×¨¼ÒĞÅÏ¢
-                try {
-                    if (q.getExpert() != null) {
-                        item.put("expertName", q.getExpert().getName());
-                        item.put("expertId", q.getExpert().getId());
-                    } else {
-                        item.put("expertName", "");
-                        item.put("expertId", null);
-                    }
-                } catch (Exception e) {
-                    item.put("expertName", "");
-                    item.put("expertId", null);
-                }
-
-                item.put("status", q.getStatus() != null ? q.getStatus().name() : "PENDING");
-                
-                if (q.getCreateTime() != null) {
-                    item.put("createTime", q.getCreateTime().format(formatter));
-                } else {
-                    item.put("createTime", null);
-                }
-
-                // ²éÑ¯»Ø´ğÊıÁ¿
-                try {
-                    int answerCount = qaService.getQuestionAnswersCount(q.getId());
-                    item.put("answerCount", answerCount);
-                } catch (Exception e) {
-                    item.put("answerCount", 0);
-                }
-
-                resultList.add(item);
-            }
-
-            // ·µ»ØÇ°¶ËÆÚÍûµÄ¸ñÊ½£º{ flag: true, data: { list: [...], total: ... } }
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", true);
-            Map<String, Object> data = new HashMap<>();
-            data.put("list", resultList);
-            data.put("total", total);
-            response.put("data", data);
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            System.err.println("ËÑË÷ÎÊ´ğÁĞ±íÊ§°Ü: " + e.getMessage());
-            e.printStackTrace();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("flag", false);
-            response.put("message", "ËÑË÷ÎÊ´ğÁĞ±íÊ§°Ü: " + e.getMessage());
-            Map<String, Object> data = new HashMap<>();
-            data.put("list", new ArrayList<>());
-            data.put("total", 0);
-            response.put("data", data);
-
-            return ResponseEntity.status(500).body(response);
+            return ResponseEntity.status(500).build();
         }
     }
 }
-

@@ -2,7 +2,12 @@ package com.farmporject.backend.expert.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
+/**
+ * Comment Entity
+ * Represents a comment on a knowledge article
+ */
 @Entity
 @Table(name = "comment")
 public class Comment {
@@ -11,7 +16,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 关联到知识
+    // Related to Knowledge
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "knowledge_id", nullable = false)
     private Knowledge knowledge;
@@ -19,6 +24,7 @@ public class Comment {
     @Column(nullable = false, length = 1000)
     private String content;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(nullable = false)
     private LocalDateTime createTime;
 

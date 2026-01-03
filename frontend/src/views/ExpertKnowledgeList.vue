@@ -67,61 +67,61 @@ export default {
       knowledgeList: [],
       knowledgeCount: 1,
       knowledgeCurrentPage: 1, // 当前页码
-      knowledgePageSize: 8, // 每页显示8条
-      // 静态农业技术指导文档列表
+      knowledgePageSize: 8, // 每页显示8�?
+      // 静态农业技术指导文档列�?
       staticKnowledgeList: [
         {
           knowledgeId: 'static-1',
-          title: '2025年冬季蔬菜生产技术指导意见',
+          title: '2025年冬季蔬菜生产技术指导意�?',
           createTime: '2025-11-11',
           updateTime: '2025-11-11',
           url: 'https://www.natesc.org.cn/News/des?kind=&id=b1210a7b-fb54-4f15-96db-705a92001334&CategoryId=11a63552-05c9-475e-a504-0392e64ead0b' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-2',
-          title: '11月11日北方冬麦区土壤墒情状况',
+          title: '11�?11日北方冬麦区土壤墒情状况',
           createTime: '2025-11-11',
           updateTime: '2025-11-11',
           url: 'https://www.natesc.org.cn/News/des?kind=&id=be44b30f-bb35-4b2e-88f9-0f4ea7841424&CategoryId=11a63552-05c9-475e-a504-0392e64ead0b' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-3',
-          title: '江淮冬油菜抗湿应急飞播技术意见',
+          title: '江淮冬油菜抗湿应急飞播技术意�?',
           createTime: '2025-11-10',
           updateTime: '2025-11-10',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-4',
-          title: '11月4日北方冬麦区土壤墒情状况',
+          title: '11�?4日北方冬麦区土壤墒情状况',
           createTime: '2025-11-04',
           updateTime: '2025-11-04',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-5',
-          title: '种植业成熟适用技术推广服务指导目录(2025)',
+          title: '种植业成熟适用技术推广服务指导目�?(2025)',
           createTime: '2025-10-31',
           updateTime: '2025-10-31',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-6',
-          title: '2025年秋播冬油菜苗期病虫害防控技术指导意见',
+          title: '2025年秋播冬油菜苗期病虫害防控技术指导意�?',
           createTime: '2025-10-29',
           updateTime: '2025-10-29',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-7',
-          title: '10月28日北方冬麦区土壤墒情状况',
+          title: '10�?28日北方冬麦区土壤墒情状况',
           createTime: '2025-10-28',
           updateTime: '2025-10-28',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-8',
-          title: '10月24日北方冬小麦区土壤墒情状况',
+          title: '10�?24日北方冬小麦区土壤墒情状�?',
           createTime: '2025-10-24',
           updateTime: '2025-10-24',
           url: '' // 可以在这里添加外部链接URL
@@ -135,7 +135,7 @@ export default {
         },
         {
           knowledgeId: 'static-10',
-          title: '2025年冬油菜抗渍涝保播种促壮苗技术意见',
+          title: '2025年冬油菜抗渍涝保播种促壮苗技术意�?',
           createTime: '2025-10-21',
           updateTime: '2025-10-21',
           url: '' // 可以在这里添加外部链接URL
@@ -149,35 +149,35 @@ export default {
         },
         {
           knowledgeId: 'static-12',
-          title: '2025年秋播小麦田和油菜田杂草科学防控技术方案',
+          title: '2025年秋播小麦田和油菜田杂草科学防控技术方�?',
           createTime: '2025-10-15',
           updateTime: '2025-10-15',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-13',
-          title: '2025年黄淮海小麦播种期病虫草害防控技术指导意见',
+          title: '2025年黄淮海小麦播种期病虫草害防控技术指导意�?',
           createTime: '2025-10-14',
           updateTime: '2025-10-14',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-14',
-          title: '大豆花生收获期应对连阴雨防灾减损技术指导意见',
+          title: '大豆花生收获期应对连阴雨防灾减损技术指导意�?',
           createTime: '2025-10-13',
           updateTime: '2025-10-13',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-15',
-          title: '因墒分类施策科学应对"烂秋雨"',
+          title: '因墒分类施策科学应对"烂秋�?"',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
           url: '' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-16',
-          title: '黄淮海小麦应对连阴雨抗湿晚播技术意见',
+          title: '黄淮海小麦应对连阴雨抗湿晚播技术意�?',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
           url: '' // 可以在这里添加外部链接URL
@@ -191,10 +191,10 @@ export default {
   methods: {
     // 加载知识列表
     loadKnowledge() {
-      // 先设置静态数据，确保页面有内容显示
+      // 先设置静态数据，确保页面有内容显�?
       let combinedList = [...this.staticKnowledgeList];
       
-      // 按日期倒序排列（最新的在前）
+      // 按日期倒序排列（最新的在前�?
       combinedList.sort((a, b) => {
         const dateA = new Date(a.createTime || a.updateTime || 0);
         const dateB = new Date(b.createTime || b.updateTime || 0);
@@ -202,13 +202,13 @@ export default {
       });
       this.knowledgeList = combinedList;
       
-      // 尝试从后端加载数据（异步更新）
+      // 尝试从后端加载数据（异步更新�?
       getKnowledgeList({
         pageNum: this.knowledgeCount,
         pageSize: 8
       }).then(res => {
         if (res.flag && res.data && res.data.list) {
-          // 将后端数据合并到列表中
+          // 将后端数据合并到列表�?
           const backendList = res.data.list.map(item => ({
             knowledgeId: item.knowledgeId,
             title: item.title,
@@ -217,7 +217,7 @@ export default {
             url: item.url || '' // 支持后端返回的URL字段
           }));
           combinedList = [...this.staticKnowledgeList, ...backendList];
-          // 按日期倒序排列（最新的在前）
+          // 按日期倒序排列（最新的在前�?
           combinedList.sort((a, b) => {
             const dateA = new Date(a.createTime || a.updateTime || 0);
             const dateB = new Date(b.createTime || b.updateTime || 0);
@@ -226,15 +226,43 @@ export default {
           this.knowledgeList = combinedList;
         }
       }).catch(err => {
-        console.log('加载后端数据失败，使用静态数据:', err);
-        // 如果后端请求失败，保持使用静态数据（已经在上面设置了）
+        console.log('加载后端数据失败，使用静态数�?:', err);
+        // 如果后端请求失败，保持使用静态数据（已经在上面设置了�?
       });
     },
     // 知识详情
     handleKnowledgeDetail(item) {
-      this.$router.push(`/home/knowledge/${item.knowledgeId}`).catch((err) => err);
+      console.log('���ڳ�����ת����, item:', item); // ������־
+
+      // 1. ��ȫ���
+      if (!item || !item.knowledgeId) {
+        this.$message.warning('������û��ID���޷��鿴����');
+        return;
+      }
+
+      // 2. ǿ��ת��Ϊ�ַ��������ж�
+      // ��ĺ�˷��ص� ID �� Long ���ͣ����֣���ֱ���� startsWith ���ܻᱨ��
+      const idStr = String(item.knowledgeId);
+
+      // 3. ���־�̬���ݣ������ݣ��ͺ������
+      if (idStr.startsWith('static-')) {
+          if (item.url) {
+              window.open(item.url, '_blank');
+          } else {
+              this.$message.info('����һƪ��̬ʾ������');
+          }
+          return;
+      }
+
+      // 4. ��ת������ҳ
+      // ע�⣺ȷ�����·�� router/index.js �������� path: '/home/knowledgeDetail/:id'
+      this.$router.push({
+        path: `/home/knowledgeDetail/${item.knowledgeId}`
+      }).catch(err => {
+        console.error('·����ת����:', err);
+      });
     },
-    // 格式化日期
+    // 格式化日�?
     formatDate(value) {
       if (!value) return '';
       let date = new Date(value);
@@ -248,7 +276,7 @@ export default {
     // 处理知识分页变化
     handleKnowledgePageChange(page) {
       this.knowledgeCurrentPage = page;
-      // 滚动到列表顶部
+      // 滚动到列表顶�?
       this.$nextTick(() => {
         const knowledgeSection = document.querySelector('.content-section');
         if (knowledgeSection) {
@@ -258,7 +286,7 @@ export default {
     }
   },
   computed: {
-    // 分页显示的知识列表
+    // 分页显示的知识列�?
     displayedKnowledgeList() {
       const start = (this.knowledgeCurrentPage - 1) * this.knowledgePageSize;
       const end = start + this.knowledgePageSize;
@@ -361,7 +389,7 @@ export default {
   }
 }
 
-// 空状态
+// 空状�?
 .empty-state {
   text-align: center;
   padding: 60px 20px;

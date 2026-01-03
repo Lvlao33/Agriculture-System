@@ -85,7 +85,10 @@
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
+					<encoding>UTF-8</encoding>
+					<compilerArgs>
+						<arg>-Xlint:unchecked</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>
