@@ -170,8 +170,7 @@
         </div>
         <div class="drawer-section">
           <div class="section-subtitle">立即行动</div>
-          <el-button type="primary" icon="el-icon-phone" @click="contactBuyer(activeDemand)">立即联系</el-button>
-          <el-button icon="el-icon-share" style="margin-left:12px;">分享需求</el-button>
+          <el-button icon="el-icon-share">分享需求</el-button>
         </div>
       </div>
     </el-drawer>
@@ -433,9 +432,6 @@ export default {
     },
     goToGoods() {
       this.$router.push("/home/goods").catch((err) => err);
-    },
-    contactBuyer(item) {
-      this.$message.info(`请登录查看 ${item.publisher} 联系方式`);
     },
     openDemandDetail(item) {
       this.activeDemand = item;

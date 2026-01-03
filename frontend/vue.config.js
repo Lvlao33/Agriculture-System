@@ -59,6 +59,11 @@ module.exports = {
         changeOrigin: true,
         secure: false,
         ws: true
+      },
+      '/file': {
+        target: 'http://localhost:8080', // 后端服务地址
+        changeOrigin: true,
+        secure: false
       }
     }
   }

@@ -52,12 +52,14 @@ public class AuthController {
                     // 构建响应
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", jwtToken);
-                    response.put("user", Map.of(
-                            "id", user.getId(),
-                            "username", user.getUsername(),
-                            "nickname", user.getNickname() != null ? user.getNickname() : "",
-                            "avatar", user.getAvatar() != null ? user.getAvatar() : ""
-                    ));
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("nickname", user.getNickname() != null ? user.getNickname() : "");
+                    userMap.put("avatar", user.getAvatar() != null ? user.getAvatar() : "");
+                    userMap.put("phone", user.getPhone() != null ? user.getPhone() : "");
+                    userMap.put("email", user.getEmail() != null ? user.getEmail() : "");
+                    response.put("user", userMap);
                     response.put("role", normalizedRole);
                     response.put("roleName", getRoleDisplayName(normalizedRole));
                     
@@ -87,12 +89,14 @@ public class AuthController {
 
                     Map<String, Object> response = new HashMap<>();
                     response.put("token", legacyToken);
-                    response.put("user", Map.of(
-                            "id", user.getId(),
-                            "username", user.getUsername(),
-                            "nickname", user.getNickname() != null ? user.getNickname() : "",
-                            "avatar", user.getAvatar() != null ? user.getAvatar() : ""
-                    ));
+                    Map<String, Object> userMap = new HashMap<>();
+                    userMap.put("id", user.getId());
+                    userMap.put("username", user.getUsername());
+                    userMap.put("nickname", user.getNickname() != null ? user.getNickname() : "");
+                    userMap.put("avatar", user.getAvatar() != null ? user.getAvatar() : "");
+                    userMap.put("phone", user.getPhone() != null ? user.getPhone() : "");
+                    userMap.put("email", user.getEmail() != null ? user.getEmail() : "");
+                    response.put("user", userMap);
                     response.put("role", normalizedRole);
                     response.put("roleName", getRoleDisplayName(normalizedRole));
 

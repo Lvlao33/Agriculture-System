@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Knowledge {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "id")
+@Column(name = "knowledge_id")
 private Long knowledgeId; 
 
     @Column(nullable = false)

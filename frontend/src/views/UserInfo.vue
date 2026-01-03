@@ -4,7 +4,7 @@
     <!-- 头像居中展示区 -->
     <section class="profile-section">
       <div class="avatar-wrapper">
-        <user-avatar ref="avatar" :cUserAvatar="userinfo.avatar" />
+        <user-avatar ref="avatar" :cUserAvatar="userinfo.avatar" @avatar-updated="handleAvatarUpdated" />
       </div>
       <h2 class="user-name">{{ userinfo.nickName || "未设置昵称" }}</h2>
       <el-button type="primary" size="medium" icon="el-icon-edit" @click="profileDialogVisible = true">
@@ -293,31 +293,57 @@ export default {
           this.$message.error("获取用户信息失败");
         });
     },
+    handleAvatarUpdated(avatarUrl) {
+      // 头像更新后的回调
+      this.userinfo.avatar = avatarUrl;
+      // 如果正在编辑资料，同步更新表单中的头像
+      if (this.profileDialogVisible) {
+        // 头像已通过事件更新，这里只需要更新显示
+      }
+    },
     updateInfo() {
       this.$refs.profileFormRef.validate((valid) => {
         if (!valid) return;
         this.profileSaving = true;
-        const avatar = this.$refs.avatar?.cUserAvatar || this.userinfo.avatar;
+        // 获取最新的头像，优先从 avatar 组件获取，否则使用 userinfo 中的
+        const avatar = this.userinfo.avatar || '';
         // 需要传入 username，以便后端识别当前用户（Authorization header 不可用时）
-        loginUpdateByUsername({
+        const updateData = {
           username: this.userinfo.username || this.userinfo.userName || undefined,
           nickName: this.profileForm.nickName,
-          avatar: avatar,
-        })
+          phone: this.profileForm.phone,
+          email: this.profileForm.email,
+        };
+        
+        // 如果有头像，添加到更新数据中
+        if (avatar) {
+          updateData.avatar = avatar;
+        }
+        
+        loginUpdateByUsername(updateData)
           .then((res) => {
-            if (res.flag) {
-              // 更新本地数据（不要覆盖 token）
-              this.userinfo = { ...this.userinfo, ...this.profileForm, avatar };
+            if (res.flag || res.success) {
+              // 更新本地数据
+              this.userinfo = { 
+                ...this.userinfo, 
+                nickName: this.profileForm.nickName,
+                phone: this.profileForm.phone,
+                email: this.profileForm.email,
+                avatar: avatar || this.userinfo.avatar
+              };
               this.$store.commit("updateLoginUserNickname", this.profileForm.nickName);
-              this.$store.commit("updateLoginUserAvatar", avatar);
+              if (avatar) {
+                this.$store.commit("updateLoginUserAvatar", avatar);
+              }
               this.$message.success(res.message || "资料保存成功");
               this.profileDialogVisible = false;
             } else {
-              this.$message.error(res.data || "资料保存失败");
+              this.$message.error(res.message || res.data || "资料保存失败");
             }
           })
-          .catch(() => {
-            this.$message.error("资料保存失败，请稍后再试");
+          .catch((err) => {
+            console.error('更新用户信息失败:', err);
+            this.$message.error(err.message || "资料保存失败，请稍后再试");
           })
           .finally(() => {
             this.profileSaving = false;
