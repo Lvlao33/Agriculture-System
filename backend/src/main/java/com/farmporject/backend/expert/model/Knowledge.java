@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Knowledge {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "id")
+@Column(name = "knowledge_id")
 private Long knowledgeId; 
 
     @Column(nullable = false)
@@ -38,11 +38,11 @@ private Long knowledgeId;
 
     private String source;
 
-    // ·âÃæÍ¼Æ¬£¨¿ÉÑ¡£©
+    // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
     @Column(name = "pic_path", length = 500)
     private String picPath;
 
-    // Ïà¹ØÍâ²¿Á´½Ó£¨¿ÉÑ¡£©
+    // ï¿½ï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
     @Column(name = "url", length = 500)
     private String url;
 
@@ -61,11 +61,11 @@ private Long knowledgeId;
     @Column(name = "update_time", nullable = false)
     private LocalDateTime updateTime;
 
-    // æ¦›æ¨¿î…»é‹å‹¯â‚¬çŠ²åš±é??
+    // æ¦›æ¨¿î…»é‹å‹¯â‚¬çŠ²åš±ï¿½??
     public Knowledge() {
     }
 
-    // éã„¥å¼¬é‹å‹¯â‚¬çŠ²åš±é??
+    // éã„¥å¼¬é‹å‹¯â‚¬çŠ²åš±ï¿½??
     public Knowledge(Long knowledgeId, String title, String content, String summary,
             List<String> categories, List<String> tags, Expert author, String source,
             String picPath, String url,

@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         PUBLIC_ROUTES.add("/api/user/forgetPassword");
         
         // 公开查询接口无需token
+        PUBLIC_ROUTES.add("/api/home/data");
         PUBLIC_ROUTES.add("/api/experts");
         PUBLIC_ROUTES.add("/api/knowledge");
         PUBLIC_ROUTES.add("/api/finance/loan-products");
@@ -49,10 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 健康检查
         PUBLIC_ROUTES.add("/actuator/health");
         
-        // 静态资源
+        // 静态资源（允许 GET 请求访问，无需认证）
         PUBLIC_ROUTES.add("/img");
         PUBLIC_ROUTES.add("/order");
         PUBLIC_ROUTES.add("/kn");
+        PUBLIC_ROUTES.add("/file");  // 静态资源访问路径
     }
     
     @Override
@@ -62,11 +64,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean chainInvoked = false;
 
         try {
-            // 获取请求路径
+            // 获取请求路径和方法
             String requestPath = request.getRequestURI();
+            String method = request.getMethod();
 
             // 检查是否是公开路由
-            if (isPublicRoute(requestPath)) {
+            if (isPublicRoute(requestPath, method)) {
                 filterChain.doFilter(request, response);
                 chainInvoked = true;
                 return;
@@ -123,16 +126,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     /**
      * 检查是否是公开路由
+     * @param path 请求路径
+     * @param method HTTP 方法
      */
-    private boolean isPublicRoute(String path) {
+    private boolean isPublicRoute(String path, String method) {
+        // 文件上传接口需要认证，不是公开路由
+        if (path.startsWith("/file/upload")) {
+            return false;
+        }
+        
         // 完全匹配
         if (PUBLIC_ROUTES.contains(path)) {
+            // 对于 /file 路径，只允许 GET 请求（静态资源访问）
+            if (path.startsWith("/file")) {
+                return "GET".equalsIgnoreCase(method);
+            }
             return true;
         }
         
         // 前缀匹配（用于带参数的API）
         for (String publicRoute : PUBLIC_ROUTES) {
             if (path.startsWith(publicRoute)) {
+                // 对于 /file 路径，只允许 GET 请求（静态资源访问）
+                if (path.startsWith("/file")) {
+                    return "GET".equalsIgnoreCase(method);
+                }
                 return true;
             }
         }

@@ -89,7 +89,7 @@ export default {
           username: this.userName,
           password: this.password,
           nickname: this.nickName,
-          avatar: "rongxiaotong.gif",
+          avatar: "",  // 使用空字符串，后端可以设置默认头像或前端显示默认图片
           role: this.role,
         })
           .then((res) => {

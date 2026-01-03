@@ -79,13 +79,23 @@ public class UserController {
     @PostMapping("/loginUpdateByUsername")
     public ResponseEntity<ApiResponse<User>> loginUpdateByUsername(@RequestBody Map<String, String> body) {
         try {
+            // 优先从请求体获取 username，如果没有则从 UserContext 获取（JWT token 中）
             String username = body.getOrDefault("username", "");
-            String nickname = body.getOrDefault("nickname", "");
-            String avatar = body.getOrDefault("avatar", "");
             if (username.isEmpty()) {
-                return ResponseEntity.badRequest().body(ApiResponse.fail("用户名不能为空"));
+                username = UserContext.getCurrentUsername();
             }
-            User user = userService.updateUserInfo(username, nickname, avatar);
+            if (username == null || username.isEmpty()) {
+                return ResponseEntity.badRequest().body(ApiResponse.fail("用户名不能为空，请先登录"));
+            }
+            // 支持多种字段名（前端可能使用 nickName 或 nickname）
+            String nickname = body.getOrDefault("nickname", "");
+            if (nickname.isEmpty()) {
+                nickname = body.getOrDefault("nickName", "");
+            }
+            String avatar = body.getOrDefault("avatar", "");
+            String phone = body.getOrDefault("phone", "");
+            String email = body.getOrDefault("email", "");
+            User user = userService.updateUserInfo(username, nickname, avatar, phone, email);
             return ResponseEntity.ok(ApiResponse.ok(user));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(ApiResponse.fail(e.getMessage()));

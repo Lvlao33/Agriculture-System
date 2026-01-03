@@ -118,6 +118,10 @@ public class UserService {
     }
 
     public User updateUserInfo(String username, String nickname, String avatar) {
+        return updateUserInfo(username, nickname, avatar, null, null);
+    }
+
+    public User updateUserInfo(String username, String nickname, String avatar, String phone, String email) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
         if (nickname != null && !nickname.isEmpty()) {
@@ -125,6 +129,12 @@ public class UserService {
         }
         if (avatar != null && !avatar.isEmpty()) {
             user.setAvatar(avatar);
+        }
+        if (phone != null) {
+            user.setPhone(phone);
+        }
+        if (email != null) {
+            user.setEmail(email);
         }
         return userRepository.save(user);
     }
