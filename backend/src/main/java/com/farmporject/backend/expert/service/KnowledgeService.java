@@ -142,6 +142,11 @@ public class KnowledgeService {
         return knowledgeRepository.findByAuthorAndIsPublishedTrue(author);
     }
 
+    // 根据作者查询所有知识（包括未发布的）
+    public List<Knowledge> getAllKnowledgeByAuthor(Expert author) {
+        return knowledgeRepository.findByAuthorOrderByCreateTimeDesc(author);
+    }
+
     // 鑾峰彇鐑棬鐭ヨ瘑
     public List<Knowledge> getPopularKnowledge() {
         return knowledgeRepository.findTop10ByIsPublishedTrueOrderByViewCountDesc();

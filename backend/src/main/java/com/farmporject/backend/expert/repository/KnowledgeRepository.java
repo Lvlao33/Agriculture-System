@@ -33,8 +33,11 @@ public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
                         "(k.title LIKE %:keyword% OR k.content LIKE %:keyword% OR k.summary LIKE %:keyword%)")
         Page<Knowledge> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-        // 根据作者查询
+        // 根据作者查询（只查询已发布的）
         List<Knowledge> findByAuthorAndIsPublishedTrue(Expert author);
+        
+        // 根据作者查询所有知识（包括未发布的）
+        List<Knowledge> findByAuthorOrderByCreateTimeDesc(Expert author);
 
         // 获取热门知识（按浏览量排序）
         List<Knowledge> findTop10ByIsPublishedTrueOrderByViewCountDesc();

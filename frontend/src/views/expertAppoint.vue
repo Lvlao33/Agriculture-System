@@ -1,174 +1,359 @@
-<!--ä¸“å®¶é—®ç­”-->
 <template>
-  <div class="expert-appoint-container">
+  <div class="my-appointment-page">
     <div class="page-header">
-      <h2 class="page-title"><i class="el-icon-date"></i> æˆ‘çš„é¢„çº¦</h2>
-      <p class="page-desc">åœ¨æ­¤æŸ¥çœ‹æ‚¨æäº¤æˆ–æ”¶åˆ°çš„é¢„çº¦ï¼Œä¸“å®¶ç¡®è®¤åçŠ¶æ€ä¼šæ›´æ–°ã€‚</p>
+      <h2>ÎÒµÄÔ¤Ô¼</h2>
+      <p class="subtitle">¹ÜÀíÄúµÄËùÓĞÔ¤Ô¼¼ÇÂ¼</p>
     </div>
-    <div class="appoints-wrapper">
-      <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
-        <div class="appoint-card">
-          <div class="appoint-main">
-            <h3 class="appoint-title" @click="handleDetail(item)">{{ truncateText(item.plantDetail || item.description || item.plantName || item.title || 'é¢„çº¦è¯¦æƒ…', 8) }}</h3>
-            <div class="appoint-meta">
-              <span class="meta-item"><i class="el-icon-user"></i> å’¨è¯¢è€…ï¼š{{ item.questioner || item.userName || 'åŒ¿åç”¨æˆ·' }}</span>
-              <span class="meta-item" v-if="item.phone"><i class="el-icon-phone"></i> è”ç³»ï¼š{{ item.phone }}</span>
-              <span class="meta-item"><i class="el-icon-time"></i> æ—¶é—´ï¼š{{ formatDate(item.appointmentTime || item.startTime || item.createTime) }}</span>
-            </div>
-            <div class="appoint-desc">{{ item.plantDetail || item.description || '' }}</div>
-          </div>
-          <div class="appoint-side">
-            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? 'å¾…ç¡®è®¤' : 'å·²ç¡®è®¤' }}</el-tag>
-          </div>
+
+    <div class="toolbar">
+      <el-button type="success" @click="goToAppointment">
+        <i class="el-icon-plus"></i>
+        ĞÂ½¨Ô¤Ô¼
+      </el-button>
+      <el-button 
+        :type="isSelectMode ? 'danger' : 'warning'" 
+        plain 
+        @click="toggleSelectMode"
+      >
+        <i class="el-icon-check"></i>
+        {{ isSelectMode ? 'È¡ÏûÑ¡Ôñ' : 'Ñ¡Ôñ' }}
+      </el-button>
+      <el-button 
+        v-if="isSelectMode && selectedAppointmentIds.length > 0"
+        type="danger" 
+        @click="handleBatchDelete"
+        style="margin-left: 10px;"
+      >
+        <i class="el-icon-delete"></i>
+        É¾³ı ({{ selectedAppointmentIds.length }})
+      </el-button>
+    </div>
+
+    <div class="appointment-list" v-loading="loading">
+      <div 
+        class="appointment-card" 
+        v-for="(item, index) in appointArray" 
+        :key="item.id || index"
+        :class="{ 'selected': isSelectMode && selectedAppointmentIds.includes(item.id) }"
+        @click="handleAppointmentClick(item.id)"
+      >
+        <div v-if="isSelectMode" class="checkbox-wrapper">
+          <el-checkbox 
+            :value="selectedAppointmentIds.includes(item.id)"
+            @change="toggleAppointmentSelection(item.id)"
+            @click.stop
+          ></el-checkbox>
         </div>
-        <div class="appoint-actions">
-          <el-button type="text" @click="handleDetail(item)">è¯¦æƒ…</el-button>
-          <el-button type="text" @click="handleEdit(item)">ä¿®æ”¹</el-button>
-          <el-button type="text" style="color:#f56c6c" @click="delAppoint(item)">åˆ é™¤</el-button>
+        <div class="appointment-icon">
+          <i class="el-icon-alarm-clock" :class="{ 'answered': item.status === 1 }"></i>
+        </div>
+        <div class="appointment-content">
+          <h3 class="appointment-title">{{ item.plantName || 'Î´ÃüÃû×÷Îï' }}</h3>
+          <p class="appointment-text">{{ item.plantDetail || 'ÔİÎŞÏêÏ¸ĞÅÏ¢' }}</p>
+          <div class="appointment-info">
+            <div class="info-row">
+              <span class="info-item" v-if="role === 'expert'">
+                <i class="el-icon-user"></i>
+                ×ÉÑ¯Õß£º{{ item.questioner || 'Î´Öª' }}
+              </span>
+              <span class="info-item" v-if="role === 'expert'">
+                <i class="el-icon-phone"></i>
+                {{ item.phone || 'Î´Ìá¹©' }}
+              </span>
+              <span class="info-item" v-if="role === 'questioner'">
+                <i class="el-icon-user-solid"></i>
+                ×¨¼Ò£º{{ item.expertName || 'Î´Ö¸¶¨' }}
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-item">
+                <i class="el-icon-location"></i>
+                µØÖ·£º{{ item.address || 'Î´Ìá¹©' }}
+              </span>
+              <span class="info-item">
+                <i class="el-icon-data-line"></i>
+                Ãæ»ı£º{{ item.area || 'Î´Öª' }}Ä¶
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-item">
+                <i class="el-icon-sunny"></i>
+                ×÷ÎïÌõ¼ş£º{{ item.plantCondition || 'Î´Ìá¹©' }}
+              </span>
+              <span class="info-item">
+                <i class="el-icon-s-grid"></i>
+                ÍÁÈÀÌõ¼ş£º{{ truncateText(item.soilCondition, 20) || 'Î´Ìá¹©' }}
+              </span>
+            </div>
+          </div>
+          <div class="appointment-status">
+            <el-tag 
+              :type="item.status === 0 ? 'warning' : 'success'" 
+              size="small"
+            >
+              <i :class="item.status === 0 ? 'el-icon-warning' : 'el-icon-success'"></i>
+              {{ item.status === 0 ? 'Î´»Ø¸´' : 'ÒÑ»Ø¸´' }}
+            </el-tag>
+            <div class="appointment-actions" @click.stop>
+              <el-button 
+                type="text" 
+                size="small" 
+                @click="handleDetail(item)"
+                icon="el-icon-view"
+              >
+                ÏêÇé
+              </el-button>
+              <el-button 
+                type="text" 
+                size="small" 
+                @click="handleEdit(item)"
+                icon="el-icon-edit"
+              >
+                »Ø¸´
+              </el-button>
+              <el-button 
+                type="text" 
+                size="small" 
+                @click.stop="delAppoint(item)"
+                icon="el-icon-delete"
+                style="color: #F56C6C;"
+              >
+                É¾³ı
+              </el-button>
+            </div>
+          </div>
         </div>
       </div>
-    <el-dialog title="è¯¦æƒ…" v-model:visible="showDetail" width="600px" :before-close="detailClose">
+
+      <div v-if="appointArray.length === 0 && !loading" class="empty-state">
+        <i class="el-icon-alarm-clock"></i>
+        <p>ÔİÎŞÔ¤Ô¼¼ÇÂ¼</p>
+        <el-button type="primary" @click="goToAppointment">´´½¨Ô¤Ô¼</el-button>
+      </div>
+    </div>
+
+    <!-- ÏêÇéµ¯´° -->
+    <el-dialog 
+      title="Ô¤Ô¼ÏêÇé" 
+      :visible.sync="showDetail" 
+      width="700px"
+      :before-close="detailClose"
+    >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">ç§æ¤ä½œç‰©ï¼š</div>
-          <div class="item-content">{{detailObj.plantName}}</div>
+          <div class="item-title">ÖÖÖ²×÷Îï£º</div>
+          <div class="item-content">{{ detailObj.plantName || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">ä½œç‰©è¯¦ç»†ä¿¡æ¯ï¼š</div>
-          <div class="item-content">{{detailObj.plantDetail}}</div>
+          <div class="item-title">×÷ÎïÏêÏ¸ĞÅÏ¢£º</div>
+          <div class="item-content">{{ detailObj.plantDetail || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">åœ°å€ï¼š</div>
-          <div class="item-content">{{detailObj.address}}</div>
-        </div>
-         <div class="detail-item">
-          <div class="item-title">åœŸå£¤æ¡ä»¶ï¼š</div>
-          <div class="item-content">{{detailObj.soilCondition}}</div>
+          <div class="item-title">µØÖ·£º</div>
+          <div class="item-content">{{ detailObj.address || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">é¢ç§¯ï¼š</div>
-          <div class="item-content">{{detailObj.area}}</div>
-        </div>
-         <div class="detail-item">
-          <div class="item-title">ä½œç‰©æ¡ä»¶ï¼š</div>
-          <div class="item-content">{{detailObj.plantCondition}}</div>
-        </div>
-         <div class="detail-item" v-if="role==='expert'">
-          <div class="item-title">è”ç³»æ–¹å¼ï¼š</div>
-          <div class="item-content">{{detailObj.phone}}</div>
-        </div>
-         <div class="detail-item" v-if="role==='expert'">
-          <div class="item-title">æé—®è€…ï¼š</div>
-          <div class="item-content">{{detailObj.questioner}}</div>
+          <div class="item-title">Ãæ»ı£º</div>
+          <div class="item-content">{{ detailObj.area || 'Î´Öª' }}Ä¶</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">é—®é¢˜çŠ¶æ€ï¼š</div>
-          <el-tag type="danger" size="mini">{{detailObj.status === 0 ? 'æœªå›ç­”' :'å·²å›ç­”'}}</el-tag>
+          <div class="item-title">×÷ÎïÌõ¼ş£º</div>
+          <div class="item-content">{{ detailObj.plantCondition || 'Î´Ìá¹©' }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="item-title">ÍÁÈÀÌõ¼ş£º</div>
+          <div class="item-content">{{ detailObj.soilCondition || 'Î´Ìá¹©' }}</div>
+        </div>
+        <div class="detail-item" v-if="role === 'expert'">
+          <div class="item-title">×ÉÑ¯Õß£º</div>
+          <div class="item-content">{{ detailObj.questioner || 'Î´Öª' }}</div>
+        </div>
+        <div class="detail-item" v-if="role === 'expert'">
+          <div class="item-title">ÁªÏµ·½Ê½£º</div>
+          <div class="item-content">{{ detailObj.phone || 'Î´Ìá¹©' }}</div>
+        </div>
+        <div class="detail-item" v-if="role === 'questioner'">
+          <div class="item-title">×¨¼ÒĞÕÃû£º</div>
+          <div class="item-content">{{ detailObj.expertName || 'Î´Ö¸¶¨' }}</div>
+        </div>
+        <div class="detail-item" v-if="detailObj.answer">
+          <div class="item-title">×¨¼Ò»Ø¸´£º</div>
+          <div class="item-content answer-content">{{ detailObj.answer }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="item-title">Ô¤Ô¼×´Ì¬£º</div>
+          <el-tag 
+            :type="detailObj.status === 0 ? 'warning' : 'success'" 
+            size="small"
+          >
+            {{ detailObj.status === 0 ? 'Î´»Ø¸´' : 'ÒÑ»Ø¸´' }}
+          </el-tag>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDetail = false">å– æ¶ˆ</el-button>
-        <el-button type="primary" @click="showDetail = false">ç¡® å®š</el-button>
+        <el-button @click="showDetail = false">¹Ø ±Õ</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="ä¿®æ”¹" v-model:visible="dialogVisible" width="650px" :before-close="closeRevise">
+
+    <!-- ±à¼­/»Ø¸´µ¯´° -->
+    <el-dialog 
+      title="»Ø¸´Ô¤Ô¼" 
+      :visible.sync="dialogVisible" 
+      width="700px"
+      :before-close="closeRevise"
+    >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">ç§æ¤ä½œç‰©ï¼š</div>
-          <div class="item-content">{{detailObj.plantName}}</div>
+          <div class="item-title">ÖÖÖ²×÷Îï£º</div>
+          <div class="item-content">{{ detailObj.plantName || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">ä½œç‰©è¯¦ç»†ä¿¡æ¯ï¼š</div>
-          <div class="item-content">{{detailObj.plantDetail}}</div>
+          <div class="item-title">×÷ÎïÏêÏ¸ĞÅÏ¢£º</div>
+          <div class="item-content">{{ detailObj.plantDetail || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">åœ°å€ï¼š</div>
-          <div class="item-content">{{detailObj.address}}</div>
-        </div>
-         <div class="detail-item">
-          <div class="item-title">åœŸå£¤æ¡ä»¶ï¼š</div>
-          <div class="item-content">{{detailObj.soilCondition}}</div>
+          <div class="item-title">µØÖ·£º</div>
+          <div class="item-content">{{ detailObj.address || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">é¢ç§¯ï¼š</div>
-          <div class="item-content">{{detailObj.area}}</div>
+          <div class="item-title">Ãæ»ı£º</div>
+          <div class="item-content">{{ detailObj.area || 'Î´Öª' }}Ä¶</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">ä½œç‰©æ¡ä»¶ï¼š</div>
-          <div class="item-content">{{detailObj.plantCondition}}</div>
-        </div>
-         <div class="detail-item">
-          <div class="item-title">è”ç³»æ–¹å¼ï¼š</div>
-          <div class="item-content">{{detailObj.phone}}</div>
-        </div>
-         <div class="detail-item">
-          <div class="item-title">æé—®è€…ï¼š</div>
-          <div class="item-content">{{detailObj.questioner}}</div>
+          <div class="item-title">×÷ÎïÌõ¼ş£º</div>
+          <div class="item-content">{{ detailObj.plantCondition || 'Î´Ìá¹©' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">é—®é¢˜çŠ¶æ€ï¼š</div>
-          <el-tag type="danger" size="mini">{{detailObj.status === 0 ? 'æœªå›ç­”' :'å·²å›ç­”'}}</el-tag>
+          <div class="item-title">ÍÁÈÀÌõ¼ş£º</div>
+          <div class="item-content">{{ detailObj.soilCondition || 'Î´Ìá¹©' }}</div>
         </div>
-        <el-form ref="form" :model="detailObj" label-width="60px">
-          <el-form-item label="å›ç­”ï¼š">
-            <el-input type="textarea" v-model="detailObj.answer"></el-input>
+        <div class="detail-item" v-if="role === 'expert'">
+          <div class="item-title">×ÉÑ¯Õß£º</div>
+          <div class="item-content">{{ detailObj.questioner || 'Î´Öª' }}</div>
+        </div>
+        <div class="detail-item" v-if="role === 'expert'">
+          <div class="item-title">ÁªÏµ·½Ê½£º</div>
+          <div class="item-content">{{ detailObj.phone || 'Î´Ìá¹©' }}</div>
+        </div>
+        <el-form 
+          ref="form" 
+          :model="detailObj" 
+          label-width="80px"
+        >
+          <el-form-item label="»Ø¸´ÄÚÈİ£º">
+            <el-input 
+              type="textarea" 
+              :rows="6"
+              v-model="detailObj.answer"
+              placeholder="ÇëÊäÈëÄúµÄ»Ø¸´ÄÚÈİ"
+            ></el-input>
           </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeRevise">å– æ¶ˆ</el-button>
-        <el-button type="primary" @click="submitRevise">ç¡® å®š</el-button>
+        <el-button @click="closeRevise">È¡ Ïû</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitRevise">È· ¶¨</el-button>
       </span>
     </el-dialog>
-    </div>
+
+    <!-- È·ÈÏÉ¾³ıµ¯´° -->
+    <el-dialog
+      title="È·ÈÏÉ¾³ı"
+      :visible.sync="deleteDialogVisible"
+      width="400px"
+    >
+      <div class="delete-dialog-content">
+        <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
+        <p>È·¶¨ÒªÉ¾³ıÑ¡ÖĞµÄ <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> ÌõÔ¤Ô¼Âğ£¿</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">É¾³ıºóÎŞ·¨»Ö¸´¡£</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="deleteDialogVisible = false">È¡ Ïû</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmDelete">È·ÈÏÉ¾³ı</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { selectAppointByUser,reviseAppointByUserId,delAppointByUserId } from '../api/question.js'
+import { selectAppointByUser, reviseAppointByUserId, delAppointByUserId } from '../api/question.js'
 import { getAppointmentListByUserId } from '@/api/appointment'
 
 export default {
-  data(){
-    return{
-      appointArray:[],
-      role:"",
+  name: "MyAppointment",
+  data() {
+    return {
+      appointArray: [],
+      loading: false,
+      isSelectMode: false,
+      selectedAppointmentIds: [],
       showDetail: false,
       dialogVisible: false,
-      detailObj:{
-        title:'',
-        expertName:'',
-        questioner:'',
-        status:''
+      deleteDialogVisible: false,
+      deleting: false,
+      submitting: false,
+      role: "",
+      detailObj: {
+        id: '',
+        plantName: '',
+        plantDetail: '',
+        address: '',
+        area: '',
+        plantCondition: '',
+        soilCondition: '',
+        expertName: '',
+        questioner: '',
+        phone: '',
+        answer: '',
+        status: 0
       }
     }
   },
-  methods:{
-    async getData(){
-      this.role =  this.$store.getters.isExpert?'expert':'questioner'
-      const userId = this.$store.state.loginUserId
+  methods: {
+    // ¼ÓÔØÔ¤Ô¼ÁĞ±í - ÓÅÏÈÊ¹ÓÃĞÂAPI£¬Ê§°ÜÔò»ØÍËµ½¾ÉAPI
+    async getData() {
+      this.loading = true;
+      this.role = this.$store.getters.isExpert ? 'expert' : 'questioner';
+      
       try {
+        // ÓÅÏÈ³¢ÊÔĞÂAPI
+        const userId = this.$store.state.loginUserId;
         if (userId) {
-          const res = await getAppointmentListByUserId(userId)
-          let list = []
-          if (res) {
-            if (res.flag === true && res.data) {
-              list = Array.isArray(res.data) ? res.data : (res.data.list || [])
-            } else if (Array.isArray(res.data)) {
-              list = res.data
-            } else if (Array.isArray(res)) {
-              list = res
-            } else if (res.data && Array.isArray(res.data.list)) {
-              list = res.data.list
+          try {
+            const res = await getAppointmentListByUserId(userId);
+            let list = [];
+            if (res) {
+              if (res.flag === true && res.data) {
+                list = Array.isArray(res.data) ? res.data : (res.data.list || []);
+              } else if (Array.isArray(res.data)) {
+                list = res.data;
+              } else if (Array.isArray(res)) {
+                list = res;
+              } else if (res.data && Array.isArray(res.data.list)) {
+                list = res.data.list;
+              }
             }
+            this.appointArray = list || [];
+            this.loading = false;
+            return;
+          } catch (newApiError) {
+            console.warn('ĞÂAPIµ÷ÓÃÊ§°Ü£¬»ØÍËµ½¾ÉAPI:', newApiError);
           }
-          this.appointArray = list || []
+        }
+        
+        // »ØÍËµ½¾ÉAPI
+        const res = await selectAppointByUser({ type: this.role });
+        if (res && res.data) {
+          this.appointArray = Array.isArray(res.data) ? res.data : [];
         } else {
-          this.appointArray = []
+          this.appointArray = [];
         }
       } catch (err) {
-        console.error('åŠ è½½é¢„çº¦åˆ—è¡¨å¤±è´¥ï¼š', err)
-        this.appointArray = []
+        console.error('¼ÓÔØÔ¤Ô¼ÁĞ±íÊ§°Ü:', err);
+        this.$message.error('¼ÓÔØÔ¤Ô¼ÁĞ±íÊ§°Ü£¬ÇëÖØÊÔ');
+        this.appointArray = [];
+      } finally {
+        this.loading = false;
       }
     },
     formatDate(dateStr) {
@@ -186,195 +371,376 @@ export default {
         return dateStr;
       }
     },
-    delAppoint(item){
-      this.$confirm('ç¡®è®¤åˆ é™¤è¯¥è¡Œä¿¡æ¯ï¼Ÿ', 'åˆ é™¤', {
-        confirmButtonText: 'ç¡®å®š',
-        cancelButtonText: 'å–æ¶ˆ',
+    // ÇĞ»»Ñ¡ÔñÄ£Ê½
+    toggleSelectMode() {
+      this.isSelectMode = !this.isSelectMode;
+      if (!this.isSelectMode) {
+        this.selectedAppointmentIds = [];
+      }
+    },
+    // µã»÷Ô¤Ô¼¿¨Æ¬
+    handleAppointmentClick(appointmentId) {
+      if (this.isSelectMode) {
+        this.toggleAppointmentSelection(appointmentId);
+      }
+    },
+    // ÇĞ»»Ô¤Ô¼Ñ¡Ôñ×´Ì¬
+    toggleAppointmentSelection(appointmentId) {
+      const index = this.selectedAppointmentIds.indexOf(appointmentId);
+      if (index > -1) {
+        this.selectedAppointmentIds.splice(index, 1);
+      } else {
+        this.selectedAppointmentIds.push(appointmentId);
+      }
+    },
+    // ÅúÁ¿É¾³ı
+    handleBatchDelete() {
+      if (this.selectedAppointmentIds.length === 0) {
+        this.$message.warning("ÇëÏÈÑ¡ÔñÒªÉ¾³ıµÄÔ¤Ô¼");
+        return;
+      }
+      this.deleteDialogVisible = true;
+    },
+    // È·ÈÏÉ¾³ı
+    confirmDelete() {
+      this.deleting = true;
+      const deletePromises = this.selectedAppointmentIds.map(id => 
+        delAppointByUserId({ id: id })
+      );
+
+      Promise.all(deletePromises)
+        .then((results) => {
+          const successCount = results.filter(r => r && (r.flag !== false)).length;
+          if (successCount === this.selectedAppointmentIds.length) {
+            this.$message.success(`³É¹¦É¾³ı ${successCount} ÌõÔ¤Ô¼`);
+          } else {
+            this.$message.warning(`²¿·ÖÉ¾³ıÊ§°Ü£¬³É¹¦É¾³ı ${successCount} Ìõ`);
+          }
+          this.selectedAppointmentIds = [];
+          this.isSelectMode = false;
+          this.deleteDialogVisible = false;
+          this.getData();
+        })
+        .catch((err) => {
+          console.error("ÅúÁ¿É¾³ıÊ§°Ü:", err);
+          this.$message.error("É¾³ıÊ§°Ü£¬ÇëÖØÊÔ");
+        })
+        .finally(() => {
+          this.deleting = false;
+        });
+    },
+    // É¾³ıµ¥¸öÔ¤Ô¼
+    delAppoint(item) {
+      this.$confirm('È·ÈÏÉ¾³ı¸ÃÔ¤Ô¼ĞÅÏ¢£¿', 'É¾³ı', {
+        confirmButtonText: 'È·¶¨',
+        cancelButtonText: 'È¡Ïû',
         type: 'warning'
       }).then(() => {
-        delAppointByUserId({id:item.id}).then(res=>{
-          this.$message({
-            type: 'success',
-            message: 'åˆ é™¤æˆåŠŸ!'
+        delAppointByUserId({ id: item.id })
+          .then(res => {
+            this.$message({
+              type: 'success',
+              message: 'É¾³ı³É¹¦!'
+            });
+            this.getData();
+          })
+          .catch(err => {
+            console.error('É¾³ıÊ§°Ü:', err);
+            this.$message.error('É¾³ıÊ§°Ü£¬ÇëÖØÊÔ');
           });
-          this.getData()
-        }).catch(err=>{
-          console.log(err)
-        })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: 'å·²å–æ¶ˆåˆ é™¤'
-        });          
+          message: 'ÒÑÈ¡ÏûÉ¾³ı'
+        });
       });
     },
-    handleDetail(item){
-      this.showDetail = true
-      this.detailObj = Object.assign({},{...item})
+    // ²é¿´ÏêÇé
+    handleDetail(item) {
+      this.showDetail = true;
+      this.detailObj = Object.assign({}, { ...item });
     },
-    detailClose(){
-      this.showDetail = false
+    detailClose() {
+      this.showDetail = false;
     },
-    handleEdit(item){
-      this.dialogVisible = true
-      this.detailObj = Object.assign({},{...item})
+    // ±à¼­/»Ø¸´
+    handleEdit(item) {
+      this.dialogVisible = true;
+      this.detailObj = Object.assign({}, { ...item });
     },
-    closeRevise(){
-      this.dialogVisible = false
+    closeRevise() {
+      this.dialogVisible = false;
     },
-    submitRevise(){
-      this.detailObj.status = 1
-      reviseAppointByUserId(this.detailObj).then(res => {
-        this.$message.success('ä¿®æ”¹æˆåŠŸï¼')
-        this.dialogVisible = false
-        this.getData()
-      }).catch(err=>{
-        console.log(err)
-      })
-    }
-    ,
-    truncateText(text, maxLen = 8) {
-      if (!text && text !== 0) return ''
-      const s = String(text)
-      if (s.length <= maxLen) return s
-      return s.slice(0, maxLen) + '...'
-    }
+    // Ìá½»»Ø¸´
+    submitRevise() {
+      if (!this.detailObj.answer || this.detailObj.answer.trim() === '') {
+        this.$message.warning('ÇëÊäÈë»Ø¸´ÄÚÈİ');
+        return;
+      }
+
+      this.detailObj.status = 1;
+      this.submitting = true;
+      reviseAppointByUserId(this.detailObj)
+        .then(res => {
+          this.$message.success('»Ø¸´³É¹¦');
+          this.dialogVisible = false;
+          this.getData();
+        })
+        .catch(err => {
+          console.error('»Ø¸´Ê§°Ü:', err);
+          this.$message.error('»Ø¸´Ê§°Ü£¬ÇëÖØÊÔ');
+        })
+        .finally(() => {
+          this.submitting = false;
+        });
+    },
+    // È¥Ô¤Ô¼
+    goToAppointment() {
+      this.$router.push("/home/appointment").catch((err) => err);
+    },
+    // ½Ø¶ÏÎÄ±¾
+    truncateText(text, length) {
+      if (!text) return '';
+      if (text.length <= length) return text;
+      return text.substring(0, length) + '...';
+    },
   },
-  mounted(){
+  mounted() {
     this.$store.commit("updateUserActiveIndex", "4-2");
-    this.getData()
+    this.getData();
   }
 }
 </script>
 
 <style lang="less" scoped>
-.expert-appoint-container{
-  width: 100%;
-  min-height: 100%;
-  background: #f5f7f9;
-  padding: 12px 0;
-
-  .appoints-wrapper {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
+.my-appointment-page {
+  width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  min-height: 600px;
 
   .page-header {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto 12px auto;
-    padding: 10px 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      color: #303133;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #909399;
+      font-size: 14px;
+    }
+  }
+
+  .toolbar {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .appointment-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    h2.page-title {
-      font-size: 22px;
-      margin: 0;
-      color: #333;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .page-desc {
-      margin: 0;
-      color: #666;
-      font-size: 13px;
-    }
+    gap: 15px;
   }
-  .appoint-item {
-    margin: 12px 0;
 
-    .appoint-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border: 1px solid #e9eef1;
-      border-radius: 8px;
-      padding: 12px 14px;
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-
-      .appoint-main {
-        flex: 1;
-        padding-right: 12px;
-
-        .appoint-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #222;
-          margin: 0 0 8px 0;
-          cursor: pointer;
-        }
-
-        .appoint-meta {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-          color: #6b6f7b;
-          font-size: 13px;
-        }
-
-        .appoint-desc {
-          margin-top: 8px;
-          color: #666;
-          line-height: 1.6;
-        }
-      }
-
-      .appoint-side {
-        display: flex;
-        align-items: flex-start;
-      }
-    }
-
-    .appoint-actions {
-      display: flex;
-      gap: 8px;
-      padding: 6px 10px;
-      align-items: center;
-    }
-
-    .appoint-actions ::v-deep .el-button {
-      border: 1px solid #e6e6e6;
-      background: #fff;
-      color: #333;
-      border-radius: 6px;
-      padding: 6px 12px;
-      min-width: 56px;
-      box-shadow: none;
-    }
-
-    .appoint-actions ::v-deep .el-button:hover {
-      background: #fafafa;
-      border-color: #dcdfe6;
-    }
-  }
-  .detail-content{
-    max-height: 500px;
-    height: auto;
-    overflow-y: auto;
-  }
-  .detail-item{
+  .appointment-card {
+    border: 1px solid #e4e7ed;
+    border-radius: 8px;
+    padding: 20px;
     display: flex;
-    line-height: 30px;
-    .item-content{
-      line-height: 30px;
-      height: auto;
-      width: 480px;
-      display: flex;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    background: #fff;
+
+    &:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      border-color: #67C23A;
     }
-    .item-title{
-      width: 110px;
-      height: 30px;
-      font-weight: bold;
-      color: #333;
+
+    &.selected {
+      border: 2px solid #67C23A;
+      background-color: #f0f9ff;
+      box-shadow: 0 2px 12px rgba(103, 194, 58, 0.2);
+    }
+
+    .checkbox-wrapper {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    .appointment-icon {
+      width: 60px;
+      height: 60px;
+      margin-right: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f9ff;
+      border-radius: 50%;
+      
+      i {
+        font-size: 32px;
+        color: #67C23A;
+        
+        &.answered {
+          color: #409EFF;
+        }
+      }
+    }
+
+    .appointment-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+
+      .appointment-title {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        color: #303133;
+        font-weight: 600;
+      }
+
+      .appointment-text {
+        margin: 0 0 15px 0;
+        color: #606266;
+        font-size: 14px;
+        line-height: 1.6;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .appointment-info {
+        margin-bottom: 15px;
+
+        .info-row {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 8px;
+          flex-wrap: wrap;
+
+          .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #909399;
+
+            i {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+
+      .appointment-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .appointment-actions {
+          display: flex;
+          gap: 10px;
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    width: 100%;
+    text-align: center;
+    padding: 80px 0;
+    color: #909399;
+
+    i {
+      font-size: 64px;
+      margin-bottom: 20px;
+      display: block;
+      color: #c0c4cc;
+    }
+
+    p {
+      margin: 0 0 20px 0;
+      font-size: 16px;
+    }
+  }
+
+  .detail-content {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+
+    .detail-item {
+      display: flex;
+      margin-bottom: 20px;
+      align-items: flex-start;
+
+      .item-title {
+        width: 120px;
+        font-weight: bold;
+        color: #303133;
+        flex-shrink: 0;
+      }
+
+      .item-content {
+        flex: 1;
+        color: #606266;
+        line-height: 1.6;
+        word-break: break-word;
+
+        &.answer-content {
+          background: #f5f7fa;
+          padding: 10px;
+          border-radius: 4px;
+          border-left: 3px solid #67C23A;
+        }
+      }
+    }
+  }
+
+  .delete-dialog-content {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+
+    p {
+      margin: 0;
+      line-height: 1.6;
     }
   }
 }
-</style>
+
+@media (max-width: 1200px) {
+  .my-appointment-page {
+    width: 100%;
+    padding: 15px;
+
+    .appointment-card {
+      flex-direction: column;
+
+      .appointment-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+    }
+  }
+}
 </style>

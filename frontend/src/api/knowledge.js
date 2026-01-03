@@ -1,6 +1,6 @@
 import { request } from '../utils/request'
 
-// 添加知识（专家发布）
+// ����֪ʶ��ר�ҷ�����
 export function addKnowledge(params) {
     return request({
         method: 'post',
@@ -12,18 +12,22 @@ export function addKnowledge(params) {
     })
 }
 
-// 分页查询所有知识（农业知识页列表）
+// ��ҳ��ѯ����֪ʶ��ũҵ֪ʶҳ�б���
 export function selectKnowledgesPage(params) {
     return request({
         method: 'get',
         url: '/api/knowledge/' + params.pageNum,
+        // ���䴫�� pageSize������ǰ�˸���ÿҳ������˲���Ч
+        params: {
+            pageSize: params.pageSize
+        },
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据id修改知识
+// ����id�޸�֪ʶ
 export function updateKnowledgeById(params) {
     return request({
         method: 'put',
@@ -35,19 +39,18 @@ export function updateKnowledgeById(params) {
     })
 }
 
-// 根据id删除知识
+// ����idɾ��֪ʶ
 export function deleteKnowledgeById(params) {
     return request({
         method: 'delete',
         url: '/api/knowledge/' + params.knowledgeId,
-        params: params,
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据id查询知识信息
+// ����id��ѯ֪ʶ��Ϣ (����)
 export function selectKnowledgeById(params) {
     return request({
         method: 'get',
@@ -58,18 +61,18 @@ export function selectKnowledgeById(params) {
     })
 }
 
-// 根据登录用户查询知识 
+// ���ݵ�¼�û���ѯ֪ʶ (�ҵ�֪ʶ)
 export function selectKnowledgeByUsername(params) {
     return request({
         method: 'get',
-        url: '/api/knowledge/selectByUsername/',
+        url: '/api/knowledge/selectByUsername',
         headers: {
             'Authorization': window.localStorage.token,
         },
     })
 }
 
-// 根据知识id查询评论
+// ����֪ʶid��ѯ����
 export function selectComment(params) {
     return request({
         method: 'get',
@@ -80,7 +83,7 @@ export function selectComment(params) {
     })
 }
 
-// 添加评论
+// ��������
 export function addComment(params) {
     return request({
         method: 'post',

@@ -535,9 +535,8 @@ export default {
 
   .hero-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 30px;
+    flex-direction: column;
+    gap: 20px;
   }
 
   .hero-label {

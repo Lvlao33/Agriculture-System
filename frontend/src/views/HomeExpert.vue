@@ -7,7 +7,6 @@
         <div class="hero-actions">
           <el-button type="primary" round @click="handleQuickAction('question')">开始答�?</el-button>
           <el-button round style="margin-left: 12px;" @click="goPublishKnowledge">发布知识</el-button>
-          <el-button round type="info" style="margin-left: 12px;" @click="goPublishedKnowledge">已运知识</el-button>
         </div>
       </div>
       <div class="hero-illustration">
@@ -59,8 +58,7 @@
           <div class="panel-header">
             <h2>知识内容创作</h2>
             <div>
-              <el-link type="primary" @click="handleQuickAction('knowledge')" style="margin-right: 12px">发布知识 ></el-link>
-              <el-link type="info" :underline="false" @click="goPublishedKnowledge">已运知识 ></el-link>
+              <el-link type="primary" @click="handleQuickAction('knowledge')">发布知识 ></el-link>
             </div>
           </div>
           <div class="list-item" v-for="article in knowledgeList" :key="article.id">
@@ -152,7 +150,6 @@ export default {
         { type: "question", label: "批量回复" },
         { type: "appointment", label: "预约管理" },
         { type: "knowledge", label: "发布知识" },
-        { type: "published", label: "已运知识" },
         { type: "evaluation", label: "查看评价" }
       ],
       defaultData: {
@@ -399,9 +396,6 @@ export default {
         case "knowledge":
           this.$router.push("/home/knowledge").catch((err) => err);
           break;
-        case "published":
-          this.goPublishedKnowledge();
-          break;
         case "evaluation":
           this.$router.push("/home/user/userbuy").catch((err) => err);
           break;
@@ -412,10 +406,6 @@ export default {
     // 快捷进入发布知识页面
     goPublishKnowledge() {
       this.$router.push("/home/addmessage/publishknowledges").catch((err) => err);
-    },
-    // 全部已运知识列表
-    goPublishedKnowledge() {
-      this.$router.push("/home/user/publishedknowledges").catch((err) => err);
     },
     handleImageFallback(event) {
       event.target.src = "/order/wutu.gif";

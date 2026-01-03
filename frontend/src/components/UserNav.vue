@@ -52,12 +52,7 @@
                 <i class="el-icon-alarm-clock"></i>
                 我的预约
               </el-menu-item>
-              <!-- 只有专家有该模块权限 -->
-              <el-menu-item
-                index="4-3"
-                v-if="$store.getters.isExpert"
-                @click="PublishedKnowledgesClick"
-              >
+              <el-menu-item index="4-3" @click="handleMyKnowledge">
                 <i class="el-icon-reading"></i>
                 我的知识
               </el-menu-item>
@@ -151,6 +146,9 @@ export default {
     },
     handleExpertAppoint() {
       this.$router.push("/home/user/expertAppoint").catch((err) => err);
+    },
+    handleMyKnowledge() {
+      this.$router.push("/home/user/myKnowledge").catch((err) => err);
     },
     handleExperInfo() {
       this.$router.push("/home/user/expertInfo").catch((err) => err);

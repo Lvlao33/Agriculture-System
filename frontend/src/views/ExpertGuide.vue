@@ -8,13 +8,13 @@
         <div class="banner-stats">
           <div class="stat-item">
             <span class="stat-number">{{ expertTotal }}</span>
-            <span class="stat-label">已入驻专家</span>
+            <span class="stat-label">已入驻专�?</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 快速入口 -->
+    <!-- 快速入�? -->
     <div class="quick-actions">
       <div class="action-card" @click="handleQuickAction('question')" v-if="!$store.getters.isAdmin && !$store.getters.isExpert">
         <div class="action-icon question-icon">💡</div>
@@ -34,11 +34,11 @@
       <div class="action-card" @click="handleQuickAction('knowledge')">
         <div class="action-icon knowledge-icon">📚</div>
         <div class="action-title">农业知识</div>
-        <div class="action-desc">学习农业技术知识</div>
+        <div class="action-desc">学习农业技术知�?</div>
       </div>
     </div>
 
-    <!-- 主要内容区 -->
+    <!-- 主要内容�? -->
     <div class="main-content">
       <!-- 左侧：指导知识和热门问答 -->
       <div class="left-content">
@@ -106,11 +106,11 @@
         </div>
       </div>
 
-      <!-- 右侧：专家列表 -->
+      <!-- 右侧：专家列�? -->
       <div class="right-content">
         <div class="expert-section">
           <div class="section-header">
-            <h2 class="section-title">⭐ 推荐专家</h2>
+            <h2 class="section-title">�? 推荐专家</h2>
             <a class="more-link" @click="goToAllExperts">更多 ></a>
           </div>
           <div class="expert-list">
@@ -150,20 +150,20 @@
           </div>
           <div class="service-content">
             <div class="service-item">
-              <div class="service-icon">✓</div>
+              <div class="service-icon">�?</div>
               <div class="service-text">专业农业专家在线答疑</div>
             </div>
             <div class="service-item">
-              <div class="service-icon">✓</div>
+              <div class="service-icon">�?</div>
               <div class="service-text">支持线上连线专家指导</div>
             </div>
             <div class="service-item">
-              <div class="service-icon">✓</div>
+              <div class="service-icon">�?</div>
               <div class="service-text">丰富的农业技术知识库</div>
             </div>
             <div class="service-item">
-              <div class="service-icon">✓</div>
-              <div class="service-text">及时响应，专业解答</div>
+              <div class="service-icon">�?</div>
+              <div class="service-text">及时响应，专业解�?</div>
             </div>
           </div>
         </div>
@@ -192,126 +192,126 @@ export default {
       questionCount: 1,
       knowledgeCount: 1,
       initialDisplayCount: 5, // 初始显示数量
-      // 静态热门问答列表
+      // 静态热门问答列�?
       staticHotQuestions: [
         {
           questionId: 'static-q-1',
-          title: '冬季大棚蔬菜如何预防冻害？',
-          questioner: '张农户',
-          expertName: '李教授',
-          status: 1, // 已回答
+          title: '冬季大棚蔬菜如何预防冻害�?',
+          questioner: '张农�?',
+          expertName: '李教�?',
+          status: 1, // 已回�?
           createTime: '2025-11-15'
         },
         {
           questionId: 'static-q-2',
           title: '小麦晚播后如何管理才能保证产量？',
-          questioner: '王农户',
-          expertName: '刘专家',
-          status: 1, // 已回答
+          questioner: '王农�?',
+          expertName: '刘专�?',
+          status: 1, // 已回�?
           createTime: '2025-11-14'
         },
         {
           questionId: 'static-q-3',
-          title: '油菜田出现黄叶是什么原因？应该怎么处理？',
-          questioner: '赵农户',
-          expertName: '陈教授',
-          status: 1, // 已回答
+          title: '油菜田出现黄叶是什么原因？应该怎么处理�?',
+          questioner: '赵农�?',
+          expertName: '陈教�?',
+          status: 1, // 已回�?
           createTime: '2025-11-13'
         },
         {
           questionId: 'static-q-4',
           title: '连阴雨天气对冬小麦播种有什么影响？',
-          questioner: '孙农户',
-          expertName: '周专家',
-          status: 1, // 已回答
+          questioner: '孙农�?',
+          expertName: '周专�?',
+          status: 1, // 已回�?
           createTime: '2025-11-12'
         },
         {
           questionId: 'static-q-5',
           title: '土壤墒情不好，如何改善？',
-          questioner: '李农户',
-          expertName: '吴教授',
-          status: 1, // 已回答
+          questioner: '李农�?',
+          expertName: '吴教�?',
+          status: 1, // 已回�?
           createTime: '2025-11-11'
         },
         {
           questionId: 'static-q-6',
           title: '如何科学防治小麦田杂草？',
-          questioner: '周农户',
-          expertName: '郑专家',
-          status: 1, // 已回答
+          questioner: '周农�?',
+          expertName: '郑专�?',
+          status: 1, // 已回�?
           createTime: '2025-11-10'
         },
         {
           questionId: 'static-q-7',
           title: '大豆收获期遇到连阴雨怎么办？',
-          questioner: '吴农户',
-          status: 0, // 待回答
+          questioner: '吴农�?',
+          status: 0, // 待回�?
           createTime: '2025-11-09'
         },
         {
           questionId: 'static-q-8',
-          title: '冬油菜苗期病虫害如何防控？',
-          questioner: '郑农户',
-          expertName: '王教授',
-          status: 1, // 已回答
+          title: '冬油菜苗期病虫害如何防控�?',
+          questioner: '郑农�?',
+          expertName: '王教�?',
+          status: 1, // 已回�?
           createTime: '2025-11-08'
         }
       ],
-      // 静态农业技术指导文档列表
+      // 静态农业技术指导文档列�?
       staticKnowledgeList: [
         {
           knowledgeId: 'static-1',
-          title: '2025年冬季蔬菜生产技术指导意见',
+          title: '2025年冬季蔬菜生产技术指导意�?',
           createTime: '2025-11-11',
           updateTime: '2025-11-11',
           url: 'https://www.natesc.org.cn/News/des?kind=&id=b1210a7b-fb54-4f15-96db-705a92001334&CategoryId=11a63552-05c9-475e-a504-0392e64ead0b'
         },
         {
           knowledgeId: 'static-2',
-          title: '11月11日北方冬麦区土壤墒情状况',
+          title: '11�?11日北方冬麦区土壤墒情状况',
           createTime: '2025-11-11',
           updateTime: '2025-11-11',
           url: 'https://www.natesc.org.cn/News/des?kind=&id=be44b30f-bb35-4b2e-88f9-0f4ea7841424&CategoryId=11a63552-05c9-475e-a504-0392e64ead0b'
         },
         {
           knowledgeId: 'static-3',
-          title: '江淮冬油菜抗湿应急飞播技术意见',
+          title: '江淮冬油菜抗湿应急飞播技术意�?',
           createTime: '2025-11-10',
           updateTime: '2025-11-10',
           url: 'https://www.moa.gov.cn/gk/nszd_1/2025n/202511/t20251107_6478754.htm' // 可以在这里添加外部链接URL
         },
         {
           knowledgeId: 'static-4',
-          title: '11月4日北方冬麦区土壤墒情状况',
+          title: '11�?4日北方冬麦区土壤墒情状况',
           createTime: '2025-11-04',
           updateTime: '2025-11-04',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-5',
-          title: '种植业成熟适用技术推广服务指导目录(2025)',
+          title: '种植业成熟适用技术推广服务指导目�?(2025)',
           createTime: '2025-10-31',
           updateTime: '2025-10-31',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-6',
-          title: '2025年秋播冬油菜苗期病虫害防控技术指导意见',
+          title: '2025年秋播冬油菜苗期病虫害防控技术指导意�?',
           createTime: '2025-10-29',
           updateTime: '2025-10-29',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-7',
-          title: '10月28日北方冬麦区土壤墒情状况',
+          title: '10�?28日北方冬麦区土壤墒情状况',
           createTime: '2025-10-28',
           updateTime: '2025-10-28',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-8',
-          title: '10月24日北方冬小麦区土壤墒情状况',
+          title: '10�?24日北方冬小麦区土壤墒情状�?',
           createTime: '2025-10-24',
           updateTime: '2025-10-24',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
@@ -325,7 +325,7 @@ export default {
         },
         {
           knowledgeId: 'static-10',
-          title: '2025年冬油菜抗渍涝保播种促壮苗技术意见',
+          title: '2025年冬油菜抗渍涝保播种促壮苗技术意�?',
           createTime: '2025-10-21',
           updateTime: '2025-10-21',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
@@ -339,35 +339,35 @@ export default {
         },
         {
           knowledgeId: 'static-12',
-          title: '2025年秋播小麦田和油菜田杂草科学防控技术方案',
+          title: '2025年秋播小麦田和油菜田杂草科学防控技术方�?',
           createTime: '2025-10-15',
           updateTime: '2025-10-15',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-13',
-          title: '2025年黄淮海小麦播种期病虫草害防控技术指导意见',
+          title: '2025年黄淮海小麦播种期病虫草害防控技术指导意�?',
           createTime: '2025-10-14',
           updateTime: '2025-10-14',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-14',
-          title: '大豆花生收获期应对连阴雨防灾减损技术指导意见',
+          title: '大豆花生收获期应对连阴雨防灾减损技术指导意�?',
           createTime: '2025-10-13',
           updateTime: '2025-10-13',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-15',
-          title: '因墒分类施策科学应对"烂秋雨"',
+          title: '因墒分类施策科学应对"烂秋�?"',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
         },
         {
           knowledgeId: 'static-16',
-          title: '黄淮海小麦应对连阴雨抗湿晚播技术意见',
+          title: '黄淮海小麦应对连阴雨抗湿晚播技术意�?',
           createTime: '2025-10-09',
           updateTime: '2025-10-09',
           url: 'https://www.natesc.org.cn/' // 占位外部链接，可按需替换
@@ -407,17 +407,17 @@ export default {
     },
     // 加载热门问答
     loadQuestions() {
-      // 先设置静态数据，确保页面有内容显示
+      // 先设置静态数据，确保页面有内容显�?
       this.hotQuestions = [...this.staticHotQuestions].slice(0, 3);
       
-      // 尝试从后端加载数据（异步更新）
+      // 尝试从后端加载数据（异步更新�?
       selectQuestions({
         pageNum: this.questionCount,
         keys: '',
         pageSize: 3
       }).then((res) => {
         if (res && res.flag == true && res.data && res.data.list && res.data.list.length > 0) {
-          // 将后端数据合并到列表中
+          // 将后端数据合并到列表�?
           const backendList = res.data.list.map(item => ({
             questionId: item.questionId,
             title: item.title,
@@ -436,28 +436,28 @@ export default {
           this.hotQuestions = combinedList.slice(0, 3);
           this.questionTotal = res.data.total || combinedList.length;
         } else {
-          // 如果后端没有数据，使用静态数据
+          // 如果后端没有数据，使用静态数�?
           this.questionTotal = this.staticHotQuestions.length;
         }
       }).catch(err => {
-        console.log('加载后端数据失败，使用静态数据:', err);
-        // 如果后端请求失败，保持使用静态数据（已经在上面设置了）
+        console.log('加载后端数据失败，使用静态数�?:', err);
+        // 如果后端请求失败，保持使用静态数据（已经在上面设置了�?
         this.questionTotal = this.staticHotQuestions.length;
       });
     },
     // 加载指导知识
     loadKnowledge() {
-      // 先使用静态数据
+      // 先使用静态数�?
       let combinedList = [...this.staticKnowledgeList];
       
       // 尝试加载后端数据，如果成功则合并
       selectKnowledgesPage({
         pageNum: this.knowledgeCount,
-        pageSize: 100 // 获取更多数据以便排序和显示
+        pageSize: 100 // 获取更多数据以便排序和显�?
       }).then((res) => {
         if (res && res.flag == true) {
           let list = res.data.list || [];
-          // 将后端数据映射为包含url字段的格式
+          // 将后端数据映射为包含url字段的格�?
           const backendList = list.map(item => ({
             knowledgeId: item.knowledgeId,
             title: item.title,
@@ -471,9 +471,9 @@ export default {
         }
       }).catch(err => {
         console.log(err);
-        // 如果后端请求失败，只使用静态数据
+        // 如果后端请求失败，只使用静态数�?
       }).finally(() => {
-        // 按日期倒序排列（最新的在前）
+        // 按日期倒序排列（最新的在前�?
         combinedList.sort((a, b) => {
           const dateA = new Date(a.createTime || a.updateTime || 0);
           const dateB = new Date(b.createTime || b.updateTime || 0);
@@ -483,11 +483,11 @@ export default {
         this.knowledgeTotal = combinedList.length;
       });
     },
-    // 跳转到所有知识列表页面
+    // 跳转到所有知识列表页�?
     goToAllKnowledgeList() {
       this.$router.push("/home/expertKnowledgeList").catch((err) => err);
     },
-    // 快速操作
+    // 快速操�?
     handleQuickAction(type) {
       if (type === 'question') {
         this.$router.push("/home/onlineQuestions").catch((err) => err);
@@ -499,15 +499,15 @@ export default {
         this.$router.push("/home/knowledge").catch((err) => err);
       }
     },
-    // 查看所有专家
+    // 查看所有专�?
     goToAllExperts() {
       this.$router.push("/home/allExpert").catch((err) => err);
     },
-    // 查看所有问答
+    // 查看所有问�?
     goToAllQuestions() {
       this.$router.push("/home/allQuestions").catch((err) => err);
     },
-    // 查看所有知识（保留用于其他地方）
+    // 查看所有知识（保留用于其他地方�?
     goToKnowledge() {
       this.$router.push("/home/knowledge").catch((err) => err);
     },
@@ -537,7 +537,7 @@ export default {
     handleKnowledgeDetail(item) {
       this.$router.push(`/home/knowledge/${item.knowledgeId}`).catch((err) => err);
     },
-    // 格式化日期
+    // 格式化日�?
     formatDate(value) {
       if (!value) return '';
       let date = new Date(value);
@@ -621,7 +621,7 @@ export default {
   }
 }
 
-// 快速入口
+// 快速入�?
 .quick-actions {
   width: 1100px;
   margin: 0 auto 20px;
@@ -663,7 +663,7 @@ export default {
   }
 }
 
-// 主要内容区
+// 主要内容�?
 .main-content {
   width: 1100px;
   margin: 0 auto;
@@ -856,7 +856,7 @@ export default {
   }
 }
 
-// 简化的知识列表样式（新样式）
+// 简化的知识列表样式（新样式�?
 .knowledge-list-simple {
   .knowledge-item-simple {
     display: flex;
@@ -1047,7 +1047,7 @@ export default {
   }
 }
 
-// 空状态
+// 空状�?
 .empty-state {
   text-align: center;
   padding: 40px 20px;
