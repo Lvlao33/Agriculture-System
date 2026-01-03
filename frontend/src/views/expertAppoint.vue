@@ -1,15 +1,14 @@
 <template>
-<<<<<<< HEAD
   <div class="my-appointment-page">
     <div class="page-header">
-      <h2>鎴戠殑棰勭害</h2>
-      <p class="subtitle">绠＄悊鎮ㄧ殑鎵�鏈夐绾﹁褰?</p>
+      <h2>我的预约</h2>
+      <p class="subtitle">管理您的所有预约记录</p>
     </div>
 
     <div class="toolbar">
       <el-button type="success" @click="goToAppointment">
         <i class="el-icon-plus"></i>
-        鏂板缓棰勭害
+        新建预约
       </el-button>
       <el-button 
         :type="isSelectMode ? 'danger' : 'warning'" 
@@ -17,7 +16,7 @@
         @click="toggleSelectMode"
       >
         <i class="el-icon-check"></i>
-        {{ isSelectMode ? '鍙栨秷閫夋嫨' : '閫夋嫨' }}
+        {{ isSelectMode ? '取消选择' : '选择' }}
       </el-button>
       <el-button 
         v-if="isSelectMode && selectedAppointmentIds.length > 0"
@@ -26,7 +25,7 @@
         style="margin-left: 10px;"
       >
         <i class="el-icon-delete"></i>
-        鍒犻櫎 ({{ selectedAppointmentIds.length }})
+        删除 ({{ selectedAppointmentIds.length }})
       </el-button>
     </div>
 
@@ -49,41 +48,41 @@
           <i class="el-icon-alarm-clock" :class="{ 'answered': item.status === 1 }"></i>
         </div>
         <div class="appointment-content">
-          <h3 class="appointment-title">{{ item.plantName || '鏈懡鍚嶄綔鐗?' }}</h3>
-          <p class="appointment-text">{{ item.plantDetail || '鏆傛棤璇︾粏淇℃伅' }}</p>
+          <h3 class="appointment-title">{{ item.plantName || '未命名作物' }}</h3>
+          <p class="appointment-text">{{ item.plantDetail || '暂无详细信息' }}</p>
           <div class="appointment-info">
             <div class="info-row">
               <span class="info-item" v-if="role === 'expert'">
                 <i class="el-icon-user"></i>
-                鍜ㄨ鑰咃細{{ item.questioner || '鏈煡' }}
+                咨询者：{{ item.questioner || '未知' }}
               </span>
               <span class="info-item" v-if="role === 'expert'">
                 <i class="el-icon-phone"></i>
-                {{ item.phone || '鏈彁渚?' }}
+                {{ item.phone || '未提供' }}
               </span>
               <span class="info-item" v-if="role === 'questioner'">
                 <i class="el-icon-user-solid"></i>
-                涓撳锛歿{ item.expertName || '鏈寚瀹?' }}
+                专家：{{ item.expertName || '未指定' }}
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-location"></i>
-                鍦板潃锛歿{ item.address || '鏈彁渚?' }}
+                地址：{{ item.address || '未提供' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-data-line"></i>
-                闈㈢Н锛歿{ item.area || '鏈煡' }}浜?
+                面积：{{ item.area || '未知' }}亩
               </span>
             </div>
             <div class="info-row">
               <span class="info-item">
                 <i class="el-icon-sunny"></i>
-                浣滅墿鏉′欢锛歿{ item.plantCondition || '鏈彁渚?' }}
+                作物条件：{{ item.plantCondition || '未提供' }}
               </span>
               <span class="info-item">
                 <i class="el-icon-s-grid"></i>
-                鍦熷￥鏉′欢锛歿{ truncateText(item.soilCondition, 20) || '鏈彁渚?' }}
+                土壤条件：{{ truncateText(item.soilCondition, 20) || '未提供' }}
               </span>
             </div>
           </div>
@@ -93,7 +92,7 @@
               size="small"
             >
               <i :class="item.status === 0 ? 'el-icon-warning' : 'el-icon-success'"></i>
-              {{ item.status === 0 ? '鏈洖澶?' : '宸插洖澶?' }}
+              {{ item.status === 0 ? '未回复' : '已回复' }}
             </el-tag>
             <div class="appointment-actions" @click.stop>
               <el-button 
@@ -102,7 +101,7 @@
                 @click="handleDetail(item)"
                 icon="el-icon-view"
               >
-                璇︽儏
+                详情
               </el-button>
               <el-button 
                 type="text" 
@@ -110,7 +109,7 @@
                 @click="handleEdit(item)"
                 icon="el-icon-edit"
               >
-                鍥炲
+                回复
               </el-button>
               <el-button 
                 type="text" 
@@ -119,7 +118,7 @@
                 icon="el-icon-delete"
                 style="color: #F56C6C;"
               >
-                鍒犻櫎
+                删除
               </el-button>
             </div>
           </div>
@@ -128,193 +127,157 @@
 
       <div v-if="appointArray.length === 0 && !loading" class="empty-state">
         <i class="el-icon-alarm-clock"></i>
-        <p>鏆傛棤棰勭害璁板綍</p>
-        <el-button type="primary" @click="goToAppointment">鍒涘缓棰勭害</el-button>
+        <p>暂无预约记录</p>
+        <el-button type="primary" @click="goToAppointment">创建预约</el-button>
       </div>
     </div>
 
-    <!-- 璇︽儏寮圭獥 -->
+    <!-- 详情弹窗 -->
     <el-dialog 
-      title="棰勭害璇︽儏" 
+      title="预约详情" 
       :visible.sync="showDetail" 
       width="700px"
       :before-close="detailClose"
     >
-=======
-  <div class="expert-appoint-container">
-    <div class="page-header">
-      <h2 class="page-title"><i class="el-icon-date"></i> 鎴戠殑棰勭害</h2>
-      <p class="page-desc">鍦ㄦ鏌ョ湅鎮ㄦ彁浜ゆ垨鏀跺埌鐨勯绾︼紝涓撳纭鍚庣姸鎬佷細鏇存柊銆?</p>
-    </div>
-    <div class="appoints-wrapper">
-      <div v-for="(item,index) in appointArray" :key="index" class="appoint-item">
-        <div class="appoint-card">
-          <div class="appoint-main">
-            <h3 class="appoint-title" @click="handleDetail(item)">{{ truncateText(item.plantDetail || item.description || item.plantName || item.title || '棰勭害璇︽儏', 8) }}</h3>
-            <div class="appoint-meta">
-              <span class="meta-item"><i class="el-icon-user"></i> 鍜ㄨ鑰咃細{{ item.questioner || item.userName || '鍖垮悕鐢ㄦ埛' }}</span>
-              <span class="meta-item" v-if="item.phone"><i class="el-icon-phone"></i> 鑱旂郴锛歿{ item.phone }}</span>
-              <span class="meta-item"><i class="el-icon-time"></i> 鏃堕棿锛歿{ formatDate(item.appointmentTime || item.startTime || item.createTime) }}</span>
-            </div>
-            <div class="appoint-desc">{{ item.plantDetail || item.description || '' }}</div>
-          </div>
-          <div class="appoint-side">
-            <el-tag class="status-tag" :type="item.status === 0 ? 'info' : 'success'">{{ item.status === 0 ? '寰呯‘璁?' : '宸茬‘璁?' }}</el-tag>
-          </div>
-        </div>
-        <div class="appoint-actions">
-          <el-button type="text" @click="handleDetail(item)">璇︽儏</el-button>
-          <el-button type="text" @click="handleEdit(item)">淇敼</el-button>
-          <el-button type="text" style="color:#f56c6c" @click="delAppoint(item)">鍒犻櫎</el-button>
-        </div>
-      </div>
-    <el-dialog title="璇︽儏" v-model:visible="showDetail" width="600px" :before-close="detailClose">
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">绉嶆浣滅墿锛?</div>
-          <div class="item-content">{{ detailObj.plantName || '鏈彁渚?' }}</div>
+          <div class="item-title">种植作物：</div>
+          <div class="item-content">{{ detailObj.plantName || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">浣滅墿璇︾粏淇℃伅锛?</div>
-          <div class="item-content">{{ detailObj.plantDetail || '鏈彁渚?' }}</div>
+          <div class="item-title">作物详细信息：</div>
+          <div class="item-content">{{ detailObj.plantDetail || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">鍦板潃锛?</div>
-          <div class="item-content">{{ detailObj.address || '鏈彁渚?' }}</div>
+          <div class="item-title">地址：</div>
+          <div class="item-content">{{ detailObj.address || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">闈㈢Н锛?</div>
-          <div class="item-content">{{ detailObj.area || '鏈煡' }}浜?</div>
+          <div class="item-title">面积：</div>
+          <div class="item-content">{{ detailObj.area || '未知' }}亩</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">浣滅墿鏉′欢锛?</div>
-          <div class="item-content">{{ detailObj.plantCondition || '鏈彁渚?' }}</div>
+          <div class="item-title">作物条件：</div>
+          <div class="item-content">{{ detailObj.plantCondition || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">鍦熷￥鏉′欢锛?</div>
-          <div class="item-content">{{ detailObj.soilCondition || '鏈彁渚?' }}</div>
+          <div class="item-title">土壤条件：</div>
+          <div class="item-content">{{ detailObj.soilCondition || '未提供' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">鍜ㄨ鑰咃細</div>
-          <div class="item-content">{{ detailObj.questioner || '鏈煡' }}</div>
+          <div class="item-title">咨询者：</div>
+          <div class="item-content">{{ detailObj.questioner || '未知' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">鑱旂郴鏂瑰紡锛?</div>
-          <div class="item-content">{{ detailObj.phone || '鏈彁渚?' }}</div>
+          <div class="item-title">联系方式：</div>
+          <div class="item-content">{{ detailObj.phone || '未提供' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'questioner'">
-          <div class="item-title">涓撳濮撳悕锛?</div>
-          <div class="item-content">{{ detailObj.expertName || '鏈寚瀹?' }}</div>
+          <div class="item-title">专家姓名：</div>
+          <div class="item-content">{{ detailObj.expertName || '未指定' }}</div>
         </div>
         <div class="detail-item" v-if="detailObj.answer">
-          <div class="item-title">涓撳鍥炲锛?</div>
+          <div class="item-title">专家回复：</div>
           <div class="item-content answer-content">{{ detailObj.answer }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">棰勭害鐘舵�侊細</div>
+          <div class="item-title">预约状态：</div>
           <el-tag 
             :type="detailObj.status === 0 ? 'warning' : 'success'" 
             size="small"
           >
-            {{ detailObj.status === 0 ? '鏈洖澶?' : '宸插洖澶?' }}
+            {{ detailObj.status === 0 ? '未回复' : '已回复' }}
           </el-tag>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="showDetail = false">鍏? 闂?</el-button>
+        <el-button @click="showDetail = false">关 闭</el-button>
       </span>
     </el-dialog>
 
-    <!-- 缂栬緫/鍥炲寮圭獥 -->
+    <!-- 编辑/回复弹窗 -->
     <el-dialog 
-      title="鍥炲棰勭害" 
+      title="回复预约" 
       :visible.sync="dialogVisible" 
       width="700px"
       :before-close="closeRevise"
     >
       <div class="detail-content">
         <div class="detail-item">
-          <div class="item-title">绉嶆浣滅墿锛?</div>
-          <div class="item-content">{{ detailObj.plantName || '鏈彁渚?' }}</div>
+          <div class="item-title">种植作物：</div>
+          <div class="item-content">{{ detailObj.plantName || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">浣滅墿璇︾粏淇℃伅锛?</div>
-          <div class="item-content">{{ detailObj.plantDetail || '鏈彁渚?' }}</div>
+          <div class="item-title">作物详细信息：</div>
+          <div class="item-content">{{ detailObj.plantDetail || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">鍦板潃锛?</div>
-          <div class="item-content">{{ detailObj.address || '鏈彁渚?' }}</div>
+          <div class="item-title">地址：</div>
+          <div class="item-content">{{ detailObj.address || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">闈㈢Н锛?</div>
-          <div class="item-content">{{ detailObj.area || '鏈煡' }}浜?</div>
+          <div class="item-title">面积：</div>
+          <div class="item-content">{{ detailObj.area || '未知' }}亩</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">浣滅墿鏉′欢锛?</div>
-          <div class="item-content">{{ detailObj.plantCondition || '鏈彁渚?' }}</div>
+          <div class="item-title">作物条件：</div>
+          <div class="item-content">{{ detailObj.plantCondition || '未提供' }}</div>
         </div>
         <div class="detail-item">
-          <div class="item-title">鍦熷￥鏉′欢锛?</div>
-          <div class="item-content">{{ detailObj.soilCondition || '鏈彁渚?' }}</div>
+          <div class="item-title">土壤条件：</div>
+          <div class="item-content">{{ detailObj.soilCondition || '未提供' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">鍜ㄨ鑰咃細</div>
-          <div class="item-content">{{ detailObj.questioner || '鏈煡' }}</div>
+          <div class="item-title">咨询者：</div>
+          <div class="item-content">{{ detailObj.questioner || '未知' }}</div>
         </div>
         <div class="detail-item" v-if="role === 'expert'">
-          <div class="item-title">鑱旂郴鏂瑰紡锛?</div>
-          <div class="item-content">{{ detailObj.phone || '鏈彁渚?' }}</div>
+          <div class="item-title">联系方式：</div>
+          <div class="item-content">{{ detailObj.phone || '未提供' }}</div>
         </div>
         <el-form 
           ref="form" 
           :model="detailObj" 
           label-width="80px"
         >
-          <el-form-item label="鍥炲鍐呭锛?">
+          <el-form-item label="回复内容：">
             <el-input 
               type="textarea" 
               :rows="6"
               v-model="detailObj.answer"
-              placeholder="璇疯緭鍏ユ偍鐨勫洖澶嶅唴瀹?"
+              placeholder="请输入您的回复内容"
             ></el-input>
           </el-form-item>
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeRevise">鍙? 娑?</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitRevise">纭? 瀹?</el-button>
+        <el-button @click="closeRevise">取 消</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitRevise">确 定</el-button>
       </span>
     </el-dialog>
 
-    <!-- 纭鍒犻櫎寮圭獥 -->
+    <!-- 确认删除弹窗 -->
     <el-dialog
-      title="纭鍒犻櫎"
+      title="确认删除"
       :visible.sync="deleteDialogVisible"
       width="400px"
     >
       <div class="delete-dialog-content">
         <i class="el-icon-warning" style="color: #E6A23C; font-size: 24px; margin-right: 10px;"></i>
-        <p>纭畾瑕佸垹闄ら�変腑鐨? <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> 鏉￠绾﹀悧锛?</p>
-        <p style="color: #909399; font-size: 12px; margin-top: 10px;">鍒犻櫎鍚庢棤娉曟仮澶嶃�?</p>
+        <p>确定要删除选中的 <strong style="color: #F56C6C;">{{ selectedAppointmentIds.length }}</strong> 条预约吗？</p>
+        <p style="color: #909399; font-size: 12px; margin-top: 10px;">删除后无法恢复。</p>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">鍙? 娑?</el-button>
-        <el-button type="danger" :loading="deleting" @click="confirmDelete">纭鍒犻櫎</el-button>
+        <el-button @click="deleteDialogVisible = false">取 消</el-button>
+        <el-button type="danger" :loading="deleting" @click="confirmDelete">确认删除</el-button>
       </span>
     </el-dialog>
-    </div>
-    </div>
   </div>
 </template>
 
 <script>
-<<<<<<< HEAD
 import { selectAppointByUser, reviseAppointByUserId, delAppointByUserId } from '../api/question.js'
-=======
-import { selectAppointByUser,reviseAppointByUserId,delAppointByUserId } from '../api/question.js'
 import { getAppointmentListByUserId } from '@/api/appointment'
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
 
 export default {
   name: "MyAppointment",
@@ -346,57 +309,51 @@ export default {
       }
     }
   },
-<<<<<<< HEAD
   methods: {
-    // 鍔犺浇棰勭害鍒楄〃
-    getData() {
+    // 加载预约列表 - 优先使用新API，失败则回退到旧API
+    async getData() {
       this.loading = true;
       this.role = this.$store.getters.isExpert ? 'expert' : 'questioner';
       
-      selectAppointByUser({ type: this.role })
-        .then(res => {
-          if (res && res.data) {
-            this.appointArray = Array.isArray(res.data) ? res.data : [];
-          } else {
-            this.appointArray = [];
-          }
-        })
-        .catch(err => {
-          console.error('鍔犺浇棰勭害鍒楄〃澶辫触:', err);
-          this.$message.error('鍔犺浇棰勭害鍒楄〃澶辫触锛岃閲嶈瘯');
-          this.appointArray = [];
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-=======
-  methods:{
-    async getData(){
-    async getData(){
-      this.role =  this.$store.getters.isExpert?'expert':'questioner'
-      const userId = this.$store.state.loginUserId
       try {
+        // 优先尝试新API
+        const userId = this.$store.state.loginUserId;
         if (userId) {
-          const res = await getAppointmentListByUserId(userId)
-          let list = []
-          if (res) {
-            if (res.flag === true && res.data) {
-              list = Array.isArray(res.data) ? res.data : (res.data.list || [])
-            } else if (Array.isArray(res.data)) {
-              list = res.data
-            } else if (Array.isArray(res)) {
-              list = res
-            } else if (res.data && Array.isArray(res.data.list)) {
-              list = res.data.list
+          try {
+            const res = await getAppointmentListByUserId(userId);
+            let list = [];
+            if (res) {
+              if (res.flag === true && res.data) {
+                list = Array.isArray(res.data) ? res.data : (res.data.list || []);
+              } else if (Array.isArray(res.data)) {
+                list = res.data;
+              } else if (Array.isArray(res)) {
+                list = res;
+              } else if (res.data && Array.isArray(res.data.list)) {
+                list = res.data.list;
+              }
             }
+            this.appointArray = list || [];
+            this.loading = false;
+            return;
+          } catch (newApiError) {
+            console.warn('新API调用失败，回退到旧API:', newApiError);
           }
-          this.appointArray = list || []
+        }
+        
+        // 回退到旧API
+        const res = await selectAppointByUser({ type: this.role });
+        if (res && res.data) {
+          this.appointArray = Array.isArray(res.data) ? res.data : [];
         } else {
-          this.appointArray = []
+          this.appointArray = [];
         }
       } catch (err) {
-        console.error('鍔犺浇棰勭害鍒楄〃澶辫触锛?', err)
-        this.appointArray = []
+        console.error('加载预约列表失败:', err);
+        this.$message.error('加载预约列表失败，请重试');
+        this.appointArray = [];
+      } finally {
+        this.loading = false;
       }
     },
     formatDate(dateStr) {
@@ -413,22 +370,21 @@ export default {
       } catch (e) {
         return dateStr;
       }
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
     },
-    // 鍒囨崲閫夋嫨妯″紡
+    // 切换选择模式
     toggleSelectMode() {
       this.isSelectMode = !this.isSelectMode;
       if (!this.isSelectMode) {
         this.selectedAppointmentIds = [];
       }
     },
-    // 鐐瑰嚮棰勭害鍗＄墖
+    // 点击预约卡片
     handleAppointmentClick(appointmentId) {
       if (this.isSelectMode) {
         this.toggleAppointmentSelection(appointmentId);
       }
     },
-    // 鍒囨崲棰勭害閫夋嫨鐘舵�?
+    // 切换预约选择状态
     toggleAppointmentSelection(appointmentId) {
       const index = this.selectedAppointmentIds.indexOf(appointmentId);
       if (index > -1) {
@@ -437,15 +393,15 @@ export default {
         this.selectedAppointmentIds.push(appointmentId);
       }
     },
-    // 鎵归噺鍒犻櫎
+    // 批量删除
     handleBatchDelete() {
       if (this.selectedAppointmentIds.length === 0) {
-        this.$message.warning("璇峰厛閫夋嫨瑕佸垹闄ょ殑棰勭害");
+        this.$message.warning("请先选择要删除的预约");
         return;
       }
       this.deleteDialogVisible = true;
     },
-    // 纭鍒犻櫎
+    // 确认删除
     confirmDelete() {
       this.deleting = true;
       const deletePromises = this.selectedAppointmentIds.map(id => 
@@ -456,9 +412,9 @@ export default {
         .then((results) => {
           const successCount = results.filter(r => r && (r.flag !== false)).length;
           if (successCount === this.selectedAppointmentIds.length) {
-            this.$message.success(`鎴愬姛鍒犻櫎 ${successCount} 鏉￠绾);
+            this.$message.success(`成功删除 ${successCount} 条预约`);
           } else {
-            this.$message.warning(`閮ㄥ垎鍒犻櫎澶辫触锛屾垚鍔熷垹闄? ${successCount} 鏉);
+            this.$message.warning(`部分删除失败，成功删除 ${successCount} 条`);
           }
           this.selectedAppointmentIds = [];
           this.isSelectMode = false;
@@ -466,40 +422,40 @@ export default {
           this.getData();
         })
         .catch((err) => {
-          console.error("鎵归噺鍒犻櫎澶辫触:", err);
-          this.$message.error("鍒犻櫎澶辫触锛岃閲嶈瘯");
+          console.error("批量删除失败:", err);
+          this.$message.error("删除失败，请重试");
         })
         .finally(() => {
           this.deleting = false;
         });
     },
-    // 鍒犻櫎鍗曚釜棰勭害
+    // 删除单个预约
     delAppoint(item) {
-      this.$confirm('纭鍒犻櫎璇ラ绾︿俊鎭紵', '鍒犻櫎', {
-        confirmButtonText: '纭畾',
-        cancelButtonText: '鍙栨秷',
+      this.$confirm('确认删除该预约信息？', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         delAppointByUserId({ id: item.id })
           .then(res => {
             this.$message({
               type: 'success',
-              message: '鍒犻櫎鎴愬姛!'
+              message: '删除成功!'
             });
             this.getData();
           })
           .catch(err => {
-            console.error('鍒犻櫎澶辫触:', err);
-            this.$message.error('鍒犻櫎澶辫触锛岃閲嶈瘯');
+            console.error('删除失败:', err);
+            this.$message.error('删除失败，请重试');
           });
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '宸插彇娑堝垹闄?'
+          message: '已取消删除'
         });
       });
     },
-    // 鏌ョ湅璇︽儏
+    // 查看详情
     handleDetail(item) {
       this.showDetail = true;
       this.detailObj = Object.assign({}, { ...item });
@@ -507,7 +463,7 @@ export default {
     detailClose() {
       this.showDetail = false;
     },
-    // 缂栬緫/鍥炲
+    // 编辑/回复
     handleEdit(item) {
       this.dialogVisible = true;
       this.detailObj = Object.assign({}, { ...item });
@@ -515,10 +471,10 @@ export default {
     closeRevise() {
       this.dialogVisible = false;
     },
-    // 鎻愪氦鍥炲
+    // 提交回复
     submitRevise() {
       if (!this.detailObj.answer || this.detailObj.answer.trim() === '') {
-        this.$message.warning('璇疯緭鍏ュ洖澶嶅唴瀹?');
+        this.$message.warning('请输入回复内容');
         return;
       }
 
@@ -526,48 +482,28 @@ export default {
       this.submitting = true;
       reviseAppointByUserId(this.detailObj)
         .then(res => {
-          this.$message.success('鍥炲鎴愬姛');
+          this.$message.success('回复成功');
           this.dialogVisible = false;
           this.getData();
         })
         .catch(err => {
-          console.error('鍥炲澶辫触:', err);
-          this.$message.error('鍥炲澶辫触锛岃閲嶈瘯');
+          console.error('回复失败:', err);
+          this.$message.error('回复失败，请重试');
         })
         .finally(() => {
           this.submitting = false;
         });
     },
-    // 鍘婚绾?
+    // 去预约
     goToAppointment() {
       this.$router.push("/home/appointment").catch((err) => err);
     },
-    // 鎴柇鏂囨湰
+    // 截断文本
     truncateText(text, length) {
       if (!text) return '';
       if (text.length <= length) return text;
       return text.substring(0, length) + '...';
     },
-<<<<<<< HEAD
-=======
-    submitRevise(){
-      this.detailObj.status = 1
-      reviseAppointByUserId(this.detailObj).then(res => {
-        this.$message.success('淇敼鎴愬姛锛?')
-        this.dialogVisible = false
-        this.getData()
-      }).catch(err=>{
-        console.log(err)
-      })
-    }
-    ,
-    truncateText(text, maxLen = 8) {
-      if (!text && text !== 0) return ''
-      const s = String(text)
-      if (s.length <= maxLen) return s
-      return s.slice(0, maxLen) + '...'
-    }
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
   },
   mounted() {
     this.$store.commit("updateUserActiveIndex", "4-2");
@@ -577,7 +513,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-<<<<<<< HEAD
 .my-appointment-page {
   width: 1100px;
   margin: 0 auto;
@@ -608,174 +543,6 @@ export default {
     display: flex;
     align-items: center;
     gap: 10px;
-=======
-.expert-appoint-container{
-  width: 100%;
-  width: 100%;
-  min-height: 100%;
-  background: #f5f7f9;
-  padding: 12px 0;
-
-  .appoints-wrapper {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-
-  .page-header {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto 12px auto;
-  background: #f5f7f9;
-  padding: 12px 0;
-
-  .appoints-wrapper {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-
-  .page-header {
-    width: 900px;
-    max-width: calc(100% - 160px);
-    margin: 0 auto 12px auto;
-    padding: 10px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    h2.page-title {
-      font-size: 22px;
-      margin: 0;
-      color: #333;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .page-desc {
-      margin: 0;
-      color: #666;
-      font-size: 13px;
-    }
-  }
-  .appoint-item {
-    margin: 12px 0;
-
-    .appoint-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border: 1px solid #e9eef1;
-      border-radius: 8px;
-      padding: 12px 14px;
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-
-      .appoint-main {
-        flex: 1;
-        padding-right: 12px;
-
-        .appoint-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #222;
-          margin: 0 0 8px 0;
-          cursor: pointer;
-        }
-
-        .appoint-meta {
-    flex-direction: column;
-    gap: 6px;
-    h2.page-title {
-      font-size: 22px;
-      margin: 0;
-      color: #333;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .page-desc {
-      margin: 0;
-      color: #666;
-      font-size: 13px;
-    }
-  }
-  .appoint-item {
-    margin: 12px 0;
-
-    .appoint-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border: 1px solid #e9eef1;
-      border-radius: 8px;
-      padding: 12px 14px;
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
-
-      .appoint-main {
-        flex: 1;
-        padding-right: 12px;
-
-        .appoint-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #222;
-          margin: 0 0 8px 0;
-          cursor: pointer;
-        }
-
-        .appoint-meta {
-          display: flex;
-          gap: 16px;
-          gap: 16px;
-          align-items: center;
-          color: #6b6f7b;
-          font-size: 13px;
-        }
-
-        .appoint-desc {
-          margin-top: 8px;
-          color: #666;
-          line-height: 1.6;
-        }
-      }
-
-      .appoint-side {
-        display: flex;
-        align-items: flex-start;
-      }
-    }
-
-    .appoint-actions {
-      display: flex;
-      gap: 8px;
-      padding: 6px 10px;
-      align-items: center;
-    }
-
-    .appoint-actions ::v-deep .el-button {
-      border: 1px solid #e6e6e6;
-      background: #fff;
-      color: #333;
-      border-radius: 6px;
-      padding: 6px 12px;
-      min-width: 56px;
-      box-shadow: none;
-    }
-
-    .appoint-actions ::v-deep .el-button:hover {
-      background: #fafafa;
-      border-color: #dcdfe6;
-    }
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39
   }
 
   .appointment-list {
@@ -960,7 +727,6 @@ export default {
     }
   }
 }
-<<<<<<< HEAD
 
 @media (max-width: 1200px) {
   .my-appointment-page {
@@ -978,7 +744,3 @@ export default {
   }
 }
 </style>
-=======
-</style>
-</style>
->>>>>>> 76ff3b7e203814c914ed9256b66340a20762ad39

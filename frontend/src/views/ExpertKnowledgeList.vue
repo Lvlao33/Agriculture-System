@@ -205,7 +205,7 @@ export default {
       // 尝试从后端加载数据（异步更新）
       getKnowledgeList({
         pageNum: this.knowledgeCount,
-        pageSize: 10
+        pageSize: 8
       }).then(res => {
         if (res.flag && res.data && res.data.list) {
           // 将后端数据合并到列表中
