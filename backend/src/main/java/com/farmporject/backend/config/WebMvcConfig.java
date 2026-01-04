@@ -18,8 +18,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/order/**")
                 .addResourceLocations("file:" + ORDER_DIR);
 
-        // 兼容前端使用的 /file/{filename} 访问图片的方式
-        // 同时支持 order 和 avatar 目录
+        // 兼容前端使用�? /file/{filename} 访问图片的方�?
+        // 同时支持 order �? avatar 目录
         registry.addResourceHandler("/file/**")
                 .addResourceLocations("file:" + ORDER_DIR, "file:" + AVATAR_DIR);
 

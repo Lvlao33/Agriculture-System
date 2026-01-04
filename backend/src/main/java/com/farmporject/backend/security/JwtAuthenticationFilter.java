@@ -41,20 +41,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         PUBLIC_ROUTES.add("/api/auth/register");
         PUBLIC_ROUTES.add("/api/user/forgetPassword");
         
-        // 鍏紑鏌ヨ鎺ュ彛鏃犻渶token
-        PUBLIC_ROUTES.add("/api/experts");
-        PUBLIC_ROUTES.add("/api/knowledge");
-        PUBLIC_ROUTES.add("/api/finance/loan-products");
-        PUBLIC_ROUTES.add("/api/trade/products");
-        PUBLIC_ROUTES.add("/api/qa/questions");
-        
-        // 鍋ュ悍妫€鏌�
+        // ============================================================
+        // 2. 闈欐€佽祫婧愬拰鐩戞帶
+        // ============================================================
         PUBLIC_ROUTES.add("/actuator/health");
-        
-        // 闈欐€佽祫婧�
         PUBLIC_ROUTES.add("/img");
-        PUBLIC_ROUTES.add("/order");
-        PUBLIC_ROUTES.add("/kn");
+        PUBLIC_ROUTES.add("/file");
+        // 濡傛灉浣犵殑闈欐€佽祫婧愯矾寰勪笉鍚岋紝璇峰湪杩欓噷琛ュ厖锛屼緥濡� /uploads
+        
+        // ============================================================
+        // 3. 涓氬姟鎺ュ彛鐧藉悕鍗曢厤缃紙宸蹭慨姝ｏ級
+        // ============================================================
+        /* * 娉ㄦ剰锛氫互涓嬫帴鍙ｅ凡琚敞閲婃帀锛�
+         * 鍘熷洜锛氳繖浜涙帴鍙ｈ櫧鐒跺厑璁告父瀹㈣闂紙GET锛夛紝浣嗕篃鍖呭惈涓撳/鍟嗗鐨勬搷浣滐紙POST/PUT/DELETE锛夈€�
+         * 濡傛灉鍔犲叆鐧藉悕鍗曪紝杩囨护鍣ㄤ細鐩存帴璺宠繃 Token 瑙ｆ瀽锛屽鑷� Controller 鎷夸笉鍒� UserContext锛�
+         * 浠庤€屽鑷翠笓瀹跺彂甯冪煡璇嗘椂鎶� 401 閿欒锛屾垨鑰呭晢瀹剁湅涓嶅埌鑷繁鐨勫晢鍝併€�
+         * * 鍗充娇娉ㄩ噴鎺夛紝涓嬫柟鐨� doFilterInternal 閫昏緫鍏佽娌℃湁 Token 鐨勮姹傞€氳繃锛堣涓烘父瀹級锛�
+         * 鎵€浠ヤ笉浼氬奖鍝嶆櫘閫氱敤鎴风殑娴忚鍔熻兘銆�
+         */
+        
+        // PUBLIC_ROUTES.add("/api/knowledge"); 
+        // PUBLIC_ROUTES.add("/api/expert");
+        // PUBLIC_ROUTES.add("/api/qa");
+        // PUBLIC_ROUTES.add("/api/appointments");
+        // PUBLIC_ROUTES.add("/api/expert/dashboard");
+        // PUBLIC_ROUTES.add("/api/question");
+        
+        // 鍟嗗搧鍜岄噾铻嶆帴鍙ｅ悓鐞嗭紝濡傛灉闇€瑕佸晢瀹惰韩浠斤紝璇峰姟蹇呮敞閲婃帀
+        // PUBLIC_ROUTES.add("/api/finance/loan-products");
+        // PUBLIC_ROUTES.add("/api/trade/products");
     }
     
     @Override
@@ -64,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean chainInvoked = false;
 
         try {
-            // 鑾峰彇璇锋眰璺緞鍜屾柟娉�
+            // 鑾峰彇璇锋眰璺緞
             String requestPath = request.getRequestURI();
             String method = request.getMethod();
 
@@ -136,31 +151,55 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     /**
      * 妫€鏌ユ槸鍚︽槸鍏紑璺敱
-     * @param path 璇锋眰璺緞
-     * @param method HTTP 鏂规硶
      */
     private boolean isPublicRoute(String path, String method) {
-        // 鏂囦欢涓婁紶鎺ュ彛闇€瑕佽璇侊紝涓嶆槸鍏紑璺敱
+        // 文件上传接口需要认证，不是公开路由
         if (path.startsWith("/file/upload")) {
+            return false;
+        }
+        
+        // 知识发布接口：只允许GET请求公开访问，POST/PUT/DELETE需要认证
+        if (path.startsWith("/api/knowledge")) {
+            // 需要认证的GET接口（查询我的知识）
+            if (path.contains("/selectByUsername")) {
+                return false; // 需要认证
+            }
+            // GET请求可以公开访问（列表、详情）
+            if ("GET".equalsIgnoreCase(method)) {
+                return true;
+            }
+            // POST/PUT/DELETE需要认证（创建、更新、删除）
+            return false;
+        }
+        
+        // 问答接口（新版）：只允许GET请求公开访问，POST/PUT/DELETE需要认证
+        if (path.startsWith("/api/qa/")) {
+            return "GET".equalsIgnoreCase(method);
+        }
+        
+        // 问答接口（旧版）：只允许GET查询请求公开访问
+        if (path.startsWith("/api/question/")) {
+            // 查询接口可以公开访问
+            if (path.contains("/selectByKind/") || 
+                path.contains("/findAllQues/") || 
+                path.contains("/findPageQues/") ||
+                path.contains("/findExpert/") ||
+                path.contains("/findExpertByKeys/") ||
+                path.contains("/selectId/")) {
+                return "GET".equalsIgnoreCase(method);
+            }
+            // 其他操作需要认证
             return false;
         }
         
         // 瀹屽叏鍖归厤
         if (PUBLIC_ROUTES.contains(path)) {
-            // 瀵逛簬 /file 璺緞锛屽彧鍏佽 GET 璇锋眰锛堥潤鎬佽祫婧愯闂級
-            if (path.startsWith("/file")) {
-                return "GET".equalsIgnoreCase(method);
-            }
             return true;
         }
         
         // 鍓嶇紑鍖归厤锛堢敤浜庡甫鍙傛暟鐨凙PI锛�
         for (String publicRoute : PUBLIC_ROUTES) {
             if (path.startsWith(publicRoute)) {
-                // 瀵逛簬 /file 璺緞锛屽彧鍏佽 GET 璇锋眰锛堥潤鎬佽祫婧愯闂級
-                if (path.startsWith("/file")) {
-                    return "GET".equalsIgnoreCase(method);
-                }
                 return true;
             }
         }
