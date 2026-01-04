@@ -50,7 +50,7 @@ import LoanApply from '../views/LoanApply'
 import LoanApplySuccess from '../views/LoanApplySuccess'
 import Chat from '../views/Chat'
 import userGood from '../views/goodsManager.vue'
-import AboutUs from '../views/AboutUs'
+// AboutUs é¡µé¢å·²åˆ é™¤
 import Message from '../views/message'
 import forgetBox from '../views/forgetBox'
 import OrderInfo from '../views/OrderInfo'
@@ -141,12 +141,12 @@ const routes = [
         component: KnowledgeDetail
       },
       {
-        // Â·¾¶±ØÐë´ø²ÎÊý :id
+        // Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ :id
         path: 'knowledgeDetail/:id', 
         name: 'KnowledgeDetail',
-        // È·±£Õâ¸ö vue ÎÄ¼þÊÇÕæÊµ´æÔÚµÄ
+        // È·ï¿½ï¿½ï¿½ï¿½ï¿½ vue ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½Úµï¿½
         component: () => import('@/views/KnowledgeDetail.vue'), 
-        meta: { title: 'ÖªÊ¶ÏêÇé' }
+        meta: { title: 'ÖªÊ¶ï¿½ï¿½ï¿½ï¿½' }
       },
       {
         path: 'guide',
@@ -358,9 +358,6 @@ const routes = [
           }
 
         ]
-      },{
-        path:'aboutUs',
-        component:AboutUs
       },{
         path: 'usermanage',
         component: UserManage

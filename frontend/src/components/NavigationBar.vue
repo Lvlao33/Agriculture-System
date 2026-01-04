@@ -69,7 +69,7 @@
           <el-menu-item index="7-1" @click.native="userPage">个人中心</el-menu-item>
           <el-menu-item index="7-3" @click="userManage" v-if="$store.getters.isAdmin">用户管理</el-menu-item>
           <el-menu-item index="7-4" @click.native="goodsManage" v-if="$store.getters.isAdmin">商品管理</el-menu-item>
-          <el-menu-item index="7-5" @click.native="handleAbout">关于我们</el-menu-item>
+          <!-- 关于我们 页面已删除 -->
           <el-menu-item index="7-6" @click.native="logout">退出</el-menu-item>
         </el-submenu>
       </el-menu>
@@ -163,9 +163,7 @@ export default {
     addMessagePage() {
       this.$router.push("/home/addmessage").catch((err) => err);
     },
-    handleAbout() {
-      this.$router.push("/home/aboutUs").catch((err) => err);
-    },
+    
     goodsManage(){
       this.$router.push("/home/userGood/publishedgoodsAdmin").catch((err) => err)
     },
