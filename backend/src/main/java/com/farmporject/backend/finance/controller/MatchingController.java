@@ -4,7 +4,7 @@ import com.farmporject.backend.finance.dto.LoanIntentionDTO;
 import com.farmporject.backend.finance.dto.LoanMatchResultDTO;
 import com.farmporject.backend.finance.dto.ComboRecommendationDTO;
 import com.farmporject.backend.finance.service.LoanIntentionService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.farmporject.backend.security.UserContext;
 import com.farmporject.backend.common.api.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +28,10 @@ public class MatchingController {
      * POST /api/finance/matching/intention
      */
     @PostMapping("/intention")
-    public ApiResponse<?> saveIntention(@RequestBody LoanIntentionDTO intentionDTO,
-            HttpServletRequest request) {
+    public ApiResponse<?> saveIntention(@RequestBody LoanIntentionDTO intentionDTO) {
         try {
-            // 从token中获取用户ID
-            String token = request.getHeader("Authorization");
-            Long userId = getUserIdFromToken(token);
+            // 从UserContext获取用户ID
+            Long userId = UserContext.getCurrentUserId();
 
             if (userId == null) {
                 return ApiResponse.fail("未授权访问");
@@ -53,11 +51,10 @@ public class MatchingController {
      * GET /api/finance/matching/intention
      */
     @GetMapping("/intention")
-    public ApiResponse<?> getIntention(HttpServletRequest request) {
+    public ApiResponse<?> getIntention() {
         try {
-            // 从token中获取用户ID
-            String token = request.getHeader("Authorization");
-            Long userId = getUserIdFromToken(token);
+            // 从UserContext获取用户ID
+            Long userId = UserContext.getCurrentUserId();
 
             if (userId == null) {
                 return ApiResponse.fail("未授权访问");
@@ -81,11 +78,10 @@ public class MatchingController {
      * DELETE /api/finance/matching/intention
      */
     @DeleteMapping("/intention")
-    public ApiResponse<?> deleteIntention(HttpServletRequest request) {
+    public ApiResponse<?> deleteIntention() {
         try {
-            // 从token中获取用户ID
-            String token = request.getHeader("Authorization");
-            Long userId = getUserIdFromToken(token);
+            // 从UserContext获取用户ID
+            Long userId = UserContext.getCurrentUserId();
 
             if (userId == null) {
                 return ApiResponse.fail("未授权访问");
@@ -104,11 +100,10 @@ public class MatchingController {
      * GET /api/finance/matching/recommend
      */
     @GetMapping("/recommend")
-    public ApiResponse<?> getRecommendations(HttpServletRequest request) {
+    public ApiResponse<?> getRecommendations() {
         try {
-            // 从token中获取用户ID
-            String token = request.getHeader("Authorization");
-            Long userId = getUserIdFromToken(token);
+            // 从UserContext获取用户ID
+            Long userId = UserContext.getCurrentUserId();
 
             if (userId == null) {
                 return ApiResponse.fail("未授权访问");
@@ -130,11 +125,10 @@ public class MatchingController {
      * GET /api/finance/matching/recommend-combo
      */
     @GetMapping("/recommend-combo")
-    public ApiResponse<?> getComboRecommendations(@RequestParam Long partnerId, HttpServletRequest request) {
+    public ApiResponse<?> getComboRecommendations(@RequestParam Long partnerId) {
         try {
-            // 从token中获取用户ID
-            String token = request.getHeader("Authorization");
-            Long userId = getUserIdFromToken(token);
+            // 从UserContext获取用户ID
+            Long userId = UserContext.getCurrentUserId();
 
             if (userId == null) {
                 return ApiResponse.fail("未授权访问");
@@ -146,24 +140,5 @@ public class MatchingController {
         } catch (Exception e) {
             return ApiResponse.fail("获取推荐失败: " + e.getMessage());
         }
-    }
-
-    /**
-     * 从token中提取用户ID
-     * token格式: "tk_id_username"
-     */
-    private Long getUserIdFromToken(String token) {
-        if (token == null || !token.startsWith("tk_")) {
-            return null;
-        }
-        try {
-            String[] parts = token.split("_");
-            if (parts.length >= 2) {
-                return Long.parseLong(parts[1]);
-            }
-        } catch (NumberFormatException e) {
-            return null;
-        }
-        return null;
     }
 }
